@@ -69,7 +69,7 @@ class App : CliktCommand() {
     }
 }
 
-fun maybeCloneRepo(repoUrl: URL, root: File, delete: Boolean = false) {
+fun maybeCloneRepo(repoUrl: URL, root: File, delete: Boolean = false, branches: List<String> = emptyList()) {
     println("maybeCloneRepo: $repoUrl, $root, $delete")
     if (root.exists()) {
         if (delete) {
@@ -79,11 +79,19 @@ fun maybeCloneRepo(repoUrl: URL, root: File, delete: Boolean = false) {
         }
     }
 
-    log.info("cloning $repoUrl in to $root")
+    // This is default branches for Tusky repo, F-Droid needs `master` only. Should probably
+    // encapsulate this better.
+    val branchesToClone = branches.toMutableList()
+    if (branchesToClone.isEmpty()) {
+        branchesToClone.add("refs/heads/main")
+        branchesToClone.add("refs/heads/develop")
+    }
+
+    println("cloning $repoUrl in to $root, for $branchesToClone")
     Git.cloneRepository()
         .setURI(repoUrl.toString())
         .setDirectory(root)
-        .setBranchesToClone(listOf("refs/heads/main", "refs/heads/develop"))
+        .setBranchesToClone(branchesToClone)
         .setProgressMonitor(TextProgressMonitor())
 //        .setDepth(1)
         .call()

@@ -75,15 +75,20 @@ class Init : CliktCommand() {
         println("cloning $appRepoFork in to $tuskyForkRoot")
         maybeCloneRepo(appRepoFork.gitUrl, tuskyForkRoot, delete = true)
 
-        // TODO: Clone the Fedilab repo
+        // TODO: Clone the F-Droid repo
+        val fdroidForkRoot = File(workRoot, "fdroiddata")
+        println("cloning $fdroidRepoFork in to $fdroidForkRoot")
+        maybeCloneRepo(fdroidRepoFork.gitUrl, fdroidForkRoot, delete = true)
 
         println("Cloned repo")
         val config = Config(
             repositoryFork = GitHubRepository.from(repo),
             repositoryMain = GitHubRepository.from(repo.parent),
+            repositoryFDroidFork = fdroidRepoFork,
             workRoot = workRoot,
             tuskyForkRoot = tuskyForkRoot,
-            tuskyMainRoot = File(workRoot, "tuskyMain")
+            tuskyMainRoot = File(workRoot, "tuskyMain"),
+            fdroidForkRoot = fdroidForkRoot
         )
 
         config.save(CONFIG_FILE)

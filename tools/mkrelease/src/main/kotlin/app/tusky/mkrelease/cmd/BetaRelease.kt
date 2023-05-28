@@ -43,6 +43,7 @@ import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.output.TermUi.confirm
+import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -52,19 +53,25 @@ import kotlinx.serialization.Serializable
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.eclipse.jgit.api.CreateBranchCommand
+import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.MergeCommand
 import org.eclipse.jgit.lib.TextProgressMonitor
 import org.eclipse.jgit.transport.RefSpec
+import org.eclipse.jgit.transport.URIish
+import org.gitlab4j.api.GitLabApi
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
-import java.nio.file.StandardCopyOption
+import java.nio.file.StandardCopyOption.REPLACE_EXISTING
+import kotlin.io.path.createTempFile
+import kotlin.reflect.full.primaryConstructor
 import kotlin.time.Duration.Companion.seconds
 
 
 /** Prepare a new beta release, based on the current release */
 class BetaRelease : CliktCommand(name = "beta") {
     private val globalFlags by requireObject<GlobalFlags>()
+    private val just by option()
 
     object MissingRepository : Throwable()
     object RepositoryIsNotClean : Throwable()
@@ -131,26 +138,12 @@ class BetaRelease : CliktCommand(name = "beta") {
 
             releaseSpec.save(SPEC_FILE)
 
-            return UpdateFilesForBeta(
-                config,
-//                versionCode,
-//                versionName,
-//                nextVersion,
-//                branch
-            )
+            return UpdateFilesForBeta(config)
         }
     }
 
     @Serializable
-    data class UpdateFilesForBeta(
-        override val config: Config,
-//        /** The *existing* versionCode */
-//        val versionCode: Int,
-//        /** The *existing* versionName */
-//        val versionName: String,
-//        val release: TuskyVersion,
-//        val branch: String
-    ) : ReleaseStep() {
+    data class UpdateFilesForBeta(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
             config.tuskyForkRoot.exists() || throw UsageError("${config.tuskyForkRoot} is missing!")
             val git = getGit(config.tuskyForkRoot).also { it.ensureClean() }
@@ -193,7 +186,7 @@ class BetaRelease : CliktCommand(name = "beta") {
             // No good third-party libraries for parsing Markdown to an AST **and then manipulating
             // that tree**, so add the new block by hand
             val ChangelogFile = File(config.tuskyForkRoot, "CHANGELOG.md")
-            val tmpFile = kotlin.io.path.createTempFile().toFile()
+            val tmpFile = createTempFile().toFile()
             val w = tmpFile.printWriter()
             ChangelogFile.useLines { lines ->
                 var done = false
@@ -225,7 +218,7 @@ class BetaRelease : CliktCommand(name = "beta") {
             Files.move(
                 tmpFile.toPath(),
                 ChangelogFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING
+                REPLACE_EXISTING
             )
 
             println("Edit CHANGELOG.md for this release")
@@ -593,21 +586,215 @@ class BetaRelease : CliktCommand(name = "beta") {
                 )
             }
 
-            return@runBlocking MarkReleaseAsBetaOnPlay(config)
+            return@runBlocking SyncFDroidRepository(config)
         }
     }
 
     @Serializable
-    data class MarkReleaseAsBetaOnPlay(override val config: Config) : ReleaseStep() {
-        override fun run(cmd: CliktCommand): ReleaseStep? {
-            TODO("Not yet implemented")
+    data class SyncFDroidRepository(override val config: Config) : ReleaseStep() {
+        override fun run(cmd: CliktCommand): ReleaseStep {
+            val api = GitLabApi("https://gitlab.com", System.getenv("GITLAB_TOKEN"))
+            val forkedRepo = "nikclayton/fdroiddata"
+
+            val project = api.projectApi.getProject(forkedRepo)
+            if (project.forkedFromProject.httpUrlToRepo != "https://gitlab.com/fdroid/fdroiddata.git") {
+                throw UsageError("$forkedRepo is not forked from fdroid/fdroiddata")
+            }
+            println(project)
+
+            val defaultBranchRef = Git.lsRemoteRepository()
+                .setRemote(config.repositoryFDroidFork.gitUrl.toString())
+                .callAsMap()["HEAD"]?.target?.name ?: throw UsageError("Could not determine default branch name")
+            println("default branch ref is $defaultBranchRef")
+            val defaultBranch = defaultBranchRef.split("/").last()
+
+            maybeCloneRepo(
+                config.repositoryFDroidFork.gitUrl,
+                config.fdroidForkRoot,
+                delete = true,
+                branches = listOf(defaultBranchRef)
+            )
+            val git = getGit(config.fdroidForkRoot).also { it.ensureClean() }
+
+            // Sync the fork with the parent
+
+            // git remote add upstream https://...
+            git.remoteAdd()
+                .setName("upstream")
+                .setUri(URIish(project.forkedFromProject.httpUrlToRepo))
+                .call()
+
+            println("default branch: $defaultBranch")
+            // git checkout main
+            git.checkout()
+                .setName(defaultBranch)
+                .call()
+
+            // git fetch upstream
+            git.fetch()
+                .setRemote("upstream")
+                .setProgressMonitor(TextProgressMonitor())
+                .call()
+
+            // git pull upstream $defaultBranch
+            git.pull()
+                .setRemote("upstream")
+                .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+                .setProgressMonitor(TextProgressMonitor())
+                .call()
+
+            // git push origin $defaultBranch
+            git.push()
+                .setCredentialsProvider(DelegatingCredentialsProvider(config.fdroidForkRoot.toPath()))
+                .setRemote("origin")
+                .setProgressMonitor(TextProgressMonitor())
+                .call()
+
+            return MakeFDroidReleaseBranch(config)
         }
     }
 
     @Serializable
-    data class SubmitFDroidMergeRequest(override val config: Config) : ReleaseStep() {
+    data class MakeFDroidReleaseBranch(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep? {
-            TODO("Not yet implemented")
+//            maybeCloneRepo(
+//                config.repositoryFDroidFork.gitUrl,
+//                config.fdroidForkRoot,
+//                delete = false,
+//                branches = listOf(defaultBranchRef)
+//            )
+            val git = getGit(config.fdroidForkRoot).also { it.ensureClean() }
+            val releaseSpec = ReleaseSpec.from(SPEC_FILE)
+
+            val branch = releaseSpec.fdroidReleaseBranch()
+            println("Creating $branch in FDroid repo")
+            val branches = git.branchList().call()
+            if (branches.indexOfFirst { it.name == "refs/heads/$branch" } != -1) {
+                throw BranchExists("Branch $branch already exists")
+            }
+
+            git.branchCreate()
+                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                .setName(branch)
+                .call()
+
+            git.checkout()
+                .setName(branch)
+                .call()
+
+            return ModifyFDroidYaml(config)
+        }
+    }
+
+    @Serializable
+    data class ModifyFDroidYaml(override val config: Config) : ReleaseStep() {
+        override fun run(cmd: CliktCommand): ReleaseStep? {
+            val git = getGit(config.fdroidForkRoot).also { it.ensureClean() }
+            val releaseSpec = ReleaseSpec.from(SPEC_FILE)
+            val thisVersion = releaseSpec.thisVersion ?: throw UsageError("releaseSpec.thisVersion must be defined")
+            val branch = releaseSpec.fdroidReleaseBranch()
+            git.checkout()
+                .setName(branch)
+                .call()
+
+            val metadataPath = "metadata/com.keylesspalace.tusky.yml"
+
+            // Parsing the YAML in to a data class, amending the data, and then
+            // writing it back out is problematic for a few reasons:
+            //
+            // 1. Order of items is not guaranteed, resulting in spurious diffs
+            // 2. Comments are probably not preserved
+            // 3. Failing to fully specify all the YAML elements would result in
+            //    missing data in the result.
+            //
+            // Simpler to treat it as line-oriented records, and emit the correct
+            // data at the correct place.
+
+            val metadataFile = File(config.fdroidForkRoot, metadataPath)
+            val tmpFile = createTempFile().toFile()
+            val w = tmpFile.printWriter()
+            metadataFile.forEachLine { line ->
+                if (line == "AutoUpdateMode: Version") {
+                    w.println("""
+                          - versionName: ${thisVersion.versionName()}
+                            versionCode: ${thisVersion.versionCode}
+                            commit: ${thisVersion.versionTag()}
+                            subdir: app
+                            gradle:
+                              - blue
+
+                    """.trimIndent())
+                }
+                w.println(line)
+            }
+            w.close()
+            Files.move(tmpFile.toPath(), metadataFile.toPath(), REPLACE_EXISTING)
+
+            git.add()
+                .setUpdate(false)
+                .addFilepattern(metadataPath)
+                .call()
+
+            var changesAreOk = false
+            while (!changesAreOk) {
+                git.diff().setOutputStream(System.out).setCached(true).call()
+                changesAreOk = confirm("Do these changes look OK?") == true
+                if (!changesAreOk) {
+                    TermUi.editFile(metadataPath)
+                    git.add().addFilepattern(metadataPath).call()
+                }
+            }
+
+            val commitMsg = "Tusky ${thisVersion.versionName()} (${thisVersion.versionCode})"
+            println("Committing changes")
+            println("  git commit -m \"$commitMsg\"")
+            git.commit()
+                .setMessage(commitMsg)
+                .setSign(null)
+                .setCredentialsProvider(PasswordCredentialsProvider())
+                .call()
+
+            println("Pushing changes to ${config.repositoryFDroidFork.gitlabUrl}")
+            git.push()
+                .setCredentialsProvider(DelegatingCredentialsProvider(config.fdroidForkRoot.toPath()))
+                .setRemote("origin")
+                .setRefSpecs(RefSpec("$branch:$branch"))
+                .call()
+
+            return CreateFDroidMergeRequest(config)
+        }
+    }
+
+    @Serializable
+    data class CreateFDroidMergeRequest(override val config: Config) : ReleaseStep() {
+        override fun run(cmd: CliktCommand): ReleaseStep? {
+            val releaseSpec = ReleaseSpec.from(SPEC_FILE)
+            val branch = releaseSpec.fdroidReleaseBranch()
+
+            println("""
+                This is done by hand at the moment, to complete the merge request template")
+
+                1. Open ${config.repositoryFDroidFork.gitlabUrl}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${branch}
+                2. Set and apply the "App update" template
+                3. Tick the relevant boxes
+                4. Click "Create merge request"
+
+            """.trimIndent())
+
+            while (confirm("Have you done all this?") == false) { }
+
+            return AnnounceTheBetaRelease(config)
+        }
+    }
+
+    @Serializable
+    data class AnnounceTheBetaRelease(override val config: Config) : ReleaseStep() {
+        override fun run(cmd: CliktCommand): ReleaseStep? {
+            println("Announce the beta release, and you're done.")
+
+            while (confirm("Have you done all this?") == false) { }
+
+            return null
         }
     }
 
@@ -619,6 +806,15 @@ class BetaRelease : CliktCommand(name = "beta") {
         log.info(config.toString())
 
         val releaseSpec = ReleaseSpec.from(SPEC_FILE)
+
+        just?.let {
+            println(AttachApkToGithubRelease::class.java)
+            val kClass = Class.forName("${this.javaClass.canonicalName}$$it").kotlin
+            val step = kClass.primaryConstructor?.call(config) as ReleaseStep
+            step.run(this@BetaRelease)
+            GithubService.shutdown()
+            return
+        }
 
         var step: ReleaseStep? = releaseSpec.nextStep ?: PrepareBetaRepository(config)
         while (step != null) {

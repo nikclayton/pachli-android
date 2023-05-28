@@ -38,13 +38,20 @@ data class Config(
     /** The main repository (where tagging happens, PRs are made against, etc) */
     val repositoryMain: GitHubRepository,
 
+    /** The fork of the F-Droid repository where branches are created, PRs are created from, etc */
+    val repositoryFDroidFork: GitlabRepository,
+
     /** Path to use as the root to create other working directories */
     val workRoot: File,
 
     /** Path to the root of the Tusky repo clone from the fork */
     val tuskyForkRoot: File,
 
-    val tuskyMainRoot: File
+    /** Path to the root of the Tusky repo clone from the main repo */
+    val tuskyMainRoot: File,
+
+    /** Path to the root of the F-Droid repo clone from the fork */
+    val fdroidForkRoot: File
 ) {
     /**
      * Validates the values in the configuration make sense
@@ -111,6 +118,9 @@ data class GitlabRepository(
     val repo: String
 ) {
     val gitlabUrl = URL("https://www.gitlab.com/$owner/$repo")
+
+    val gitUrl: URL
+        get() = URL("https://gitlab.com/$owner/$repo.git")
 
     companion object {
         fun from(url: URL): GitlabRepository {

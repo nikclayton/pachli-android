@@ -27,8 +27,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import java.io.File
-import java.nio.file.Path
-import kotlin.io.path.div
 
 enum class ReleaseType {
     MINOR,
@@ -77,6 +75,17 @@ data class ReleaseSpec(
         is TuskyVersion.Beta -> "${trackingIssue.number}-${thisVersion.major}.${thisVersion.minor}-b${thisVersion.beta}"
         is TuskyVersion.Release -> "${trackingIssue.number}-${thisVersion.major}.${thisVersion.minor}"
         else -> throw(Exception("releaseBranch() without setting thisVersion first"))
+    }
+
+    /**
+     * FDroid branch for this version
+     *
+     * Since there may be many branches from other apps, prepending the Tusky package ID
+     * seems like a good idea.
+     */
+    fun fdroidReleaseBranch(): String {
+        val branch = releaseBranch()
+        return "com.keylesspalace.tusky-$branch"
     }
 
     /** Git tag to use for this version */

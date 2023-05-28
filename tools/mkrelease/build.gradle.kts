@@ -25,6 +25,7 @@ application {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.21")
 
     // Mordant (Terminal UI)
     implementation("com.github.ajalt.mordant:mordant:2.0.0-beta13")
@@ -51,6 +52,9 @@ dependencies {
 
     // Request logging
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
+    // Gitlab API
+    implementation("org.gitlab4j:gitlab4j-api:5.2.0")
 
     // Parsing
     //implementation("com.github.h0tk3y.betterParse:better-parse:0.4.4")
