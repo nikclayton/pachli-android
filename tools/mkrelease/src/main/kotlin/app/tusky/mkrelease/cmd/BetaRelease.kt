@@ -688,8 +688,8 @@ class BetaRelease : CliktCommand(name = "beta") {
 
     @Serializable
     data class ModifyFDroidYaml(override val config: Config) : ReleaseStep() {
-        override fun run(cmd: CliktCommand): ReleaseStep? {
             val git = getGit(config.fdroidForkRoot).also { it.ensureClean() }
+        override fun run(cmd: CliktCommand): ReleaseStep {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
             val thisVersion = releaseSpec.thisVersion ?: throw UsageError("releaseSpec.thisVersion must be defined")
             val branch = releaseSpec.fdroidReleaseBranch()
@@ -715,15 +715,13 @@ class BetaRelease : CliktCommand(name = "beta") {
             val w = tmpFile.printWriter()
             metadataFile.forEachLine { line ->
                 if (line == "AutoUpdateMode: Version") {
-                    w.println("""
-                          - versionName: ${thisVersion.versionName()}
-                            versionCode: ${thisVersion.versionCode}
-                            commit: ${thisVersion.versionTag()}
-                            subdir: app
-                            gradle:
-                              - blue
-
-                    """.trimIndent())
+                    w.println("""  - versionName: ${thisVersion.versionName()}
+    versionCode: ${thisVersion.versionCode}
+    commit: ${thisVersion.versionTag()}
+    subdir: app
+    gradle:
+      - blue
+""")
                 }
                 w.println(line)
             }
