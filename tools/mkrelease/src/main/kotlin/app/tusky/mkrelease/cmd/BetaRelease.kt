@@ -25,14 +25,14 @@ import app.tusky.mkrelease.GlobalFlags
 import app.tusky.mkrelease.PasswordCredentialsProvider
 import app.tusky.mkrelease.ReleaseSpec
 import app.tusky.mkrelease.SPEC_FILE
+import app.tusky.mkrelease.T
 import app.tusky.mkrelease.TuskyVersion
 import app.tusky.mkrelease.ensureClean
-import app.tusky.mkrelease.getGit
+import app.tusky.mkrelease.ensureRepo
 import app.tusky.mkrelease.getGradle
 import app.tusky.mkrelease.github.GithubService
 import app.tusky.mkrelease.github.PullsApi
 import app.tusky.mkrelease.github.ReleasesApi
-import app.tusky.mkrelease.maybeCloneRepo
 import app.tusky.mkrelease.message
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
@@ -44,7 +44,6 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.output.TermUi.confirm
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.mordant.rendering.AnsiLevel
 import com.github.ajalt.mordant.rendering.TextStyles
 import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
@@ -75,8 +74,6 @@ class BetaRelease : CliktCommand(name = "beta") {
     private val globalFlags by requireObject<GlobalFlags>()
     private val just by option()
 
-    val t = Terminal(AnsiLevel.TRUECOLOR)
-
     object MissingRepository : Throwable()
     object RepositoryIsNotClean : Throwable()
     class BranchExists(message: String) : Throwable(message)
@@ -85,8 +82,8 @@ class BetaRelease : CliktCommand(name = "beta") {
     @Serializable
     data class PrepareBetaRepository(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
-            maybeCloneRepo(config.repositoryFork.gitUrl, config.tuskyForkRoot)
-            val git = getGit(config.tuskyForkRoot).also { it.ensureClean() }
+            val git = ensureRepo(config.repositoryFork.gitUrl, config.tuskyForkRoot)
+                .also { it.ensureClean() }
 
             // Checkout `develop` branch,
             git.checkout().setName("develop").call()
@@ -105,7 +102,8 @@ class BetaRelease : CliktCommand(name = "beta") {
     @Serializable
     data class CreateBetaReleaseBranch(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
-            val git = getGit(config.tuskyForkRoot).also { it.ensureClean() }
+            val git = ensureRepo(config.repositoryFork.gitUrl, config.tuskyForkRoot)
+                .also { it.ensureClean() }
 
             // Figure out the info for the current release
             val gradle = getGradle(config.tuskyForkRoot)
@@ -149,8 +147,8 @@ class BetaRelease : CliktCommand(name = "beta") {
     @Serializable
     data class UpdateFilesForBeta(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
-            config.tuskyForkRoot.exists() || throw UsageError("${config.tuskyForkRoot} is missing!")
-            val git = getGit(config.tuskyForkRoot).also { it.ensureClean() }
+            val git = ensureRepo(config.repositoryFork.gitUrl, config.tuskyForkRoot)
+                .also { it.ensureClean() }
 
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
             val branch = releaseSpec.releaseBranch()
@@ -279,8 +277,6 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
-
-
     @Serializable
     data class CreatePullRequest(
         override val config: Config,
@@ -357,8 +353,8 @@ class BetaRelease : CliktCommand(name = "beta") {
     data class MergeDevelopToMain(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
             // This has to happen on a clone of the main repository, not a fork.
-            maybeCloneRepo(config.repositoryMain.gitUrl, config.tuskyMainRoot, delete = true)
-            val git = getGit(config.tuskyMainRoot).also { it.ensureClean() }
+            val git = ensureRepo(config.repositoryMain.gitUrl, config.tuskyMainRoot)
+                .also { it.ensureClean() }
 
             // git checkout main
             println("git checkout develop")
@@ -419,8 +415,8 @@ class BetaRelease : CliktCommand(name = "beta") {
     @Serializable
     data class TagMain(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
-            maybeCloneRepo(config.repositoryMain.gitUrl, config.tuskyMainRoot, delete = false)
-            val git = getGit(config.tuskyMainRoot).also { it.ensureClean() }
+            val git = ensureRepo(config.repositoryMain.gitUrl, config.tuskyMainRoot)
+                .also { it.ensureClean() }
 
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
@@ -442,8 +438,8 @@ class BetaRelease : CliktCommand(name = "beta") {
     @Serializable
     data class PushTaggedMain(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep? {
-            maybeCloneRepo(config.repositoryMain.gitUrl, config.tuskyMainRoot, delete = false)
-            val git = getGit(config.tuskyMainRoot).also { it.ensureClean() }
+            val git = ensureRepo(config.repositoryMain.gitUrl, config.tuskyMainRoot)
+                .also { it.ensureClean() }
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
             // TODO: Check current branch is `main`?
@@ -627,13 +623,12 @@ class BetaRelease : CliktCommand(name = "beta") {
             println("default branch ref is $defaultBranchRef")
             val defaultBranch = defaultBranchRef.split("/").last()
 
-            maybeCloneRepo(
+            val git = ensureRepo(
                 config.repositoryFDroidFork.gitUrl,
                 config.fdroidForkRoot,
-                delete = true,
                 branches = listOf(defaultBranchRef)
             )
-            val git = getGit(config.fdroidForkRoot).also { it.ensureClean() }
+                .also { it.ensureClean() }
 
             // Sync the fork with the parent
 
@@ -675,14 +670,19 @@ class BetaRelease : CliktCommand(name = "beta") {
 
     @Serializable
     data class MakeFDroidReleaseBranch(override val config: Config) : ReleaseStep() {
-        override fun run(cmd: CliktCommand): ReleaseStep? {
+        override fun run(cmd: CliktCommand): ReleaseStep {
 //            maybeCloneRepo(
 //                config.repositoryFDroidFork.gitUrl,
 //                config.fdroidForkRoot,
 //                delete = false,
 //                branches = listOf(defaultBranchRef)
 //            )
-            val git = getGit(config.fdroidForkRoot).also { it.ensureClean() }
+            val git = ensureRepo(
+                config.repositoryFDroidFork.gitUrl,
+                config.fdroidForkRoot,
+                //branches = listOf(defaultBranchRef)
+            )
+                .also { it.ensureClean() }
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
             val branch = releaseSpec.fdroidReleaseBranch()
@@ -711,7 +711,13 @@ class BetaRelease : CliktCommand(name = "beta") {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
             val thisVersion = releaseSpec.thisVersion ?: throw UsageError("releaseSpec.thisVersion must be defined")
             val branch = releaseSpec.fdroidReleaseBranch()
-            val git = getGit(config.fdroidForkRoot).also { it.ensureClean() }
+            val git = ensureRepo(
+                config.repositoryFDroidFork.gitUrl,
+                config.fdroidForkRoot,
+                //branches = listOf(defaultBranchRef)
+            )
+                .also { it.ensureClean() }
+
             git.checkout()
                 .setName(branch)
                 .call()
@@ -845,7 +851,7 @@ class BetaRelease : CliktCommand(name = "beta") {
 
         var step: ReleaseStep? = releaseSpec.nextStep ?: PrepareBetaRepository(config)
         while (step != null) {
-            t.println(stepStyle("-> ${step.desc()}"))
+            T.println(stepStyle("-> ${step.desc()}"))
             runCatching {
                 step!!.run(this)
             }.onSuccess {

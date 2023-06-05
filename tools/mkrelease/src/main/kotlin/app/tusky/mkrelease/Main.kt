@@ -26,9 +26,13 @@ import com.github.ajalt.clikt.core.findOrSetObject
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.mordant.rendering.AnsiLevel
+import com.github.ajalt.mordant.rendering.TextColors
+import com.github.ajalt.mordant.terminal.Terminal
 import io.github.oshai.KLogger
 import io.github.oshai.KotlinLogging
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ConfigConstants.CONFIG_REMOTE_SECTION
 import org.eclipse.jgit.lib.TextProgressMonitor
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.tooling.GradleConnector
@@ -48,6 +52,8 @@ val CONFIG_FILE = File("mkrelease.json")
 
 val SPEC_FILE = File("release-spec.json")
 
+val T = Terminal(AnsiLevel.TRUECOLOR)
+
 data class GlobalFlags(
     var verbose: Boolean = false,
     var log: KLogger = KotlinLogging.logger {}
@@ -61,44 +67,98 @@ class App : CliktCommand() {
     }
 }
 
-fun maybeCloneRepo(repoUrl: URL, root: File, delete: Boolean = false, branches: List<String> = emptyList()) {
-    println("maybeCloneRepo: $repoUrl, $root, $delete")
-    if (root.exists()) {
-        if (delete) {
-            root.deleteRecursively()
-        } else {
-            return
-        }
-    }
-
-    // This is default branches for Tusky repo, F-Droid needs `master` only. Should probably
-    // encapsulate this better.
-    val branchesToClone = branches.toMutableList()
-    if (branchesToClone.isEmpty()) {
-        branchesToClone.add("refs/heads/main")
-        branchesToClone.add("refs/heads/develop")
-    }
-
-    println("cloning $repoUrl in to $root, for $branchesToClone")
-    Git.cloneRepository()
-        .setURI(repoUrl.toString())
-        .setDirectory(root)
-        .setBranchesToClone(branchesToClone)
-        .setProgressMonitor(TextProgressMonitor())
-//        .setDepth(1)
-        .call()
-}
+object MissingGitRepository : Exception()
+object WrongOrigin : Exception()
+object MissingRefs : Exception()
+object MissingBranches : Exception()
 
 /**
- * @return A [Git] object configured for the repository at [workTree]
+ * Ensures that [root] contains a clone of [repo] with [branches]
  */
-fun getGit(workTree: File): Git {
+fun ensureRepo(repoUrl: URL, root: File, branches: List<String> = listOf(
+    "refs/heads/main", "refs/heads/develop"
+)): Git {
+    T.info("- Checking $root is a clone of $repoUrl")
+
+    if (!root.exists()) {
+        T.danger("  $root is missing, cloning $repoUrl ($branches)")
+        return Git.cloneRepository()
+            .setURI(repoUrl.toString())
+            .setDirectory(root)
+            .setBranchesToClone(branches)
+            .setProgressMonitor(TextProgressMonitor())
+//        .setDepth(1)
+            .call()
+    }
+
+    T.success("  $root exists...")
+
     val builder = FileRepositoryBuilder()
-    val tuskyRepo = builder
-        .setWorkTree(workTree)
-        .readEnvironment()
-        .build()
-    return Git(tuskyRepo)
+    builder.findGitDir(root)
+    if (builder.gitDir == null) {
+        T.danger("  ... but is not a git directory!")
+        if (T.confirm("Do you want to recursively remove $root?")) {
+            root.deleteRecursively() && return ensureRepo(repoUrl, root, branches)
+        }
+        throw MissingGitRepository
+    }
+
+    T.success("  ... and is a git directory ")
+
+    // Must have the correct origin
+    val repo = builder.setWorkTree(root).setMustExist(true).readEnvironment().build()
+    val originUrl = repo.config.getString(CONFIG_REMOTE_SECTION, "origin", "url")
+
+    if (repoUrl.toString() != originUrl) {
+        T.danger("  ... with the wrong origin!")
+        T.info("Actual origin: $originUrl")
+        T.info("Wanted origin: $repoUrl")
+        if (T.confirm("Do you want to remove $root?")) {
+            root.deleteRecursively() && return ensureRepo(repoUrl, root, branches)
+        }
+        throw WrongOrigin
+    }
+
+    // Must have at least one one-null ref if the clone was success
+    val idx = repo.refDatabase.refs.indexOfFirst { it.objectId != null }
+    if (idx == -1) {
+        T.danger("  ... without any non-null refs!")
+        if (T.confirm("Do you want to remove $root?")) {
+            root.deleteRecursively() && return ensureRepo(repoUrl, root, branches)
+        }
+        throw MissingRefs
+    }
+
+    // Must have all the branches
+    val git = Git(repo)
+    val localBranches = git.branchList().call()
+    val missingBranches = buildList {
+        for (branch in branches) {
+            if (localBranches.indexOfFirst { it.name == branch } == -1) {
+                add(branch)
+            }
+        }
+    }
+    if (missingBranches.isNotEmpty()) {
+        T.danger("  ... but is missing required branches")
+        missingBranches.forEach { println("Missing: $it") }
+        if (T.confirm("Do you want to remove $root?")) {
+            root.deleteRecursively() && return ensureRepo(repoUrl, root, branches)
+        }
+        throw MissingBranches
+    }
+    println(localBranches)
+
+    return git
+}
+
+fun Terminal.confirm(prompt: String): Boolean {
+    return this.prompt(
+        TextColors.yellow(prompt),
+        choices = listOf("y", "n"),
+        default = "n",
+        showDefault = true
+    ) == "y"
 }
 
 /**

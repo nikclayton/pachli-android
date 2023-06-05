@@ -26,9 +26,8 @@ import app.tusky.mkrelease.ReleaseType
 import app.tusky.mkrelease.SPEC_FILE
 import app.tusky.mkrelease.TuskyVersion
 import app.tusky.mkrelease.ensureClean
-import app.tusky.mkrelease.getGit
+import app.tusky.mkrelease.ensureRepo
 import app.tusky.mkrelease.getGradle
-import app.tusky.mkrelease.maybeCloneRepo
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.android.builder.model.v2.models.AndroidDsl
@@ -68,10 +67,8 @@ class StartRelease : CliktCommand(name = "start") {
 
         val config = Config.from(CONFIG_FILE)
 
-        maybeCloneRepo(config.repositoryFork.gitUrl, config.tuskyForkRoot)
-
-        // Check Tusky root is clean, figure out version components
-        getGit(config.tuskyForkRoot).also { it.ensureClean() }
+        val git = ensureRepo(config.repositoryFork.gitUrl, config.tuskyForkRoot)
+            .also { it.ensureClean() }
 
         log.info("${config.tuskyForkRoot} is clean")
 

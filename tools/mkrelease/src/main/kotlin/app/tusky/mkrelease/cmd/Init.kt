@@ -22,8 +22,8 @@ import app.tusky.mkrelease.Config
 import app.tusky.mkrelease.GitHubRepository
 import app.tusky.mkrelease.GitlabRepository
 import app.tusky.mkrelease.GlobalFlags
+import app.tusky.mkrelease.ensureRepo
 import app.tusky.mkrelease.github.GithubService
-import app.tusky.mkrelease.maybeCloneRepo
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.github.ajalt.clikt.completion.CompletionCandidates
@@ -73,12 +73,12 @@ class Init : CliktCommand() {
         // Clone the Tusky repo
         val tuskyForkRoot = File(workRoot,"tusky")
         println("cloning $appRepoFork in to $tuskyForkRoot")
-        maybeCloneRepo(appRepoFork.gitUrl, tuskyForkRoot, delete = true)
+        ensureRepo(appRepoFork.gitUrl, tuskyForkRoot)
 
         // TODO: Clone the F-Droid repo
         val fdroidForkRoot = File(workRoot, "fdroiddata")
         println("cloning $fdroidRepoFork in to $fdroidForkRoot")
-        maybeCloneRepo(fdroidRepoFork.gitUrl, fdroidForkRoot, delete = true)
+        ensureRepo(fdroidRepoFork.gitUrl, fdroidForkRoot)
 
         println("Cloned repo")
         val config = Config(
