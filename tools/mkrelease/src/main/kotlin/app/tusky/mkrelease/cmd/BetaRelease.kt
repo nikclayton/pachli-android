@@ -906,8 +906,6 @@ class BetaRelease : CliktCommand(name = "beta") {
             w.println("""
                 Tusky $nextVersionName
 
-                Fixes:
-
             """.trimIndent())
             changes.forEach {
                 w.println(
