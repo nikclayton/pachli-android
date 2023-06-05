@@ -484,7 +484,22 @@ class BetaRelease : CliktCommand(name = "beta") {
 
             println("Created GitHub release: ${githubRelease.htmlUrl}")
 
-            return@runBlocking MarkAsInternalTestingOnPlay(config)
+            return@runBlocking WaitForBitriseToBuild(config)
+        }
+    }
+
+    @Serializable
+    data class WaitForBitriseToBuild(override val config: Config) : ReleaseStep() {
+        override fun run(cmd: CliktCommand): ReleaseStep? {
+            println("""
+                Wait for Bitrise to build and upload the APK to Google Play.
+
+                Check https://app.bitrise.io/app/a3e773c3c57a894c?workflow=workflow-release
+                """.trimIndent())
+
+            while (confirm("Has Bitrise uploaded the APK?") == false) { }
+
+            return MarkAsInternalTestingOnPlay(config)
         }
     }
 
