@@ -50,7 +50,6 @@ private val log = KotlinLogging.logger {}
 // init - Ask questions, create config
 // beta - Creates a new beta from the current state
 // release - Creates a new release from the current state
-//private val TUSKY_REPO_URL = URL("https://github.com/tuskyapp/Tusky.git")
 
 val CONFIG_FILE = File("mkrelease.json")
 
