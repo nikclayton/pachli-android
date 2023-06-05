@@ -36,5 +36,5 @@ sealed class ReleaseStep {
      */
     abstract fun run(cmd: CliktCommand): ReleaseStep?
 
-    open fun desc(): String = this.toString()
+    open fun desc(): String = this.javaClass.simpleName
 }
