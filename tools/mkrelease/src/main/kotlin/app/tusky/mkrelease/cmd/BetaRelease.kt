@@ -27,8 +27,10 @@ import app.tusky.mkrelease.ReleaseSpec
 import app.tusky.mkrelease.SPEC_FILE
 import app.tusky.mkrelease.T
 import app.tusky.mkrelease.TuskyVersion
+import app.tusky.mkrelease.createFastlaneFromChangelog
 import app.tusky.mkrelease.ensureClean
 import app.tusky.mkrelease.ensureRepo
+import app.tusky.mkrelease.getChangelog
 import app.tusky.mkrelease.getGradle
 import app.tusky.mkrelease.github.GithubService
 import app.tusky.mkrelease.github.PullsApi
@@ -867,61 +869,5 @@ class BetaRelease : CliktCommand(name = "beta") {
         GithubService.shutdown()
 
         return
-    }
-
-    companion object {
-        /**
-         * Gets the changes for [nextVersionName] from [changelog].
-         *
-         * TODO: Move elsewhere, to a ChangeLog class or similar.
-         */
-        private fun getChangelog(changelog: File, nextVersionName: String): List<String> {
-            val changes = mutableListOf<String>()
-            changelog.useLines { lines ->
-                var active = false
-
-                for (line in lines) {
-                    if (line.startsWith("## v$nextVersionName")) {
-                        active = true
-                        continue
-                    }
-
-                    if (line.startsWith("## v")) break
-
-                    // Pull out the bullet points
-                    if (active) { // TODO: Keep this check? && line.startsWith("-")) {
-                        changes.add(line)
-                    }
-                }
-            }
-
-            return changes
-        }
-
-        /**
-         * Copies the contents for [nextVersionName] from [changelog] in to [fastlane].
-         *
-         * TODO: Move elsewhere, to a ChangeLog class or similar.
-         */
-        private fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName: String) {
-            val changes = getChangelog(changelog, nextVersionName)
-            if (fastlane.exists()) fastlane.delete()
-            fastlane.createNewFile()
-
-            val w = fastlane.printWriter()
-            w.println("""
-                Tusky $nextVersionName
-
-            """.trimIndent())
-            changes.forEach {
-                w.println(
-                    // Strip out the Markdown formatting and the links at the end
-                    it
-                        .replace("**", "")
-                        .replace(", \\[.*".toRegex(), "")
-                )
-            }
-            w.close()
-        }
     }
 }
