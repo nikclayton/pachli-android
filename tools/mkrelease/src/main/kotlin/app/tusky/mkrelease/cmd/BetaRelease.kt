@@ -44,6 +44,8 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.output.TermUi.confirm
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.mordant.rendering.AnsiLevel
+import com.github.ajalt.mordant.rendering.TextStyles
 import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -72,6 +74,8 @@ import kotlin.time.Duration.Companion.seconds
 class BetaRelease : CliktCommand(name = "beta") {
     private val globalFlags by requireObject<GlobalFlags>()
     private val just by option()
+
+    val t = Terminal(AnsiLevel.TRUECOLOR)
 
     object MissingRepository : Throwable()
     object RepositoryIsNotClean : Throwable()
@@ -829,9 +833,11 @@ class BetaRelease : CliktCommand(name = "beta") {
             return
         }
 
+        val stepStyle = TextStyles.bold
+
         var step: ReleaseStep? = releaseSpec.nextStep ?: PrepareBetaRepository(config)
         while (step != null) {
-            println("-> $step")
+            t.println(stepStyle("-> ${step.desc()}"))
             runCatching {
                 step!!.run(this)
             }.onSuccess {
