@@ -226,6 +226,8 @@ class BetaRelease : CliktCommand(name = "beta") {
             )
 
             println("Edit CHANGELOG.md for this release")
+            println("To see what's changed between this release and the last,")
+            println("https://github.com/tuskyapp/Tusky/compare/${releaseSpec.prevVersion.versionTag()}...develop")
             TermUi.editFile(ChangelogFile.toString())
 
             // TODO: Add entry to fastlane/metadata/android/en-US/changelogs/${versionCode}.txt
