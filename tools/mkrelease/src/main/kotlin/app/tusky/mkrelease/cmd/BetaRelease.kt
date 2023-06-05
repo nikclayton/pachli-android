@@ -707,11 +707,11 @@ class BetaRelease : CliktCommand(name = "beta") {
 
     @Serializable
     data class ModifyFDroidYaml(override val config: Config) : ReleaseStep() {
-            val git = getGit(config.fdroidForkRoot).also { it.ensureClean() }
         override fun run(cmd: CliktCommand): ReleaseStep {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
             val thisVersion = releaseSpec.thisVersion ?: throw UsageError("releaseSpec.thisVersion must be defined")
             val branch = releaseSpec.fdroidReleaseBranch()
+            val git = getGit(config.fdroidForkRoot).also { it.ensureClean() }
             git.checkout()
                 .setName(branch)
                 .call()
@@ -811,6 +811,14 @@ class BetaRelease : CliktCommand(name = "beta") {
 
             while (confirm("Have you done all this?") == false) { }
 
+            // Done. This version can now be marked as the previous version
+            val releaseSpec = ReleaseSpec.from(SPEC_FILE)
+            releaseSpec.copy(
+                prevVersion = releaseSpec.thisVersion!!,
+                thisVersion = null,
+                pullRequest = null
+            ).save(SPEC_FILE)
+
             return null
         }
     }
@@ -825,10 +833,10 @@ class BetaRelease : CliktCommand(name = "beta") {
         val releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
         just?.let {
-            println(AttachApkToGithubRelease::class.java)
             val kClass = Class.forName("${this.javaClass.canonicalName}$$it").kotlin
             val step = kClass.primaryConstructor?.call(config) as ReleaseStep
-            step.run(this@BetaRelease)
+            val nextStep = step.run(this@BetaRelease)
+            ReleaseSpec.from(SPEC_FILE).copy(nextStep = nextStep).save(SPEC_FILE)
             GithubService.shutdown()
             return
         }
