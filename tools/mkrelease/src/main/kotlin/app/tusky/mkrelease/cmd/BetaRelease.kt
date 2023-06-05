@@ -171,8 +171,6 @@ class BetaRelease : CliktCommand(name = "beta") {
             val content = buildDotGradleFile.readText()
             content.contains("versionCode ${releaseSpec.prevVersion.versionCode}") || throw UsageError("can't find 'versionCode ${releaseSpec.prevVersion.versionCode}' in $buildDotGradleFile")
             content.contains("versionName \"${releaseSpec.prevVersion.versionName()}\"") || throw UsageError("can't find 'versionName \"${releaseSpec.prevVersion.versionName()}\"' in $buildDotGradleFile")
-//            val nextVersionCode = versionCode + 1
-//            val nextVersionName = release.versionName()
 
             buildDotGradleFile.writeText(
                 content
@@ -886,7 +884,6 @@ class BetaRelease : CliktCommand(name = "beta") {
 
                     // Pull out the bullet points
                     if (active) { // TODO: Keep this check? && line.startsWith("-")) {
-                        // Strip out the Markdown formatting and the links at the end
                         changes.add(line)
                     }
                 }
