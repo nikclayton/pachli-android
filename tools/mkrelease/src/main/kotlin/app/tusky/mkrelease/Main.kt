@@ -24,24 +24,17 @@ import app.tusky.mkrelease.cmd.State
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.findOrSetObject
 import com.github.ajalt.clikt.core.subcommands
-import com.github.ajalt.clikt.output.TermUi.confirm
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import io.github.oshai.KLogger
 import io.github.oshai.KotlinLogging
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.lib.TextProgressMonitor
-import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
 import java.io.File
 import java.net.URL
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 
 private val log = KotlinLogging.logger {}
@@ -106,62 +99,6 @@ fun getGit(workTree: File): Git {
         .readEnvironment()
         .build()
     return Git(tuskyRepo)
-}
-
-/**
- * Checks to see if the repository's working tree is clean, prints diagnostic
- * message if not, and throws RepositoryIsNotClean
- */
-fun Git.ensureClean() {
-    val status = this.status().call()
-
-    if (!status.isClean) {
-        println("Warning: ${this.repository.workTree} is not clean")
-        status.conflicting.forEach{ println(           "Conflict          - $it")}
-        status.added.forEach { println(                "Added             - $it") }
-        status.changed.forEach { println(              "Changed           - $it") }
-        status.missing.forEach { println(              "Missing           - $it") }
-        status.modified.forEach { println(             "Modified          - $it") }
-        status.removed.forEach { println(              "Removed           - $it") }
-        status.uncommittedChanges.forEach { println(   "Uncommitted       - $it") }
-        status.untracked.forEach { println(            "Untracked         - $it") }
-        status.untrackedFolders.forEach { println(     "Untracked folder  - $it") }
-        status.conflictingStageState.forEach { println("Conflicting state - $it") }
-
-        if (confirm("See the diffs?") == true) {
-            this.diff()
-                .setOutputStream(System.out)
-                .setCached(true)
-                .call()
-        }
-
-        if (confirm("Reset the tree now?") == true) {
-            this.reset().setMode(ResetCommand.ResetType.HARD).call()
-            return
-        }
-        throw BetaRelease.RepositoryIsNotClean
-    }
-}
-
-fun RevCommit.message(): String {
-    // Prepare the pieces
-    val justTheAuthorNoTime: String =
-        authorIdent.toExternalString().split(">").get(0) + ">"
-    val commitInstant: Instant = Instant.ofEpochSecond(commitTime.toLong())
-    val zoneId: ZoneId = authorIdent.timeZone.toZoneId()
-    val authorDateTime: ZonedDateTime = ZonedDateTime.ofInstant(commitInstant, zoneId)
-    val gitDateTimeFormatString = "EEE MMM dd HH:mm:ss yyyy Z"
-    val formattedDate: String =
-        authorDateTime.format(DateTimeFormatter.ofPattern(gitDateTimeFormatString))
-    val tabbedCommitMessage = fullMessage.split("\\r?\\n").joinToString("\n") { "  $it" }
-
-    return """
-        commit $name
-        Author: $justTheAuthorNoTime
-        Date:   $formattedDate
-
-        $tabbedCommitMessage
-    """.trimIndent()
 }
 
 /**
