@@ -43,7 +43,7 @@ sealed class TuskyVersion : Comparable<TuskyVersion> {
         if (this is Release) return 1
         if (other is Release) return - 1
 
-        // Both are beta, compare by
+        // Both are beta, compare by beta number
         return (this as Beta).beta - (other as Beta).beta
     }
 
