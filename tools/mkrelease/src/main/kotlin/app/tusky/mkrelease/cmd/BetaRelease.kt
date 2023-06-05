@@ -349,7 +349,7 @@ class BetaRelease : CliktCommand(name = "beta") {
 
         override fun desc(): String {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
-            return "Waiting for ${releaseSpec.pullRequest} to be approved"
+            return "Waiting for ${releaseSpec.pullRequest} to be merged"
         }
     }
 
