@@ -18,7 +18,6 @@
 package app.tusky.mkrelease
 
 import app.tusky.mkrelease.cmd.BetaRelease
-import com.github.ajalt.clikt.output.TermUi
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.revwalk.RevCommit
@@ -35,7 +34,7 @@ fun Git.ensureClean() {
     val status = this.status().call()
 
     if (!status.isClean) {
-        println("Warning: ${this.repository.workTree} is not clean")
+        T.danger("Warning: ${this.repository.workTree} is not clean")
         status.conflicting.forEach{ println(           "Conflict          - $it")}
         status.added.forEach { println(                "Added             - $it") }
         status.changed.forEach { println(              "Changed           - $it") }
@@ -47,20 +46,22 @@ fun Git.ensureClean() {
         status.untrackedFolders.forEach { println(     "Untracked folder  - $it") }
         status.conflictingStageState.forEach { println("Conflicting state - $it") }
 
-        if (TermUi.confirm("See the diffs?") == true) {
+        if (T.confirm("See the diffs?")) {
             this.diff()
                 .setOutputStream(System.out)
                 .setCached(true)
                 .call()
         }
 
-        if (TermUi.confirm("Reset the tree now?") == true) {
+        if (T.confirm("Reset the tree now?")) {
             this.reset().setMode(ResetCommand.ResetType.HARD).call()
             return
         }
         throw BetaRelease.RepositoryIsNotClean
     }
 }
+
+fun Git.hasBranch(branch: String) = this.branchList().call().indexOfFirst { it.name == branch } != -1
 
 fun RevCommit.message(): String {
     // Prepare the pieces

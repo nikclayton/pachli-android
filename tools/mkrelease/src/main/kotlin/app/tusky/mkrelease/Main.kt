@@ -73,21 +73,17 @@ object MissingRefs : Exception()
 object MissingBranches : Exception()
 
 /**
- * Ensures that [root] contains a clone of [repo] with [branches]
+ * Ensures that [root] contains a clone of [repo]
  */
-fun ensureRepo(repoUrl: URL, root: File, branches: List<String> = listOf(
-    "refs/heads/main", "refs/heads/develop"
-)): Git {
+fun ensureRepo(repoUrl: URL, root: File): Git {
     T.info("- Checking $root is a clone of $repoUrl")
 
     if (!root.exists()) {
-        T.danger("  $root is missing, cloning $repoUrl ($branches)")
+        T.info("  $root is missing, cloning $repoUrl")
         return Git.cloneRepository()
             .setURI(repoUrl.toString())
             .setDirectory(root)
-            .setBranchesToClone(branches)
             .setProgressMonitor(TextProgressMonitor())
-//        .setDepth(1)
             .call()
     }
 
@@ -98,7 +94,7 @@ fun ensureRepo(repoUrl: URL, root: File, branches: List<String> = listOf(
     if (builder.gitDir == null) {
         T.danger("  ... but is not a git directory!")
         if (T.confirm("Do you want to recursively remove $root?")) {
-            root.deleteRecursively() && return ensureRepo(repoUrl, root, branches)
+            root.deleteRecursively() && return ensureRepo(repoUrl, root)
         }
         throw MissingGitRepository
     }
@@ -113,52 +109,42 @@ fun ensureRepo(repoUrl: URL, root: File, branches: List<String> = listOf(
         T.danger("  ... with the wrong origin!")
         T.info("Actual origin: $originUrl")
         T.info("Wanted origin: $repoUrl")
-        if (T.confirm("Do you want to remove $root?")) {
-            root.deleteRecursively() && return ensureRepo(repoUrl, root, branches)
+        if (T.confirm("Do you want to recursively remove $root?")) {
+            root.deleteRecursively() && return ensureRepo(repoUrl, root)
         }
         throw WrongOrigin
     }
+
+    T.success("  ... and has the correct origin ...")
 
     // Must have at least one one-null ref if the clone was success
     val idx = repo.refDatabase.refs.indexOfFirst { it.objectId != null }
     if (idx == -1) {
         T.danger("  ... without any non-null refs!")
-        if (T.confirm("Do you want to remove $root?")) {
-            root.deleteRecursively() && return ensureRepo(repoUrl, root, branches)
+        if (T.confirm("Do you want to recursively remove $root?")) {
+            root.deleteRecursively() && return ensureRepo(repoUrl, root)
         }
         throw MissingRefs
     }
 
-    // Must have all the branches
-    val git = Git(repo)
-    val localBranches = git.branchList().call()
-    val missingBranches = buildList {
-        for (branch in branches) {
-            if (localBranches.indexOfFirst { it.name == branch } == -1) {
-                add(branch)
-            }
-        }
-    }
-    if (missingBranches.isNotEmpty()) {
-        T.danger("  ... but is missing required branches")
-        missingBranches.forEach { println("Missing: $it") }
-        if (T.confirm("Do you want to remove $root?")) {
-            root.deleteRecursively() && return ensureRepo(repoUrl, root, branches)
-        }
-        throw MissingBranches
-    }
-    println(localBranches)
+    T.success("  ... and is not missing refs.")
 
-    return git
+    return Git(repo)
 }
 
-fun Terminal.confirm(prompt: String): Boolean {
-    return this.prompt(
+class ConfirmException(msg: String) : Exception(msg)
+
+fun Terminal.confirm(prompt: String, abort: Boolean = false): Boolean {
+    val ok = this.prompt(
         TextColors.yellow(prompt),
         choices = listOf("y", "n"),
         default = "n",
         showDefault = true
     ) == "y"
+    if (!ok && abort) {
+        throw ConfirmException(prompt)
+    }
+    return ok
 }
 
 /**

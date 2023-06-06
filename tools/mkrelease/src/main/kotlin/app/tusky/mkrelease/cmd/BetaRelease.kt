@@ -27,6 +27,7 @@ import app.tusky.mkrelease.ReleaseSpec
 import app.tusky.mkrelease.SPEC_FILE
 import app.tusky.mkrelease.T
 import app.tusky.mkrelease.TuskyVersion
+import app.tusky.mkrelease.confirm
 import app.tusky.mkrelease.createFastlaneFromChangelog
 import app.tusky.mkrelease.ensureClean
 import app.tusky.mkrelease.ensureRepo
@@ -35,6 +36,7 @@ import app.tusky.mkrelease.getGradle
 import app.tusky.mkrelease.github.GithubService
 import app.tusky.mkrelease.github.PullsApi
 import app.tusky.mkrelease.github.ReleasesApi
+import app.tusky.mkrelease.hasBranch
 import app.tusky.mkrelease.message
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
@@ -44,10 +46,9 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.output.TermUi
-import com.github.ajalt.clikt.output.TermUi.confirm
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.mordant.rendering.TextColors
 import com.github.ajalt.mordant.rendering.TextStyles
-import com.github.ajalt.mordant.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -58,6 +59,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.MergeCommand
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException
 import org.eclipse.jgit.lib.TextProgressMonitor
 import org.eclipse.jgit.transport.RefSpec
 import org.eclipse.jgit.transport.URIish
@@ -87,14 +89,53 @@ class BetaRelease : CliktCommand(name = "beta") {
             val git = ensureRepo(config.repositoryFork.gitUrl, config.tuskyForkRoot)
                 .also { it.ensureClean() }
 
+            // git remote add upstream https://...
+            git.remoteAdd()
+                .setName("upstream")
+                .setUri(URIish(config.repositoryMain.gitUrl))
+                .call()
+
+            val defaultBranchRef = Git.lsRemoteRepository()
+                .setRemote(config.repositoryMain.gitUrl.toString())
+                .callAsMap()["HEAD"]?.target?.name ?: throw UsageError("Could not determine default branch name")
+            T.info("default branch ref is $defaultBranchRef")
+            val defaultBranch = defaultBranchRef.split("/").last()
+
+            T.info("default branch: $defaultBranch")
+            // git checkout main
+            git.checkout()
+                .setName(defaultBranch)
+                .call()
+
+            // git fetch upstream
+            git.fetch()
+                .setRemote("upstream")
+                .setProgressMonitor(TextProgressMonitor())
+                .call()
+
+            // git pull upstream $defaultBranch
+            // - FF_ONLY, a non-FF pull indicates a merge commit is needed, which is bad
+            git.pull()
+                .setRemote("upstream")
+                .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+                .setProgressMonitor(TextProgressMonitor())
+                .call()
+
+            // git push origin $defaultBranch
+            git.push()
+                .setCredentialsProvider(DelegatingCredentialsProvider(config.tuskyForkRoot.toPath()))
+                .setRemote("origin")
+                .setProgressMonitor(TextProgressMonitor())
+                .call()
+
             // Checkout `develop` branch,
             git.checkout().setName("develop").call()
 
             // Pull everything.
             // - FF_ONLY, a non-FF pull indicates a merge commit is needed, which is bad
-            git.pull()
-                .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
-                .call()
+//            git.pull()
+//                .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+//                .call()
             git.ensureClean()
 
             return CreateBetaReleaseBranch(config)
@@ -108,6 +149,7 @@ class BetaRelease : CliktCommand(name = "beta") {
                 .also { it.ensureClean() }
 
             // Figure out the info for the current release
+            T.info("- Determining current release version")
             val gradle = getGradle(config.tuskyForkRoot)
             val androidDsl = gradle.model(AndroidDsl::class.java).get()
 
@@ -115,32 +157,33 @@ class BetaRelease : CliktCommand(name = "beta") {
             val versionName = androidDsl.defaultConfig.versionName ?: throw UsageError("No versionName in Gradle config")
             val currentRelease = TuskyVersion.from(versionName, versionCode)
                 ?: throw UsageError("Could not parse '$versionName' as release version")
-            println(currentRelease.toString())
             gradle.close()
 
             var releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
-            println("Current version is $currentRelease")
+            T.success("  $currentRelease")
 
             releaseSpec = releaseSpec.copy(thisVersion = currentRelease.next(releaseSpec.releaseType))
 
-            println("Upcoming version is ${releaseSpec.thisVersion}, ${releaseSpec.thisVersion?.versionName()}")
+            T.info("- Next version is ${releaseSpec.thisVersion}, ${releaseSpec.thisVersion?.versionName()}")
 
             // Create branch (${issue}-${major}.${minor}-b${beta})
             val branch = releaseSpec.releaseBranch()
-            println("Creating $branch")
+            T.info("- Release branch will be $branch")
 
-            val branches = git.branchList().call()
+            T.info("- Creating release branch $branch...")
 
-            if (branches.indexOfFirst { it.name == "refs/heads/$branch" } != -1) {
+            try {
+                git.branchCreate()
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                    .setName(branch).call()
+            } catch (e: RefAlreadyExistsException) {
                 throw BranchExists("Branch $branch already exists")
             }
 
-            git.branchCreate()
-                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
-                .setName(branch).call()
-
             releaseSpec.save(SPEC_FILE)
+
+            T.success("  ... done.")
 
             return UpdateFilesForBeta(config)
         }
@@ -156,14 +199,13 @@ class BetaRelease : CliktCommand(name = "beta") {
             val branch = releaseSpec.releaseBranch()
             releaseSpec.thisVersion ?: throw UsageError("releaseSpec.thisVersion is null and should not be")
 
-            val branches = git.branchList().call()
-            if (branches.indexOfFirst { it.name == "refs/heads/$branch" } == -1) {
+            if (!git.hasBranch("refs/heads/$branch")) {
                 throw BranchMissing("Branch $branch should exist but is missing")
             }
 
             // Switch to branch
             // TODO: This will fail if the branch doesn't exist, maybe the previous check is unnecessary
-            println("git checkout $branch")
+            T.info("- git checkout $branch")
             git.checkout().setName(branch).call()
 
             // No API to update the files, so edit in place
@@ -223,9 +265,9 @@ class BetaRelease : CliktCommand(name = "beta") {
                 REPLACE_EXISTING
             )
 
-            println("Edit CHANGELOG.md for this release")
-            println("To see what's changed between this release and the last,")
-            println("https://github.com/tuskyapp/Tusky/compare/${releaseSpec.prevVersion.versionTag()}...develop")
+            T.info("- Edit CHANGELOG.md for this release")
+            T.muted("  To see what's changed between this release and the last,")
+            T.muted("  https://github.com/tuskyapp/Tusky/compare/${releaseSpec.prevVersion.versionTag()}...develop")
             TermUi.editFile(ChangelogFile.toString())
 
             // TODO: Add entry to fastlane/metadata/android/en-US/changelogs/${versionCode}.txt
@@ -246,7 +288,7 @@ class BetaRelease : CliktCommand(name = "beta") {
                     .setOutputStream(System.out)
                     .setCached(true)
                     .call()
-                changesAreOk = confirm("Do these changes look OK?") == true
+                changesAreOk = T.confirm("Do these changes look OK?")
                 if (!changesAreOk) {
                     TermUi.editFile(ChangelogFile.toString())
                     git.add()
@@ -258,8 +300,7 @@ class BetaRelease : CliktCommand(name = "beta") {
 
             // Commit
             val commitMsg = "Prepare ${releaseSpec.thisVersion.versionName()} (versionCode ${releaseSpec.thisVersion.versionCode})"
-            println("Committing changes.")
-            println("""  git commit -m "$commitMsg"""")
+            T.info("""- git commit -m "$commitMsg"""")
             git.commit()
                 .setMessage(commitMsg)
                 .setSign(null)
@@ -267,7 +308,7 @@ class BetaRelease : CliktCommand(name = "beta") {
                 .call()
 
             // Push
-            println("Pushing changes to ${config.repositoryFork.githubUrl}")
+            T.info("- Pushing changes to ${config.repositoryFork.githubUrl}")
             git.push()
                 .setCredentialsProvider(DelegatingCredentialsProvider(config.tuskyForkRoot.toPath()))
                 .setRemote("origin")
@@ -286,7 +327,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         override fun run(cmd: CliktCommand): ReleaseStep {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
-            println("Create pull request at https://github.com/${config.repositoryMain.owner}/${config.repositoryMain.repo}/compare/develop...${config.repositoryFork.owner}:${config.repositoryFork.repo}:${releaseSpec.releaseBranch()}?expand=1")
+            T.info("- Create pull request at https://github.com/${config.repositoryMain.owner}/${config.repositoryMain.repo}/compare/develop...${config.repositoryFork.owner}:${config.repositoryFork.repo}:${releaseSpec.releaseBranch()}?expand=1")
             return SavePullRequest(config)
         }
     }
@@ -296,7 +337,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         override fun run(cmd: CliktCommand): ReleaseStep {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
-            val pullRequest = GitHubPullRequest(URL(TermUi.prompt("Enter pull request URL")))
+            val pullRequest = GitHubPullRequest(URL(T.prompt(TextColors.yellow("Enter pull request URL"))))
             releaseSpec.copy(pullRequest = pullRequest).save(SPEC_FILE)
 
             return WaitForApproval(config)
@@ -324,24 +365,23 @@ class BetaRelease : CliktCommand(name = "beta") {
                 // TODO: Can this check to see if it was merged, and not just closed?
                 if (state == PullsApi.PullRequestState.CLOSED) break
 
-                println("$pullRequest is still open")
+                T.info("- $pullRequest is still open")
 
-                val t = Terminal()
                 repeat(300) {
-                    t.cursor.move {
+                    T.cursor.move {
                         up(1)
                         startOfLine()
                         clearLineAfterCursor()
                     }
-                    println("Waiting until next check: $it / 300 seconds")
+                    T.info("Waiting until next check: $it / 300 seconds")
                     delay(1.seconds)
                 }
             }
 
             GithubService.shutdown()
 
-            println("$pullRequest has been closed.")
-            confirm("Ready to move to next step?", abort = true)
+            T.info("- $pullRequest has been closed.")
+            T.confirm("Ready to move to next step?", abort = true)
             MergeDevelopToMain(config)
         }
 
@@ -359,12 +399,9 @@ class BetaRelease : CliktCommand(name = "beta") {
                 .also { it.ensureClean() }
 
             // git checkout main
-            println("git checkout develop")
+            T.info("- git checkout develop")
             git.checkout()
-//                .setName("origin/main")
                 .setName("develop")
-//                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-//                .setCreateBranch(true)
                 .call()
 
             // git fetch origin develop:develop
@@ -375,18 +412,18 @@ class BetaRelease : CliktCommand(name = "beta") {
 //                .call()
 
             // git log
-            println("git log")
+            T.info("- git log")
             git.log()
                 .setMaxCount(2)
                 .call()
                 .forEach { println(it.message())}
 
             // Verify `develop` branch shows the expected commit
-            confirm("Does the `develop` branch show the expected commit?", abort = true)
+            T.confirm("Does the `develop` branch show the expected commit?", abort = true)
 
             // Merge `develop` in to `main`
             // git checkout main
-            println("git checkout main")
+            T.info("- git checkout main")
             git.checkout()
                 .setName("main")
                 .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
@@ -394,7 +431,7 @@ class BetaRelease : CliktCommand(name = "beta") {
                 .call()
 
             // git merge --ff-only develop
-            println("git merge --ff-only develop")
+            T.info("- git merge --ff-only develop")
             val mergeBase = git.repository.resolve("develop")
             git.merge()
                 .include(mergeBase)
@@ -402,13 +439,13 @@ class BetaRelease : CliktCommand(name = "beta") {
                 .call()
 
             // Verify the commits are now on main
-            println("git log")
+            T.info("- git log")
             git.log()
                 .setMaxCount(5)
                 .call()
                 .forEach { println(it.message()) }
 
-            confirm("Does the `main` branch show the expected commits?", abort = true)
+            T.confirm("Does the `main` branch show the expected commits?", abort = true)
 
             return TagMain(config)
         }
@@ -423,10 +460,12 @@ class BetaRelease : CliktCommand(name = "beta") {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
             // git checkout main
+            T.info("- git checkout main")
             git.checkout().setName("main").call()
 
             // git tag -m v22.0-beta.4 -s v22.0-beta.4
-            val tag = releaseSpec.releaseTag() ?: throw UsageError("releaseTag is null but shouldn't be")
+            val tag = releaseSpec.releaseTag()
+            T.info("- git tag -m $tag -s $tag")
             git.tag()
                 .setName(tag)
                 .setSigned(true)
@@ -439,12 +478,13 @@ class BetaRelease : CliktCommand(name = "beta") {
 
     @Serializable
     data class PushTaggedMain(override val config: Config) : ReleaseStep() {
-        override fun run(cmd: CliktCommand): ReleaseStep? {
+        override fun run(cmd: CliktCommand): ReleaseStep {
             val git = ensureRepo(config.repositoryMain.gitUrl, config.tuskyMainRoot)
                 .also { it.ensureClean() }
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
             // TODO: Check current branch is `main`?
+            T.info("- git push")
             git.push()
                 .setCredentialsProvider(DelegatingCredentialsProvider(config.tuskyMainRoot.toPath()))
                 .setPushAll()
@@ -484,7 +524,7 @@ class BetaRelease : CliktCommand(name = "beta") {
                     )
                 }
 
-            println("Created GitHub release: ${githubRelease.htmlUrl}")
+            T.success("Created GitHub release: ${githubRelease.htmlUrl}")
 
             return@runBlocking WaitForBitriseToBuild(config)
         }
@@ -492,14 +532,14 @@ class BetaRelease : CliktCommand(name = "beta") {
 
     @Serializable
     data class WaitForBitriseToBuild(override val config: Config) : ReleaseStep() {
-        override fun run(cmd: CliktCommand): ReleaseStep? {
-            println("""
+        override fun run(cmd: CliktCommand): ReleaseStep {
+            T.println("""
                 Wait for Bitrise to build and upload the APK to Google Play.
 
                 Check https://app.bitrise.io/app/a3e773c3c57a894c?workflow=workflow-release
                 """.trimIndent())
 
-            while (confirm("Has Bitrise uploaded the APK?") == false) { }
+            while (!T.confirm("Has Bitrise uploaded the APK?")) { }
 
             return MarkAsInternalTestingOnPlay(config)
         }
@@ -507,7 +547,7 @@ class BetaRelease : CliktCommand(name = "beta") {
 
     @Serializable
     data class MarkAsInternalTestingOnPlay(override val config: Config) : ReleaseStep() {
-        override fun run(cmd: CliktCommand): ReleaseStep? {
+        override fun run(cmd: CliktCommand): ReleaseStep {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
             val thisVersion = releaseSpec.thisVersion ?: throw UsageError("releaseSpec.thisVersion must be defined")
 
@@ -528,7 +568,7 @@ class BetaRelease : CliktCommand(name = "beta") {
             println("9. Go to 'Publishing Overview' when prompted")
             println("10. Send the changes for review")
 
-            while (confirm("Have you done all this?") == false) { }
+            while (!T.confirm("Have you done all this?")) { }
 
             return DownloadApk(config)
         }
@@ -536,7 +576,7 @@ class BetaRelease : CliktCommand(name = "beta") {
 
     @Serializable
     data class DownloadApk(override val config: Config) : ReleaseStep() {
-        override fun run(cmd: CliktCommand): ReleaseStep? {
+        override fun run(cmd: CliktCommand): ReleaseStep {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
             val thisVersion = releaseSpec.thisVersion ?: throw UsageError("releaseSpec.thisVersion must be defined")
 
@@ -547,7 +587,7 @@ class BetaRelease : CliktCommand(name = "beta") {
 
             println("This should download ${thisVersion.versionCode}.apk")
 
-            while (confirm("Have you done all this?") == false) { }
+            while (!T.confirm("Have you done all this?")) { }
 
             return AttachApkToGithubRelease(config)
         }
@@ -628,7 +668,6 @@ class BetaRelease : CliktCommand(name = "beta") {
             val git = ensureRepo(
                 config.repositoryFDroidFork.gitUrl,
                 config.fdroidForkRoot,
-                branches = listOf(defaultBranchRef)
             )
                 .also { it.ensureClean() }
 
@@ -673,32 +712,24 @@ class BetaRelease : CliktCommand(name = "beta") {
     @Serializable
     data class MakeFDroidReleaseBranch(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
-//            maybeCloneRepo(
-//                config.repositoryFDroidFork.gitUrl,
-//                config.fdroidForkRoot,
-//                delete = false,
-//                branches = listOf(defaultBranchRef)
-//            )
-            val git = ensureRepo(
-                config.repositoryFDroidFork.gitUrl,
-                config.fdroidForkRoot,
-                //branches = listOf(defaultBranchRef)
-            )
+            val git = ensureRepo(config.repositoryFDroidFork.gitUrl, config.fdroidForkRoot)
                 .also { it.ensureClean() }
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
             val branch = releaseSpec.fdroidReleaseBranch()
-            println("Creating $branch in FDroid repo")
-            val branches = git.branchList().call()
-            if (branches.indexOfFirst { it.name == "refs/heads/$branch" } != -1) {
+
+            T.info("- Creating $branch in FDroid repo")
+
+            try {
+                git.branchCreate()
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                    .setName(branch)
+                    .call()
+            } catch (e: RefAlreadyExistsException) {
                 throw BranchExists("Branch $branch already exists")
             }
 
-            git.branchCreate()
-                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
-                .setName(branch)
-                .call()
-
+            T.info("- git checkout $branch")
             git.checkout()
                 .setName(branch)
                 .call()
@@ -713,13 +744,10 @@ class BetaRelease : CliktCommand(name = "beta") {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
             val thisVersion = releaseSpec.thisVersion ?: throw UsageError("releaseSpec.thisVersion must be defined")
             val branch = releaseSpec.fdroidReleaseBranch()
-            val git = ensureRepo(
-                config.repositoryFDroidFork.gitUrl,
-                config.fdroidForkRoot,
-                //branches = listOf(defaultBranchRef)
-            )
+            val git = ensureRepo(config.repositoryFDroidFork.gitUrl, config.fdroidForkRoot)
                 .also { it.ensureClean() }
 
+            T.info("- git checkout $branch")
             git.checkout()
                 .setName(branch)
                 .call()
@@ -763,7 +791,7 @@ class BetaRelease : CliktCommand(name = "beta") {
             var changesAreOk = false
             while (!changesAreOk) {
                 git.diff().setOutputStream(System.out).setCached(true).call()
-                changesAreOk = confirm("Do these changes look OK?") == true
+                changesAreOk = T.confirm("Do these changes look OK?")
                 if (!changesAreOk) {
                     TermUi.editFile(metadataPath)
                     git.add().addFilepattern(metadataPath).call()
@@ -771,15 +799,14 @@ class BetaRelease : CliktCommand(name = "beta") {
             }
 
             val commitMsg = "Tusky ${thisVersion.versionName()} (${thisVersion.versionCode})"
-            println("Committing changes")
-            println("  git commit -m \"$commitMsg\"")
+            T.info("- git commit -m \"$commitMsg\"")
             git.commit()
                 .setMessage(commitMsg)
                 .setSign(null)
                 .setCredentialsProvider(PasswordCredentialsProvider())
                 .call()
 
-            println("Pushing changes to ${config.repositoryFDroidFork.gitlabUrl}")
+            T.info("- Pushing changes to ${config.repositoryFDroidFork.gitlabUrl}")
             git.push()
                 .setCredentialsProvider(DelegatingCredentialsProvider(config.fdroidForkRoot.toPath()))
                 .setRemote("origin")
@@ -792,11 +819,11 @@ class BetaRelease : CliktCommand(name = "beta") {
 
     @Serializable
     data class CreateFDroidMergeRequest(override val config: Config) : ReleaseStep() {
-        override fun run(cmd: CliktCommand): ReleaseStep? {
+        override fun run(cmd: CliktCommand): ReleaseStep {
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
             val branch = releaseSpec.fdroidReleaseBranch()
 
-            println("""
+            T.info("""
                 This is done by hand at the moment, to complete the merge request template")
 
                 1. Open ${config.repositoryFDroidFork.gitlabUrl}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${branch}
@@ -806,7 +833,7 @@ class BetaRelease : CliktCommand(name = "beta") {
 
             """.trimIndent())
 
-            while (confirm("Have you done all this?") == false) { }
+            while (!T.confirm("Have you done all this?")) { }
 
             return AnnounceTheBetaRelease(config)
         }
@@ -815,9 +842,9 @@ class BetaRelease : CliktCommand(name = "beta") {
     @Serializable
     data class AnnounceTheBetaRelease(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep? {
-            println("Announce the beta release, and you're done.")
+            T.info("- Announce the beta release, and you're done.")
 
-            while (confirm("Have you done all this?") == false) { }
+            while (!T.confirm("Have you done all this?")) { }
 
             // Done. This version can now be marked as the previous version
             val releaseSpec = ReleaseSpec.from(SPEC_FILE)
@@ -840,28 +867,33 @@ class BetaRelease : CliktCommand(name = "beta") {
 
         val releaseSpec = ReleaseSpec.from(SPEC_FILE)
 
+        val stepStyle = TextStyles.bold
+
         just?.let {
             val kClass = Class.forName("${this.javaClass.canonicalName}$$it").kotlin
             val step = kClass.primaryConstructor?.call(config) as ReleaseStep
-            val nextStep = step.run(this@BetaRelease)
-            ReleaseSpec.from(SPEC_FILE).copy(nextStep = nextStep).save(SPEC_FILE)
+            T.println(stepStyle("-> ${step.desc()}"))
+            runCatching {
+                step.run(this@BetaRelease)
+            }.onSuccess { nextStep ->
+                ReleaseSpec.from(SPEC_FILE).copy(nextStep = nextStep).save(SPEC_FILE)
+            }.onFailure { t ->
+                T.danger(t.message)
+            }
             GithubService.shutdown()
             return
         }
-
-        val stepStyle = TextStyles.bold
 
         var step: ReleaseStep? = releaseSpec.nextStep ?: PrepareBetaRepository(config)
         while (step != null) {
             T.println(stepStyle("-> ${step.desc()}"))
             runCatching {
                 step!!.run(this)
-            }.onSuccess {
-                step = it
-                ReleaseSpec.from(SPEC_FILE).copy(nextStep = step).save(SPEC_FILE)
-            }.onFailure {
-                println("Error in step: $step")
-                println(it)
+            }.onSuccess { nextStep ->
+                step = nextStep
+                ReleaseSpec.from(SPEC_FILE).copy(nextStep = nextStep).save(SPEC_FILE)
+            }.onFailure { t ->
+                T.danger(t.message)
                 return
             }
         }
