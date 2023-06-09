@@ -49,8 +49,6 @@ sealed class TuskyVersion : Comparable<TuskyVersion> {
 
     /**
      * Create the next release version
-     *
-     *
      */
     fun next(releaseType: ReleaseType) = when (this) {
         // The version after a beta is always another beta, with incremented
@@ -93,6 +91,15 @@ sealed class TuskyVersion : Comparable<TuskyVersion> {
     ) : TuskyVersion() {
         override fun versionName() = "${major}.${minor} beta $beta"
         override fun versionTag() = "v${major}.${minor}-beta.${beta}"
+
+        /**
+         * @return A [Release] which represents the version *after* this beta.
+         */
+        fun release() = Release(
+            major = this.major,
+            minor = this.minor,
+            versionCode = this.versionCode + 1
+        )
     }
 
     companion object {

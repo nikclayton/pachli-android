@@ -50,6 +50,10 @@ dependencies {
 
     implementation("com.damnhandy:handy-uri-templates:2.1.7")
 
+    implementation("org.kohsuke:github-api:1.316-SNAPSHOT")
+//    implementation("com.github.nikclayton:github-api:1595-makelatest-SNAPSHOT")
+//    implementation(files("\\\\wsl.localhost\\Ubuntu\\home\\nik\\.m2\\repository\\org\\kohsuke\\github-api\\1.316-SNAPSHOT\\github-api-1.316-SNAPSHOT.jar"))
+
     // Request logging
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 

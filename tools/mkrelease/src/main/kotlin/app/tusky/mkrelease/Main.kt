@@ -17,7 +17,7 @@
 
 package app.tusky.mkrelease
 
-import app.tusky.mkrelease.cmd.BetaRelease
+import app.tusky.mkrelease.cmd.FinalRelease
 import app.tusky.mkrelease.cmd.Init
 import app.tusky.mkrelease.cmd.StartRelease
 import app.tusky.mkrelease.cmd.State
@@ -70,7 +70,6 @@ class App : CliktCommand() {
 object MissingGitRepository : Exception()
 object WrongOrigin : Exception()
 object MissingRefs : Exception()
-object MissingBranches : Exception()
 
 /**
  * Ensures that [root] contains a clone of [repo]
@@ -79,11 +78,12 @@ fun ensureRepo(repoUrl: URL, root: File): Git {
     T.info("- Checking $root is a clone of $repoUrl")
 
     if (!root.exists()) {
-        T.info("  $root is missing, cloning $repoUrl")
+        T.info("  $root is missing")
         return Git.cloneRepository()
             .setURI(repoUrl.toString())
             .setDirectory(root)
             .setProgressMonitor(TextProgressMonitor())
+            .info()
             .call()
     }
 
@@ -155,6 +155,6 @@ fun getGradle(workTree: File): ProjectConnection = GradleConnector.newConnector(
     .connect()
 
 fun main(args: Array<String>) = App().subcommands(
-    Init(), StartRelease(), BetaRelease(), State()
+    Init(), StartRelease(), /*BetaRelease(),*/ FinalRelease(), State()
 ).main(args)
 

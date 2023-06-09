@@ -78,11 +78,9 @@ class BetaRelease : CliktCommand(name = "beta") {
     private val globalFlags by requireObject<GlobalFlags>()
     private val just by option()
 
-    object MissingRepository : Throwable()
     object RepositoryIsNotClean : Throwable()
-    class BranchExists(message: String) : Throwable(message)
-    class BranchMissing(message: String): Throwable(message)
 
+    // TODO: Replaced by PrepareTuskyForkRepository
     @Serializable
     data class PrepareBetaRepository(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
@@ -142,6 +140,10 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by chain of:
+    // - GetCurrentAppVersion
+    // - SetNextVersionAsBeta (TODO)
+    // - CreateReleaseBrange
     @Serializable
     data class CreateBetaReleaseBranch(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
@@ -189,6 +191,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by UpdateFilesForRelease
     @Serializable
     data class UpdateFilesForBeta(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
@@ -320,6 +323,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by CreatePullRequest
     @Serializable
     data class CreatePullRequest(
         override val config: Config,
@@ -332,6 +336,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by SavePullRequest
     @Serializable
     data class SavePullRequest(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
@@ -344,6 +349,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by WaitForPullRequestMerged
     @Serializable
     data class WaitForApproval(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep = runBlocking {
@@ -378,8 +384,6 @@ class BetaRelease : CliktCommand(name = "beta") {
                 }
             }
 
-            GithubService.shutdown()
-
             T.info("- $pullRequest has been closed.")
             T.confirm("Ready to move to next step?", abort = true)
             MergeDevelopToMain(config)
@@ -391,6 +395,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by MergeDevelopToMain
     @Serializable
     data class MergeDevelopToMain(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
@@ -451,6 +456,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by TagMainAsRelease
     @Serializable
     data class TagMain(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
@@ -465,7 +471,7 @@ class BetaRelease : CliktCommand(name = "beta") {
 
             // git tag -m v22.0-beta.4 -s v22.0-beta.4
             val tag = releaseSpec.releaseTag()
-            T.info("- git tag -m $tag -s $tag")
+            T.info("- git tag $tag -s $tag")
             git.tag()
                 .setName(tag)
                 .setSigned(true)
@@ -476,6 +482,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by PushTaggedMain
     @Serializable
     data class PushTaggedMain(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
@@ -495,6 +502,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: *Not* replaced by CreateGithubMainRelease.
     @Serializable
     data class CreateGithubRelease(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep = runBlocking {
@@ -530,6 +538,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by WaitForBitriseToBuild
     @Serializable
     data class WaitForBitriseToBuild(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
@@ -545,6 +554,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by MarkAsBetaOnPlay
     @Serializable
     data class MarkAsInternalTestingOnPlay(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
@@ -574,6 +584,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by DownloadApk
     @Serializable
     data class DownloadApk(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep {
@@ -593,6 +604,7 @@ class BetaRelease : CliktCommand(name = "beta") {
         }
     }
 
+    // TODO: Replaced by AttachApkToGithubRelease
     @Serializable
     data class AttachApkToGithubRelease(override val config: Config) : ReleaseStep() {
         override fun run(cmd: CliktCommand): ReleaseStep = runBlocking {

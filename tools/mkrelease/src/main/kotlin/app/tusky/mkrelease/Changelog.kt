@@ -17,58 +17,143 @@
 
 package app.tusky.mkrelease
 
+import com.github.ajalt.clikt.output.TermUi
 import java.io.File
+import kotlin.io.path.fileSize
 
-/**
- * Gets the changes for [nextVersionName] from [changelog].
- *
- * TODO: Move elsewhere, to a ChangeLog class or similar.
- */
-fun getChangelog(changelog: File, nextVersionName: String): List<String> {
-    val changes = mutableListOf<String>()
+fun getChangelog(changelog: File, nextVersionName: String): String {
+    val result = mutableListOf<String>()
     changelog.useLines { lines ->
         var active = false
 
         for (line in lines) {
-            if (line.startsWith("## v$nextVersionName")) {
+            if (line.equals("## v$nextVersionName")) {
                 active = true
                 continue
             }
 
-            if (line.startsWith("## v")) break
+            if (line.startsWith("## v")) return@useLines
 
             // Pull out the bullet points
-            if (active) { // TODO: Keep this check? && line.startsWith("-")) {
-                changes.add(line)
+            if (active) {
+                result.add(line)
+            }
+        }
+    }
+    return result.joinToString("\n")
+}
+
+data class Changes(
+    val features: List<String>,
+    val fixes: List<String>
+)
+
+enum class Section {
+    Features,
+    Fixes,
+    Unknown
+}
+
+/**
+ * Gets the change highlights (first level bullets only) for [nextVersionName] from [changelog].
+ */
+fun getChangelogHighlights(changelog: File, nextVersionName: String): Changes {
+    val features = mutableListOf<String>()
+    val fixes = mutableListOf<String>()
+
+    changelog.useLines { lines ->
+        var active = false
+        var section = Section.Unknown
+
+        for (line in lines) {
+            if (line.equals("## v$nextVersionName")) {
+                active = true
+                continue
+            }
+
+            if (line.startsWith("## v")) return@useLines
+
+            if (line.startsWith("### New features")) {
+                section = Section.Features
+                continue
+            }
+
+            if (line.startsWith("### Significant bug fixes")) {
+                section = Section.Fixes
+                continue
+            }
+
+            // Pull out the bullet points
+            if (active && line.startsWith("-")) {
+                when (section) {
+                    Section.Features -> features.add(line)
+                    Section.Fixes -> fixes.add(line)
+                    Section.Unknown -> throw Exception("Active, found a bullet point, but section is not set")
+                }
             }
         }
     }
 
-    return changes
+    return Changes(features, fixes)
 }
 
 /**
  * Copies the contents for [nextVersionName] from [changelog] in to [fastlane].
- *
- * TODO: Move elsewhere, to a ChangeLog class or similar.
  */
 fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName: String) {
-    val changes = getChangelog(changelog, nextVersionName)
+    val changes = getChangelogHighlights(changelog, nextVersionName)
     if (fastlane.exists()) fastlane.delete()
     fastlane.createNewFile()
 
     val w = fastlane.printWriter()
     w.println("""
                 Tusky $nextVersionName
-
             """.trimIndent())
-    changes.forEach {
+
+    if (changes.features.isNotEmpty()) {
         w.println(
-            // Strip out the Markdown formatting and the links at the end
-            it
-                .replace("**", "")
-                .replace(", \\[.*".toRegex(), "")
+            """
+
+        New features:
+
+    """.trimIndent()
         )
+
+        changes.features.forEach {
+            w.println(
+                // Strip out the Markdown formatting and the links at the end
+                it
+                    .replace("**", "")
+                    .replace(", \\[.*".toRegex(), "")
+            )
+        }
+    }
+
+    if (changes.fixes.isNotEmpty()) {
+        w.println(
+            """
+
+        Fixes:
+
+    """.trimIndent()
+        )
+        changes.fixes.forEach {
+            w.println(
+                // Strip out the Markdown formatting and the links at the end
+                it
+                    .replace("**", "")
+                    .replace(", \\[.*".toRegex(), "")
+            )
+        }
     }
     w.close()
+
+    while (fastlane.toPath().fileSize() > 500) {
+        T.danger("${fastlane.path} is ${fastlane.toPath().fileSize()} bytes, and will be truncated on F-Droid (> 500)")
+        if (T.confirm("Open file in editor to modify it?")) {
+            TermUi.editFile(fastlane.path)
+        } else {
+            break
+        }
+    }
 }
