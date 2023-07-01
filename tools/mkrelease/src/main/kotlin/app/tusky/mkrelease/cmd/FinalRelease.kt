@@ -49,7 +49,7 @@ class FinalRelease : CliktCommand(name = "final") {
             MergeDevelopToMain,
             TagMainAsRelease,
             PushTaggedMain,
-            CreateGithubMainRelease,
+            CreateGithubRelease,
             WaitForBitriseToBuild,
             MarkAsBetaOnPlay,
             DownloadApk,
@@ -65,6 +65,8 @@ class FinalRelease : CliktCommand(name = "final") {
             // Update Open Collective
 
             // Announce from @Tusky account
+
+            // Close out the release in the spec so that a future beta/final can bail
         )
 
         val firstStep: ReleaseStep2 = releaseSpec.nextStep ?: steps.first()

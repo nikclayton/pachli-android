@@ -206,13 +206,20 @@ object ConfirmCurrentVersionIsBeta : ReleaseStep2() {
 }
 
 @Serializable
+object SetNextVersionAsBeta : ReleaseStep2() {
+    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val releaseVersion = spec.prevVersion.next(spec.releaseType)
+        T.success("Release version is $releaseVersion")
+        return spec.copy(thisVersion = releaseVersion)
+    }
+}
+
+@Serializable
 object SetNextVersionAsRelease : ReleaseStep2() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
         val releaseVersion = (spec.prevVersion as TuskyVersion.Beta).release()
         T.success("Release version is $releaseVersion")
-        return spec.copy(
-            thisVersion = releaseVersion
-        )
+        return spec.copy(thisVersion = releaseVersion)
     }
 }
 
@@ -621,7 +628,7 @@ object PushTaggedMain : ReleaseStep2() {
 }
 
 @Serializable
-object CreateGithubMainRelease : ReleaseStep2() {
+object CreateGithubRelease : ReleaseStep2() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val githubToken = System.getenv("GITHUB_TOKEN")
             ?: throw UsageError("GITHUB_TOKEN is null")
@@ -634,8 +641,7 @@ object CreateGithubMainRelease : ReleaseStep2() {
 
         val repo = github.getRepository(
             "${config.repositoryMain.owner}/${config.repositoryMain.repo}")
-        // TODO: This can't set the "latest" property on the release, see
-        // https://github.com/hub4j/github-api/issues/1595
+
         val release = GHReleaseBuilder(repo, spec.releaseTag())
             .name(spec.githubReleaseName())
             .body(changes)
