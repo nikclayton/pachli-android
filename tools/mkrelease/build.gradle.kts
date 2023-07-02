@@ -42,26 +42,13 @@ dependencies {
     implementation("org.gradle:gradle-tooling-api:8.1.1")
     implementation("com.android.tools.build:gradle:8.0.0")
 
-    // APIs (GitHub)
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
-
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
-
-    implementation("com.damnhandy:handy-uri-templates:2.1.7")
-
+    // GitHub API
     implementation("org.kohsuke:github-api:1.316-SNAPSHOT")
-//    implementation("com.github.nikclayton:github-api:1595-makelatest-SNAPSHOT")
-//    implementation(files("\\\\wsl.localhost\\Ubuntu\\home\\nik\\.m2\\repository\\org\\kohsuke\\github-api\\1.316-SNAPSHOT\\github-api-1.316-SNAPSHOT.jar"))
-
-    // Request logging
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    // implementation("com.github.nikclayton:github-api:1595-makelatest-SNAPSHOT")
+    // implementation(files("\\\\wsl.localhost\\Ubuntu\\home\\nik\\.m2\\repository\\org\\kohsuke\\github-api\\1.316-SNAPSHOT\\github-api-1.316-SNAPSHOT.jar"))
 
     // Gitlab API
     implementation("org.gitlab4j:gitlab4j-api:5.2.0")
-
-    // Parsing
-    //implementation("com.github.h0tk3y.betterParse:better-parse:0.4.4")
 
     // Logging
     implementation("io.github.oshai:kotlin-logging-jvm:4.0.0-beta-28")

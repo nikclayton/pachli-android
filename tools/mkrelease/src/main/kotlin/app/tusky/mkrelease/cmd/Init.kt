@@ -22,10 +22,8 @@ import app.tusky.mkrelease.Config
 import app.tusky.mkrelease.GitHubRepository
 import app.tusky.mkrelease.GitlabRepository
 import app.tusky.mkrelease.GlobalFlags
+import app.tusky.mkrelease.T
 import app.tusky.mkrelease.ensureRepo
-import app.tusky.mkrelease.github.GithubService
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
 import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.UsageError
@@ -34,9 +32,8 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.github.ajalt.clikt.parameters.types.file
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import org.kohsuke.github.GitHubBuilder
 import java.io.File
 
 class Init : CliktCommand() {
@@ -47,40 +44,35 @@ class Init : CliktCommand() {
     private val workRoot by option(completionCandidates = CompletionCandidates.Path).file().prompt()
 
     override fun run() = runBlocking {
-        val log = globalFlags.log
-        (log.underlyingLogger as Logger).level = if (globalFlags.verbose) Level.INFO else Level.WARN
-        log.info("init")
+        T.info("creating $workRoot")
 
-        log.info("creating $workRoot")
         try {
             workRoot.mkdir()
         } catch (e: Exception) {
-            println("Error: ${e.cause}")
+            T.warning("Error: ${e.cause}")
             confirm("Continue?", abort = true)
         }
 
-        // Get the repository, check it's a fork, get the parent
-        val service = GithubService.repositories
-        val repo = withContext(Dispatchers.Default) {
-            println("https://api.github.com/repos/${appRepoFork.owner}/${appRepoFork.repo}")
-            service.getRepo(owner = appRepoFork.owner, repo = appRepoFork.repo)
-        }
-        println("fetched repo details: $repo")
+        val githubToken = System.getenv("GITHUB_TOKEN")
+            ?: throw UsageError("GITHUB_TOKEN is null")
+        val github = GitHubBuilder().withOAuthToken(githubToken).build()
+        val repo = github.getRepository("${appRepoFork.owner}/${appRepoFork.repo}")
+
+        T.info("fetched repo details: $repo")
         if (repo.parent == null) {
             throw UsageError("${appRepoFork.githubUrl} is not a fork of another repository!")
         }
 
         // Clone the Tusky repo
         val tuskyForkRoot = File(workRoot,"tusky")
-        println("cloning $appRepoFork in to $tuskyForkRoot")
+        T.info("cloning $appRepoFork in to $tuskyForkRoot")
         ensureRepo(appRepoFork.gitUrl, tuskyForkRoot)
 
-        // TODO: Clone the F-Droid repo
         val fdroidForkRoot = File(workRoot, "fdroiddata")
-        println("cloning $fdroidRepoFork in to $fdroidForkRoot")
+        T.info("cloning $fdroidRepoFork in to $fdroidForkRoot")
         ensureRepo(fdroidRepoFork.gitUrl, fdroidForkRoot)
 
-        println("Cloned repo")
+        T.success("Cloned repos")
         val config = Config(
             repositoryFork = GitHubRepository.from(repo),
             repositoryMain = GitHubRepository.from(repo.parent),
@@ -93,8 +85,6 @@ class Init : CliktCommand() {
 
         config.save(CONFIG_FILE)
 
-        println("Saved config")
-
-        GithubService.shutdown()
+        T.success("Saved config")
     }
 }

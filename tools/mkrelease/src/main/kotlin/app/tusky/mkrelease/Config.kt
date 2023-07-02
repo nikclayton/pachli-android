@@ -19,13 +19,13 @@
 
 package app.tusky.mkrelease
 
-import app.tusky.mkrelease.github.RepositoriesApi
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
+import org.kohsuke.github.GHRepository
 import java.io.File
 import java.net.URL
 
@@ -90,13 +90,10 @@ data class GitHubRepository(
 
         fun from(url: String) = from(URL(url))
 
-        fun from(apiRepo: RepositoriesApi.Repo): GitHubRepository {
-            val (owner, repo) = apiRepo.fullName.split("/", limit = 2)
-            return GitHubRepository(
-                owner = owner,
-                repo = repo
-            )
-        }
+        fun from(apiRepo: GHRepository) = GitHubRepository(
+            owner = apiRepo.ownerName,
+            repo =  apiRepo.name
+        )
     }
 }
 
