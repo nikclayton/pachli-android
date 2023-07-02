@@ -18,6 +18,7 @@
 package app.tusky.mkrelease
 
 import kotlinx.serialization.Serializable
+import java.lang.IllegalStateException
 
 @Serializable
 sealed class TuskyVersion : Comparable<TuskyVersion> {
@@ -29,6 +30,16 @@ sealed class TuskyVersion : Comparable<TuskyVersion> {
     open fun versionTag() = "v${major}.${minor}"
 
     override fun compareTo(other: TuskyVersion): Int {
+        val result = compareByMajorMinorType(other)
+
+        if (result != versionCode.compareTo(other.versionCode)) {
+            throw IllegalStateException("Comparison by major/minor/type is not identical to comparison by versionCode")
+        }
+
+        return result
+    }
+
+    private fun compareByMajorMinorType(other: TuskyVersion): Int {
         if (this == other) return 0
 
         // Major version number always wins
