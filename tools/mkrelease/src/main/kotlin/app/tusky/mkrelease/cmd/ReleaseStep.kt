@@ -22,6 +22,7 @@ import app.tusky.mkrelease.DelegatingCredentialsProvider
 import app.tusky.mkrelease.GitHubPullRequest
 import app.tusky.mkrelease.PasswordCredentialsProvider
 import app.tusky.mkrelease.ReleaseSpec
+import app.tusky.mkrelease.SPEC_FILE
 import app.tusky.mkrelease.T
 import app.tusky.mkrelease.TuskyVersion
 import app.tusky.mkrelease.confirm
@@ -49,6 +50,7 @@ import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.TextProgressMonitor
 import org.eclipse.jgit.transport.RefSpec
 import org.eclipse.jgit.transport.URIish
+import org.gitlab4j.api.GitLabApi
 import org.kohsuke.github.GHPullRequestReviewState
 import org.kohsuke.github.GHReleaseBuilder
 import org.kohsuke.github.GitHubBuilder
@@ -803,3 +805,212 @@ object FinalizeGithubRelease : ReleaseStep2() {
     }
 }
 
+@Serializable
+object SyncFDroidRepository : ReleaseStep2() {
+    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val api = GitLabApi("https://gitlab.com", System.getenv("GITLAB_TOKEN"))
+        val forkedRepo = "nikclayton/fdroiddata"
+
+        val project = api.projectApi.getProject(forkedRepo)
+        if (project.forkedFromProject.httpUrlToRepo != "https://gitlab.com/fdroid/fdroiddata.git") {
+            throw UsageError("$forkedRepo is not forked from fdroid/fdroiddata")
+        }
+        println(project)
+
+        val defaultBranchRef = Git.lsRemoteRepository()
+            .setRemote(config.repositoryFDroidFork.gitUrl.toString())
+            .callAsMap()["HEAD"]?.target?.name ?: throw UsageError("Could not determine default branch name")
+        println("default branch ref is $defaultBranchRef")
+        val defaultBranch = defaultBranchRef.split("/").last()
+
+        val git = ensureRepo(
+            config.repositoryFDroidFork.gitUrl,
+            config.fdroidForkRoot,
+        )
+            .also { it.ensureClean() }
+
+        // Sync the fork with the parent
+
+        // git remote add upstream https://...
+        git.remoteAdd()
+            .setName("upstream")
+            .setUri(URIish(project.forkedFromProject.httpUrlToRepo))
+            .info()
+            .call()
+
+        // git checkout main
+        git.checkout()
+            .setName(defaultBranch)
+            .info()
+            .call()
+
+        // git fetch upstream
+        git.fetch()
+            .setRemote("upstream")
+            .setProgressMonitor(TextProgressMonitor())
+            .info()
+            .call()
+
+        // git pull upstream $defaultBranch
+        git.pull()
+            .setRemote("upstream")
+            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+            .setProgressMonitor(TextProgressMonitor())
+            .info()
+            .call()
+
+        // git push origin $defaultBranch
+        git.push()
+            .setCredentialsProvider(DelegatingCredentialsProvider(config.fdroidForkRoot.toPath()))
+            .setRemote("origin")
+            .setProgressMonitor(TextProgressMonitor())
+            .info()
+            .call()
+
+        return null
+    }
+}
+
+@Serializable
+object MakeFDroidReleaseBranch : ReleaseStep2() {
+    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val git = ensureRepo(config.repositoryFDroidFork.gitUrl, config.fdroidForkRoot)
+            .also { it.ensureClean() }
+
+        val branch = spec.fdroidReleaseBranch()
+
+        try {
+            git.branchCreate()
+                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                .setName(branch)
+                .info()
+                .call()
+        } catch (e: RefAlreadyExistsException) {
+            throw BranchExists("Branch $branch already exists")
+        }
+
+        git.checkout()
+            .setName(branch)
+            .info()
+            .call()
+
+        return null
+    }
+}
+
+@Serializable
+object ModifyFDroidYaml : ReleaseStep2() {
+    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val thisVersion = spec.thisVersion ?: throw UsageError("releaseSpec.thisVersion must be defined")
+        val branch = spec.fdroidReleaseBranch()
+        val git = ensureRepo(config.repositoryFDroidFork.gitUrl, config.fdroidForkRoot)
+            .also { it.ensureClean() }
+
+        git.checkout()
+            .setName(branch)
+            .info()
+            .call()
+
+        val metadataPath = "metadata/com.keylesspalace.tusky.yml"
+
+        // Parsing the YAML in to a data class, amending the data, and then
+        // writing it back out is problematic for a few reasons:
+        //
+        // 1. Order of items is not guaranteed, resulting in spurious diffs
+        // 2. Comments are probably not preserved
+        // 3. Failing to fully specify all the YAML elements would result in
+        //    missing data in the result.
+        //
+        // Simpler to treat it as line-oriented records, and emit the correct
+        // data at the correct place.
+
+        val metadataFile = File(config.fdroidForkRoot, metadataPath)
+        val tmpFile = createTempFile().toFile()
+        val w = tmpFile.printWriter()
+        metadataFile.forEachLine { line ->
+            if (line == "AutoUpdateMode: Version") {
+                w.println("""  - versionName: ${thisVersion.versionName()}
+    versionCode: ${thisVersion.versionCode}
+    commit: ${thisVersion.versionTag()}
+    subdir: app
+    gradle:
+      - blue
+""")
+            }
+            w.println(line)
+        }
+        w.close()
+        Files.move(tmpFile.toPath(), metadataFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+
+        git.add()
+            .setUpdate(false)
+            .addFilepattern(metadataPath)
+            .info()
+            .call()
+
+        var changesAreOk = false
+        while (!changesAreOk) {
+            git.diff().setOutputStream(System.out).setCached(true).call()
+            changesAreOk = T.confirm("Do these changes look OK?")
+            if (!changesAreOk) {
+                TermUi.editFile(metadataPath)
+                git.add().addFilepattern(metadataPath).info().call()
+            }
+        }
+
+        val commitMsg = "Tusky ${thisVersion.versionName()} (${thisVersion.versionCode})"
+        git.commit()
+            .setMessage(commitMsg)
+            .setSign(null)
+            .setCredentialsProvider(PasswordCredentialsProvider())
+            .info()
+            .call()
+
+        git.push()
+            .setCredentialsProvider(DelegatingCredentialsProvider(config.fdroidForkRoot.toPath()))
+            .setRemote("origin")
+            .setRefSpecs(RefSpec("$branch:$branch"))
+            .info()
+            .call()
+
+        return null
+    }
+}
+
+@Serializable
+object CreateFDroidMergeRequest : ReleaseStep2() {
+    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val branch = spec.fdroidReleaseBranch()
+
+        T.info("""
+                This is done by hand at the moment, to complete the merge request template")
+
+                1. Open ${config.repositoryFDroidFork.gitlabUrl}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${branch}
+                2. Set and apply the "App update" template
+                3. Tick the relevant boxes
+                4. Click "Create merge request"
+
+            """.trimIndent())
+
+        while (!T.confirm("Have you done all this?")) { }
+
+        return null
+    }
+}
+
+@Serializable
+object AnnounceTheBetaRelease : ReleaseStep2() {
+    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
+        T.info("- Announce the beta release, and you're done.")
+
+        while (!T.confirm("Have you done all this?")) { }
+
+        // Done. This version can now be marked as the previous version
+        val releaseSpec = ReleaseSpec.from(SPEC_FILE)
+        return releaseSpec.copy(
+            prevVersion = releaseSpec.thisVersion!!,
+            thisVersion = null,
+            pullRequest = null
+        )
+    }
+}
