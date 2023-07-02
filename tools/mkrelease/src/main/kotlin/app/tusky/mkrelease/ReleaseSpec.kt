@@ -19,7 +19,7 @@
 
 package app.tusky.mkrelease
 
-import app.tusky.mkrelease.cmd.ReleaseStep2
+import app.tusky.mkrelease.cmd.ReleaseStep
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -60,7 +60,7 @@ data class ReleaseSpec(
     val thisVersion: TuskyVersion? = null,
 
     /** The next release step. Null if no steps carried out */
-    val nextStep: ReleaseStep2? = null,
+    val nextStep: ReleaseStep? = null,
 
     /** The pull request that contains the new version code, name, changelog, etc */
     val pullRequest: GitHubPullRequest? = null

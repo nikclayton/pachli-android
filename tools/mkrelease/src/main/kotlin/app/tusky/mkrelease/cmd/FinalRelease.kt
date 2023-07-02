@@ -69,7 +69,7 @@ class FinalRelease : CliktCommand(name = "final") {
             // Close out the release in the spec so that a future beta/final can bail
         )
 
-        val firstStep: ReleaseStep2 = releaseSpec.nextStep ?: steps.first()
+        val firstStep: ReleaseStep = releaseSpec.nextStep ?: steps.first()
 
 //        firstStep?.let {
 //            if (!it.javaClass.name.startsWith(this.javaClass.name)) {

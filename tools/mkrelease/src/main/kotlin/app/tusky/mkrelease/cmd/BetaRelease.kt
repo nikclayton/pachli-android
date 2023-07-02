@@ -68,7 +68,7 @@ class BetaRelease : CliktCommand(name = "beta") {
 
         // TODO: Reimplement --just
 
-        val firstStep: ReleaseStep2 = releaseSpec.nextStep ?: steps.first()
+        val firstStep: ReleaseStep = releaseSpec.nextStep ?: steps.first()
 
         val si = steps.indexOf(firstStep).takeIf { it != -1 } ?: 0
 

@@ -35,7 +35,6 @@ import app.tusky.mkrelease.hasBranch
 import app.tusky.mkrelease.info
 import app.tusky.mkrelease.message
 import com.android.builder.model.v2.models.AndroidDsl
-import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.mordant.rendering.TextColors
@@ -67,20 +66,6 @@ import kotlin.time.Duration.Companion.seconds
  */
 @Serializable
 sealed class ReleaseStep {
-    abstract val config: Config
-
-    /**
-     * Do the work to move on to the next step.
-     *
-     * @return The next step in the process, or null if this is the final step.
-     */
-    abstract fun run(cmd: CliktCommand): ReleaseStep?
-
-    open fun desc(): String = this.javaClass.simpleName
-}
-
-@Serializable
-sealed class ReleaseStep2 {
     abstract fun run(config: Config, spec: ReleaseSpec): ReleaseSpec?
     open fun desc(): String = this.javaClass.simpleName
 }
@@ -93,7 +78,7 @@ sealed class ReleaseStep2 {
  * - Sets upstream remote
  */
 @Serializable
-object PrepareTuskyForkRepository : ReleaseStep2() {
+object PrepareTuskyForkRepository : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryFork
         val root = config.tuskyForkRoot
@@ -165,7 +150,7 @@ object PrepareTuskyForkRepository : ReleaseStep2() {
  * live (i.e., the one this release process will replace).
  */
 @Serializable
-object GetCurrentAppVersion : ReleaseStep2() {
+object GetCurrentAppVersion : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
         val repo = config.repositoryFork
         val root = config.tuskyForkRoot
@@ -196,7 +181,7 @@ object GetCurrentAppVersion : ReleaseStep2() {
  * @throws if [ReleaseSpec.prevVersion] is not a [TuskyVersion.Beta]
  */
 @Serializable
-object ConfirmCurrentVersionIsBeta : ReleaseStep2() {
+object ConfirmCurrentVersionIsBeta : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         if (spec.prevVersion !is TuskyVersion.Beta) {
             throw UsageError("Current Tusky version is not a beta")
@@ -208,7 +193,7 @@ object ConfirmCurrentVersionIsBeta : ReleaseStep2() {
 }
 
 @Serializable
-object SetNextVersionAsBeta : ReleaseStep2() {
+object SetNextVersionAsBeta : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val releaseVersion = spec.prevVersion.next(spec.releaseType)
         T.success("Release version is $releaseVersion")
@@ -217,7 +202,7 @@ object SetNextVersionAsBeta : ReleaseStep2() {
 }
 
 @Serializable
-object SetNextVersionAsRelease : ReleaseStep2() {
+object SetNextVersionAsRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
         val releaseVersion = (spec.prevVersion as TuskyVersion.Beta).release()
         T.success("Release version is $releaseVersion")
@@ -228,7 +213,7 @@ object SetNextVersionAsRelease : ReleaseStep2() {
 class BranchExists(message: String) : Throwable(message)
 
 @Serializable
-object CreateReleaseBranch : ReleaseStep2() {
+object CreateReleaseBranch : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryFork
         val root = config.tuskyForkRoot
@@ -260,7 +245,7 @@ object CreateReleaseBranch : ReleaseStep2() {
 class BranchMissing(message: String): Exception(message)
 
 @Serializable
-object UpdateFilesForRelease : ReleaseStep2() {
+object UpdateFilesForRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryFork
         val root = config.tuskyForkRoot
@@ -411,7 +396,7 @@ object UpdateFilesForRelease : ReleaseStep2() {
 }
 
 @Serializable
-object CreateReleaseBranchPullRequest : ReleaseStep2() {
+object CreateReleaseBranchPullRequest : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         T.info("- Create pull request at https://github.com/${config.repositoryMain.owner}/${config.repositoryMain.repo}/compare/develop...${config.repositoryFork.owner}:${config.repositoryFork.repo}:${spec.releaseBranch()}?expand=1")
         return null
@@ -422,7 +407,7 @@ object CreateReleaseBranchPullRequest : ReleaseStep2() {
  * Prompts for a pull request URL and saves it to [ReleaseSpec.pullRequest].
  */
 @Serializable
-object SavePullRequest : ReleaseStep2() {
+object SavePullRequest : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
         val pullRequest = GitHubPullRequest(
             URL(T.prompt(TextColors.yellow("Enter pull request URL"))))
@@ -434,7 +419,7 @@ object SavePullRequest : ReleaseStep2() {
  * Waits for [ReleaseSpec.pullRequest] to be merged.
  */
 @Serializable
-object WaitForPullRequestMerged : ReleaseStep2() {
+object WaitForPullRequestMerged : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? = runBlocking {
         val pullRequest = spec.pullRequest
             ?: throw UsageError("pullRequest is null, but should not be")
@@ -515,7 +500,7 @@ object WaitForPullRequestMerged : ReleaseStep2() {
  * clone of the primary repository, not a fork.
  */
 @Serializable
-object MergeDevelopToMain : ReleaseStep2() {
+object MergeDevelopToMain : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
         val root = config.tuskyMainRoot
@@ -591,7 +576,7 @@ object MergeDevelopToMain : ReleaseStep2() {
 }
 
 @Serializable
-object TagMainAsRelease : ReleaseStep2() {
+object TagMainAsRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
         val root = config.tuskyMainRoot
@@ -611,7 +596,7 @@ object TagMainAsRelease : ReleaseStep2() {
 }
 
 @Serializable
-object PushTaggedMain : ReleaseStep2() {
+object PushTaggedMain : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
         val root = config.tuskyMainRoot
@@ -630,7 +615,7 @@ object PushTaggedMain : ReleaseStep2() {
 }
 
 @Serializable
-object CreateGithubRelease : ReleaseStep2() {
+object CreateGithubRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val githubToken = System.getenv("GITHUB_TOKEN")
             ?: throw UsageError("GITHUB_TOKEN is null")
@@ -659,7 +644,7 @@ object CreateGithubRelease : ReleaseStep2() {
 }
 
 @Serializable
-object WaitForBitriseToBuild : ReleaseStep2() {
+object WaitForBitriseToBuild : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         T.info("""
                 Wait for Bitrise to build and upload the APK to Google Play.
@@ -673,7 +658,7 @@ object WaitForBitriseToBuild : ReleaseStep2() {
 }
 
 @Serializable
-object MarkAsBetaOnPlay : ReleaseStep2() {
+object MarkAsBetaOnPlay : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
 
@@ -704,7 +689,7 @@ ${spec.fastlaneFile(config.tuskyMainRoot).readLines().joinToString("\n")}
 }
 
 @Serializable
-object DownloadApk : ReleaseStep2() {
+object DownloadApk : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
 
@@ -724,7 +709,7 @@ This should download ${thisVersion.versionCode}.apk
 }
 
 @Serializable
-object AttachApkToGithubRelease : ReleaseStep2() {
+object AttachApkToGithubRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
         val githubToken = System.getenv("GITHUB_TOKEN")
@@ -748,7 +733,7 @@ object AttachApkToGithubRelease : ReleaseStep2() {
 }
 
 @Serializable
-object PromoteRelease : ReleaseStep2() {
+object PromoteRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
 
@@ -770,7 +755,7 @@ object PromoteRelease : ReleaseStep2() {
 }
 
 @Serializable
-object FinalizeGithubRelease : ReleaseStep2() {
+object FinalizeGithubRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
         val githubToken = System.getenv("GITHUB_TOKEN")
@@ -806,7 +791,7 @@ object FinalizeGithubRelease : ReleaseStep2() {
 }
 
 @Serializable
-object SyncFDroidRepository : ReleaseStep2() {
+object SyncFDroidRepository : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val api = GitLabApi("https://gitlab.com", System.getenv("GITLAB_TOKEN"))
         val forkedRepo = "nikclayton/fdroiddata"
@@ -872,7 +857,7 @@ object SyncFDroidRepository : ReleaseStep2() {
 }
 
 @Serializable
-object MakeFDroidReleaseBranch : ReleaseStep2() {
+object MakeFDroidReleaseBranch : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val git = ensureRepo(config.repositoryFDroidFork.gitUrl, config.fdroidForkRoot)
             .also { it.ensureClean() }
@@ -899,7 +884,7 @@ object MakeFDroidReleaseBranch : ReleaseStep2() {
 }
 
 @Serializable
-object ModifyFDroidYaml : ReleaseStep2() {
+object ModifyFDroidYaml : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("releaseSpec.thisVersion must be defined")
         val branch = spec.fdroidReleaseBranch()
@@ -978,7 +963,7 @@ object ModifyFDroidYaml : ReleaseStep2() {
 }
 
 @Serializable
-object CreateFDroidMergeRequest : ReleaseStep2() {
+object CreateFDroidMergeRequest : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val branch = spec.fdroidReleaseBranch()
 
@@ -999,7 +984,7 @@ object CreateFDroidMergeRequest : ReleaseStep2() {
 }
 
 @Serializable
-object AnnounceTheBetaRelease : ReleaseStep2() {
+object AnnounceTheBetaRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
         T.info("- Announce the beta release, and you're done.")
 
