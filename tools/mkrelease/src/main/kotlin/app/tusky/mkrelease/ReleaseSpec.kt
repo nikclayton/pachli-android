@@ -98,7 +98,7 @@ data class ReleaseSpec(
     /** Path to the fastlane file, relative to the repo root */
     fun fastlanePath(): String {
         val versionCode = thisVersion?.versionCode ?: throw(Exception("fastlaneFile() without setting thisVersion first"))
-        return "fastlane/metadata/android/en-US/changelogs/${versionCode}.txt"
+        return "fastlane/metadata/android/en-US/changelogs/$versionCode.txt"
     }
 
     /** Fastlane path for this version */

@@ -28,7 +28,6 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.mordant.rendering.TextStyles
 
-
 /** Prepare a new beta release, based on the current release */
 class BetaRelease : CliktCommand(name = "beta") {
     private val globalFlags by requireObject<GlobalFlags>()

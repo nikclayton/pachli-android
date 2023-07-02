@@ -99,6 +99,6 @@ class FinalRelease : CliktCommand(name = "final") {
             }
         }
 
-        //releaseSpec.copy(nextStep = null).save(SPEC_FILE)
+        // releaseSpec.copy(nextStep = null).save(SPEC_FILE)
     }
 }

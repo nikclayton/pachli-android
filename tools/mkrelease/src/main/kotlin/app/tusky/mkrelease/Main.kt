@@ -41,7 +41,6 @@ import org.gradle.tooling.ProjectConnection
 import java.io.File
 import java.net.URL
 
-
 private val log = KotlinLogging.logger {}
 
 // Subcommands:
@@ -156,6 +155,9 @@ fun getGradle(workTree: File): ProjectConnection = GradleConnector.newConnector(
     .connect()
 
 fun main(args: Array<String>) = App().subcommands(
-    Init(), StartRelease(), BetaRelease(), FinalRelease(), State()
+    Init(),
+    StartRelease(),
+    BetaRelease(),
+    FinalRelease(),
+    State()
 ).main(args)
-

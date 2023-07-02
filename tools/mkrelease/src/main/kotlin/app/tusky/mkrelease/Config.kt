@@ -92,7 +92,7 @@ data class GitHubRepository(
 
         fun from(apiRepo: GHRepository) = GitHubRepository(
             owner = apiRepo.ownerName,
-            repo =  apiRepo.name
+            repo = apiRepo.name
         )
     }
 }

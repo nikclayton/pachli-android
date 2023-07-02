@@ -106,9 +106,11 @@ fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName
     fastlane.createNewFile()
 
     val w = fastlane.printWriter()
-    w.println("""
+    w.println(
+        """
                 Tusky $nextVersionName
-            """.trimIndent())
+        """.trimIndent()
+    )
 
     if (changes.features.isNotEmpty()) {
         w.println(
@@ -116,7 +118,7 @@ fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName
 
         New features:
 
-    """.trimIndent()
+            """.trimIndent()
         )
 
         changes.features.forEach {
@@ -135,7 +137,7 @@ fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName
 
         Fixes:
 
-    """.trimIndent()
+            """.trimIndent()
         )
         changes.fixes.forEach {
             w.println(

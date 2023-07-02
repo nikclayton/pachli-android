@@ -64,7 +64,7 @@ class Init : CliktCommand() {
         }
 
         // Clone the Tusky repo
-        val tuskyForkRoot = File(workRoot,"tusky")
+        val tuskyForkRoot = File(workRoot, "tusky")
         T.info("cloning $appRepoFork in to $tuskyForkRoot")
         ensureRepo(appRepoFork.gitUrl, tuskyForkRoot)
 

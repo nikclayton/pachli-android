@@ -70,7 +70,6 @@ sealed class ReleaseStep {
     open fun desc(): String = this.javaClass.simpleName
 }
 
-
 /**
  * Prepares the copy of the Tusky repository fork.
  *
@@ -172,7 +171,7 @@ object GetCurrentAppVersion : ReleaseStep() {
         T.success("  $currentRelease")
 
         return spec.copy(
-            prevVersion = currentRelease,
+            prevVersion = currentRelease
         )
     }
 }
@@ -242,7 +241,7 @@ object CreateReleaseBranch : ReleaseStep() {
     }
 }
 
-class BranchMissing(message: String): Exception(message)
+class BranchMissing(message: String) : Exception(message)
 
 @Serializable
 object UpdateFilesForRelease : ReleaseStep() {
@@ -410,7 +409,8 @@ object CreateReleaseBranchPullRequest : ReleaseStep() {
 object SavePullRequest : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
         val pullRequest = GitHubPullRequest(
-            URL(T.prompt(TextColors.yellow("Enter pull request URL"))))
+            URL(T.prompt(TextColors.yellow("Enter pull request URL")))
+        )
         return spec.copy(pullRequest = pullRequest)
     }
 }
@@ -474,7 +474,7 @@ object WaitForPullRequestMerged : ReleaseStep() {
                     lines++
                 }
             }
-            repeat (300) {
+            repeat(300) {
                 T.info("Waiting until next check in: $it / 300 seconds")
                 delay(1.seconds)
                 T.cursor.move {
@@ -627,7 +627,8 @@ object CreateGithubRelease : ReleaseStep() {
         val changes = getChangelog(changeLogFile, thisVersion.versionName())
 
         val repo = github.getRepository(
-            "${config.repositoryMain.owner}/${config.repositoryMain.repo}")
+            "${config.repositoryMain.owner}/${config.repositoryMain.repo}"
+        )
 
         val release = GHReleaseBuilder(repo, spec.releaseTag())
             .name(spec.githubReleaseName())
@@ -646,11 +647,13 @@ object CreateGithubRelease : ReleaseStep() {
 @Serializable
 object WaitForBitriseToBuild : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        T.info("""
+        T.info(
+            """
                 Wait for Bitrise to build and upload the APK to Google Play.
 
                 Check https://app.bitrise.io/app/a3e773c3c57a894c?workflow=workflow-release
-                """.trimIndent())
+            """.trimIndent()
+        )
 
         while (!T.confirm("Has Bitrise uploaded the APK?")) { }
         return null
@@ -662,7 +665,8 @@ object MarkAsBetaOnPlay : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
 
-        T.info("""
+        T.info(
+            """
 API access requires @connyduck permission to set up, so not automated yet
 
 1. Open https://play.google.com/console/u/0/developers/8419715224772184120/app/4973838218515056581/tracks/4699478614741377000
@@ -681,7 +685,8 @@ ${spec.fastlaneFile(config.tuskyMainRoot).readLines().joinToString("\n")}
 9. Go to 'Publishing Overview' when prompted
 10. Send the changes for review
 
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         while (!T.confirm("Have you done all this?")) { }
         return null
@@ -693,7 +698,8 @@ object DownloadApk : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
 
-        T.info("""
+        T.info(
+            """
 1. Open https://play.google.com/console/u/0/developers/8419715224772184120/app/4973838218515056581/bundle-explorer-selector
 2. Click the row for ${thisVersion.versionCode}
 3. Click the 'Downloads' tab
@@ -701,7 +707,8 @@ object DownloadApk : ReleaseStep() {
 
 This should download ${thisVersion.versionCode}.apk
 
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         while (!T.confirm("Have you done all this?")) { }
         return null
@@ -719,9 +726,10 @@ object AttachApkToGithubRelease : ReleaseStep() {
         // As a draft release getReleaseByTagName doesn't find it. So fetch the
         // most recent releases and search for it in those.
         val repo = github.getRepository(
-            "${config.repositoryMain.owner}/${config.repositoryMain.repo}")
+            "${config.repositoryMain.owner}/${config.repositoryMain.repo}"
+        )
 
-        val release = repo.listReleases().toList().find { it.tagName == thisVersion.versionTag()}
+        val release = repo.listReleases().toList().find { it.tagName == thisVersion.versionTag() }
             ?: throw UsageError("Could not find Github release for tag ${spec.releaseTag()}")
 
         val apk = File("../../Downloads/${thisVersion.versionCode}.apk")
@@ -737,7 +745,8 @@ object PromoteRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
 
-        T.info("""
+        T.info(
+            """
 1. Open the open testing track, https://play.google.com/console/u/0/developers/8419715224772184120/app/4973838218515056581/tracks/open-testing
 2. Confirm the testing version is ${thisVersion.versionCode}
 3. Click "Promote release" and choose "Production"
@@ -747,7 +756,8 @@ object PromoteRelease : ReleaseStep() {
 7. Click "Save"
 8. Go to the publishing overview when prompted
 9. Send the change for review
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         while (!T.confirm("Have you done all this?")) { }
         return null
@@ -765,9 +775,10 @@ object FinalizeGithubRelease : ReleaseStep() {
         // As a draft release getReleaseByTagName doesn't find it. So fetch the
         // most recent releases and search for it in those.
         val repo = github.getRepository(
-            "${config.repositoryMain.owner}/${config.repositoryMain.repo}")
+            "${config.repositoryMain.owner}/${config.repositoryMain.repo}"
+        )
 
-        val release = repo.listReleases().toList().find { it.tagName == thisVersion.versionTag()}
+        val release = repo.listReleases().toList().find { it.tagName == thisVersion.versionTag() }
             ?: throw UsageError("Could not find Github release for tag ${spec.releaseTag()}")
 
         val makeLatest = when (thisVersion) {
@@ -810,7 +821,7 @@ object SyncFDroidRepository : ReleaseStep() {
 
         val git = ensureRepo(
             config.repositoryFDroidFork.gitUrl,
-            config.fdroidForkRoot,
+            config.fdroidForkRoot
         )
             .also { it.ensureClean() }
 
@@ -914,13 +925,15 @@ object ModifyFDroidYaml : ReleaseStep() {
         val w = tmpFile.printWriter()
         metadataFile.forEachLine { line ->
             if (line == "AutoUpdateMode: Version") {
-                w.println("""  - versionName: ${thisVersion.versionName()}
+                w.println(
+                    """  - versionName: ${thisVersion.versionName()}
     versionCode: ${thisVersion.versionCode}
     commit: ${thisVersion.versionTag()}
     subdir: app
     gradle:
       - blue
-""")
+"""
+                )
             }
             w.println(line)
         }
@@ -967,15 +980,17 @@ object CreateFDroidMergeRequest : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val branch = spec.fdroidReleaseBranch()
 
-        T.info("""
+        T.info(
+            """
                 This is done by hand at the moment, to complete the merge request template")
 
-                1. Open ${config.repositoryFDroidFork.gitlabUrl}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${branch}
+                1. Open ${config.repositoryFDroidFork.gitlabUrl}/-/merge_requests/new?merge_request%5Bsource_branch%5D=$branch
                 2. Set and apply the "App update" template
                 3. Tick the relevant boxes
                 4. Click "Create merge request"
 
-            """.trimIndent())
+            """.trimIndent()
+        )
 
         while (!T.confirm("Have you done all this?")) { }
 

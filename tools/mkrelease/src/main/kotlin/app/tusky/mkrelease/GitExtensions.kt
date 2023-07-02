@@ -55,15 +55,15 @@ fun Git.ensureClean() {
 
     if (!status.isClean) {
         T.danger("Warning: ${this.repository.workTree} is not clean")
-        status.conflicting.forEach{ println(           "Conflict          - $it")}
-        status.added.forEach { println(                "Added             - $it") }
-        status.changed.forEach { println(              "Changed           - $it") }
-        status.missing.forEach { println(              "Missing           - $it") }
-        status.modified.forEach { println(             "Modified          - $it") }
-        status.removed.forEach { println(              "Removed           - $it") }
-        status.uncommittedChanges.forEach { println(   "Uncommitted       - $it") }
-        status.untracked.forEach { println(            "Untracked         - $it") }
-        status.untrackedFolders.forEach { println(     "Untracked folder  - $it") }
+        status.conflicting.forEach { println("Conflict          - $it") }
+        status.added.forEach { println("Added             - $it") }
+        status.changed.forEach { println("Changed           - $it") }
+        status.missing.forEach { println("Missing           - $it") }
+        status.modified.forEach { println("Modified          - $it") }
+        status.removed.forEach { println("Removed           - $it") }
+        status.uncommittedChanges.forEach { println("Uncommitted       - $it") }
+        status.untracked.forEach { println("Untracked         - $it") }
+        status.untrackedFolders.forEach { println("Untracked folder  - $it") }
         status.conflictingStageState.forEach { println("Conflicting state - $it") }
 
         if (T.confirm("See the diffs?")) {
@@ -121,7 +121,7 @@ fun AddCommand.info(): AddCommand {
     val filePatterns = this.getPrivateProperty<AddCommand, Collection<String>>("filepatterns")
         ?.joinToString(" ")
 
-    T.info("- git add${update} $filePatterns")
+    T.info("- git add$update $filePatterns")
     return this
 }
 
@@ -164,7 +164,7 @@ fun CreateBranchCommand.info(): CreateBranchCommand {
         CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM -> " --set-upstream"
         null -> TODO()
     }
-    T.info("- git branch${upstreamMode} $name")
+    T.info("- git branch$upstreamMode $name")
     return this
 }
 
@@ -177,13 +177,15 @@ fun FetchCommand.info(): FetchCommand {
 fun LogCommand.info(): LogCommand {
     val maxCount = this.getPrivateProperty<LogCommand, Int>("maxCount")
         .takeIf { it != -1 }
-        ?.let {" --max-count=$it" }
+        ?.let { " --max-count=$it" }
         ?: ""
     val startSpecified = this.getPrivateProperty<LogCommand, Boolean>("startSpecified") ?: false
     val roots = if (startSpecified) {
         val walk = this.getPrivateProperty<LogCommand, RevWalk>("walk")
         walk?.getPrivateProperty<RevWalk, List<RevCommit>>("roots") ?: emptyList()
-    } else emptyList()
+    } else {
+        emptyList()
+    }
 
     T.info("- git log$maxCount ${roots.joinToString("..") { it.name }}")
     return this
@@ -216,7 +218,7 @@ fun PullCommand.info(): PullCommand {
 }
 
 fun PushCommand.info(): PushCommand {
-    val remote = this.getPrivateProperty<PushCommand, String>("remote")?.let { " $it"} ?: ""
+    val remote = this.getPrivateProperty<PushCommand, String>("remote")?.let { " $it" } ?: ""
     val refSpecs = this.getPrivateProperty<PushCommand, List<RefSpec>>("refSpecs")?.joinToString(" ")
     T.info("- git push$remote $refSpecs")
     return this
@@ -235,9 +237,9 @@ fun StatusCommand.info(): StatusCommand {
 }
 
 fun TagCommand.info(): TagCommand {
-    val name = this.getPrivateProperty<TagCommand, String>("name")?.let { " $it"} ?: ""
-    val message = this.getPrivateProperty<TagCommand, String>("message")?.let { " -m '$it'"} ?: ""
-    val signed = this.getPrivateProperty<TagCommand, Boolean>("signed")?.let { " -s"} ?: ""
+    val name = this.getPrivateProperty<TagCommand, String>("name")?.let { " $it" } ?: ""
+    val message = this.getPrivateProperty<TagCommand, String>("message")?.let { " -m '$it'" } ?: ""
+    val signed = this.getPrivateProperty<TagCommand, Boolean>("signed")?.let { " -s" } ?: ""
     T.info("- git tag$signed$message$name")
     return this
 }

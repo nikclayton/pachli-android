@@ -35,7 +35,6 @@ import java.util.function.Function
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-
 class DelegatingCredentialsProvider(projectDir: Path) :
     CredentialsProvider() {
     private val additionalNativeGitEnvironment: Map<String, String> = HashMap()
@@ -57,8 +56,9 @@ class DelegatingCredentialsProvider(projectDir: Path) :
 
     @Throws(UnsupportedCredentialItem::class)
     override operator fun get(uri: URIish, vararg items: CredentialItem?): Boolean {
-        val credentialsPair: CredentialsPair = credentials.computeIfAbsent(uri,
-            Function<URIish, CredentialsPair> { u: URIish? ->
+        val credentialsPair: CredentialsPair = credentials.computeIfAbsent(
+            uri,
+            Function<URIish, CredentialsPair> { _ ->
                 try {
                     lookupCredentials(uri)
                 } catch (e: IOException) {
@@ -80,7 +80,8 @@ class DelegatingCredentialsProvider(projectDir: Path) :
                     )
                     null
                 }
-            }) ?: return false
+            }
+        )
 
         // map extracted credentials to CredentialItems, see also: org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
         for (item: CredentialItem? in items) {
@@ -90,7 +91,7 @@ class DelegatingCredentialsProvider(projectDir: Path) :
             } else if (item is CredentialItem.Password) {
                 item.value = credentialsPair.password
             } else if (item is CredentialItem.StringType && item.getPromptText()
-                    .equals("Password: ")
+                .equals("Password: ")
             ) {
                 item.value = String(credentialsPair.password)
             } else {
@@ -132,7 +133,8 @@ class DelegatingCredentialsProvider(projectDir: Path) :
             logger.info(bufferToString(result.stdout))
             logger.error(bufferToString(result.stderr))
             throw IllegalStateException(
-                ("Native Git invocation failed with return code " + result.rc
+                (
+                    "Native Git invocation failed with return code " + result.rc
                     ) + ". See previous log output for more details."
             )
         }

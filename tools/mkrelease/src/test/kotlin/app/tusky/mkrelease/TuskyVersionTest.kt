@@ -17,8 +17,9 @@
 
 package app.tusky.mkrelease
 
-import app.tusky.mkrelease.TuskyVersion.*
-import org.junit.jupiter.api.Assertions.*
+import app.tusky.mkrelease.TuskyVersion.Beta
+import app.tusky.mkrelease.TuskyVersion.Release
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
@@ -45,21 +46,21 @@ internal class TuskyVersionTest {
                 Params(Release(1, 0, 100), Release(1, 1, 101), -1),
 
                 // Releases with different major numbers, larger major always wins
-                Params(Release(2, 0, 101), Release(1,0, 100), 1),
+                Params(Release(2, 0, 101), Release(1, 0, 100), 1),
                 Params(Release(2, 0, 101), Release(1, 1, 100), 1),
 
                 // Beta is always less than the equivalent release
-                Params(Release(1,0, 101), Beta(1,0,1, 100), 1),
+                Params(Release(1, 0, 101), Beta(1, 0, 1, 100), 1),
 
                 // Beta with higher major or minor wins
-                Params(Release(1,1, 100), Beta(1,2, 1, 101), -1),
+                Params(Release(1, 1, 100), Beta(1, 2, 1, 101), -1),
                 Params(Release(2, 0, 100), Beta(2, 1, 1, 101), -1),
 
                 // Equal betas are equal
                 Params(Beta(1, 1, 1, 100), Beta(1, 1, 1, 100), 0),
 
                 // Betas with same major/minor differ by beta value
-                Params(Beta(1, 1, 1, 100), Beta(1, 1, 2, 102), -1),
+                Params(Beta(1, 1, 1, 100), Beta(1, 1, 2, 102), -1)
             )
         }
 
@@ -73,27 +74,27 @@ internal class TuskyVersionTest {
     @Test
     fun `sorts correctly`() {
         val releases = listOf(
-            Release(1,0, 100),
-            Release(1,1, 103),
-            Release(1,2, 105),
-            Release(2,0, 108),
-            Beta(1,1,1, 101),
-            Beta(1,1,2, 102),
-            Beta(1,2,1, 104),
-            Beta(2,0,1, 106),
-            Beta(2,0,2, 107)
+            Release(1, 0, 100),
+            Release(1, 1, 103),
+            Release(1, 2, 105),
+            Release(2, 0, 108),
+            Beta(1, 1, 1, 101),
+            Beta(1, 1, 2, 102),
+            Beta(1, 2, 1, 104),
+            Beta(2, 0, 1, 106),
+            Beta(2, 0, 2, 107)
         )
 
         val sorted = listOf(
             Release(1, 0, 100),
-            Beta(1,1,1, 101),
-            Beta(1,1,2, 102),
-            Release(1,1, 103),
-            Beta(1,2,1, 104),
-            Release(1,2,105),
-            Beta(2,0,1, 106),
-            Beta(2,0,2, 107),
-            Release(2,0, 108)
+            Beta(1, 1, 1, 101),
+            Beta(1, 1, 2, 102),
+            Release(1, 1, 103),
+            Beta(1, 2, 1, 104),
+            Release(1, 2, 105),
+            Beta(2, 0, 1, 106),
+            Beta(2, 0, 2, 107),
+            Release(2, 0, 108)
         )
 
         assertEquals(releases.sorted(), sorted)

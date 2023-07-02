@@ -26,8 +26,8 @@ sealed class TuskyVersion : Comparable<TuskyVersion> {
     abstract val minor: Int
     abstract val versionCode: Int
 
-    open fun versionName() = "${major}.${minor}"
-    open fun versionTag() = "v${major}.${minor}"
+    open fun versionName() = "$major.$minor"
+    open fun versionTag() = "v$major.$minor"
 
     override fun compareTo(other: TuskyVersion): Int {
         val result = compareByMajorMinorType(other)
@@ -52,7 +52,7 @@ sealed class TuskyVersion : Comparable<TuskyVersion> {
         // identical. One or both of them is a beta release with a different
         // beta value. The one that's the beta is always less
         if (this is Release) return 1
-        if (other is Release) return - 1
+        if (other is Release) return -1
 
         // Both are beta, compare by beta number
         return (this as Beta).beta - (other as Beta).beta
@@ -100,8 +100,8 @@ sealed class TuskyVersion : Comparable<TuskyVersion> {
         val beta: Int,
         override val versionCode: Int
     ) : TuskyVersion() {
-        override fun versionName() = "${major}.${minor} beta $beta"
-        override fun versionTag() = "v${major}.${minor}-beta.${beta}"
+        override fun versionName() = "$major.$minor beta $beta"
+        override fun versionTag() = "v$major.$minor-beta.$beta"
 
         /**
          * @return A [Release] which represents the version *after* this beta.

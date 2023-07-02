@@ -80,13 +80,13 @@ class StartRelease : CliktCommand(name = "start") {
 
         val versionCode = androidDsl.defaultConfig.versionCode ?: throw UsageError("No versionCode in Gradle config")
         val versionName = androidDsl.defaultConfig.versionName ?: throw UsageError("No versionName in Gradle config")
-        val prevRelease = TuskyVersion.from(versionName, versionCode) ?:
-            throw UsageError("Could not parse '$versionName' as release version")
+        val prevRelease = TuskyVersion.from(versionName, versionCode)
+            ?: throw UsageError("Could not parse '$versionName' as release version")
         log.info(prevRelease.toString())
         connection.close()
 
         if (prevRelease is TuskyVersion.Beta) {
-            //throw UsageError("Current release is a beta, use `beta` subcommand")
+            // throw UsageError("Current release is a beta, use `beta` subcommand")
         }
 
 //        val finalRelease = when (majorMinor) {
