@@ -542,7 +542,7 @@ object MergeDevelopToMain : ReleaseStep() {
 
         T.info("- Syncing main branch")
         git.checkout()
-            .setCreateBranch(true)
+            .setCreateBranch(!git.hasBranch("refs/heads/main"))
             .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
             .setName("main")
             .setStartPoint("origin/main")
