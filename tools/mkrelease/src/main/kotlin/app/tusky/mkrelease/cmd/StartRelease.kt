@@ -24,6 +24,7 @@ import app.tusky.mkrelease.GlobalFlags
 import app.tusky.mkrelease.ReleaseSpec
 import app.tusky.mkrelease.ReleaseType
 import app.tusky.mkrelease.SPEC_FILE
+import app.tusky.mkrelease.T
 import app.tusky.mkrelease.TuskyVersion
 import app.tusky.mkrelease.ensureClean
 import app.tusky.mkrelease.ensureRepo
@@ -70,7 +71,7 @@ class StartRelease : CliktCommand(name = "start") {
         val git = ensureRepo(config.repositoryFork.gitUrl, config.tuskyForkRoot)
             .also { it.ensureClean() }
 
-        log.info("${config.tuskyForkRoot} is clean")
+        T.info("${config.tuskyForkRoot} is clean")
 
         // TODO: Should warn if there's a release in progress (e.g., SPEC_FILE exists)
 
