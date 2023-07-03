@@ -58,6 +58,7 @@ class BetaRelease : CliktCommand(name = "beta") {
             MarkAsBetaOnPlay,
             DownloadApk,
             AttachApkToGithubRelease,
+            FinalizeGithubRelease,
             SyncFDroidRepository,
             MakeFDroidReleaseBranch,
             ModifyFDroidYaml,
