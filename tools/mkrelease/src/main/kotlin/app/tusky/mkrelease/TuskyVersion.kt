@@ -18,7 +18,6 @@
 package app.tusky.mkrelease
 
 import kotlinx.serialization.Serializable
-import java.lang.IllegalStateException
 
 @Serializable
 sealed class TuskyVersion : Comparable<TuskyVersion> {
@@ -79,7 +78,7 @@ sealed class TuskyVersion : Comparable<TuskyVersion> {
             )
             ReleaseType.MAJOR -> Beta(
                 major = this.major + 1,
-                minor = 1,
+                minor = 0,
                 beta = 1,
                 versionCode = this.versionCode + 1
             )

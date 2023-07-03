@@ -17,6 +17,7 @@
 
 package app.tusky.mkrelease
 
+import app.tusky.mkrelease.ReleaseType.*
 import app.tusky.mkrelease.TuskyVersion.Beta
 import app.tusky.mkrelease.TuskyVersion.Release
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -98,5 +99,28 @@ internal class TuskyVersionTest {
         )
 
         assertEquals(releases.sorted(), sorted)
+    }
+
+    @Nested
+    @Execution(ExecutionMode.CONCURRENT)
+    inner class Next {
+        inner class Params(val releaseType: ReleaseType, val got: TuskyVersion, val want: TuskyVersion)
+
+        private fun getParams(): Stream<Next.Params> {
+            return Stream.of(
+                Params(MAJOR, Release(1, 0, 1), Beta(2,0, 1,2)),
+                Params(MAJOR, Release(1, 1, 1), Beta(2,0, 1,2)),
+                Params(MINOR, Release(1, 0, 1), Beta(1, 1, 1, 2)),
+                Params(MINOR, Release(1, 1, 2), Beta(1, 2, 1, 3)),
+                Params(MAJOR, Beta(2, 0, 1, 2), Beta(2, 0, 2, 3)),
+                Params(MINOR, Beta(2, 1, 1, 2), Beta(2, 1, 2, 3))
+            )
+        }
+
+        @ParameterizedTest
+        @MethodSource("getParams")
+        fun `next() is correct`(params: Next.Params) {
+            assertEquals(params.want, params.got.next(params.releaseType))
+        }
     }
 }
