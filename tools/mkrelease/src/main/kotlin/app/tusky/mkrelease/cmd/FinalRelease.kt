@@ -87,12 +87,12 @@ class FinalRelease : CliktCommand(name = "final") {
 
         for (step in steps.subList(si, steps.size)) {
             releaseSpec = releaseSpec.copy(nextStep = step)
+            releaseSpec.save(SPEC_FILE)
             T.println(stepStyle("-> ${step.desc()}"))
             runCatching {
                 step.run(config, releaseSpec)
             }.onSuccess { spec ->
                 spec?.let { releaseSpec = it }
-                releaseSpec.save(SPEC_FILE)
             }.onFailure { t ->
                 T.danger(t.message)
                 return
