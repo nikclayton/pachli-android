@@ -70,6 +70,17 @@ sealed class ReleaseStep {
     open fun desc(): String = this.javaClass.simpleName
 }
 
+@Serializable
+object EnsureCleanReleaseSpec : ReleaseStep() {
+    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        spec.thisVersion?.let {
+            throw UsageError("thisVersion is set in the release spec, there is an ongoing release process: $it")
+        }
+
+        return null
+    }
+}
+
 /**
  * Prepares the copy of the Tusky repository fork.
  *

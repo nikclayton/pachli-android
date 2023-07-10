@@ -37,6 +37,7 @@ class FinalRelease : CliktCommand(name = "final") {
         val stepStyle = TextStyles.bold
 
         val steps = listOf(
+            EnsureCleanReleaseSpec,
             PrepareTuskyForkRepository,
             GetCurrentAppVersion,
             ConfirmCurrentVersionIsBeta,
@@ -99,6 +100,9 @@ class FinalRelease : CliktCommand(name = "final") {
             }
         }
 
-        // releaseSpec.copy(nextStep = null).save(SPEC_FILE)
+        releaseSpec.copy(
+            nextStep = null,
+            thisVersion = null
+        ).save(SPEC_FILE)
     }
 }
