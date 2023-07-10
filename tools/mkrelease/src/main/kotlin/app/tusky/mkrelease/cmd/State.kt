@@ -67,6 +67,8 @@ class State : CliktCommand(name = "state") {
             println("  Pull request: $it")
         }
 
+        println(releaseSpec.asReleaseComment())
+
         return
     }
 }

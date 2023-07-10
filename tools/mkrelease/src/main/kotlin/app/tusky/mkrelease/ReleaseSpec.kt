@@ -114,6 +114,17 @@ data class ReleaseSpec(
         else -> throw(Exception("githubReleaseName() without setting thisVersion first"))
     }
 
+    fun asReleaseComment(): String {
+        return """
+            # ${prevVersion.versionName()} -> ${thisVersion?.versionName()}
+
+            - ${asCheckbox(pullRequest)} Prep the release code changes
+            - [ ] Create GitHub release
+        """.trimIndent()
+    }
+
+    private fun asCheckbox(v: Any?) = "[${v?.let { "x" } ?: " "}]"
+
     companion object {
         @OptIn(ExperimentalSerializationApi::class)
         fun from(file: File): ReleaseSpec = Json.decodeFromStream(file.inputStream())
