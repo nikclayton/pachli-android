@@ -52,7 +52,7 @@
     <string name="action_favourite">Gogokoa</string>
     <string name="action_more">Gehiago</string>
     <string name="action_compose">Idatzi</string>
-    <string name="action_login">Tuskykin saioa hasi</string>
+    <string name="action_login">Pachlikin saioa hasi</string>
     <string name="action_logout">Saioa itxi</string>
     <string name="action_logout_confirm">Ziur zaude %1$s saioa itxi nahi duzula?</string>
     <string name="action_follow">Jarraitu</string>
@@ -196,7 +196,7 @@
     </plurals>
     <string name="description_account_locked">Kontu babestua</string>
     <string name="about_title_activity">Honi buruz</string>
-    <string name="about_tusky_license">Tusky software libre eta kode askekoa da.
+    <string name="about_pachli_license">Pachli software libre eta kode askekoa da.
         \"GNU General Public License Version 3\" lizentziapean zabaldua.
         Lizentzia hontaz gehiago irakurtzeko: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
     <!-- note to translators:
@@ -206,11 +206,11 @@
          * the url can be changed to link to the localized version of the license.
     -->
     <string name="about_project_site">        Proiektuaren gunea:\n
-        https://tusky.app
+        https://pachli.app
     </string>
     <string name="about_bug_feature_request_site">Akatsen berri-emateak eta hobekuntza-eskariak:
-\n https://github.com/tuskyapp/Tusky/issues</string>
-    <string name="about_tusky_account">Tuskyren profila</string>
+\n https://github.com/pachli/pachli-android/issues</string>
+    <string name="about_pachli_account">Pachliren profila</string>
     <string name="post_share_content">Tutaren edukia partekatu</string>
     <string name="post_share_link">Tutaren esteka partekatu</string>
     <string name="post_media_images">Irudiak</string>
@@ -228,7 +228,6 @@
     <string name="pref_title_alway_show_sensitive_media">Eduki mingarria erakutsi</string>
     <string name="title_media">Multimedia</string>
     <string name="replying_to">\@%s-(r)i erantzuten</string>
-    <string name="load_more_placeholder_text">Gehiago erakutsi</string>
     <string name="add_account_name">Gehitu kontua</string>
     <string name="add_account_description">Mastodon kontua gehitu</string>
     <string name="action_lists">Zerrendak</string>
@@ -267,8 +266,7 @@
     <string name="account_moved_description">%1$s hona mugitu da:</string>
     <string name="reblog_private">Berriz bultzatu</string>
     <string name="unreblog_private">Bultzatzea utzi</string>
-    <string name="license_description">Tusky-k ondorengo proiektuetako kode eta baliabideak ditu:</string>
-    <string name="license_apache_2">Apache Lizentziapean (testua zerrendaren azpian)</string>
+    <string name="license_description">Pachli-k ondorengo proiektuetako kode eta baliabideak ditu:</string>
     <string name="profile_metadata_label">Informazio gehigarria</string>
     <string name="profile_metadata_add">Eremua gehitu</string>
     <string name="profile_metadata_label_label">Etiketa</string>
@@ -319,10 +317,10 @@
     <string name="pref_title_animate_gif_avatars">GIF abatarrak animatu</string>
     <string name="notification_poll_name">Galdeketak</string>
     <string name="notification_poll_description">Bukatutako galdeketen jakinarazpenak</string>
-    <string name="about_tusky_version">Tusky %s</string>
+    <string name="about_pachli_version">Pachli %s</string>
     <string name="action_hashtags">Traolak</string>
     <string name="title_hashtags_dialog">Traolak</string>
-    <string name="about_powered_by_tusky">Tusky-k sustatuta</string>
+    <string name="about_powered_by_pachli">Pachli-k sustatuta</string>
     <string name="abbreviated_hours_ago">%dh</string>
     <string name="abbreviated_minutes_ago">%dm</string>
     <string name="abbreviated_seconds_ago">%ds</string>
@@ -341,13 +339,10 @@
     <string name="action_create_list">Zerrenda sortu</string>
     <string name="action_rename_list">Zerrenda berrizendatu</string>
     <string name="action_delete_list">Ezabatu zerrenda</string>
-    <string name="action_edit_list">Editatu zerrenda</string>
     <string name="hint_search_people_list">Bilatu jarraitzen dituzun pertsonak</string>
     <string name="action_add_to_list">Gehitu kontua zerrendan</string>
     <string name="action_remove_from_list">Kendu kontua zerrendatik</string>
     <string name="caption_notoemoji">Google-ren egungo emoji multzoa</string>
-    <string name="license_cc_by_4">CC-BY 4.0</string>
-    <string name="license_cc_by_sa_4">CC-BY-SA 4.0</string>
     <plurals name="favs">
         <item quantity="one">Gogoko <b>%1$s</b></item>
         <item quantity="other"><b>%1$s</b> Gogoko</item>
@@ -361,10 +356,6 @@
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s eta %2$s</string>
     <string name="conversation_more_recipients">%1$s, %2$s eta %3$d gehiago</string>
-    <plurals name="max_tab_number_reached">
-        <item quantity="one">gehienezko %1$d fitxa iritsita</item>
-        <item quantity="other">gehienezko %1$d fitxa iritsita</item>
-    </plurals>
     <string name="description_post_media">Media: %s</string>
     <string name="description_post_cw">Edukiarekiko abisua: %s</string>
     <string name="description_post_media_no_description_placeholder">Deskribapenik ez</string>
@@ -418,7 +409,6 @@
     <string name="report_description_remote_instance">Kontua beste zerbitzari batekoa da. Bidali txostenaren kopia anonimatua hara ere\?</string>
     <string name="title_accounts">Kontuak</string>
     <string name="failed_search">Bilaketa huts egin du</string>
-    <string name="pref_title_show_notifications_filter">Erakutsi jakinarazpenen iragazkia</string>
     <string name="create_poll_title">Inkesta</string>
     <string name="duration_5_min">5 minutu</string>
     <string name="duration_30_min">30 minutu</string>

@@ -24,9 +24,9 @@ Each of those version is considered a "GitHub release". This tool automates crea
 
 If this is your first time running the command you should:
 
-- Create your own GitHub fork of the Tusky repository
+- Create your own GitHub fork of the Pachli repository
 - Create a directory the tool can use as its permanent work area
-  - This should **not** be part of your existing Tusky checkout
+  - This should **not** be part of your existing Pachli checkout
 - Create a GitHub Personal Access Token (PAT), and store it in the environment variable `GITHUB_TOKEN`
 
 ## USAGE
@@ -43,14 +43,14 @@ Each command may need one or more options to work. If they are not provided on t
 
 You will need:
 
-- A fork of the Tusky repository on GitHub
+- A fork of the Pachli repository on GitHub
 - TODO: Describe the access rights
 
 
 
 ### `init`
 
-> Note: Run this from the root of a checked out Tusky repository.
+> Note: Run this from the root of a checked out Pachli repository.
 
 Creates the initial release workspace and saves key metadata.
 
@@ -59,12 +59,12 @@ Normally you only need to run this once -- not once per release, but once in tot
 ```shell
 .\runtools mkrelease --verbose init
   --work-root c:\users\nik\projects\t2
-  --repository https://github.com/nikclayton/Tusky
+  --repository https://github.com/nikclayton/pachli-android
 ```
 
-`--work-root`: Directory where `mkrelease` will store all the files it needs to operate. This will include clones of the Tusky and Fedilab repositories.
+`--work-root`: Directory where `mkrelease` will store all the files it needs to operate. This will include clones of the Pachli and Fedilab repositories.
 
-`--repository`: URL of the Tusky fork that you have already created.
+`--repository`: URL of the Pachli fork that you have already created.
 
 Key operations this performs include:
 

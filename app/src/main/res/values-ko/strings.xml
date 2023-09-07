@@ -29,7 +29,7 @@
     <string name="title_posts_pinned">고정된 툿</string>
     <string name="title_follows">팔로우</string>
     <string name="title_followers">팔로워</string>
-    <string name="title_favourites">즐겨찾기</string>
+    <string name="title_favourites">좋아요</string>
     <string name="title_mutes">뮤트한 유저</string>
     <string name="title_blocks">블록한 유저</string>
     <string name="title_domain_mutes">숨긴 도메인</string>
@@ -49,7 +49,7 @@
     <string name="message_empty">메시지가 없습니다.</string>
     <string name="footer_empty">게시물이 없습니다. 아래로 당겨서 새로고침하세요!</string>
     <string name="notification_reblog_format">%s님이 부스트 했습니다</string>
-    <string name="notification_favourite_format">%s님이 즐겨찾기 했습니다</string>
+    <string name="notification_favourite_format">%s님이 당신의 게시물을 좋아합니다</string>
     <string name="notification_follow_format">%s님이 나를 팔로우 했습니다</string>
     <string name="report_username_format">\@%s 신고</string>
     <string name="report_comment_hint">코멘트</string>
@@ -57,8 +57,8 @@
     <string name="action_reply">답장</string>
     <string name="action_reblog">부스트</string>
     <string name="action_unreblog">부스트 해제</string>
-    <string name="action_favourite">즐겨찾기</string>
-    <string name="action_unfavourite">즐겨찾기 해제</string>
+    <string name="action_favourite">좋아요</string>
+    <string name="action_unfavourite">좋아요 취소</string>
     <string name="action_more">더 보기</string>
     <string name="action_compose">작성</string>
     <string name="action_login">마스토돈에 로그인</string>
@@ -80,7 +80,7 @@
     <string name="action_view_profile">프로필</string>
     <string name="action_view_preferences">설정</string>
     <string name="action_view_account_preferences">계정 설정</string>
-    <string name="action_view_favourites">즐겨찾기</string>
+    <string name="action_view_favourites">좋아요</string>
     <string name="action_view_mutes">뮤트한 유저</string>
     <string name="action_view_blocks">블록한 유저</string>
     <string name="action_view_domain_mutes">숨긴 도메인</string>
@@ -113,7 +113,7 @@
     <string name="action_hashtags">해시태그</string>
     <string name="action_open_reblogger">부스트한 유저의 프로필로 이동</string>
     <string name="action_open_reblogged_by">부스트 보이기</string>
-    <string name="action_open_faved_by">즐겨찾기한 유저 보이기</string>
+    <string name="action_open_faved_by">좋아요한 유저 보이기</string>
     <string name="title_hashtags_dialog">해시태그</string>
     <string name="title_mentions_dialog">멘션</string>
     <string name="title_links_dialog">링크</string>
@@ -174,7 +174,7 @@
     <string name="pref_title_notification_filter_mentions">누군가가 나를 멘션했을때</string>
     <string name="pref_title_notification_filter_follows">누군가가 나를 팔로우했을 때</string>
     <string name="pref_title_notification_filter_reblogs">누군가가 내 게시물을 부스트했을 때</string>
-    <string name="pref_title_notification_filter_favourites">누군가가 내 게시물을 즐겨찾기했을 때</string>
+    <string name="pref_title_notification_filter_favourites">누군가가 내 게시물을 좋아요했을 때</string>
     <string name="pref_title_notification_filter_poll">투표가 종료되었을 때</string>
     <string name="pref_title_appearance_settings">화면</string>
     <string name="pref_title_app_theme">어플리케이션 테마</string>
@@ -220,8 +220,8 @@
     <string name="notification_follow_description">누군가 나를 팔로우할 때 알림</string>
     <string name="notification_boost_name">부스트</string>
     <string name="notification_boost_description">누군가 내 게시물을 부스트할 때 알림</string>
-    <string name="notification_favourite_name">즐겨찾기</string>
-    <string name="notification_favourite_description">누군가 내 게시물을 즐겨찾기할 때 알림</string>
+    <string name="notification_favourite_name">좋아요</string>
+    <string name="notification_favourite_description">누군가 내 게시물을 좋아요 했을 때 알림</string>
     <string name="notification_poll_name">투표</string>
     <string name="notification_poll_description">투표가 종료되었을 때 알림</string>
     <string name="notification_mention_format">%s님이 당신을 멘션했습니다</string>
@@ -233,8 +233,8 @@
     </plurals>
     <string name="description_account_locked">계정 잠김</string>
     <string name="about_title_activity">이 앱에 관하여</string>
-    <string name="about_tusky_version">Tusky %s</string>
-    <string name="about_tusky_license">Tusky는 무료이며 오픈 소스입니다. 이 프로젝트는 GNU General Public License Version 3에 의해 배포됩니다. 이 페이지에서 라이선스 전문(영문)을 열람하실 수 있습니다: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
+    <string name="about_pachli_version">Pachli %s</string>
+    <string name="about_pachli_license">Pachli는 무료이며 오픈 소스입니다. 이 프로젝트는 GNU General Public License Version 3에 의해 배포됩니다. 이 페이지에서 라이선스 전문(영문)을 열람하실 수 있습니다: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
     <!-- note to translators:
          * you should think of “free” as in “free speech,” not as in “free beer”.
            We sometimes call it “libre software,” borrowing the French or Spanish word for “free” as in freedom,
@@ -242,10 +242,10 @@
          * the url can be changed to link to the localized version of the license.
     -->
     <string name="about_project_site">프로젝트 홈페이지:
-\n https://tusky.app</string>
+\n https://pachli.app</string>
     <string name="about_bug_feature_request_site">버그 신고/건의사항:
-\n https://github.com/tuskyapp/Tusky/issues</string>
-    <string name="about_tusky_account">Tusky 공식 계정</string>
+\n https://github.com/pachli/pachli-android/issues</string>
+    <string name="about_pachli_account">Pachli 공식 계정</string>
     <string name="post_share_content">이 툿의 내용 공유</string>
     <string name="post_share_link">이 툿의 링크 공유</string>
     <string name="post_media_images">사진</string>
@@ -266,7 +266,6 @@
     <string name="pref_title_alway_show_sensitive_media">민감한 컨텐츠 항상 보이기</string>
     <string name="title_media">미디어</string>
     <string name="replying_to">\@%s에게 답장</string>
-    <string name="load_more_placeholder_text">더 불러오기</string>
     <string name="pref_title_public_filter_keywords">공개 타임라인</string>
     <string name="pref_title_thread_filter_keywords">대화</string>
     <string name="filter_addition_title">필터 추가</string>
@@ -286,7 +285,6 @@
     <string name="action_create_list">리스트 생성</string>
     <string name="action_rename_list">리스트 이름 바꾸기</string>
     <string name="action_delete_list">리스트 삭제</string>
-    <string name="action_edit_list">리스트 편집</string>
     <string name="hint_search_people_list">당신을 팔로우하는 사람 검색</string>
     <string name="action_add_to_list">리스트에 계정 추가</string>
     <string name="action_remove_from_list">리스트에서 계정 삭제</string>
@@ -314,7 +312,7 @@
     <string name="expand_collapse_all_posts">모두 보이기/줄이기</string>
     <string name="action_open_post">툿 열기</string>
     <string name="restart_required">어플리케이션 재시작 필요</string>
-    <string name="restart_emoji">변경 사항을 적용하려면 Tusky를 재시작해야 합니다</string>
+    <string name="restart_emoji">변경 사항을 적용하려면 Pachli를 재시작해야 합니다</string>
     <string name="later">다음에</string>
     <string name="restart">지금 재시작</string>
     <string name="caption_systememoji">이 디바이스의 기본 이모지</string>
@@ -326,10 +324,7 @@
     <string name="account_moved_description">%1$s는 계정을 이동했습니다:</string>
     <string name="reblog_private">원래의 수신자들에게 부스트</string>
     <string name="unreblog_private">부스트 해제</string>
-    <string name="license_description">Tusky에는 다음 오픈 소스 프로젝트의 요소/코드를 일부 활용하였습니다:</string>
-    <string name="license_apache_2">Apache License()에 의해 배포됨</string>
-    <string name="license_cc_by_4">CC-BY 4.0</string>
-    <string name="license_cc_by_sa_4">CC-BY-SA 4.0</string>
+    <string name="license_description">Pachli에는 다음 오픈 소스 프로젝트의 요소/코드를 일부 활용하였습니다:</string>
     <string name="profile_metadata_label">프로필 메타데이터</string>
     <string name="profile_metadata_add">항목 추가</string>
     <string name="profile_metadata_label_label">라벨</string>
@@ -339,24 +334,21 @@
     <string name="unpin_action">고정 해제</string>
     <string name="pin_action">고정</string>
     <plurals name="favs">
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; 즐겨찾기</item>
+        <item quantity="other"><b>%1$s</b> 좋아요</item>
     </plurals>
     <plurals name="reblogs">
         <item quantity="other">&lt;b&gt;%s&lt;/b&gt; 부스트</item>
     </plurals>
     <string name="title_reblogged_by">부스트한 유저</string>
-    <string name="title_favourited_by">즐겨찾기한 유저</string>
+    <string name="title_favourited_by">좋아요한 유저</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s와 %2$s</string>
     <string name="conversation_more_recipients">%1$s, %2$s 외 %3$d명</string>
-    <plurals name="max_tab_number_reached">
-        <item quantity="other">최대 탭 수 %1$d에 도달했습니다</item>
-    </plurals>
     <string name="description_post_media">미디어: %s</string>
     <string name="description_post_cw">열람주의: %s</string>
     <string name="description_post_media_no_description_placeholder">설명 없음</string>
     <string name="description_post_reblogged">부스트함</string>
-    <string name="description_post_favourited">즐겨찾기함</string>
+    <string name="description_post_favourited">좋아요함</string>
     <string name="description_visibility_public">공개</string>
     <string name="description_visibility_unlisted">타임라인에 비표시</string>
     <string name="description_visibility_private">비공개</string>
@@ -403,7 +395,6 @@
     <string name="failed_fetch_posts">게시물을 불러오지 못했습니다</string>
     <string name="report_description_1">인스턴스 관리자에게 신고합니다. 이 계정을 신고하려는 이유를 작성하실 수 있습니다:</string>
     <string name="report_description_remote_instance">이 유저는 다른 인스턴스에 속해 있습니다. 그 인스턴스에도 익명으로 신고 내용을 보내시겠습니까\?</string>
-    <string name="pref_title_show_notifications_filter">알림 필터 보이기</string>
     <string name="action_open_as">%s(으)로 열기</string>
     <string name="title_accounts">계정</string>
     <string name="failed_search">검색하지 못했습니다</string>

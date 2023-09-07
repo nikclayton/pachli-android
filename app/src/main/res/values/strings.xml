@@ -1,13 +1,13 @@
 <!--
   ~ Copyright 2023 Tusky Contributors
   ~
-  ~ This file is a part of Tusky.
+  ~ This file is a part of Pachli.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under the terms of the
   ~ GNU General Public License as published by the Free Software Foundation; either version 3 of the
   ~ License, or (at your option) any later version.
   ~
-  ~ Tusky is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+  ~ Pachli is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
   ~ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
   ~ Public License for more details.
   ~
@@ -18,7 +18,9 @@
 <resources>
 
     <string name="error_generic">An error occurred.</string>
+    <string name="error_generic_fmt">An error occurred: %s</string>
     <string name="error_network">A network error occurred. Please check your connection and try again.</string>
+    <string name="error_network_fmt">A network error occurred: %s</string>
     <string name="error_empty">This cannot be empty.</string>
     <string name="error_invalid_domain">Invalid domain entered</string>
     <string name="error_failed_app_registration">Failed authenticating with that instance. If this persists, try "Login in Browser" from the menu.</string>
@@ -30,6 +32,7 @@
     <string name="error_could_not_load_login_page">Could not load the login page.</string>
     <string name="error_compose_character_limit">The post is too long!</string>
     <string name="error_multimedia_size_limit">Video and audio files cannot exceed %s MB in size.</string>
+    <string name="error_404_not_found">Your server does not support this feature</string>
 
     <string name="error_image_edit_failed">The image could not be edited.</string>
     <string name="error_media_upload_type">That type of file cannot be uploaded.</string>
@@ -38,6 +41,7 @@
     <string name="error_media_download_permission">Permission to store media is required.</string>
     <string name="error_media_upload_image_or_video">Images and videos cannot both be attached to the same post.</string>
     <string name="error_media_upload_sending">The upload failed.</string>
+    <string name="error_media_upload_sending_fmt">The upload failed: %s</string>
     <string name="error_sender_account_gone">Error sending post.</string>
     <string name="error_following_hashtag_format">Error following #%s</string>
     <string name="error_unfollowing_hashtag_format">Error unfollowing #%s</string>
@@ -50,7 +54,13 @@
     <string name="title_home">Home</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_public_local">Local</string>
+    <string name="title_public_trending">Trending</string>
     <string name="title_public_trending_hashtags">Trending hashtags</string>
+    <string name="title_public_trending_links">Trending links</string>
+    <string name="title_public_trending_statuses">Trending posts</string>
+    <string name="title_tab_public_trending_hashtags">Hashtags</string>
+    <string name="title_tab_public_trending_links">Links</string>
+    <string name="title_tab_public_trending_statuses">Posts</string>
     <string name="title_public_federated">Federated</string>
     <string name="title_direct_messages">Direct messages</string>
     <string name="title_tab_preferences">Tabs</string>
@@ -117,7 +127,7 @@
     <string name="action_unbookmark">Remove bookmark</string>
     <string name="action_more">More</string>
     <string name="action_compose">Compose</string>
-    <string name="action_login">Login with Tusky</string>
+    <string name="action_login">Login with Pachli</string>
     <string name="action_browser_login">Login with Browser</string>
     <string name="action_logout">Log out</string>
     <string name="action_logout_confirm">Are you sure you want to log out of %1$s? This will delete all local data of the account, including drafts and preferences.</string>
@@ -219,6 +229,8 @@
     <string name="confirmation_unblocked">User unblocked</string>
     <string name="confirmation_unmuted">User unmuted</string>
     <string name="confirmation_domain_unmuted">%s unhidden</string>
+    <string name="confirmation_hashtag_muted">#%s hidden</string>
+    <string name="confirmation_hashtag_unmuted">#%s unhidden</string>
     <string name="confirmation_hashtag_unfollowed">#%s unfollowed</string>
 
     <string name="post_sent">Sent!</string>
@@ -297,11 +309,12 @@
     <string name="app_theme_light">Light</string>
     <string name="app_theme_black">Black</string>
     <string name="app_theme_auto">Automatic at sunset</string>
-    <string name="app_theme_system">Use System Design</string>
+    <string name="app_theme_system">Use system design</string>
 
     <string name="pref_title_browser_settings">Browser</string>
     <string name="pref_title_custom_tabs">Use Chrome Custom Tabs</string>
     <string name="pref_title_hide_follow_button">Hide compose button while scrolling</string>
+    <string name="pref_title_font_family">Font family</string>
     <string name="pref_title_language">Language</string>
     <string name="pref_title_bot_overlay">Show indicator for bots</string>
     <string name="pref_title_animate_gif_avatars">Animate GIF avatars</string>
@@ -332,7 +345,6 @@
     <string name="pref_main_nav_position">Main navigation position</string>
     <string name="pref_main_nav_position_option_top">Top</string>
     <string name="pref_main_nav_position_option_bottom">Bottom</string>
-
 
     <string name="post_privacy_public">Public</string>
     <string name="post_privacy_unlisted">Unlisted</string>
@@ -372,7 +384,7 @@
     <string name="notification_report_name">Reports</string>
     <string name="notification_report_description">Notifications about moderation reports</string>
     <string name="notification_listenable_worker_name">Background activity</string>
-    <string name="notification_listenable_worker_description">Notifications when Tusky is working in the background</string>
+    <string name="notification_listenable_worker_description">Notifications when Pachli is working in the background</string>
     <string name="notification_unknown_name">Unknown</string>
 
     <string name="notification_mention_format">%s mentioned you</string>
@@ -389,9 +401,13 @@
     <string name="description_account_locked">Locked Account</string>
 
     <string name="about_title_activity">About</string>
-    <string name="about_tusky_version">Tusky %s</string>
-    <string name="about_powered_by_tusky">Powered by Tusky</string>
-    <string name="about_tusky_license">Tusky is free and open-source software.
+    <string name="about_pachli_version">Pachli %s</string>
+    <string name="about_device_info_title">Your device</string>
+    <string name="about_device_info">%s %s\nAndroid version: %s\nSDK version: %d</string>
+    <string name="about_account_info_title">Your account</string>
+    <string name="about_account_info">\@%s\@%s\nVersion: %s</string>
+    <string name="about_powered_by_pachli">Powered by Pachli</string>
+    <string name="about_pachli_license">Pachli is free and open-source software.
         It is licensed under the GNU General Public License Version 3.
         You can view the license here: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
     <!-- note to translators:
@@ -400,15 +416,9 @@
            to show we do not mean the software is gratis. Source: https://www.gnu.org/philosophy/free-sw.html
          * the url can be changed to link to the localized version of the license.
     -->
-    <string name="about_project_site">
-        Project website:\n
-        https://tusky.app
-    </string>
-    <string name="about_bug_feature_request_site">
-        Bug reports &amp; feature requests:\n
-        https://github.com/tuskyapp/Tusky/issues
-    </string>
-    <string name="about_tusky_account">Tusky\'s Profile</string>
+    <string name="about_project_site">Project website: https://pachli.app</string>
+    <string name="about_bug_feature_request_site">Bug reports &amp; feature requests:\nhttps://github.com/pachli/pachli-android/issues</string>
+    <string name="about_pachli_account">Pachli\'s Profile</string>
 
     <string name="post_share_content">Share content of post</string>
     <string name="post_share_link">Share link to post</string>
@@ -441,7 +451,6 @@
     <string name="pref_title_alway_open_spoiler">Always expand posts marked with content warnings</string>
     <string name="title_media">Media</string>
     <string name="replying_to">Replying to @%s</string>
-    <string name="load_more_placeholder_text">load more</string>
 
     <string name="pref_title_public_filter_keywords">Public timelines</string>
     <string name="pref_title_thread_filter_keywords">Conversations</string>
@@ -461,12 +470,11 @@
     <string name="action_lists">Lists</string>
     <string name="title_lists">Lists</string>
     <string name="error_create_list">Could not create list</string>
-    <string name="error_rename_list">Could not rename list</string>
+    <string name="error_rename_list">Could not update list</string>
     <string name="error_delete_list">Could not delete list</string>
     <string name="action_create_list">Create a list</string>
-    <string name="action_rename_list">Rename the list</string>
+    <string name="action_rename_list">Update the list</string>
     <string name="action_delete_list">Delete the list</string>
-    <string name="action_edit_list">Edit the list</string>
     <string name="hint_search_people_list">Search for people you follow</string>
     <string name="action_add_to_list">Add account to the list</string>
     <string name="action_remove_from_list">Remove account from the list</string>
@@ -505,7 +513,7 @@
     <string name="expand_collapse_all_posts">Expand/Collapse all posts</string>
     <string name="action_open_post">Open post</string>
     <string name="restart_required">App restart required</string>
-    <string name="restart_emoji">You\'ll need to restart Tusky in order to apply these changes</string>
+    <string name="restart_emoji">You\'ll need to restart Pachli in order to apply these changes</string>
     <string name="later">Later</string>
     <string name="restart">Restart</string>
     <string name="caption_systememoji">Your device\'s default emoji set</string>
@@ -521,10 +529,7 @@
     <string name="reblog_private">Boost to original audience</string>
     <string name="unreblog_private">Unboost</string>
 
-    <string name="license_description">Tusky contains code and assets from the following open source projects:</string>
-    <string name="license_apache_2">Licensed under the Apache License (copy below)</string>
-    <string name="license_cc_by_4">CC-BY 4.0</string>
-    <string name="license_cc_by_sa_4">CC-BY-SA 4.0</string>
+    <string name="license_description">Pachli contains code and assets from the following open source projects:</string>
 
     <string name="profile_metadata_label">Profile metadata</string>
     <string name="profile_metadata_add">add data</string>
@@ -556,10 +561,6 @@
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s and %2$s</string>
     <string name="conversation_more_recipients">%1$s, %2$s and %3$d more</string>
-    <plurals name="max_tab_number_reached">
-        <item quantity="one">maximum of %1$d tab reached</item>
-        <item quantity="other">maximum of %1$d tabs reached</item>
-    </plurals>
 
     <string name="description_post_media">
         Media: %s
@@ -610,9 +611,10 @@
     <string name="select_list_empty">You have no lists, yet</string>
     <string name="select_list_manage">Manage lists</string>
     <string name="error_list_load">Error loading lists</string>
+    <string name="list_exclusive_label">Hide from the home timeline</string>
     <string name="list">List</string>
-    <string name="notifications_clear">Clear</string>
-    <string name="notifications_apply_filter">Filter</string>
+    <string name="notifications_clear">Delete notifications</string>
+    <string name="notifications_apply_filter">Filter notifications</string>
     <string name="filter_apply">Apply</string>
 
     <string name="compose_shortcut_long_label">Compose post</string>
@@ -671,7 +673,6 @@
     <string name="title_accounts">Accounts</string>
     <string name="failed_search">Failed to search</string>
 
-    <string name="pref_title_show_notifications_filter">Show Notifications filter</string>
     <string name="pref_title_enable_swipe_for_tabs">Enable swipe gesture to switch between tabs</string>
     <string name="pref_title_show_stat_inline">Show post statistics in timeline</string>
 
@@ -739,15 +740,15 @@
     <string name="action_subscribe_account">Subscribe</string>
     <string name="action_unsubscribe_account">Unsubscribe</string>
 
-    <string name="tusky_compose_post_quicksetting_label">Compose Post</string>
+    <string name="pachli_compose_post_quicksetting_label">Compose Post</string>
 
     <string name="account_date_joined">Joined %1$s</string>
 
     <string name="saving_draft">Saving draft…</string>
 
     <string name="tips_push_notification_migration">Re-login all accounts to enable push notification support.</string>
-    <string name="dialog_push_notification_migration">In order to use push notifications via UnifiedPush, Tusky needs permission to subscribe to notifications on your Mastodon server. This requires a re-login to change the OAuth scopes granted to Tusky. Using the re-login option here or in "Account preferences" will preserve all of your local drafts and cache.</string>
-    <string name="dialog_push_notification_migration_other_accounts">You have re-logged into your current account to grant push subscription permission to Tusky. However, you still have other accounts that have not been migrated this way. Switch to them and re-login one by one in order to enable UnifiedPush notifications support.</string>
+    <string name="dialog_push_notification_migration">In order to use push notifications via UnifiedPush, Pachli needs permission to subscribe to notifications on your Mastodon server. This requires a re-login to change the OAuth scopes granted to Pachli. Using the re-login option here or in "Account preferences" will preserve all of your local drafts and cache.</string>
+    <string name="dialog_push_notification_migration_other_accounts">You have re-logged into your current account to grant push subscription permission to Pachli. However, you still have other accounts that have not been migrated this way. Switch to them and re-login one by one in order to enable UnifiedPush notifications support.</string>
     <string name="url_domain_notifier">%s (🔗 %s)</string>
 
     <string name="delete_scheduled_post_warning">Delete this scheduled post?</string>
@@ -765,9 +766,6 @@
     <string name="mute_notifications_switch">Mute notifications</string>
 
     <!-- Reading order preference -->
-    <string name="pref_title_reading_order">Reading order</string>
-    <string name="pref_reading_order_oldest_first">Oldest first</string>
-    <string name="pref_reading_order_newest_first">Newest first</string>
 
     <string name="status_edit_info">Edited: %1$s</string>
     <string name="status_created_info">Created: %1$s</string>
@@ -791,6 +789,7 @@
     <string name="ui_error_vote">Voting in poll failed: %s</string>
     <string name="ui_error_accept_follow_request">Accepting follow request failed: %s</string>
     <string name="ui_error_reject_follow_request">Rejecting follow request failed: %s</string>
+    <string name="ui_error_filter_v1_load">Loading filters failed: %s</string>
 
     <!-- Success messages, displayed in snackbars, when an action succeeded -->
     <string name="ui_success_accepted_follow_request">Follow request accepted</string>
@@ -814,6 +813,13 @@
     <string name="help_empty_home">This is your <b>home timeline</b>. It shows the recent posts of the accounts
         you follow.\n\nTo explore accounts you can either discover them in one of the other timelines.
         For example the local timeline of your instance [iconics gmd_group]. Or you can search them
-        by name [iconics gmd_search]; for example search for Tusky to find our Mastodon account.</string>
+        by name [iconics gmd_search]; for example search for Pachli to find our Mastodon account.</string>
     <string name="load_newest_notifications">Load newest notifications</string>
+    <string name="load_newest_statuses">Load newest posts</string>
+    <string name="about_copy">Copy version and device information</string>
+    <string name="about_copied">Copied version and device information</string>
+    <string name="error_media_playback">Playback failed: %s</string>
+    <string name="dialog_delete_filter_text">Delete filter \'%1$s\'?"</string>
+    <string name="dialog_delete_filter_positive_action">Delete</string>
+    <string name="dialog_save_profile_changes_message">Do you want to save your profile changes?</string>
 </resources>

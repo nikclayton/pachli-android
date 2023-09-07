@@ -180,10 +180,10 @@
     <string name="post_media_images">Íomhánna</string>
     <string name="post_share_link">Comhroinn nasc chuig postáil</string>
     <string name="post_share_content">Comhroinn inneachar na postála</string>
-    <string name="about_tusky_account">Próifíl Tusky</string>
-    <string name="about_tusky_license">Is bogearraí foinse oscailte agus saor in aisce é Tusky. Tá sé ceadúnaithe faoi Leagan 3. Ceadúnas Poiblí Ginearálta GNU 3. Is féidir leat an ceadúnas a fheiceáil anseo: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
-    <string name="about_powered_by_tusky">Cumhachtaithe ag Tusky</string>
-    <string name="about_tusky_version">Tusky %s</string>
+    <string name="about_pachli_account">Próifíl Pachli</string>
+    <string name="about_pachli_license">Is bogearraí foinse oscailte agus saor in aisce é Pachli. Tá sé ceadúnaithe faoi Leagan 3. Ceadúnas Poiblí Ginearálta GNU 3. Is féidir leat an ceadúnas a fheiceáil anseo: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
+    <string name="about_powered_by_pachli">Cumhachtaithe ag Pachli</string>
+    <string name="about_pachli_version">Pachli %s</string>
     <string name="description_account_locked">Cuntas faoi Ghlas</string>
     <plurals name="notification_title_summary">
         <item quantity="other">%d idirghníomhaíochtaí nua</item>
@@ -262,9 +262,9 @@
 \n
 \nIs féidir tuilleadh faisnéise a fháil ag <a href="https://joinmastodon.org"> joinmastodon.org </a>. </string>
     <string name="about_project_site">Suíomh Gréasáin an tionscadail:
-\n https://tusky.app</string>
+\n https://pachli.app</string>
     <string name="about_bug_feature_request_site">Tuarascálacha ar fhabhtanna &amp; iarratais ar ghnéithe:
-\n https://github.com/tuskyapp/Tusky/issues</string>
+\n https://github.com/pachli/pachli-android/issues</string>
     <string name="post_media_video">Físeán</string>
     <string name="state_follow_requested">Lean iarrtha</string>
     <string name="follows_you">Leanann tú</string>
@@ -276,20 +276,16 @@
     <string name="pref_title_alway_open_spoiler">Leathnaigh i gcónaí postálacha atá marcáilte le rabhaidh ábhair</string>
     <string name="title_media">Meáin</string>
     <string name="replying_to">Ag freagairt do @%s</string>
-    <string name="load_more_placeholder_text">Lódáil a thuilleadh</string>
     <string name="pref_title_thread_filter_keywords">Comhráite</string>
     <string name="filter_addition_title">Cuir scagaire leis</string>
     <string name="filter_edit_title">Cuir scagaire in eagar</string>
     <string name="filter_dialog_remove_button">Bain</string>
     <string name="pref_title_public_filter_keywords">Amlínte poiblí</string>
     <string name="expand_collapse_all_posts">Leathnaigh/Fill na postálacha go léir</string>
-    <string name="restart_emoji">Beidh ort Tusky a atosú chun na hathruithe seo a chur i bhfeidhm</string>
+    <string name="restart_emoji">Beidh ort Pachli a atosú chun na hathruithe seo a chur i bhfeidhm</string>
     <string name="caption_notoemoji">Sraith emoji reatha Google</string>
-    <string name="license_description">Tá cód agus sócmhainní ó na tionscadail foinse oscailte seo a leanas i Tusky:</string>
+    <string name="license_description">Tá cód agus sócmhainní ó na tionscadail foinse oscailte seo a leanas i Pachli:</string>
     <string name="label_remote_account">Féadfaidh an fhaisnéis thíos próifíl an úsáideora a léiriú go neamhiomlán. Brúigh chun próifíl iomlán a oscailt sa bhrabhsálaí.</string>
-    <plurals name="max_tab_number_reached">
-        <item quantity="other">uasmhéid de chluaisíní %1$d sroichte</item>
-    </plurals>
     <string name="description_poll">Vótaíocht le roghanna: %1$s, %2$s, %3$s, %4$s; %5$s</string>
     <string name="list">Liosta</string>
     <string name="compose_shortcut_long_label">Scríobh postáil</string>
@@ -311,7 +307,6 @@
     <string name="action_create_list">Cruthaigh liosta</string>
     <string name="action_rename_list">Athainmnigh an liosta</string>
     <string name="action_delete_list">Scrios an liosta</string>
-    <string name="action_edit_list">Cuir an liosta in eagar</string>
     <string name="hint_search_people_list">Cuardaigh daoine a leanann tú</string>
     <string name="action_add_to_list">Cuir cuntas leis an liosta</string>
     <string name="action_remove_from_list">Bain cuntas ón liosta</string>
@@ -347,7 +342,6 @@
     <string name="profile_badge_bot_text">Bot</string>
     <string name="account_moved_description">Tá %1$s tar éis bogadh go:</string>
     <string name="reblog_private">Athchraol don bhunlucht léite</string>
-    <string name="license_apache_2">Ceadúnaithe faoin gCeadúnas Apache (cóip thíos)</string>
     <string name="profile_metadata_label">Meiteashonraí próifíle</string>
     <string name="profile_metadata_add">cuir sonraí leis</string>
     <string name="profile_metadata_label_label">Lipéad</string>
@@ -440,7 +434,6 @@
     <string name="report_description_remote_instance">Is ó fhreastalaí eile an cuntas. Seol cóip gan ainm den tuarascáil ansin freisin\?</string>
     <string name="title_accounts">Cuntais</string>
     <string name="failed_search">Theip ar chuardach</string>
-    <string name="pref_title_show_notifications_filter">Taispeáin scagaire Fógraí</string>
     <string name="pref_title_enable_swipe_for_tabs">Cumasaigh gotha swipe aistriú idir cluaisíní</string>
     <string name="create_poll_title">Vótaíocht</string>
     <string name="duration_5_min">5 nóiméid</string>
@@ -478,8 +471,6 @@
     <string name="abbreviated_minutes_ago">%dm</string>
     <string name="abbreviated_seconds_ago">%ds</string>
     <string name="unreblog_private">Bain athchraoladh</string>
-    <string name="license_cc_by_4">CC-BY 4.0</string>
-    <string name="license_cc_by_sa_4">CC-BY-SA 4.0</string>
     <string name="unpin_action">Unpin</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="description_post_reblogged">Reblogged</string>

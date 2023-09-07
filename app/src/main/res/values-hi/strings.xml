@@ -62,14 +62,14 @@
     <string name="title_home">घर</string>
     <string name="license_description">टस्की में निम्नलिखित ओपन सोर्स परियोजनाओं से कोड और संपत्ति हैं:</string>
     <string name="restart_emoji">इन परिवर्तनों को लागू करने के लिए आपको टस्की को पुनः आरंभ करना होगा</string>
-    <string name="about_tusky_account">टस्की की प्रोफाइल</string>
+    <string name="about_pachli_account">टस्की की प्रोफाइल</string>
     <string name="about_bug_feature_request_site">बग रिपोर्ट और सुविधा अनुरोध:
-\n https://github.com/tuskyapp/Tusky/issues</string>
+\n https://github.com/pachli/pachli-android/issues</string>
     <string name="about_project_site">परियोजना की वेबसाइट:
-\n https://tusky.app</string>
-    <string name="about_tusky_license">टस्की स्वतंत्र और ओपन-सोर्स सॉफ्टवेयर है। यह GNU जनरल पब्लिक लाइसेंस संस्करण 3 के तहत लाइसेंस प्राप्त है। आप लाइसेंस यहां देख सकते हैं: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
-    <string name="about_powered_by_tusky">टस्की द्वारा संचालित</string>
-    <string name="about_tusky_version">टस्की %s</string>
+\n https://pachli.app</string>
+    <string name="about_pachli_license">टस्की स्वतंत्र और ओपन-सोर्स सॉफ्टवेयर है। यह GNU जनरल पब्लिक लाइसेंस संस्करण 3 के तहत लाइसेंस प्राप्त है। आप लाइसेंस यहां देख सकते हैं: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
+    <string name="about_powered_by_pachli">टस्की द्वारा संचालित</string>
+    <string name="about_pachli_version">टस्की %s</string>
     <string name="description_account_locked">बंद खाता</string>
     <string name="notification_summary_small">%1$s तथा %2$s</string>
     <string name="notification_summary_medium">%1$s, %2$s, तथा %3$s</string>
@@ -231,8 +231,6 @@
     <string name="description_post_media_no_description_placeholder">कोई विवरण नहीं</string>
     <string name="description_post_media">मीडिया: %s</string>
     <string name="profile_metadata_add">जानकारी जोड़ें</string>
-    <string name="license_cc_by_sa_4">CC-BY-SA 4.0</string>
-    <string name="license_cc_by_4">CC-BY 4.0</string>
     <string name="profile_metadata_label">प्रोफ़ाइल मेटाडेटा</string>
     <string name="download_failed">डाउनलोड विफल</string>
     <string name="action_open_post">टूट खोलें</string>
@@ -250,13 +248,11 @@
     <string name="filter_edit_title">फ़िल्टर संपादित करें</string>
     <string name="filter_addition_title">फिल्टर लगाएं</string>
     <string name="pref_title_public_filter_keywords">सार्वजनिक टाइमलाइन</string>
-    <string name="load_more_placeholder_text">और लोड करें</string>
     <string name="pref_title_show_cards_in_timelines">टाइमलाइन में लिंक प्रीव्यू दिखाएं</string>
     <string name="warning_scheduling_interval">मास्टोडन का न्यूनतम शेड्यूलिंग अंतराल 5 मिनट है।</string>
     <string name="no_drafts">आपके पास कोई ड्राफ्ट नहीं है।</string>
     <string name="post_lookup_error_format">%s पोस्ट खोजने में त्रुटि</string>
     <string name="pref_title_enable_swipe_for_tabs">टैब के बीच स्विच करने के लिए स्वाइप जेस्चर को सक्षम करें</string>
-    <string name="pref_title_show_notifications_filter">सूचना फ़िल्टर दिखाएं</string>
     <string name="failed_search">खोज करने में विफल</string>
     <string name="report_description_remote_instance">खाता किसी अन्य सर्वर से है। रिपोर्ट की अनाम प्रति वहां भी भेजें\?</string>
     <string name="report_description_1">रिपोर्ट आपके सर्वर मॉडरेटर को भेजी जाएगी। आप इस बारे में स्पष्टीकरण दे सकते हैं कि आप इस खाते को रिपोर्ट क्यों कर रहे हैं:</string>
@@ -276,9 +272,6 @@
     <string name="description_visibility_unlisted">असूचीबद्ध</string>
     <string name="description_visibility_public">सार्वजनिक</string>
     <string name="description_post_cw">विषय वस्तु चेतावनी: %s</string>
-    <plurals name="max_tab_number_reached">
-        <item quantity="other">अधिकतम %1$d टैब तक पहुंच गऐ</item>
-    </plurals>
     <string name="conversation_more_recipients">%1$s, %2$s तथा %3$d अन्य लोग</string>
     <string name="conversation_2_recipients">%1$s तथा %2$s</string>
     <string name="conversation_1_recipients">%1$s</string>
@@ -292,7 +285,6 @@
     <string name="pref_title_absolute_time">पूर्ण समय का उपयोग करें</string>
     <string name="profile_metadata_content_label">विषय वस्तु</string>
     <string name="profile_metadata_label_label">लेबल</string>
-    <string name="license_apache_2">अपाचे लाइसेंस के तहत लाइसेंस प्राप्त (प्रतिलिपि नीचे उपलब्ध)</string>
     <string name="account_moved_description">%1$s यहां चले गए हैं:</string>
     <string name="profile_badge_bot_text">बोट</string>
     <string name="caption_notoemoji">गूगल का इमोजी सेट</string>
@@ -315,7 +307,6 @@
     <string name="action_remove_from_list">सूची से खाता निकालें</string>
     <string name="action_add_to_list">सूची में खाता जोड़ें</string>
     <string name="hint_search_people_list">उन लोगों की खोज करें जिन्हें आप फ़ॉलो करते हैं</string>
-    <string name="action_edit_list">सूची एडिट करें</string>
     <string name="action_delete_list">सूची हटाएँ</string>
     <string name="action_rename_list">सूची का नाम बदलें</string>
     <string name="action_create_list">एक सूची बनाएं</string>

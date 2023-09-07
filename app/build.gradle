@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.aboutlibraries)
 }
 
 apply from: 'getGitSha.gradle'
@@ -11,26 +12,26 @@ apply from: 'getGitSha.gradle'
 final def gitSha = ext.getGitSha()
 
 // The app name
-final def APP_NAME = "Tusky"
+final def APP_NAME = "Pachli"
 // The application id. Must be unique, e.g. based on your domain
-final def APP_ID = "com.keylesspalace.tusky"
-// url of a custom app logo. Recommended size at least 600x600. Keep empty to use the Tusky elephant friend.
+final def APP_ID = "app.pachli"
+// url of a custom app logo. Recommended size at least 600x600. Keep empty to use the default logo.
 final def CUSTOM_LOGO_URL = ""
 // e.g. mastodon.social. Keep empty to not suggest any instance on the signup screen
 final def CUSTOM_INSTANCE = ""
 // link to your support account. Will be linked on the about page when not empty.
-final def SUPPORT_ACCOUNT_URL = "https://mastodon.social/@Tusky"
+final def SUPPORT_ACCOUNT_URL = "https://mastodon.social/@Pachli"
 
 android {
     compileSdk 33
-    namespace "com.keylesspalace.tusky"
+    namespace "app.pachli"
     defaultConfig {
         applicationId APP_ID
-        namespace "com.keylesspalace.tusky"
+        namespace "app.pachli"
         minSdk 23
         targetSdk 33
-        versionCode 112
-        versionName "23.0 beta 2"
+        versionCode 1
+        versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
@@ -51,17 +52,16 @@ android {
     flavorDimensions += "color"
     productFlavors {
         blue {}
-        green {
-            resValue "string", "app_name", APP_NAME + " Test"
-            applicationIdSuffix ".test"
+        orange {
+            resValue "string", "app_name", APP_NAME + " Current"
+            applicationIdSuffix ".current"
             versionNameSuffix "-" + gitSha
         }
     }
 
     lint {
         lintConfig file("lint.xml")
-        // Regenerate by deleting app/lint-baseline.xml, then run:
-        //   ./gradlew lintBlueDebug
+        // Regenerate by running `./gradlew app:newLintBaseline`
         baseline = file("lint-baseline.xml")
     }
 
@@ -103,12 +103,12 @@ android {
     // Can remove this once https://issuetracker.google.com/issues/260059413 is fixed.
     // https://kotlinlang.org/docs/gradle-configure-project.html#gradle-java-toolchains-support
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach {
-            outputFileName = "Tusky_${variant.versionName}_${variant.versionCode}_${gitSha}_" +
+            outputFileName = "Pachli_${variant.versionName}_${variant.versionCode}_${gitSha}_" +
                 "${variant.flavorName}_${buildType.name}.apk"
         }
     }
@@ -124,6 +124,13 @@ configurations {
     // see https://github.com/tuskyapp/Tusky/pull/3367
     testImplementation.exclude group: "org.conscrypt", module: "conscrypt-android"
     testRuntime.exclude group: "org.conscrypt", module: "conscrypt-android"
+}
+
+aboutLibraries {
+    configPath = "licenses"
+    includePlatform = false
+    duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
+    prettyPrint = true
 }
 
 // library versions are in PROJECT_ROOT/gradle/libs.versions.toml
@@ -147,7 +154,7 @@ dependencies {
     implementation libs.conscrypt.android
 
     implementation libs.bundles.glide
-    kapt libs.glide.compiler
+    ksp libs.glide.compiler
 
     implementation libs.bundles.rxjava3
 
@@ -158,7 +165,7 @@ dependencies {
 
     implementation libs.sparkbutton
 
-    implementation libs.photoview
+    implementation libs.touchimageview
 
     implementation libs.bundles.material.drawer
     implementation libs.material.typeface
@@ -171,6 +178,8 @@ dependencies {
     implementation libs.unified.push
 
     implementation libs.bundles.xmldiff
+
+    implementation libs.bundles.aboutlibraries
 
     testImplementation libs.androidx.test.junit
     testImplementation libs.robolectric
@@ -185,4 +194,19 @@ dependencies {
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.androidx.room.testing
     androidTestImplementation libs.androidx.test.junit
+}
+
+tasks.register("newLintBaseline") {
+    description 'Deletes and then recreates the lint baseline'
+
+    // This task should always run, irrespective of caching
+    notCompatibleWithConfigurationCache("Is always out of date")
+    outputs.upToDateWhen { false }
+
+    doLast {
+        delete android.lint.baseline.path
+    }
+
+    // Regenerate the lint baseline
+    it.finalizedBy tasks.named("lintBlueDebug")
 }

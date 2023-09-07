@@ -14,7 +14,6 @@
     <string name="action_set_caption">Ûnderskrift pleatse</string>
     <string name="action_add_to_list">Account oan de list tafoegje</string>
     <string name="hint_search_people_list">Sykje om minsken dy\'t jo folgje</string>
-    <string name="action_edit_list">Pas de list oan</string>
     <string name="action_delete_list">Smyt de list fuort</string>
     <string name="action_rename_list">Neam de list om</string>
     <string name="action_create_list">Meitsje in list oan</string>
@@ -30,7 +29,6 @@
     <string name="filter_edit_title">Filter oanpasse</string>
     <string name="filter_addition_title">Filter tafoegje</string>
     <string name="pref_title_thread_filter_keywords">Petearen</string>
-    <string name="load_more_placeholder_text">mear lade</string>
     <string name="replying_to">Oan it reagearren op @%s</string>
     <string name="title_media">Media</string>
     <string name="pref_title_alway_show_sensitive_media">Altyd gefoeliche ynhâld sjen litte</string>
@@ -46,7 +44,7 @@
     <string name="post_media_images">Ôfbyldingen</string>
     <string name="post_share_link">Keppeling nei toot diele</string>
     <string name="post_share_content">Ynhâld fan toot diele</string>
-    <string name="about_tusky_version">Tusky %s</string>
+    <string name="about_pachli_version">Pachli %s</string>
     <string name="about_title_activity">Oer</string>
     <plurals name="notification_title_summary">
         <item quantity="one">%d nije ynteraksje</item>

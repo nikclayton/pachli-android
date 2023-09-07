@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".components.scheduled.ScheduledStatusActivity">
+    tools:context="app.pachli.components.scheduled.ScheduledStatusActivity">
 
     <include
         android:id="@+id/includedToolbar"
@@ -38,13 +38,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
-                <com.keylesspalace.tusky.view.BackgroundMessageView
+                <app.pachli.view.BackgroundMessageView
                     android:id="@+id/errorMessageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:visibility="gone"
-                    tools:src="@drawable/elephant_error"
+                    tools:src="@drawable/errorphant_error"
                     tools:visibility="visible" />
             </FrameLayout>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -2,13 +2,13 @@
 <!--
   ~ Copyright 2023 Tusky Contributors
   ~
-  ~ This file is a part of Tusky.
+  ~ This file is a part of Pachli.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under the terms of the
   ~ GNU General Public License as published by the Free Software Foundation; either version 3 of the
   ~ License, or (at your option) any later version.
   ~
-  ~ Tusky is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+  ~ Pachli is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
   ~ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
   ~ Public License for more details.
   ~
@@ -18,52 +18,9 @@
 
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarOptions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        app:elevation="0dp">
-
-        <LinearLayout
-            android:id="@+id/topButtonsLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/buttonClear"
-                style="@style/TuskyButton.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/notifications_clear"
-                android:textSize="?attr/status_text_medium" />
-
-            <Button
-                android:id="@+id/buttonFilter"
-                style="@style/TuskyButton.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/notifications_apply_filter"
-                android:textSize="?attr/status_text_medium" />
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_gravity="bottom"
-            android:background="?android:attr/listDivider"
-            app:layout_scrollFlags="scroll|enterAlways" />
-
-    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
@@ -80,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-            <com.keylesspalace.tusky.view.BackgroundMessageView
+            <app.pachli.view.BackgroundMessageView
                 android:id="@+id/statusView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

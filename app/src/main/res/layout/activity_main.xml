@@ -11,51 +11,43 @@
         android:id="@+id/mainCoordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.keylesspalace.tusky.MainActivity">
+        tools:context="app.pachli.MainActivity">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="@dimen/actionbar_elevation"
+            app:liftOnScroll="true"
+            app:liftOnScrollTargetViewId="@id/viewPager"
             app:elevationOverlayEnabled="false">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/mainToolbar"
-                style="@style/Widget.AppCompat.Toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSizeWithSubtitle"
                 app:contentInsetStartWithNavigation="0dp"
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:navigationContentDescription="@string/action_open_drawer" />
 
-            <LinearLayout
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/topNav"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/topNavAvatar"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:contentDescription="@string/action_open_drawer"
-                    app:shapeAppearance="@style/ShapeAppearance.Avatar"
-                    tools:src="@drawable/avatar_default" />
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                app:contentInsetStart="0dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:navigationContentDescription="@string/action_open_drawer">
 
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabLayout"
-                    style="@style/TuskyTabAppearance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:tabGravity="fill"
                     app:tabMaxWidth="0dp"
-                    app:tabMode="fixed" />
-
-            </LinearLayout>
+                    app:tabMode="scrollable" />
+            </androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -64,44 +56,27 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="?attr/actionBarSize"
-            android:background="?attr/windowBackgroundColor"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-        <com.google.android.material.bottomappbar.BottomAppBar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/bottomNav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:navigationContentDescription="@string/action_open_drawer"
             app:fabAlignmentMode="end">
 
-            <LinearLayout
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/bottomTabLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/bottomNavAvatar"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:contentDescription="@string/action_open_drawer"
-                    app:shapeAppearance="@style/ShapeAppearance.Avatar"
-                    tools:src="@drawable/avatar_default" />
-
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/bottomTabLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    app:tabGravity="fill"
-                    app:tabIndicator="@null"
-                    app:tabMode="fixed" />
-
-            </LinearLayout>
-
-        </com.google.android.material.bottomappbar.BottomAppBar>
+                android:layout_height="?attr/actionBarSize"
+                app:tabGravity="fill"
+                app:tabIndicatorGravity="top"
+                app:tabMaxWidth="0dp"
+                app:tabMode="scrollable" />
+        </androidx.appcompat.widget.Toolbar>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/composeButton"
@@ -132,4 +107,3 @@
         android:fitsSystemWindows="true" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
-

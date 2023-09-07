@@ -207,13 +207,13 @@
     </plurals>
     <string name="description_account_locked">Zaklenjen račun</string>
     <string name="about_title_activity">O aplikaciji</string>
-    <string name="about_tusky_version">Tusky %s</string>
-    <string name="about_tusky_license">Tusky je prosta in odprtokodna programska oprema. Licencirana je pod licenco GNU General Public License različice 3. Licenco si lahko ogledate tukaj: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
+    <string name="about_pachli_version">Pachli %s</string>
+    <string name="about_pachli_license">Pachli je prosta in odprtokodna programska oprema. Licencirana je pod licenco GNU General Public License različice 3. Licenco si lahko ogledate tukaj: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
     <string name="about_project_site">Spletna stran projekta:
-\nhttps://tusky.app</string>
+\nhttps://pachli.app</string>
     <string name="about_bug_feature_request_site">Poročila o napakah in želje za nove funkcije:
-\nhttps://github.com/tuskyapp/Tusky/issues</string>
-    <string name="about_tusky_account">Profil Tusky</string>
+\nhttps://github.com/pachli/pachli-android/issues</string>
+    <string name="about_pachli_account">Profil Pachli</string>
     <string name="post_share_content">Deli vsebino tuta</string>
     <string name="post_share_link">Deli povezavo do tuta</string>
     <string name="post_media_images">Slike</string>
@@ -233,7 +233,6 @@
     <string name="pref_title_alway_show_sensitive_media">Vedno prikaži občutljivo vsebino</string>
     <string name="title_media">Mediji</string>
     <string name="replying_to">Odgovori @%s</string>
-    <string name="load_more_placeholder_text">naloži več</string>
     <string name="pref_title_public_filter_keywords">Javne časovnice</string>
     <string name="pref_title_thread_filter_keywords">Pogovori</string>
     <string name="filter_addition_title">Dodaj filter</string>
@@ -251,7 +250,6 @@
     <string name="action_create_list">Ustvari seznam</string>
     <string name="action_rename_list">Preimenuj seznam</string>
     <string name="action_delete_list">Izbriši seznam</string>
-    <string name="action_edit_list">Uredi seznam</string>
     <string name="hint_search_people_list">Poiščite osebe, katerim sledite</string>
     <string name="action_add_to_list">Dodaj račun na seznam</string>
     <string name="action_remove_from_list">Odstrani račun iz seznama</string>
@@ -279,7 +277,7 @@
     <string name="expand_collapse_all_posts">Razširi/Strni vse statuse</string>
     <string name="action_open_post">Odpri tut</string>
     <string name="restart_required">Potreben je ponovni zagon aplikacije</string>
-    <string name="restart_emoji">Če želite uveljaviti te spremembe, morate znova zagnati Tusky</string>
+    <string name="restart_emoji">Če želite uveljaviti te spremembe, morate znova zagnati Pachli</string>
     <string name="later">Kasneje</string>
     <string name="restart">Znova zaženi</string>
     <string name="caption_systememoji">Privzeti komplet emotikonov vaše naprave</string>
@@ -290,10 +288,7 @@
     <string name="account_moved_description">%1$s se je prestavil/a na:</string>
     <string name="reblog_private">Spodbudi izvirnemu občinstvu</string>
     <string name="unreblog_private">Prekini spodbudo</string>
-    <string name="license_description">Tusky vsebuje kodo in sredstva iz naslednjih odprtokodnih projektov:</string>
-    <string name="license_apache_2">Licencirano pod licenco Apache (spodaj)</string>
-    <string name="license_cc_by_4">CC-BY 4.0</string>
-    <string name="license_cc_by_sa_4">CC-BY-SA 4.0</string>
+    <string name="license_description">Pachli vsebuje kodo in sredstva iz naslednjih odprtokodnih projektov:</string>
     <string name="profile_metadata_label">Metapodatki profila</string>
     <string name="profile_metadata_add">dodaj podatke</string>
     <string name="profile_metadata_label_label">Oznaka</string>
@@ -313,9 +308,6 @@
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s in %2$s</string>
     <string name="conversation_more_recipients">%1$s, %2$s in %3$d več</string>
-    <plurals name="max_tab_number_reached">
-        <item quantity="other">doseženih maksimalnih %1$d zavihkov</item>
-    </plurals>
     <string name="description_post_media">Mediji: %s</string>
     <string name="description_post_cw">Opozorila o vsebini: %s</string>
     <string name="description_post_media_no_description_placeholder">Brez opisa</string>
@@ -408,7 +400,6 @@
     <string name="confirmation_domain_unmuted">Domena %s odrita</string>
     <string name="mute_domain_warning">Ali ste prepričani, da želite blokirati vse iz domene %s\? Vsebine iz te domene ne boste videli v nobeni javni časovnici ali v obvestilih. Vaši sledilci iz te domene bodo odstranjeni.</string>
     <string name="mute_domain_warning_dialog_ok">Skrij celotno domeno</string>
-    <string name="pref_title_show_notifications_filter">Pokaži filtre obvestil</string>
     <string name="filter_dialog_whole_word">Cela beseda</string>
     <string name="filter_dialog_whole_word_description">Če je ključna beseda ali fraza samo alfanumerična, bo uporabljena le, če se ujema s celotno besedo</string>
     <string name="title_accounts">Računi</string>
@@ -433,7 +424,7 @@
     <string name="action_reset_schedule">Ponastavi</string>
     <string name="action_schedule_post">Napovej tut</string>
     <string name="post_lookup_error_format">Napaka pri iskanju objave %s</string>
-    <string name="about_powered_by_tusky">Poganja ga Tusky</string>
+    <string name="about_powered_by_pachli">Poganja ga Pachli</string>
     <string name="post_boosted_format">%s spodbudil</string>
     <string name="hashtags">Ključniki</string>
     <string name="notification_follow_request_name">Zahteve za Sledenje</string>

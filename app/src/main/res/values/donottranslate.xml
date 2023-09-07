@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="tusky_website" translatable="false">https://tusky.app</string>
+    <string name="pachli_website" translatable="false">https://pachli.app</string>
     <string name="about_app_version">%1$s %2$s</string>
 
     <string name="oauth_scheme" translatable="false">oauth2redirect</string>
-    <string name="preferences_file_key" translatable="false">com.keylesspalace.tusky.PREFERENCES</string>
+    <string name="preferences_file_key" translatable="false">app.pachli.PREFERENCES</string>
 
     <string name="at_symbol" translatable="false">\@</string>
     <string name="hash_symbol" translatable="false">#</string>
@@ -27,6 +27,26 @@
         <item>medium</item>
         <item>large</item>
         <item>largest</item>
+    </string-array>
+
+    <string-array name="pref_font_family_names">
+        <item>@string/system_default</item>
+        <item>Atkinson Hyperlegible</item>
+        <item>Comic Neue</item>
+        <item>Estedad</item>
+        <item>Lexend</item>
+        <item>Luciole</item>
+        <item>OpenDyslexic</item>
+    </string-array>
+
+    <string-array name="pref_font_family_values">
+        <item>default</item>
+        <item>atkinson_hyperlegible</item>
+        <item>comicneue</item>
+        <item>estedad</item>
+        <item>lexend</item>
+        <item>luciole</item>
+        <item>opendyslexic</item>
     </string-array>
 
     <string-array name="app_theme_values">
@@ -78,6 +98,7 @@
         <item>Български</item> <!-- bg: Bulgarian -->
         <item>Русский</item> <!-- ru: Russian -->
         <item>Українська</item> <!-- uk: Ukrainian -->
+        <item>עברית</item> <!-- iw: Hebrew -->
         <item>العربية</item> <!-- ar: Arabic -->
         <item>فارسی</item> <!-- fa: Persian -->
         <item>کوردیی ناوەندی</item> <!-- ckb: Central Kurdish -->
@@ -140,6 +161,7 @@
         <item>bg</item>
         <item>ru</item>
         <item>uk</item>
+        <item>iw</item>
         <item>ar</item>
         <item>fa</item>
         <item>ckb</item>
@@ -186,6 +208,7 @@
         <item>gab.com</item>
         <item>gab.ai</item>
         <item>spinster.xyz</item>
+        <item>truthsocial.com</item>
     </string-array>
 
     <string name="rick_roll_url">https://www.youtube.com/watch?v=dQw4w9WgXcQ</string>
@@ -268,16 +291,6 @@
         <item>259200</item>
         <item>604800</item>
     </integer-array>
-
-    <string-array name="reading_order_names">
-        <item>@string/pref_reading_order_oldest_first</item>
-        <item>@string/pref_reading_order_newest_first</item>
-    </string-array>
-
-    <string-array name="reading_order_values">
-        <item>OLDEST_FIRST</item>
-        <item>NEWEST_FIRST</item>
-    </string-array>
 
     <string-array name="filter_action_values">
         <item>warn</item>

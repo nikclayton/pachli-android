@@ -189,7 +189,6 @@
 \n
 \nअधिकमत्र प्राप्यते <a href="https://joinmastodon.org">joinmastodon.org</a>. </string>
     <string name="hint_search_people_list">येषामुसरणं करोषि तेष्वन्विष्यताम्</string>
-    <string name="action_edit_list">सूचिः सम्पाद्यताम्</string>
     <string name="action_delete_list">सूचिर्नश्यताम्</string>
     <string name="action_rename_list">पुनः सूचिनामकरणं क्रियताम्</string>
     <string name="action_create_list">सूचिः निर्मीयताम्</string>
@@ -210,7 +209,6 @@
     <string name="filter_addition_title">शोधकं युज्यताम्</string>
     <string name="pref_title_thread_filter_keywords">आलापाः</string>
     <string name="pref_title_public_filter_keywords">सार्वजनिकतालिकाः</string>
-    <string name="load_more_placeholder_text">अधिकमारोप्यताम्</string>
     <string name="replying_to">\@%s मित्रायोत्तरम्</string>
     <string name="title_media">सामग्र्यः</string>
     <string name="pref_title_alway_open_spoiler">सर्वदा विषयसतर्कतयाऽङ्कितं दौत्यं विस्तार्यताम्</string>
@@ -231,14 +229,14 @@
     <string name="post_media_images">चित्राणि</string>
     <string name="post_share_link">दौत्याय जालस्थानं विभाज्यताम्</string>
     <string name="post_share_content">दौत्यविषयो विभाज्यताम्</string>
-    <string name="about_tusky_account">टस्कीवर्यस्य व्यक्तिगतविवरणम्</string>
+    <string name="about_pachli_account">टस्कीवर्यस्य व्यक्तिगतविवरणम्</string>
     <string name="about_bug_feature_request_site">अशुद्धीनामावेदनं वैशिष्ट्यनिवेदनञ्च
-\n https://github.com/tuskyapp/Tusky/issues</string>
+\n https://github.com/pachli/pachli-android/issues</string>
     <string name="about_project_site">प्रकल्पस्य जालसूत्रम् :
-\n https://tusky.app</string>
-    <string name="about_tusky_license">टस्कीत्यनावृतस्रोतो निःशुल्कतन्त्रांशः। GNU General Public License Version 3 इत्यनेनाऽनुज्ञापितः। अत्राऽनुज्ञापत्रं द्रष्टुं शक्यते:-https://www.gnu.org/licenses/gpl-3.0.en.html</string>
-    <string name="about_powered_by_tusky">टस्कीत्यनेनाऽऽश्रितः</string>
-    <string name="about_tusky_version">टस्की %s</string>
+\n https://pachli.app</string>
+    <string name="about_pachli_license">टस्कीत्यनावृतस्रोतो निःशुल्कतन्त्रांशः। GNU General Public License Version 3 इत्यनेनाऽनुज्ञापितः। अत्राऽनुज्ञापत्रं द्रष्टुं शक्यते:-https://www.gnu.org/licenses/gpl-3.0.en.html</string>
+    <string name="about_powered_by_pachli">टस्कीत्यनेनाऽऽश्रितः</string>
+    <string name="about_pachli_version">टस्की %s</string>
     <string name="about_title_activity">विज्ञप्तिः</string>
     <string name="description_account_locked">कपाटितव्यक्तिविवरणलेखः</string>
     <plurals name="notification_title_summary">
@@ -352,9 +350,6 @@
     <string name="profile_metadata_label_label">लक्षः</string>
     <string name="profile_metadata_add">दत्तं युज्यताम्</string>
     <string name="profile_metadata_label">व्यक्तिगतविवरणदत्तांशः</string>
-    <string name="license_cc_by_sa_4">CC-BY-SA ४.०</string>
-    <string name="license_cc_by_4">CC-BY ४.०</string>
-    <string name="license_apache_2">Apache Licence (अनुलिख्यताम्) इत्यनुज्ञप्तिपत्रेणाऽनुज्ञापितः</string>
     <string name="license_description">टस्कीत्यस्मिन्निम्नलिखितेभ्योऽनावृतस्रोतःप्रकल्पेभ्यो विध्यादेशाः सन्ति:</string>
     <string name="unreblog_private">प्रकाशनंं नश्यताम्</string>
     <string name="reblog_private">मूलदर्शकेभ्यः प्रकाश्यताम्</string>
@@ -379,7 +374,6 @@
     <string name="duration_5_min">५ निमेषाः</string>
     <string name="create_poll_title">मतपेटिका</string>
     <string name="pref_title_enable_swipe_for_tabs">सारणहावभावस्य संयुतनं पीठिकापरिवर्तनार्थं कार्यम्</string>
-    <string name="pref_title_show_notifications_filter">सूचनाशोधकं दृश्यताम्</string>
     <string name="failed_search">अन्वेषणे विफलता जाता</string>
     <string name="title_accounts">व्यक्तित्वविवरणलेखाः</string>
     <string name="report_description_remote_instance">अन्यजालवितारकादियं व्यक्तित्वविवरणलेखा । आवेदनस्य रक्षितप्रतिलिपिरपि प्रेष्यतां वा \?</string>
@@ -446,9 +440,6 @@
     <string name="description_post_media_no_description_placeholder">विवरणं नास्ति</string>
     <string name="description_post_cw">विषयपूर्वसतर्कता: %s</string>
     <string name="description_post_media">सामग्र्यः %s</string>
-    <plurals name="max_tab_number_reached">
-        <item quantity="other">अधिकतमपीठिकासङ्ख्या %1$d भूता</item>
-    </plurals>
     <string name="conversation_more_recipients">%1$s, %2$s तथा %3$d अन्येऽपि</string>
     <string name="conversation_2_recipients">%1$s तथैव %2$s</string>
     <string name="title_favourited_by">निम्नमित्रस्य प्रीतिः</string>
@@ -465,9 +456,6 @@
     <string name="total_accounts">सकललेखाः</string>
     <string name="a11y_label_loading_thread">दौत्यमाला दृश्यते</string>
     <string name="instance_rule_title">%s नियमाः</string>
-    <string name="pref_title_reading_order">पाठनक्रमः</string>
-    <string name="pref_reading_order_oldest_first">पुरातनं प्रथमम्</string>
-    <string name="pref_reading_order_newest_first">नूतनं प्रथमम्</string>
     <string name="duration_indefinite">अपरिमितम्</string>
     <string name="action_set_focus">केन्द्रबिन्दुं स्थाप्यताम्</string>
     <string name="mute_notifications_switch">सूचनाः निशब्दाः करोतु</string>
@@ -527,7 +515,7 @@
     <string name="duration_90_days">९० दिनानि</string>
     <string name="action_unbookmark">पुटचिह्नं निस्कास्यताम्</string>
     <string name="notification_update_format">%s स्वस्य दौत्यं समपादयत्</string>
-    <string name="tusky_compose_post_quicksetting_label">दौत्यं संस्कुरुताम्</string>
+    <string name="pachli_compose_post_quicksetting_label">दौत्यं संस्कुरुताम्</string>
     <string name="saving_draft">लेखविकर्षं रक्षामि…</string>
     <string name="account_date_joined">%1$s सदस्यः अभवत्</string>
     <string name="account_username_copied">उपभोक्तृनाम्नः प्रतिकृतिः कृतः</string>

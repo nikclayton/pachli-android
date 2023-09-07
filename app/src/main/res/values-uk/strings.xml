@@ -24,7 +24,7 @@
     <string name="error_compose_character_limit">Допис задовгий!</string>
     <string name="error_no_web_browser_found">Не вдалося знайти браузер, який можна використати.</string>
     <string name="error_empty">Не може бути порожнім.</string>
-    <string name="error_network">Сталася помилка мережі! Перевірте інтернет-з\'єднання та спробуйте знову!</string>
+    <string name="error_network">Сталася помилка мережі. Перевірте інтернет-з\'єднання та спробуйте знову.</string>
     <string name="title_lists">Списки</string>
     <string name="action_lists">Списки</string>
     <string name="about_title_activity">Про застосунок</string>
@@ -36,7 +36,7 @@
     <string name="action_logout">Вийти</string>
     <string name="title_drafts">Чернетки</string>
     <string name="title_favourites">Вподобане</string>
-    <string name="action_login">Увійти з Tusky</string>
+    <string name="action_login">Увійти з Pachli</string>
     <string name="login_connection">Зʼєднання…</string>
     <string name="search_no_results">Немає результатів</string>
     <string name="hint_search">Пошук…</string>
@@ -85,7 +85,7 @@
     <string name="action_block">Заблокувати</string>
     <string name="action_unfollow">Відписатися</string>
     <string name="action_follow">Підписатися</string>
-    <string name="action_logout_confirm">Ви впевнені, що хочете вийти з облікового запису %1$s\?</string>
+    <string name="action_logout_confirm">Ви впевнені, що хочете вийти %1$s\? Це призведе до видалення всіх локальних даних облікового запису, включно з чернетками та вподобаннями.</string>
     <string name="action_compose">Написати</string>
     <string name="action_unfavourite">Не подобається</string>
     <string name="action_bookmark">Додати в закладки</string>
@@ -256,12 +256,10 @@
     <string name="description_post_media">Медіа: %s</string>
     <string name="title_reblogged_by">Поширює</string>
     <string name="profile_metadata_content_label">Вміст</string>
-    <string name="license_cc_by_sa_4">CC-BY-SA 4.0</string>
-    <string name="license_cc_by_4">CC-BY 4.0</string>
     <string name="profile_badge_bot_text">Бот</string>
     <string name="restart">Перезапустити</string>
     <string name="later">Пізніше</string>
-    <string name="restart_emoji">Вам потрібно буде перезапустити Tusky, щоб застосувати ці зміни</string>
+    <string name="restart_emoji">Вам потрібно буде перезапустити Pachli, щоб застосувати ці зміни</string>
     <string name="restart_required">Необхідно перезапустити застосунок</string>
     <string name="action_open_post">Відкрити допис</string>
     <string name="expand_collapse_all_posts">Розгорнути/згорнути всі дописи</string>
@@ -274,12 +272,11 @@
     <string name="action_remove_from_list">Вилучити обліковий запис зі списку</string>
     <string name="action_add_to_list">Додати обліковий запис до списку</string>
     <string name="hint_search_people_list">Пошук серед тих, на кого ви підписані</string>
-    <string name="action_edit_list">Змінити список</string>
     <string name="action_delete_list">Видалити список</string>
-    <string name="action_rename_list">Змінити назву списку</string>
+    <string name="action_rename_list">Оновити список</string>
     <string name="action_create_list">Створити список</string>
     <string name="error_delete_list">Не вдалося видалити список</string>
-    <string name="error_rename_list">Не вдалося перейменувати список</string>
+    <string name="error_rename_list">Не вдалося оновити список</string>
     <string name="error_create_list">Не вдалося створити список</string>
     <string name="add_account_description">Додати новий обліковий запис Mastodon</string>
     <string name="add_account_name">Додати обліковий запис</string>
@@ -294,7 +291,6 @@
     <string name="filter_addition_title">Додати фільтр</string>
     <string name="pref_title_thread_filter_keywords">Розмови</string>
     <string name="pref_title_public_filter_keywords">Загальнодоступні стрічки</string>
-    <string name="load_more_placeholder_text">завантажити ще</string>
     <string name="replying_to">Відповідь для @%s</string>
     <string name="pref_title_alway_open_spoiler">Завжди розгортати допис, з попередженнями про вміст</string>
     <string name="follows_you">Підписники</string>
@@ -316,14 +312,13 @@
     <string name="post_media_images">Зображення</string>
     <string name="post_share_link">Поділитися посиланням на допис</string>
     <string name="post_share_content">Поділитися вмістом допису</string>
-    <string name="about_tusky_account">Профіль Tusky</string>
+    <string name="about_pachli_account">Профіль Pachli</string>
     <string name="about_bug_feature_request_site">Звіти про вади та запити функцій:
-\n https://github.com/tuskyapp/Tusky/issues</string>
-    <string name="about_project_site">Вебсайт проєкту:
-\n https://tusky.app</string>
-    <string name="about_tusky_license">Tusky — вільне та відкрите програмне забезпечення. Ліцензовано загальною громадською ліцензією GNU версії 3, ви можете переглянути ліцензію тут: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
-    <string name="about_powered_by_tusky">Створено Tusky</string>
-    <string name="about_tusky_version">Tusky %s</string>
+\nhttps://github.com/pachli/pachli-android/issues</string>
+    <string name="about_project_site">Вебсайт проєкту: https://pachli.app</string>
+    <string name="about_pachli_license">Pachli — вільне та відкрите програмне забезпечення. Ліцензовано загальною громадською ліцензією GNU версії 3, ви можете переглянути ліцензію тут: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
+    <string name="about_powered_by_pachli">Створено Pachli</string>
+    <string name="about_pachli_version">Pachli %s</string>
     <string name="description_account_locked">Заблокований обліковий запис</string>
     <plurals name="notification_title_summary">
         <item quantity="one">%d нова взаємодія</item>
@@ -475,7 +470,6 @@
     <string name="no_drafts">У вас немає чернеток.</string>
     <string name="post_lookup_error_format">Помилка пошуку допису %s</string>
     <string name="pref_title_enable_swipe_for_tabs">Увімкнути перемикання між вкладками жестом проведення пальцем</string>
-    <string name="pref_title_show_notifications_filter">Показати фільтр сповіщень</string>
     <string name="failed_search">Не вдалося здійснити пошук</string>
     <string name="report_description_remote_instance">Обліковий запис з іншого сервера. Надіслати анонімізовану копію звіту й туди\?</string>
     <string name="report_description_1">Скаргу буде надіслано вашому модератору сервера. Ви можете надати пояснення, чому ви повідомляєте про цей обліковий запис знизу:</string>
@@ -496,12 +490,6 @@
     <string name="description_visibility_direct">Безпосередньо</string>
     <string name="description_post_bookmarked">Додано до закладок</string>
     <string name="description_post_reblogged">Поширено</string>
-    <plurals name="max_tab_number_reached">
-        <item quantity="one">досягнено обмеження %1$d вкладку</item>
-        <item quantity="few">досягнено обмеження %1$d вкладки</item>
-        <item quantity="many">досягнено обмеження %1$d вкладок</item>
-        <item quantity="other">досягнено обмеження %1$d вкладок</item>
-    </plurals>
     <plurals name="reblogs">
         <item quantity="one"><b>%s</b> поширення</item>
         <item quantity="few"><b>%s</b> поширення</item>
@@ -515,8 +503,7 @@
     <string name="profile_metadata_label_label">Ярлик</string>
     <string name="profile_metadata_add">додати дані</string>
     <string name="profile_metadata_label">Метадані профілю</string>
-    <string name="license_apache_2">Ліцензовано ліцензією Apache (копія знизу)</string>
-    <string name="license_description">Tusky містить код та засоби з таких проєктів з відкритим кодом:</string>
+    <string name="license_description">Pachli містить код та засоби з таких проєктів з відкритим кодом:</string>
     <string name="unreblog_private">Скасувати поширення</string>
     <string name="reblog_private">Поширити початковій аудиторії</string>
     <string name="account_moved_description">%1$s переміщено до:</string>
@@ -534,7 +521,7 @@
     <string name="duration_90_days">90 днів</string>
     <string name="duration_180_days">180 днів</string>
     <string name="duration_365_days">365 днів</string>
-    <string name="tusky_compose_post_quicksetting_label">Створити допис</string>
+    <string name="pachli_compose_post_quicksetting_label">Створити допис</string>
     <string name="notification_sign_up_format">%s реєструється</string>
     <string name="pref_title_notification_filter_sign_ups">хтось реєструється</string>
     <string name="notification_sign_up_name">Реєстрації</string>
@@ -550,8 +537,8 @@
     <string name="action_details">Подробиці</string>
     <string name="title_migration_relogin">Увійдіть повторно, щоб отримувати push-сповіщення</string>
     <string name="tips_push_notification_migration">Увійдіть повторно до всіх облікових записів, щоб увімкнути підтримку push-сповіщень.</string>
-    <string name="dialog_push_notification_migration">Щоб використовувати push-сповіщення через UnifiedPush, Tusky потребує дозволу стежити за сповіщеннями на вашому сервері Mastodon. Це вимагає повторного входу, щоб змінити області OAuth, надані Tusky. Використання параметра повторного входу тут або в налаштуваннях облікового запису збереже всі ваші локальні чернетки та кеш.</string>
-    <string name="dialog_push_notification_migration_other_accounts">Ви повторно увійшли до свого поточного облікового запису, щоб надати дозвіл на стеження Tusky. Однак у вас все ще є інші облікові записи, які не мігрували таким чином. Перейдіть до них і повторно увійдіть до них по одному, щоб забезпечити підтримку UnifiedPush сповіщень.</string>
+    <string name="dialog_push_notification_migration">Щоб використовувати push-сповіщення через UnifiedPush, Pachli потребує дозволу стежити за сповіщеннями на вашому сервері Mastodon. Це вимагає повторного входу, щоб змінити області OAuth, надані Pachli. Використання параметра повторного входу тут або в налаштуваннях облікового запису збереже всі ваші локальні чернетки та кеш.</string>
+    <string name="dialog_push_notification_migration_other_accounts">Ви повторно увійшли до свого поточного облікового запису, щоб надати дозвіл на стеження Pachli. Однак у вас все ще є інші облікові записи, які не мігрували таким чином. Перейдіть до них і повторно увійдіть до них по одному, щоб забезпечити підтримку UnifiedPush сповіщень.</string>
     <string name="account_date_joined">Приєднується %1$s</string>
     <string name="action_edit_image">Редагувати зображення</string>
     <string name="status_count_one_plus">1+</string>
@@ -618,9 +605,6 @@
     <string name="send_account_link_to">Поділитися URL облікового запису через…</string>
     <string name="send_account_username_to">Поділитися іменем користувача облікового запису через…</string>
     <string name="account_username_copied">Ім\'я користувача скопійовано</string>
-    <string name="pref_reading_order_newest_first">Спочатку новіші</string>
-    <string name="pref_title_reading_order">Порядок читання</string>
-    <string name="pref_reading_order_oldest_first">Спочатку давніші</string>
     <string name="pref_summary_http_proxy_disabled">Вимкнено</string>
     <string name="pref_summary_http_proxy_missing">&lt;не налаштовано&gt;</string>
     <string name="pref_summary_http_proxy_invalid">&lt;недійсний&gt;</string>
@@ -675,10 +659,31 @@
     <string name="pref_title_show_stat_inline">Показувати статистику допису у стрічці</string>
     <string name="help_empty_home">Це ваша <b>головна стрічка</b>. Вона показує останні дописи облікових записів, за якими ви стежите.
 \n
-\nЩоб переглянути облікові записи, ви можете знайти їх в одній з інших стрічок. Наприклад, на локальній стрічці вашого сервера [iconics gmd_group]. Або ви можете шукати їх за іменами [iconics gmd_search]; наприклад, шукайте Tusky, щоб знайти наш обліковий запис Mastodon.</string>
+\nЩоб переглянути облікові записи, ви можете знайти їх в одній з інших стрічок. Наприклад, на локальній стрічці вашого сервера [iconics gmd_group]. Або ви можете шукати їх за іменами [iconics gmd_search]; наприклад, шукайте Pachli, щоб знайти наш обліковий запис Mastodon.</string>
     <string name="hint_description">Опис</string>
     <string name="post_media_image">Зображення</string>
     <string name="error_list_load">Помилка завантаження списків</string>
     <string name="select_list_empty">У вас ще немає списків</string>
     <string name="select_list_manage">Керувати списками</string>
+    <string name="pref_ui_text_size">Розмір шрифту інтерфейсу</string>
+    <string name="notification_listenable_worker_name">Фонова діяльність</string>
+    <string name="notification_listenable_worker_description">Сповіщення, коли Pachli працює у фоновому режимі</string>
+    <string name="notification_notification_worker">Отримання сповіщень…</string>
+    <string name="notification_prune_cache">Обслуговування кешу…</string>
+    <string name="load_newest_notifications">Завантажити найновіші сповіщення</string>
+    <string name="compose_delete_draft">Видалити чернетку\?</string>
+    <string name="error_missing_edits">Ваш сервер знає, що цей допис було змінено, але не має копії редагувань, тому вони не можуть бути вам показані.
+\n
+\nЦе <a href="https://github.com/mastodon/mastodon/issues/25398">помилка #25398 у Mastodon</a>.</string>
+    <string name="error_media_upload_sending_fmt">Не вдалося вивантажити: %s</string>
+    <string name="about_device_info_title">Ваш пристрій</string>
+    <string name="about_device_info">%s %s
+\nВерсія Android: %s
+\nВерсія SDK: %d</string>
+    <string name="about_account_info_title">Ваш обліковий запис</string>
+    <string name="about_account_info">\@%s@%s
+\nВерсія: %s</string>
+    <string name="about_copy">Скопіювати версію та відомості про пристрій</string>
+    <string name="about_copied">Версію та відомості про пристрій скопійовано</string>
+    <string name="list_exclusive_label">Сховати з домашньої стрічки</string>
 </resources>

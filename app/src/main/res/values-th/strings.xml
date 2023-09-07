@@ -10,7 +10,6 @@
     <string name="duration_5_min">5 นาที</string>
     <string name="create_poll_title">โพล</string>
     <string name="pref_title_enable_swipe_for_tabs">เปิดใช้งานการเลื่อนนิ้วเพื่อสลับระหว่างแท็บ</string>
-    <string name="pref_title_show_notifications_filter">แสดงตัวกรองการแจ้งเตือน</string>
     <string name="failed_search">ค้นหาล้มเหลว</string>
     <string name="title_accounts">บัญชี</string>
     <string name="report_description_remote_instance">บัญชีนี้มาจากเซิร์ฟเวอร์อื่น ส่งสำเนารายงานที่ไม่ระบุชื่อไปที่นั่นด้วยหรือไม่\?</string>
@@ -71,9 +70,6 @@
     <string name="description_post_media_no_description_placeholder">ไม่มีคำอธิบาย</string>
     <string name="description_post_cw">เตือนเนื้อหา : %s</string>
     <string name="description_post_media">สื่อ: %s</string>
-    <plurals name="max_tab_number_reached">
-        <item quantity="other">ถึงจำนวนแท็บสูงสุดคือ %1$d แล้ว</item>
-    </plurals>
     <string name="conversation_more_recipients">%1$s, %2$s และอีก %3$d</string>
     <string name="conversation_2_recipients">%1$s และ %2$s</string>
     <string name="conversation_1_recipients">%1$s</string>
@@ -93,10 +89,7 @@
     <string name="profile_metadata_label_label">ป้าย</string>
     <string name="profile_metadata_add">เพิ่มข้อมูล</string>
     <string name="profile_metadata_label">ข้อมูลอภิพันธุ์</string>
-    <string name="license_cc_by_sa_4">CC-BY-SA 4.0</string>
-    <string name="license_cc_by_4">CC-BY 4.0</string>
-    <string name="license_apache_2">ภายใต้สัญญาอนุญาต Apache License (คัดลอกด้านล่าง)</string>
-    <string name="license_description">Tusky มีโค้ดและสินทรัพย์จากโครงการโอเพนซอร์สต่อไปนี้:</string>
+    <string name="license_description">Pachli มีโค้ดและสินทรัพย์จากโครงการโอเพนซอร์สต่อไปนี้:</string>
     <string name="unreblog_private">ยกเลิกบูสต์</string>
     <string name="reblog_private">บูสต์โพสต์ต้นฉบับ</string>
     <string name="account_moved_description">%1$s ได้ย้ายไปที่ :</string>
@@ -108,7 +101,7 @@
     <string name="caption_systememoji">ชุดเริ่มต้นในอุปกรณ์คุณ</string>
     <string name="restart">เริ่มใหม่</string>
     <string name="later">ภายหลัง</string>
-    <string name="restart_emoji">จำเป็นต้องเริ่ม Tusky ใหม่ เพื่อใช้การเปลี่ยนแปลงเหล่านี้</string>
+    <string name="restart_emoji">จำเป็นต้องเริ่ม Pachli ใหม่ เพื่อใช้การเปลี่ยนแปลงเหล่านี้</string>
     <string name="restart_required">จำเป็นต้องเริ่มแอปใหม่</string>
     <string name="action_open_post">เปิด Toot</string>
     <string name="expand_collapse_all_posts">ขยาย/ย่อทั้งหมด</string>
@@ -136,7 +129,6 @@
     <string name="action_remove_from_list">ลบบัญชีออกจากรายการ</string>
     <string name="action_add_to_list">เพิ่มบัญชีไปใส่รายการ</string>
     <string name="hint_search_people_list">ค้นหาผู้ติดตาม</string>
-    <string name="action_edit_list">แก้ไขรายการ</string>
     <string name="action_delete_list">ลบรายการ</string>
     <string name="action_rename_list">เปลี่ยนชื่อรายการ</string>
     <string name="action_create_list">สร้างรายการ</string>
@@ -154,7 +146,6 @@
     <string name="filter_addition_title">เพิ่มตัวคัดกรอง</string>
     <string name="pref_title_thread_filter_keywords">การสนทนา</string>
     <string name="pref_title_public_filter_keywords">ไทม์ไลน์สาธารณะ</string>
-    <string name="load_more_placeholder_text">โหลดเพิ่ม</string>
     <string name="replying_to">ตอบกลับไป @%s</string>
     <string name="title_media">สื่อ</string>
     <string name="pref_title_alway_open_spoiler">ขยาย Toot ที่มีเครื่องหมายเนื้อหาอ่อนไหวเสมอ</string>
@@ -175,14 +166,14 @@
     <string name="post_media_images">ภาพ</string>
     <string name="post_share_link">แบ่งปันลิงก์ Toot</string>
     <string name="post_share_content">แบ่งปันเนื้อหา Toot</string>
-    <string name="about_tusky_account">บัญชีทางการของ Tusky</string>
+    <string name="about_pachli_account">บัญชีทางการของ Pachli</string>
     <string name="about_bug_feature_request_site">รายงานช่องโหว่ และ ขอฟีเจอร์ (ภาษาอังกฤษ):
-\nhttps://github.com/tuskyapp/Tusky/issues</string>
+\nhttps://github.com/pachli/pachli-android/issues</string>
     <string name="about_project_site">เว็บไซต์โปรเจกต์:
-\nhttps://tusky.app</string>
-    <string name="about_tusky_license">Tusky คือซอฟต์แวร์เสรีและโอเพนซอร์ส ภายใต้สัญญาอนุญาต GNU General Public License Version 3 ดูสัญญาที่ : https://www.gnu.org/licenses/gpl-3.0.ja.html</string>
-    <string name="about_powered_by_tusky">ขับเคลื่อนด้วย Tusky</string>
-    <string name="about_tusky_version">Tusky %s</string>
+\nhttps://pachli.app</string>
+    <string name="about_pachli_license">Pachli คือซอฟต์แวร์เสรีและโอเพนซอร์ส ภายใต้สัญญาอนุญาต GNU General Public License Version 3 ดูสัญญาที่ : https://www.gnu.org/licenses/gpl-3.0.ja.html</string>
+    <string name="about_powered_by_pachli">ขับเคลื่อนด้วย Pachli</string>
+    <string name="about_pachli_version">Pachli %s</string>
     <string name="description_account_locked">บัญชีไม่สาธารณะ</string>
     <plurals name="notification_title_summary">
         <item quantity="other">การโต้ตอบใหม่จำนวน %d</item>
