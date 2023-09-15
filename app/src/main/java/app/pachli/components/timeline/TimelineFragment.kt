@@ -33,7 +33,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
@@ -57,6 +56,7 @@ import app.pachli.di.ViewModelFactory
 import app.pachli.entity.Status
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
+import app.pachli.interfaces.AppBarLayoutHost
 import app.pachli.interfaces.RefreshableFragment
 import app.pachli.interfaces.ReselectableFragment
 import app.pachli.interfaces.StatusActionListener
@@ -70,11 +70,13 @@ import app.pachli.util.hide
 import app.pachli.util.show
 import app.pachli.util.unsafeLazy
 import app.pachli.util.viewBinding
+import app.pachli.util.visible
 import app.pachli.util.withPresentationState
 import app.pachli.viewdata.AttachmentViewData
 import app.pachli.viewdata.StatusViewData
 import at.connyduck.sparkbutton.helpers.Utils
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
@@ -165,26 +167,22 @@ class TimelineFragment :
         setupSwipeRefreshLayout()
         setupRecyclerView()
 
+        (requireActivity() as? AppBarLayoutHost)?.appBarLayout?.setLiftOnScrollTargetView(binding.recyclerView)
+
         if (actionButtonPresent()) {
             binding.recyclerView.addOnScrollListener(
                 object : RecyclerView.OnScrollListener() {
+                    val actionButton = (activity as? ActionButtonActivity)?.actionButton
+
                     override fun onScrolled(view: RecyclerView, dx: Int, dy: Int) {
-                        val composeButton = (activity as ActionButtonActivity).actionButton
-                        if (composeButton != null) {
-                            if (!viewModel.uiState.value.showFabWhileScrolling) {
-                                if (dy > 0 && composeButton.isShown) {
-                                    composeButton.hide() // hides the button if we're scrolling down
-                                } else if (dy < 0 && !composeButton.isShown) {
-                                    composeButton.show() // shows it if we are scrolling up
-                                }
-                            } else if (!composeButton.isShown) {
-                                composeButton.show()
-                            }
-                        }
+                        actionButton?.visible(viewModel.uiState.value.showFabWhileScrolling || dy == 0)
                     }
 
                     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                         newState != SCROLL_STATE_IDLE && return
+
+                        actionButton?.show()
+
                         saveVisibleId()
                     }
                 },
@@ -306,6 +304,11 @@ class TimelineFragment :
                         }
                     }
                 }
+
+                // Collect the uiState. Nothing is done with it, but if you don't collect it then
+                // accessing viewModel.uiState.value (e.g., to check whether the FAB should be
+                // hidden) always returns the initial state.
+                launch { viewModel.uiState.collect() }
 
                 // Update status display from statusDisplayOptions. If the new options request
                 // relative time display collect the flow to periodically re-bind the UI.
@@ -554,8 +557,9 @@ class TimelineFragment :
         )
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.layoutManager = layoutManager
-        val divider = DividerItemDecoration(context, RecyclerView.VERTICAL)
-        binding.recyclerView.addItemDecoration(divider)
+        binding.recyclerView.addItemDecoration(
+            MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
+        )
 
         // CWs are expanded without animation, buttons animate itself, we don't need it basically
         (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false

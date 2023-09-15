@@ -37,7 +37,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
@@ -65,10 +64,12 @@ import app.pachli.util.hide
 import app.pachli.util.openLink
 import app.pachli.util.show
 import app.pachli.util.viewBinding
+import app.pachli.util.visible
 import app.pachli.viewdata.AttachmentViewData.Companion.list
 import app.pachli.viewdata.NotificationViewData
 import at.connyduck.sparkbutton.helpers.Utils
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
@@ -161,33 +162,22 @@ class NotificationsFragment :
             },
         )
         binding.recyclerView.addItemDecoration(
-            DividerItemDecoration(
-                context,
-                DividerItemDecoration.VERTICAL,
-            ),
+            MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
         )
 
         binding.recyclerView.addOnScrollListener(
             object : RecyclerView.OnScrollListener() {
-                val actionButton = (activity as ActionButtonActivity).actionButton
+                val actionButton = (activity as? ActionButtonActivity)?.actionButton
 
                 override fun onScrolled(view: RecyclerView, dx: Int, dy: Int) {
-                    actionButton?.let { fab ->
-                        if (!viewModel.uiState.value.showFabWhileScrolling) {
-                            if (dy > 0 && fab.isShown) {
-                                fab.hide() // Hide when scrolling down
-                            } else if (dy < 0 && !fab.isShown) {
-                                fab.show() // Show when scrolling up
-                            }
-                        } else if (!fab.isShown) {
-                            fab.show()
-                        }
-                    }
+                    actionButton?.visible(viewModel.uiState.value.showFabWhileScrolling || dy == 0)
                 }
 
                 @Suppress("SyntheticAccessor")
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     newState != SCROLL_STATE_IDLE && return
+
+                    actionButton?.show()
 
                     // Save the ID of the first notification visible in the list, so the user's
                     // reading position is always restorable.

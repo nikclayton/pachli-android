@@ -85,6 +85,7 @@ class CachedTimelineRemoteMediatorTest {
     @ExperimentalPagingApi
     fun `should return error when network call returns error code`() {
         val remoteMediator = CachedTimelineRemoteMediator(
+            initialKey = null,
             accountManager = accountManager,
             api = mock {
                 onBlocking { homeTimeline(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()) } doReturn Response.error(500, "".toResponseBody())
@@ -105,6 +106,7 @@ class CachedTimelineRemoteMediatorTest {
     @ExperimentalPagingApi
     fun `should return error when network call fails`() {
         val remoteMediator = CachedTimelineRemoteMediator(
+            initialKey = null,
             accountManager = accountManager,
             api = mock {
                 onBlocking { homeTimeline(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()) } doThrow IOException()
@@ -124,6 +126,7 @@ class CachedTimelineRemoteMediatorTest {
     @ExperimentalPagingApi
     fun `should not prepend statuses`() {
         val remoteMediator = CachedTimelineRemoteMediator(
+            initialKey = null,
             accountManager = accountManager,
             api = mock(),
             factory = pagingSourceFactory,
@@ -151,130 +154,9 @@ class CachedTimelineRemoteMediatorTest {
 
     @Test
     @ExperimentalPagingApi
-    fun `should refresh and not insert placeholder when less than a whole page is loaded`() {
-        val statusesAlreadyInDb = listOf(
-            mockStatusEntityWithAccount("3"),
-            mockStatusEntityWithAccount("2"),
-            mockStatusEntityWithAccount("1"),
-        )
-
-        db.insert(statusesAlreadyInDb)
-
-        val remoteMediator = CachedTimelineRemoteMediator(
-            accountManager = accountManager,
-            api = mock {
-                onBlocking { homeTimeline(limit = 20) } doReturn Response.success(
-                    listOf(
-                        mockStatus("8"),
-                        mockStatus("7"),
-                        mockStatus("5"),
-                    ),
-                )
-                onBlocking { homeTimeline(maxId = "3", limit = 20) } doReturn Response.success(
-                    listOf(
-                        mockStatus("3"),
-                        mockStatus("2"),
-                        mockStatus("1"),
-                    ),
-                )
-            },
-            factory = pagingSourceFactory,
-            db = db,
-            gson = Gson(),
-        )
-
-        val state = state(
-            pages = listOf(
-                PagingSource.LoadResult.Page(
-                    data = statusesAlreadyInDb,
-                    prevKey = null,
-                    nextKey = 0,
-                ),
-            ),
-        )
-
-        val result = runBlocking { remoteMediator.load(LoadType.REFRESH, state) }
-
-        assertTrue(result is RemoteMediator.MediatorResult.Success)
-        assertEquals(false, (result as RemoteMediator.MediatorResult.Success).endOfPaginationReached)
-
-        db.assertStatuses(
-            listOf(
-                mockStatusEntityWithAccount("8"),
-                mockStatusEntityWithAccount("7"),
-                mockStatusEntityWithAccount("5"),
-                mockStatusEntityWithAccount("3"),
-                mockStatusEntityWithAccount("2"),
-                mockStatusEntityWithAccount("1"),
-            ),
-        )
-    }
-
-    @Test
-    @ExperimentalPagingApi
-    fun `should refresh and not insert placeholders when there is overlap with existing statuses`() {
-        val statusesAlreadyInDb = listOf(
-            mockStatusEntityWithAccount("3"),
-            mockStatusEntityWithAccount("2"),
-            mockStatusEntityWithAccount("1"),
-        )
-
-        db.insert(statusesAlreadyInDb)
-
-        val remoteMediator = CachedTimelineRemoteMediator(
-            accountManager = accountManager,
-            api = mock {
-                onBlocking { homeTimeline(limit = 3) } doReturn Response.success(
-                    listOf(
-                        mockStatus("6"),
-                        mockStatus("4"),
-                        mockStatus("3"),
-                    ),
-                )
-                onBlocking { homeTimeline(maxId = "3", limit = 3) } doReturn Response.success(
-                    listOf(
-                        mockStatus("3"),
-                        mockStatus("2"),
-                        mockStatus("1"),
-                    ),
-                )
-            },
-            factory = pagingSourceFactory,
-            db = db,
-            gson = Gson(),
-        )
-
-        val state = state(
-            listOf(
-                PagingSource.LoadResult.Page(
-                    data = statusesAlreadyInDb,
-                    prevKey = null,
-                    nextKey = 0,
-                ),
-            ),
-            pageSize = 3,
-        )
-
-        val result = runBlocking { remoteMediator.load(LoadType.REFRESH, state) }
-
-        assertTrue(result is RemoteMediator.MediatorResult.Success)
-        assertEquals(false, (result as RemoteMediator.MediatorResult.Success).endOfPaginationReached)
-
-        db.assertStatuses(
-            listOf(
-                mockStatusEntityWithAccount("6"),
-                mockStatusEntityWithAccount("4"),
-                mockStatusEntityWithAccount("3"),
-                mockStatusEntityWithAccount("2"),
-                mockStatusEntityWithAccount("1"),
-            ),
-        )
-    }
-
-    @Test
-    @ExperimentalPagingApi
     fun `should not try to refresh already cached statuses when db is empty`() {
         val remoteMediator = CachedTimelineRemoteMediator(
+            initialKey = null,
             accountManager = accountManager,
             api = mock {
                 onBlocking { homeTimeline(limit = 20) } doReturn Response.success(
@@ -327,6 +209,7 @@ class CachedTimelineRemoteMediatorTest {
         db.insert(statusesAlreadyInDb)
 
         val remoteMediator = CachedTimelineRemoteMediator(
+            initialKey = null,
             accountManager = accountManager,
             api = mock {
                 onBlocking { homeTimeline(limit = 20) } doReturn Response.success(
@@ -381,6 +264,7 @@ class CachedTimelineRemoteMediatorTest {
         db.remoteKeyDao().upsert(RemoteKeyEntity(1, TIMELINE_ID, RemoteKeyKind.NEXT, "5"))
 
         val remoteMediator = CachedTimelineRemoteMediator(
+            initialKey = null,
             accountManager = accountManager,
             api = mock {
                 onBlocking { homeTimeline(maxId = "5", limit = 20) } doReturn Response.success(

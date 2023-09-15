@@ -11,7 +11,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -28,6 +27,7 @@ import app.pachli.util.show
 import app.pachli.util.viewBinding
 import app.pachli.util.visible
 import at.connyduck.calladapter.networkresult.fold
+import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -75,13 +75,17 @@ class FollowedTagsActivity :
                 }
             }
         }
+
+        binding.includedToolbar.appbar.setLiftOnScrollTargetView(binding.followedTagsView)
     }
 
     private fun setupRecyclerView(adapter: FollowedTagsAdapter) {
         binding.followedTagsView.adapter = adapter
         binding.followedTagsView.setHasFixedSize(true)
         binding.followedTagsView.layoutManager = LinearLayoutManager(this)
-        binding.followedTagsView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        binding.followedTagsView.addItemDecoration(
+            MaterialDividerItemDecoration(this, MaterialDividerItemDecoration.VERTICAL),
+        )
         (binding.followedTagsView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 
         val hideFab = sharedPreferences.getBoolean(PrefKeys.FAB_HIDE, false)
@@ -89,11 +93,7 @@ class FollowedTagsActivity :
             binding.followedTagsView.addOnScrollListener(
                 object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (dy > 0 && binding.fab.isShown) {
-                            binding.fab.hide()
-                        } else if (dy < 0 && !binding.fab.isShown) {
-                            binding.fab.show()
-                        }
+                        binding.fab.visible(dy == 0)
                     }
                 },
             )
