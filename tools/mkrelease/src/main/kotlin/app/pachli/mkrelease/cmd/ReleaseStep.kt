@@ -684,7 +684,7 @@ object CreateGithubRelease : ReleaseStep() {
             .name(spec.githubReleaseName())
             .body(changes)
             .draft(true)
-            .categoryName("announcements")
+            .categoryName("Announcements")
             .prerelease(thisVersion !is PachliVersion.Release)
             .makeLatest(GHReleaseBuilder.MakeLatest.FALSE)
             .create()
