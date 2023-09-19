@@ -20,15 +20,18 @@ package app.pachli.mkrelease.cmd
 import app.pachli.mkrelease.Config
 import app.pachli.mkrelease.DelegatingCredentialsProvider
 import app.pachli.mkrelease.GitHubPullRequest
+import app.pachli.mkrelease.LogEntry
 import app.pachli.mkrelease.PachliVersion
 import app.pachli.mkrelease.PasswordCredentialsProvider
 import app.pachli.mkrelease.ReleaseSpec
 import app.pachli.mkrelease.SPEC_FILE
+import app.pachli.mkrelease.Section
 import app.pachli.mkrelease.T
 import app.pachli.mkrelease.confirm
 import app.pachli.mkrelease.createFastlaneFromChangelog
 import app.pachli.mkrelease.ensureClean
 import app.pachli.mkrelease.ensureRepo
+import app.pachli.mkrelease.getActualRefObjectId
 import app.pachli.mkrelease.getChangelog
 import app.pachli.mkrelease.getGradle
 import app.pachli.mkrelease.hasBranch
@@ -292,6 +295,27 @@ object UpdateFilesForRelease : ReleaseStep() {
                 )
         )
 
+        // Construct the initial change log by looking for conventional commits
+        // with type 'feat' and 'fix'.
+        val changelogEntries = git.log()
+            .addRange(
+                git.getActualRefObjectId(spec.prevVersion.versionTag()),
+                git.getActualRefObjectId("develop")
+            )
+            .info().call().mapNotNull {
+                val components = it.shortMessage.split(":", limit = 2)
+                T.info(components)
+                if (components.size != 2) return@mapNotNull null
+
+                val section = Section.fromCommitTitle(it.shortMessage)
+
+                if (section == Section.Unknown) return@mapNotNull null
+
+                LogEntry(section, components[1])
+            }
+            .groupBy { it.section }
+
+        T.info(changelogEntries)
         // Add entry to CHANGELOG.md
         // No good third-party libraries for parsing Markdown to an AST **and then manipulating
         // that tree**, so add the new block by hand
@@ -311,16 +335,29 @@ object UpdateFilesForRelease : ReleaseStep() {
                 if (line.startsWith("## v")) {
                     w.println(
                         """
-                            ## v${spec.thisVersion.versionName()}
+## v${spec.thisVersion.versionName()}
+""")
+                    if (changelogEntries[Section.Features]?.isNotEmpty() == true) {
+                        w.println(
+                                """
+### New features and other improvements
 
-                            ### New features and other improvements
+${changelogEntries[Section.Features]?.joinToString("\n") { "- ${it.withPrLink()}" }}
 
-                            ### Significant bug fixes
+"""
+                        )
+                    }
 
-                            ENTER NEW LOG HERE
+                    if (changelogEntries[Section.Fixes]?.isNotEmpty() == true) {
+                        w.println(
+                            """
+### Significant bug fixes
 
-                        """.trimIndent()
-                    )
+${changelogEntries[Section.Fixes]?.joinToString("\n") { "- ${it.withPrLink()}" }}
+
+""".trimIndent()
+                        )
+                    }
                     w.println(line)
                     done = true
                     continue
@@ -383,7 +420,7 @@ object UpdateFilesForRelease : ReleaseStep() {
 
         // Commit
         val commitMsg =
-            "Prepare ${spec.thisVersion.versionName()} (versionCode ${spec.thisVersion.versionCode})"
+            "chore: Prepare release ${spec.thisVersion.versionName()} (versionCode ${spec.thisVersion.versionCode})"
         T.info("""- git commit -m "$commitMsg"""")
         git.commit()
             .setMessage(commitMsg)
@@ -575,6 +612,7 @@ object MergeDevelopToMain : ReleaseStep() {
             .info()
             .call()
 
+        // TODO: This should probably show the short title, not the full message
         git.log()
             .addRange(headBeforeMerge, mergeCommitSha)
             .info()
@@ -625,6 +663,7 @@ object PushTaggedMain : ReleaseStep() {
     }
 }
 
+
 @Serializable
 object CreateGithubRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
@@ -645,6 +684,7 @@ object CreateGithubRelease : ReleaseStep() {
             .name(spec.githubReleaseName())
             .body(changes)
             .draft(true)
+            .categoryName("announcements")
             .prerelease(thisVersion !is PachliVersion.Release)
             .makeLatest(GHReleaseBuilder.MakeLatest.FALSE)
             .create()

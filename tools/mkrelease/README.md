@@ -28,6 +28,7 @@ If this is your first time running the command you should:
 - Create a directory the tool can use as its permanent work area
   - This should **not** be part of your existing Pachli checkout
 - Create a GitHub Personal Access Token (PAT), and store it in the environment variable `GITHUB_TOKEN`
+- Create a GitLab access token and store it in the environment variable `GITLAB_TOKEN`
 
 ## USAGE
 
@@ -44,6 +45,7 @@ Each command may need one or more options to work. If they are not provided on t
 You will need:
 
 - A fork of the Pachli repository on GitHub
+- A fork of the fdroiddata repository on GitLab
 - TODO: Describe the access rights
 
 
@@ -57,19 +59,22 @@ Creates the initial release workspace and saves key metadata.
 Normally you only need to run this once -- not once per release, but once in total.
 
 ```shell
-.\runtools mkrelease --verbose init
-  --work-root c:\users\nik\projects\t2
-  --repository https://github.com/nikclayton/pachli-android
+.\runtools mkrelease --verbose init \
+  --work-root c:\users\nik\projects\t2 \
+  --app-repo-fork https://github.com/nikclayton/pachli-android \
+  --fdroid-repo-fork https://gitlab.com/nikclayton/fdroiddata
 ```
 
 `--work-root`: Directory where `mkrelease` will store all the files it needs to operate. This will include clones of the Pachli and Fedilab repositories.
 
-`--repository`: URL of the Pachli fork that you have already created.
+`--app-repo-fork`: URL of the Pachli fork you have already created.
+
+`--fdroid-repo-fork`: URL of the F-Droid `fdroiddata` fork you have already created.
 
 Key operations this performs include:
 
 - Create or empty the `--work-root`
-- Clone the repository fork
+- Clones the repositories
 - Create `mkrelease.json` in the current directory.
 
 ### `start`
@@ -80,11 +85,11 @@ Starts the process to create a new release. Saves metadata about the in-progress
 
 ```shell
 .\runtools mkrelease --verbose start
-  --major-minor major
+  --release-type major
   --issue-url https://www.example.com/1234
 ```
 
-`--major-minor`: `major` if this release increments the major version number. `minor` if this release increments the minor version number.
+`--release-type`: `major` if this release increments the major version number. `minor` if this release increments the minor version number.
 
 `--issue-url`: URL to the GitHub issue to use to track the work being performed for this release.
 
@@ -114,4 +119,6 @@ Key operations this performs include:
 
 ### `release`
 
-TODO
+```shell
+.\runtools mkrelease --verbose final
+```

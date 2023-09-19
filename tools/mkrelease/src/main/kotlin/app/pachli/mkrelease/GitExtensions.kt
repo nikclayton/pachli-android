@@ -33,6 +33,7 @@ import org.eclipse.jgit.api.RemoteAddCommand
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.api.StatusCommand
 import org.eclipse.jgit.api.TagCommand
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
@@ -108,6 +109,14 @@ Date:   $formattedDate
 $tabbedCommitMessage
     """.trimIndent()
 }
+
+//https://gist.github.com/paulwellnerbou/67c1758055710a7eb88e
+fun Git.getActualRefObjectId(ref: Ref): ObjectId {
+    val repoPeeled = this.repository.refDatabase.peel(ref);
+    return repoPeeled.peeledObjectId ?: ref.objectId
+}
+
+fun Git.getActualRefObjectId(refStr: String): ObjectId = getActualRefObjectId(repository.refDatabase.findRef(refStr))
 
 inline fun <reified T : Any, R> T.getPrivateProperty(name: String): R? {
     val field = this::class.java.getDeclaredField(name)

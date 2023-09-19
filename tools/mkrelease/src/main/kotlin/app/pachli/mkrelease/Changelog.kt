@@ -43,6 +43,20 @@ fun getChangelog(changelog: File, nextVersionName: String): String {
     return result.joinToString("\n")
 }
 
+data class LogEntry(
+    val section: Section,
+    val text: String
+) {
+    /** Regex to match "(#<some numbers>)" in a commit title, which refers to the PR */
+    private val rxPr = """\((?<text>#(?<pr>\d+))\)""".toRegex()
+
+    // Replace "(#\d+)" in the log message, which refers to the PR, with
+    // a markdown link to the PR
+    fun withPrLink() = rxPr.replace(text) { mr ->
+        "(#[${mr.groups["pr"]?.value}](https://github.com/pachli/pachli-android/pull/${mr.groups["pr"]?.value}))"
+    }
+}
+
 data class Changes(
     val features: List<String>,
     val fixes: List<String>
@@ -51,7 +65,15 @@ data class Changes(
 enum class Section {
     Features,
     Fixes,
-    Unknown
+    Unknown;
+
+    companion object {
+        fun fromCommitTitle(title: String) = when {
+            title.startsWith("feat:") -> Features
+            title.startsWith("fix:") -> Fixes
+            else -> Unknown
+        }
+    }
 }
 
 /**
@@ -61,12 +83,14 @@ fun getChangelogHighlights(changelog: File, nextVersionName: String): Changes {
     val features = mutableListOf<String>()
     val fixes = mutableListOf<String>()
 
+    val rxMarkdownLink = """\(.*?\[.+?\]\(.+?\)\)""".toRegex()
+
     changelog.useLines { lines ->
         var active = false
         var section = Section.Unknown
 
         for (line in lines) {
-            if (line.equals("## v$nextVersionName")) {
+            if (line == "## v$nextVersionName") {
                 active = true
                 continue
             }
@@ -86,8 +110,8 @@ fun getChangelogHighlights(changelog: File, nextVersionName: String): Changes {
             // Pull out the bullet points
             if (active && line.startsWith("-")) {
                 when (section) {
-                    Section.Features -> features.add(line)
-                    Section.Fixes -> fixes.add(line)
+                    Section.Features -> features.add(rxMarkdownLink.replace(line, ""))
+                    Section.Fixes -> fixes.add(rxMarkdownLink.replace(line, ""))
                     Section.Unknown -> throw Exception("Active, found a bullet point, but section is not set")
                 }
             }
