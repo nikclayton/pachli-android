@@ -43,7 +43,7 @@ dependencies {
     implementation("com.android.tools.build:gradle:8.0.0")
 
     // GitHub API
-    implementation("org.kohsuke:github-api:1.316-SNAPSHOT")
+    implementation("org.kohsuke:github-api:1.316")
     // implementation("com.github.nikclayton:github-api:1595-makelatest-SNAPSHOT")
     // implementation(files("\\\\wsl.localhost\\Ubuntu\\home\\nik\\.m2\\repository\\org\\kohsuke\\github-api\\1.316-SNAPSHOT\\github-api-1.316-SNAPSHOT.jar"))
 
