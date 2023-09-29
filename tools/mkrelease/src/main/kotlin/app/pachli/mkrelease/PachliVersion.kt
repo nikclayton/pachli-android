@@ -90,7 +90,20 @@ sealed class PachliVersion : Comparable<PachliVersion> {
         override val major: Int,
         override val minor: Int,
         override val versionCode: Int
-    ) : PachliVersion()
+    ) : PachliVersion() {
+        /** Move from Release to Release without an intervening beta */
+        fun release(releaseType: ReleaseType) = when (releaseType) {
+            ReleaseType.MINOR -> this.copy(
+                minor = this.minor + 1,
+                versionCode = this.versionCode + 1
+            )
+            ReleaseType.MAJOR -> this.copy(
+                minor = 0,
+                major = this.major + 1,
+                versionCode = this.versionCode + 1
+            )
+        }
+    }
 
     @Serializable
     data class Beta(

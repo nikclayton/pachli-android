@@ -72,8 +72,10 @@ data class ReleaseSpec(
 
     /** Branch name for this this version */
     fun releaseBranch() = when (thisVersion) {
-        is PachliVersion.Beta -> "${trackingIssue.number}-${thisVersion.major}.${thisVersion.minor}-b${thisVersion.beta}"
-        is PachliVersion.Release -> "${trackingIssue.number}-${thisVersion.major}.${thisVersion.minor}"
+//        is PachliVersion.Beta -> "${trackingIssue.number}-${thisVersion.major}.${thisVersion.minor}-b${thisVersion.beta}"
+//        is PachliVersion.Release -> "${trackingIssue.number}-${thisVersion.major}.${thisVersion.minor}"
+        is PachliVersion.Beta -> "release-${thisVersion.major}.${thisVersion.minor}-b${thisVersion.beta}"
+        is PachliVersion.Release -> "release-${thisVersion.major}.${thisVersion.minor}"
         else -> throw(Exception("releaseBranch() without setting thisVersion first"))
     }
 

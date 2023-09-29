@@ -144,8 +144,8 @@ object PreparePachliForkRepository : ReleaseStep() {
             .info()
             .call()
 
-        // Checkout `develop` branch,
-        git.checkout().setName("develop").info().call()
+        // Checkout `main` branch,
+        git.checkout().setName("main").info().call()
 
         // Pull everything.
         // - FF_ONLY, a non-FF pull indicates a merge commit is needed, which is bad
@@ -217,7 +217,11 @@ object SetNextVersionAsBeta : ReleaseStep() {
 @Serializable
 object SetNextVersionAsRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
-        val releaseVersion = (spec.prevVersion as PachliVersion.Beta).release()
+        val releaseVersion = when (spec.prevVersion) {
+            is PachliVersion.Beta -> spec.prevVersion.release()
+            is PachliVersion.Release -> spec.prevVersion.release(spec.releaseType)
+        }
+//        val releaseVersion = (spec.prevVersion as PachliVersion.Beta).release()
         T.success("Release version is $releaseVersion")
         return spec.copy(thisVersion = releaseVersion)
     }
@@ -300,7 +304,7 @@ object UpdateFilesForRelease : ReleaseStep() {
         val changelogEntries = git.log()
             .addRange(
                 git.getActualRefObjectId(spec.prevVersion.versionTag()),
-                git.getActualRefObjectId("develop")
+                git.getActualRefObjectId("main")
             )
             .info().call().mapNotNull {
                 val components = it.shortMessage.split(":", limit = 2)
@@ -374,7 +378,7 @@ ${changelogEntries[Section.Fixes]?.joinToString("\n") { "- ${it.withPrLink()}" }
 
         T.info("- Edit CHANGELOG.md for this release")
         T.muted("  To see what's changed between this release and the last,")
-        T.muted("  https://github.com/pachli/pachli-android/compare/${spec.prevVersion.versionTag()}...develop")
+        T.muted("  https://github.com/pachli/pachli-android/compare/${spec.prevVersion.versionTag()}...main")
         TermUi.editFile(ChangelogFile.toString())
 
         // TODO: Check the "ENTER NEW LOG HERE" string has been removed
@@ -445,7 +449,7 @@ ${changelogEntries[Section.Fixes]?.joinToString("\n") { "- ${it.withPrLink()}" }
 @Serializable
 object CreateReleaseBranchPullRequest : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        T.info("- Create pull request at https://github.com/${config.repositoryMain.owner}/${config.repositoryMain.repo}/compare/develop...${config.repositoryFork.owner}:${config.repositoryFork.repo}:${spec.releaseBranch()}?expand=1")
+        T.info("- Create pull request at https://github.com/${config.repositoryMain.owner}/${config.repositoryMain.repo}/compare/main...${config.repositoryFork.owner}:${config.repositoryFork.repo}:${spec.releaseBranch()}?expand=1")
         return null
     }
 }
@@ -625,6 +629,82 @@ object MergeDevelopToMain : ReleaseStep() {
 }
 
 @Serializable
+data object FetchMainToTag : ReleaseStep() {
+    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val repo = config.repositoryMain
+        val root = config.pachliMainRoot
+
+        val pullRequest = spec.pullRequest
+            ?: throw UsageError("pullRequest is null, but should not be")
+
+        val githubToken = System.getenv("GITHUB_TOKEN")
+            ?: throw UsageError("GITHUB_TOKEN is null")
+
+        val git = ensureRepo(repo.gitUrl, root).also { it.ensureClean() }
+
+        git.fetch()
+            .setProgressMonitor(TextProgressMonitor())
+            .info()
+            .call()
+        git.checkout().setName("main").info().call()
+        git.pull()
+            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+            .setProgressMonitor(TextProgressMonitor())
+            .info()
+            .call()
+
+        val github = GitHubBuilder().withOAuthToken(githubToken).build()
+        val pull = github.getRepository("${repo.owner}/${repo.repo}").getPullRequest(pullRequest.number.toInt())
+
+        pull.isMerged || throw UsageError("$pullRequest is not merged!")
+
+        T.info("- Merge commit SHA: ${pull.mergeCommitSha}")
+        val mergeCommitSha = ObjectId.fromString(pull.mergeCommitSha)
+        git.log()
+            .add(mergeCommitSha)
+            .setMaxCount(1)
+            .info()
+            .call()
+            .forEach { println(it.message()) }
+
+        T.confirm("Does that look like the correct commit on main?", abort = true)
+
+//        T.info("- Syncing main branch")
+//        git.checkout()
+//            .setCreateBranch(!git.hasBranch("refs/heads/main"))
+//            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+//            .setName("main")
+//            .setStartPoint("origin/main")
+//            .info()
+//            .call()
+//        git.pull()
+//            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+//            .setProgressMonitor(TextProgressMonitor())
+//            .info()
+//            .call()
+//        git.log().setMaxCount(1).info().call().forEach { println(it.message()) }
+//
+//        T.confirm("Does that look like the correct most recent commit on main?", abort = true)
+
+//        val headBeforeMerge = git.repository.resolve("main")
+//        git.merge()
+//            .include(mergeCommitSha)
+//            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+//            .info()
+//            .call()
+//
+//        // TODO: This should probably show the short title, not the full message
+//        git.log()
+//            .addRange(headBeforeMerge, mergeCommitSha)
+//            .info()
+//            .call()
+//            .forEach { println(it.message()) }
+//
+//        T.confirm("Does that look like the correct commits have been merged to main?", abort = true)
+        return null    }
+}
+
+@Serializable
 object TagMainAsRelease : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
@@ -714,31 +794,7 @@ object WaitForBitriseToBuild : ReleaseStep() {
 @Serializable
 object MarkAsBetaOnPlay : ReleaseStep() {
     override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
-
-        T.info(
-            """
-API access requires @connyduck permission to set up, so not automated yet
-
-1. Open https://play.google.com/console/u/0/developers/8419715224772184120/app/4973838218515056581/tracks/4699478614741377000
-2. Click 'Create new release' at the top right
-3. In the 'App bundles' section, click 'Add from library'
-4. Select the bundle with versionCode ${thisVersion.versionCode}
-5. Click 'Add to release'
-6. Paste in the following release notes
-
--------- 8< -------- 8< -------- 8< cut here -------- 8< -------- 8< --------
-${spec.fastlaneFile(config.pachliMainRoot).readLines().joinToString("\n")}
--------- 8< -------- 8< -------- 8< cut here -------- 8< -------- 8< --------
-
-7. Click 'Next'
-8. Click 'Save'
-9. Go to 'Publishing Overview' when prompted
-10. Send the changes for review
-
-            """.trimIndent()
-        )
-
+        T.info("Run the workflow https://github.com/pachli/pachli-android/actions/workflows/upload-blue-release-google-play.yml")
         while (!T.confirm("Have you done all this?")) { }
         return null
     }
