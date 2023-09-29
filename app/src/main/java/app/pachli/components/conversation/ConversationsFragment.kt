@@ -48,7 +48,6 @@ import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.ReselectableFragment
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.settings.PrefKeys
-import app.pachli.util.CardViewMode
 import app.pachli.util.StatusDisplayOptions
 import app.pachli.util.hide
 import app.pachli.util.show
@@ -99,20 +98,9 @@ class ConversationsFragment :
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(view.context)
 
-        val statusDisplayOptions = StatusDisplayOptions(
-            animateAvatars = preferences.getBoolean("animateGifAvatars", false),
-            mediaPreviewEnabled = accountManager.activeAccount?.mediaPreviewEnabled ?: true,
-            useAbsoluteTime = preferences.getBoolean("absoluteTimeView", false),
-            showBotOverlay = preferences.getBoolean("showBotOverlay", true),
-            useBlurhash = preferences.getBoolean("useBlurhash", true),
-            cardViewMode = CardViewMode.NONE,
-            confirmReblogs = preferences.getBoolean("confirmReblogs", true),
-            confirmFavourites = preferences.getBoolean("confirmFavourites", false),
-            hideStats = preferences.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_POSTS, false),
-            animateEmojis = preferences.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false),
-            showStatsInline = preferences.getBoolean(PrefKeys.SHOW_STATS_INLINE, false),
-            showSensitiveMedia = accountManager.activeAccount!!.alwaysShowSensitiveMedia,
-            openSpoiler = accountManager.activeAccount!!.alwaysOpenSpoiler,
+        val statusDisplayOptions = StatusDisplayOptions.from(
+            preferences,
+            accountManager.activeAccount!!,
         )
 
         adapter = ConversationAdapter(statusDisplayOptions, this)
@@ -339,7 +327,7 @@ class ConversationsFragment :
         }
     }
 
-    override fun onVoteInPoll(position: Int, choices: MutableList<Int>) {
+    override fun onVoteInPoll(position: Int, choices: List<Int>) {
         adapter.peek(position)?.let { conversation ->
             viewModel.voteInPoll(choices, conversation)
         }

@@ -93,7 +93,7 @@ Pull requests (PRs) are the primary unit of collaboration for code.
 
 ### Work on branches in your own fork of the repository
 
-Do not clone the `pachli-android` repository. Instead, create a fork, create a branch in your fork from the `develop` branch, and commit your changes to that.
+Do not clone the `pachli-android` repository. Instead, create a fork, create a branch in your fork from the `main` branch, and commit your changes to that branch.
 
 See the GitHub [Collaborating with pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/getting-started/about-collaborative-development-models) documentation.
 
@@ -114,11 +114,37 @@ Typically you would configure the build variant in Android Studio with Build > S
 
 This is not mandatory, but may make developing easier for you.
 
+### Code style
+
+#### `ktlintCheck` and `ktlintFormat`
+
+The project uses [ktlint](https://pinterest.github.io/ktlint/) to enforce common code and formatting standards.
+
+You can check your code before creating the PR with the `ktlintCheck` task.
+
+```shell
+./gradlew ktlintCheck
+```
+
+Most code formatting issues can be automatically resolved with the `ktlintFormat` task.
+
+```shell
+./gradlew ktlintFormat
+```
+
+The code in your PR will be checked for this every time it changes. If it is not lint-clean and automated fixes are possible they will be added as comments to the PR.
+
+#### Questions of taste
+
+Some code style issues are questions of taste, where developers might reasonably differ but the project has a specific stance.
+
+Please read the [Code style guide](/docs/code-style.md).
+
 ### Individual commits
 
 A PR is typically made up multiple commits.
 
-With very few exceptions this project squash-merges all PRs to maintain a linear commit history on the `develop` branch.
+With very few exceptions this project squash-merges all PRs to maintain a linear commit history on the `main` branch.
 
 Therefore **we do not care** about the "quality" of the individual commits that make up a single PR. Within the PR a single commit might change multiple things, have a non-obvious commit message, be littered with `TODO` comments, etc. Please do not think that every commit you make as you complete your PR needs to be perfect.
 
@@ -148,7 +174,7 @@ This makes things needlessly difficult for your reviewers.
 The project uses the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard for commit messages. If you are not familiar with them [Conventional Commits: A better way](https://medium.com/neudesic-innovation/conventional-commits-a-better-way-78d6785c2e08) is also a good introduction.
 
 > [!NOTE]
-> See [docs/decisions/0001-use-conventional-commits.md](https://github.com/pachli/pachli-android/docs/decisions/0001-use-conventional-commits.md)
+> See [docs/decisions/0001-use-conventional-commits.md](/docs/decisions/0001-use-conventional-commits.md)
 
 The PR's title and description will become the first line and remaining body of the commit message when the PR is merged, so your PR title and description should also follow the conventional commits approach.
 
@@ -175,7 +201,7 @@ The types are:
 - `test`, modify the test suite
 - `wip`, work-in-progress
 
-More details on each is in [docs/decisions/conventional-commits.md](https://github.com/pachli/pachli-android/docs/decisions/conventional-commits.md).
+More details on each is in [docs/decisions/0001-use-conventional-commits.md](/docs/decisions/0001-use-conventional-commits.md).
 
 `feat` for new features and `fix` for bug fixes are the most common.
 
@@ -240,33 +266,15 @@ As well as conveying more information to me as the reviewer this allows me to pe
 - Are there other instances of `@color/white` that this PR missed?
 - Does the PR use the correct spelling of `colorControlNormal` everywhere?
 
-#### Cleanly merge back in to `develop`
+#### Cleanly merge back in to `main`
 
-While you were working on your PR other changes may have happened on the `develop` branch.
+While you were working on your PR other changes may have happened on the `main` branch.
 
-Some of those changes may have overlapped with changes you make in your PR, and your PR can not be merged cleanly back in to `develop`.
+Some of those changes may have overlapped with changes you make in your PR, and your PR can not be merged cleanly back in to `main`.
 
-You should periodically merge changes from the `develop` branch in to your PR branch, and keep your PR up to date with `develop` during the review process.
+You should periodically merge changes from the `main` branch in to your PR branch, and keep your PR up to date with `main` during the review process.
 
-If your PR can not be cleanly merged in to `develop` it is difficult to review effectively, because merging the changes from `develop` in to your PR will invalidate the review. You've changed the code, so the reviewer needs to look at it again.
-
-#### `ktlintCheck` and `ktlintFormat`
-
-The project uses [ktlint](https://pinterest.github.io/ktlint/) to enforce common code and formatting standards.
-
-You can check your code before creating the PR with the `ktlintCheck` task.
-
-```shell
-./gradlew ktlintCheck
-```
-
-Most code formatting issues can be automatically resolved with the `ktlintFormat` task.
-
-```shell
-./gradlew ktlintFormat
-```
-
-The code in your PR will be checked for this every time it changes. If it is not lint-clean and automated fixes are possible they will be added as comments to the PR.
+If your PR can not be cleanly merged in to `main` it is difficult to review effectively, because merging the changes from `main` in to your PR will invalidate the review. You've changed the code, so the reviewer needs to look at it again.
 
 #### Tests
 
@@ -317,7 +325,7 @@ On the GitHub page for your PR create a new comment, and paste (Ctrl-V / Cmd-V) 
 This checklist may be helpful when you are creating your first few PRs. The PR:
 
 - [ ] ... is made from my fork of the Pachli repository
-- [ ] ... is branched from `develop`
+- [ ] ... is branched from `main`
 - [ ] ... title follows Conventional Commits:
     - [ ] starting with the correct type (`fix:`, `feat:`, etc)
     - [ ] and makes sense prefixed with "If merged, this PR will ..."
@@ -326,7 +334,7 @@ This checklist may be helpful when you are creating your first few PRs. The PR:
     - [ ] What it does
     - [ ] If appropriate, a justification for the approach
     - [ ] And has a "Fixes ..." footer if it fixes an issue
-- [ ] ... merges cleanly in to the `develop` branch
+- [ ] ... merges cleanly in to the `main` branch
 - [ ] ... passes `ktlintCheck`
 - [ ] ... passes all tests
     - [ ] ... and adds new ones if appropriate

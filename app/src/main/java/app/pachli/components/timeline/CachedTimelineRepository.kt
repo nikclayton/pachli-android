@@ -85,7 +85,7 @@ class CachedTimelineRepository @Inject constructor(
         Log.d(TAG, "initialKey: $initialKey is row: $row")
 
         return Pager(
-            config = PagingConfig(pageSize = pageSize),
+            config = PagingConfig(pageSize = pageSize, jumpThreshold = PAGE_SIZE * 3, enablePlaceholders = true),
             initialKey = row,
             remoteMediator = CachedTimelineRemoteMediator(
                 initialKey,
@@ -99,7 +99,7 @@ class CachedTimelineRepository @Inject constructor(
         ).flow
     }
 
-    /** Invalidate the active paging source, see [PagingSource.invalidate] */
+    /** Invalidate the active paging source, see [androidx.paging.PagingSource.invalidate] */
     suspend fun invalidate() {
         // Invalidating when no statuses have been loaded can cause empty timelines because it
         // cancels the network load.

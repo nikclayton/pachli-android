@@ -579,7 +579,7 @@ class ComposeActivity :
             a.getDimensionPixelSize(0, 1)
         }
 
-        val animateAvatars = preferences.getBoolean("animateGifAvatars", false)
+        val animateAvatars = preferences.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
         loadAvatar(
             activeAccount.profilePictureUrl,
             binding.composeAvatar,
@@ -1339,7 +1339,8 @@ class ComposeActivity :
     ) : Parcelable
 
     companion object {
-        private const val TAG = "ComposeActivity" // logging tag
+        @Suppress("unused")
+        private const val TAG = "ComposeActivity"
         private const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1
 
         internal const val COMPOSE_OPTIONS_EXTRA = "COMPOSE_OPTIONS"

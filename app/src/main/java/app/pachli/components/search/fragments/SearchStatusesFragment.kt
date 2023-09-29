@@ -51,8 +51,6 @@ import app.pachli.entity.Status
 import app.pachli.entity.Status.Mention
 import app.pachli.interfaces.AccountSelectionListener
 import app.pachli.interfaces.StatusActionListener
-import app.pachli.settings.PrefKeys
-import app.pachli.util.CardViewMode
 import app.pachli.util.StatusDisplayOptions
 import app.pachli.util.openLink
 import app.pachli.view.showMuteAccountDialog
@@ -77,20 +75,9 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
 
     override fun createAdapter(): PagingDataAdapter<StatusViewData, *> {
         val preferences = PreferenceManager.getDefaultSharedPreferences(binding.searchRecyclerView.context)
-        val statusDisplayOptions = StatusDisplayOptions(
-            animateAvatars = preferences.getBoolean("animateGifAvatars", false),
-            mediaPreviewEnabled = viewModel.mediaPreviewEnabled,
-            useAbsoluteTime = preferences.getBoolean("absoluteTimeView", false),
-            showBotOverlay = preferences.getBoolean("showBotOverlay", true),
-            useBlurhash = preferences.getBoolean("useBlurhash", true),
-            cardViewMode = CardViewMode.NONE,
-            confirmReblogs = preferences.getBoolean("confirmReblogs", true),
-            confirmFavourites = preferences.getBoolean("confirmFavourites", false),
-            hideStats = preferences.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_POSTS, false),
-            animateEmojis = preferences.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false),
-            showStatsInline = preferences.getBoolean(PrefKeys.SHOW_STATS_INLINE, false),
-            showSensitiveMedia = accountManager.activeAccount!!.alwaysShowSensitiveMedia,
-            openSpoiler = accountManager.activeAccount!!.alwaysOpenSpoiler,
+        val statusDisplayOptions = StatusDisplayOptions.from(
+            preferences,
+            accountManager.activeAccount!!,
         )
 
         binding.searchRecyclerView.addItemDecoration(
@@ -185,7 +172,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         }
     }
 
-    override fun onVoteInPoll(position: Int, choices: MutableList<Int>) {
+    override fun onVoteInPoll(position: Int, choices: List<Int>) {
         searchAdapter.peek(position)?.let {
             viewModel.voteInPoll(it, choices)
         }

@@ -26,11 +26,12 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.Transaction
 import androidx.room.withTransaction
-import app.pachli.components.timeline.toEntity
 import app.pachli.db.AccountManager
 import app.pachli.db.AppDatabase
 import app.pachli.db.RemoteKeyEntity
 import app.pachli.db.RemoteKeyKind
+import app.pachli.db.TimelineAccountEntity
+import app.pachli.db.TimelineStatusEntity
 import app.pachli.db.TimelineStatusWithAccount
 import app.pachli.entity.Status
 import app.pachli.network.Links
@@ -70,10 +71,12 @@ class CachedTimelineRemoteMediator(
         return try {
             val response = when (loadType) {
                 LoadType.REFRESH -> {
-                    val closestItem = state.anchorPosition?.let { state.closestItemToPosition(it) }?.status?.serverId
-                    val key = closestItem ?: initialKey
-                    Log.d(TAG, "Loading from item: $key")
-                    getInitialPage(key, state.config.pageSize)
+                    val closestItem = state.anchorPosition?.let {
+                        state.closestItemToPosition(maxOf(0, it - (state.config.pageSize / 2)))
+                    }?.status?.serverId
+                    val statusId = closestItem ?: initialKey
+                    Log.d(TAG, "Loading from item: $statusId")
+                    getInitialPage(statusId, state.config.pageSize)
                 }
                 LoadType.APPEND -> {
                     val rke = db.withTransaction {
@@ -199,18 +202,14 @@ class CachedTimelineRemoteMediator(
         // You can fetch the page immediately before the key, or the page immediately after, but
         // you can not fetch the page itself.
 
-        // Fetch the requested status, and the pages immediately before (prev) and after (next)
+        // Fetch the requested status, and the page immediately after (next)
         val deferredStatus = async { api.status(statusId = statusId) }
         val deferredNextPage = async {
             api.homeTimeline(maxId = statusId, limit = pageSize)
         }
-        val deferredPrevPage = async {
-            api.homeTimeline(minId = statusId, limit = pageSize)
-        }
 
         deferredStatus.await().getOrNull()?.let { status ->
             val statuses = buildList {
-                deferredPrevPage.await().body()?.let { this.addAll(it) }
                 this.add(status)
                 deferredNextPage.await().body()?.let { this.addAll(it) }
             }
@@ -242,7 +241,7 @@ class CachedTimelineRemoteMediator(
         // There were no statuses older than the user's desired status. Return the page
         // of statuses immediately newer than their desired status. This page must
         // *not* be empty (as noted earlier, if it is, paging stops).
-        deferredPrevPage.await().let { response ->
+        api.homeTimeline(minId = statusId, limit = pageSize).let { response ->
             if (response.isSuccessful) {
                 if (!response.body().isNullOrEmpty()) return@coroutineScope response
             }
@@ -258,13 +257,15 @@ class CachedTimelineRemoteMediator(
     @Transaction
     private suspend fun insertStatuses(statuses: List<Status>) {
         for (status in statuses) {
-            timelineDao.insertAccount(status.account.toEntity(activeAccount.id, gson))
-            status.reblog?.account?.toEntity(activeAccount.id, gson)?.let { rebloggedAccount ->
-                timelineDao.insertAccount(rebloggedAccount)
+            timelineDao.insertAccount(TimelineAccountEntity.from(status.account, activeAccount.id, gson))
+            status.reblog?.account?.let {
+                val account = TimelineAccountEntity.from(it, activeAccount.id, gson)
+                timelineDao.insertAccount(account)
             }
 
             timelineDao.insertStatus(
-                status.toEntity(
+                TimelineStatusEntity.from(
+                    status,
                     timelineUserId = activeAccount.id,
                     gson = gson,
                 ),

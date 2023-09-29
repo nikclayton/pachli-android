@@ -17,7 +17,6 @@
 
 package app.pachli.components.trending.viewmodel
 
-import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,12 +44,12 @@ import kotlin.time.Duration.Companion.milliseconds
 sealed class UiAction
 
 sealed class InfallibleUiAction : UiAction() {
-    object Reload : InfallibleUiAction()
+    data object Reload : InfallibleUiAction()
 }
 
 sealed class LoadState {
-    object Initial : LoadState()
-    object Loading : LoadState()
+    data object Initial : LoadState()
+    data object Loading : LoadState()
     data class Success(val data: List<TrendsLink>) : LoadState()
     data class Error(val throwable: Throwable) : LoadState()
 }
@@ -103,7 +102,7 @@ class TrendingLinksViewModel @Inject constructor(
     }
 
     companion object {
-        @SuppressLint("unused")
+        @Suppress("unused")
         private const val TAG = "TrendingLinksViewModel"
         private val THROTTLE_TIMEOUT = 500.milliseconds
     }

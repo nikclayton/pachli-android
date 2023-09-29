@@ -28,7 +28,6 @@ import app.pachli.entity.DeletedStatus
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
 import app.pachli.usecase.TimelineCases
-import app.pachli.util.toViewData
 import app.pachli.viewdata.StatusViewData
 import at.connyduck.calladapter.networkresult.NetworkResult
 import at.connyduck.calladapter.networkresult.fold
@@ -58,7 +57,8 @@ class SearchViewModel @Inject constructor(
 
     private val statusesPagingSourceFactory = SearchPagingSourceFactory(mastodonApi, SearchType.Status, loadedStatuses) {
         it.statuses.map { status ->
-            status.toViewData(
+            StatusViewData.from(
+                status,
                 isShowingContent = alwaysShowSensitiveMedia || !status.actionableStatus.sensitive,
                 isExpanded = alwaysOpenSpoiler,
                 isCollapsed = true,
@@ -136,7 +136,7 @@ class SearchViewModel @Inject constructor(
         updateStatusViewData(statusViewData.copy(isCollapsed = collapsed))
     }
 
-    fun voteInPoll(statusViewData: StatusViewData, choices: MutableList<Int>) {
+    fun voteInPoll(statusViewData: StatusViewData, choices: List<Int>) {
         val votedPoll = statusViewData.status.actionableStatus.poll!!.votedCopy(choices)
         updateStatus(statusViewData.status.copy(poll = votedPoll))
         viewModelScope.launch {

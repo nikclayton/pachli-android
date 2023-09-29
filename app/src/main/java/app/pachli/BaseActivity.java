@@ -67,7 +67,9 @@ import app.pachli.util.ThemeUtils;
 public abstract class BaseActivity extends AppCompatActivity implements Injectable {
     private static final String TAG = "BaseActivity";
 
+    /** @noinspection NotNullFieldNotInitialized*/
     @Inject
+    @NonNull
     public AccountManager accountManager;
 
     private static final int REQUESTER_NONE = Integer.MAX_VALUE;
@@ -120,7 +122,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
     }
 
     @Override
-    protected void attachBaseContext(Context newBase) {
+    protected void attachBaseContext(@NonNull Context newBase) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(newBase);
 
         // Scale text in the UI from PrefKeys.UI_TEXT_SCALE_RATIO
@@ -161,36 +163,24 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
         return true;
     }
 
-    private static @StyleRes int textStyle(String name) {
-        int style;
-        switch (name) {
-            case "smallest":
-                style = R.style.TextSizeSmallest;
-                break;
-            case "small":
-                style = R.style.TextSizeSmall;
-                break;
-            case "medium":
-            default:
-                style = R.style.TextSizeMedium;
-                break;
-            case "large":
-                style = R.style.TextSizeLarge;
-                break;
-            case "largest":
-                style = R.style.TextSizeLargest;
-                break;
-        }
-        return style;
+    private static @StyleRes int textStyle(@NonNull String name) {
+        return switch (name) {
+            case "smallest" -> R.style.TextSizeSmallest;
+            case "small" -> R.style.TextSizeSmall;
+            case "medium" -> R.style.TextSizeMedium;
+            case "large" -> R.style.TextSizeLarge;
+            case "largest" -> R.style.TextSizeLargest;
+            default -> R.style.TextSizeMedium;
+        };
     }
 
-    public void startActivityWithSlideInAnimation(Intent intent) {
+    public void startActivityWithSlideInAnimation(@NonNull Intent intent) {
         super.startActivity(intent);
         overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             getOnBackPressedDispatcher().onBackPressed();
             return true;
@@ -218,7 +208,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
         }
     }
 
-    protected void showErrorDialog(View anyView, @StringRes int descriptionId, @StringRes int actionId, View.OnClickListener listener) {
+    protected void showErrorDialog(@Nullable View anyView, @StringRes int descriptionId, @StringRes int actionId, @Nullable View.OnClickListener listener) {
         if (anyView != null) {
             Snackbar bar = Snackbar.make(anyView, getString(descriptionId), Snackbar.LENGTH_SHORT);
             bar.setAction(actionId, listener);
@@ -226,15 +216,17 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
         }
     }
 
-    public void showAccountChooserDialog(CharSequence dialogTitle, boolean showActiveAccount, AccountSelectionListener listener) {
+    public void showAccountChooserDialog(@Nullable CharSequence dialogTitle, boolean showActiveAccount, @NonNull AccountSelectionListener listener) {
         List<AccountEntity> accounts = accountManager.getAllAccountsOrderedByActive();
         AccountEntity activeAccount = accountManager.getActiveAccount();
+        assert activeAccount != null;
 
-        switch(accounts.size()) {
-            case 1:
+        switch (accounts.size()) {
+            case 1 -> {
                 listener.onAccountSelected(activeAccount);
                 return;
-            case 2:
+            }
+            case 2 -> {
                 if (!showActiveAccount) {
                     for (AccountEntity account : accounts) {
                         if (activeAccount != account) {
@@ -243,7 +235,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
                         }
                     }
                 }
-                break;
+            }
         }
 
         if (!showActiveAccount && activeAccount != null) {
@@ -261,18 +253,20 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
     public @Nullable String getOpenAsText() {
         List<AccountEntity> accounts = accountManager.getAllAccountsOrderedByActive();
         switch (accounts.size()) {
-            case 0:
-            case 1:
+            case 0, 1 -> {
                 return null;
-            case 2:
+            }
+            case 2 -> {
                 for (AccountEntity account : accounts) {
                     if (account != accountManager.getActiveAccount()) {
                         return String.format(getString(R.string.action_open_as), account.getFullName());
                     }
                 }
                 return null;
-            default:
+            }
+            default -> {
                 return String.format(getString(R.string.action_open_as), "…");
+            }
         }
     }
 
@@ -287,13 +281,11 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requesters.containsKey(requestCode)) {
-            PermissionRequester requester = requesters.remove(requestCode);
-            requester.onRequestPermissionsResult(permissions, grantResults);
-        }
+        PermissionRequester requester = requesters.remove(requestCode);
+        if (requester != null) requester.onRequestPermissionsResult(permissions, grantResults);
     }
 
-    public void requestPermissions(String[] permissions, PermissionRequester requester) {
+    public void requestPermissions(@NonNull String[] permissions, @NonNull PermissionRequester requester) {
         ArrayList<String> permissionsToRequest = new ArrayList<>();
         for(String permission: permissions) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {

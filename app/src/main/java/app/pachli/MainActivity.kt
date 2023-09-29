@@ -17,20 +17,22 @@
 
 package app.pachli
 
-import android.Manifest
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -46,7 +48,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.IntentCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.content.res.ResourcesCompat
@@ -359,12 +360,8 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
             },
         )
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                1,
-            )
+        if (Build.VERSION.SDK_INT >= TIRAMISU && ActivityCompat.checkSelfPermission(this, POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(POST_NOTIFICATIONS), 1)
         }
 
         // "Post failed" dialog should display in this activity
@@ -491,7 +488,10 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
         header = AccountHeaderView(this).apply {
             headerBackgroundScaleType = ImageView.ScaleType.CENTER_CROP
             currentHiddenInList = true
-            onAccountHeaderListener = { _: View?, profile: IProfile, current: Boolean -> handleProfileClick(profile, current) }
+            onAccountHeaderListener = { _: View?, profile: IProfile, current: Boolean ->
+                handleProfileClick(profile, current)
+                false
+            }
             addProfile(
                 ProfileSettingDrawerItem().apply {
                     identifier = DRAWER_ITEM_ADD_ACCOUNT
@@ -520,7 +520,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
         header.currentProfileName.setTextColor(headerTextColor)
         header.currentProfileEmail.setTextColor(headerTextColor)
 
-        val animateAvatars = preferences.getBoolean("animateGifAvatars", false)
+        val animateAvatars = preferences.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
 
         DrawerImageLoader.init(
             object : AbstractDrawerImageLoader() {
@@ -543,7 +543,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
 
                 override fun placeholder(ctx: Context, tag: String?): Drawable {
                     if (tag == DrawerImageLoader.Tags.PROFILE.name || tag == DrawerImageLoader.Tags.PROFILE_DRAWER_ITEM.name) {
-                        return ctx.getDrawable(R.drawable.avatar_default)!!
+                        return AppCompatResources.getDrawable(ctx, R.drawable.avatar_default)!!
                     }
 
                     return super.placeholder(ctx, tag)
@@ -857,23 +857,23 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
         }
     }
 
-    private fun handleProfileClick(profile: IProfile, current: Boolean): Boolean {
+    private fun handleProfileClick(profile: IProfile, current: Boolean) {
         val activeAccount = accountManager.activeAccount
 
         // open profile when active image was clicked
         if (current && activeAccount != null) {
             val intent = AccountActivity.getIntent(this, activeAccount.accountId)
             startActivityWithSlideInAnimation(intent)
-            return false
+            return
         }
         // open LoginActivity to add new account
         if (profile.identifier == DRAWER_ITEM_ADD_ACCOUNT) {
             startActivityWithSlideInAnimation(LoginActivity.getIntent(this, LoginActivity.MODE_ADDITIONAL_LOGIN))
-            return false
+            return
         }
         // change Account
         changeAccount(profile.identifier, null)
-        return false
+        return
     }
 
     private fun changeAccount(newSelectedId: Long, forward: Intent?) {
@@ -957,12 +957,13 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
         updateShortcut(this, accountManager.activeAccount!!)
     }
 
+    @SuppressLint("CheckResult")
     private fun loadDrawerAvatar(avatarUrl: String, showPlaceholder: Boolean) {
         val hideTopToolbar = preferences.getBoolean(PrefKeys.HIDE_TOP_TOOLBAR, false)
-        val animateAvatars = preferences.getBoolean("animateGifAvatars", false)
+        val animateAvatars = preferences.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
 
         val activeToolbar = if (hideTopToolbar) {
-            val navOnBottom = preferences.getString("mainNavPosition", "top") == "bottom"
+            val navOnBottom = preferences.getString(PrefKeys.MAIN_NAV_POSITION, "top") == "bottom"
             if (navOnBottom) {
                 binding.bottomNav
             } else {
@@ -982,9 +983,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
                     ),
                 ),
             )
-                .apply {
-                    if (showPlaceholder) placeholder(R.drawable.avatar_default)
-                }
+                .apply { if (showPlaceholder) placeholder(R.drawable.avatar_default) }
                 .into(
                     object : CustomTarget<Drawable>(navIconSize, navIconSize) {
 
@@ -1017,9 +1016,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, HasAndroidInje
                     ),
                 ),
             )
-                .apply {
-                    if (showPlaceholder) placeholder(R.drawable.avatar_default)
-                }
+                .apply { if (showPlaceholder) placeholder(R.drawable.avatar_default) }
                 .into(
                     object : CustomTarget<Bitmap>(navIconSize, navIconSize) {
                         override fun onLoadStarted(placeholder: Drawable?) {

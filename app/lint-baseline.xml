@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.2)" variant="all" version="8.1.0">
-
-    <issue
-        id="MissingPermission"
-        message="Call requires permission which may be rejected by user: code should explicitly check to see if permission is available (with `checkPermission`) or explicitly handle a potential `SecurityException`"
-        errorLine1="                notificationManager.notify(notificationId, builder.build())"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/receiver/SendStatusBroadcastReceiver.kt"
-            line="78"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `placeholder` is not used"
-        errorLine1="                    if (showPlaceholder) placeholder(R.drawable.avatar_default)"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="986"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `placeholder` is not used"
-        errorLine1="                    if (showPlaceholder) placeholder(R.drawable.avatar_default)"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="1021"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 33 (current min is 23): `android.Manifest.permission#POST_NOTIFICATIONS`"
-        errorLine1="                arrayOf(Manifest.permission.POST_NOTIFICATIONS),"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="365"
-            column="25"/>
-    </issue>
+<issues format="6" by="lint 8.1.1" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.1)" variant="all" version="8.1.1">
 
     <issue
         id="InvalidPackage"
@@ -125,72 +81,6 @@
         <location
             file="src/main/res/layout/item_emoji_pref.xml"
             line="78"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `AppCompatResources.getDrawable()`"
-        errorLine1="                        return ctx.getDrawable(R.drawable.avatar_default)!!"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="546"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UseCompatTextViewDrawableXml"
-        message="Use `app:drawableStartCompat` instead of `android:drawableStart`"
-        errorLine1="                            android:drawableStart=&quot;@drawable/ic_briefcase&quot;"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_account.xml"
-            line="287"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UseCompatTextViewDrawableXml"
-        message="Use `app:drawableStartCompat` instead of `android:drawableStart`"
-        errorLine1="                android:drawableStart=&quot;@drawable/ic_plus_24dp&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_tab_preference.xml"
-            line="60"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UseCompatTextViewDrawableXml"
-        message="Use `app:drawableStartCompat` instead of `android:drawableStart`"
-        errorLine1="        android:drawableStart=&quot;@drawable/ic_person_add_24dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_follow.xml"
-            line="17"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseCompatTextViewDrawableXml"
-        message="Use `app:drawableStartCompat` instead of `android:drawableStart`"
-        errorLine1="        android:drawableStart=&quot;@drawable/ic_reblog_18dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_status.xml"
-            line="20"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseCompatTextViewDrawableXml"
-        message="Use `app:drawableStartCompat` instead of `android:drawableStart`"
-        errorLine1="        android:drawableStart=&quot;@drawable/ic_poll_24dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/view_poll_preview.xml"
-            line="15"
             column="9"/>
     </issue>
 
@@ -751,7 +641,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="334"
+            line="335"
             column="5"/>
     </issue>
 
@@ -762,7 +652,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="391"
+            line="392"
             column="5"/>
     </issue>
 
@@ -773,7 +663,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="563"
+            line="564"
             column="5"/>
     </issue>
 
@@ -784,7 +674,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="776"
+            line="777"
             column="5"/>
     </issue>
 
@@ -971,7 +861,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/adapter/PollAdapter.kt"
-            line="62"
+            line="67"
             column="9"/>
     </issue>
 
@@ -982,7 +872,18 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/adapter/PollAdapter.kt"
-            line="62"
+            line="67"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NotifyDataSetChanged"
+        message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
+        errorLine1="        notifyDataSetChanged()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/app/pachli/adapter/PollAdapter.kt"
+            line="67"
             column="9"/>
     </issue>
 
@@ -1020,35 +921,13 @@
     </issue>
 
     <issue
-        id="Recycle"
-        message="This `InputStream` should be freed up after use with `#close()`"
-        errorLine1="        from = contentResolver.openInputStream(this)"
-        errorLine2="                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/IOUtils.kt"
-            line="45"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This `InputStream` should be freed up after use with `#close()`"
-        errorLine1="            val stream = contentResolver.openInputStream(media.uri)"
-        errorLine2="                                         ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/MediaUploader.kt"
-            line="276"
-            column="42"/>
-    </issue>
-
-    <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; SDK_INT is always >= 23"
         errorLine1="            return PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="863"
+            line="865"
             column="57"/>
     </issue>
 
@@ -1840,7 +1719,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="267"
+            line="268"
             column="13"/>
     </issue>
 
@@ -1851,7 +1730,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="268"
+            line="269"
             column="13"/>
     </issue>
 
@@ -1862,7 +1741,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="293"
+            line="294"
             column="13"/>
     </issue>
 
@@ -1873,7 +1752,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="324"
+            line="325"
             column="13"/>
     </issue>
 
@@ -1884,7 +1763,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="404"
+            line="405"
             column="13"/>
     </issue>
 
@@ -1895,7 +1774,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="460"
+            line="461"
             column="13"/>
     </issue>
 
@@ -1906,7 +1785,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="511"
+            line="512"
             column="13"/>
     </issue>
 
@@ -1917,7 +1796,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="515"
+            line="516"
             column="13"/>
     </issue>
 
@@ -1928,7 +1807,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="516"
+            line="517"
             column="13"/>
     </issue>
 
@@ -1939,7 +1818,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="517"
+            line="518"
             column="13"/>
     </issue>
 
@@ -1950,7 +1829,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="518"
+            line="519"
             column="13"/>
     </issue>
 
@@ -1961,7 +1840,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="519"
+            line="520"
             column="13"/>
     </issue>
 
@@ -1972,7 +1851,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="520"
+            line="521"
             column="13"/>
     </issue>
 
@@ -1983,7 +1862,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="521"
+            line="522"
             column="13"/>
     </issue>
 
@@ -1994,7 +1873,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="522"
+            line="523"
             column="13"/>
     </issue>
 
@@ -2005,7 +1884,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="524"
+            line="525"
             column="13"/>
     </issue>
 
@@ -2016,7 +1895,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="602"
+            line="603"
             column="13"/>
     </issue>
 
@@ -2027,7 +1906,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="603"
+            line="604"
             column="13"/>
     </issue>
 
@@ -2038,7 +1917,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="618"
+            line="619"
             column="13"/>
     </issue>
 
@@ -2049,7 +1928,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="620"
+            line="621"
             column="13"/>
     </issue>
 
@@ -2060,7 +1939,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="621"
+            line="622"
             column="13"/>
     </issue>
 
@@ -2071,7 +1950,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="624"
+            line="625"
             column="13"/>
     </issue>
 
@@ -2082,7 +1961,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="669"
+            line="670"
             column="13"/>
     </issue>
 
@@ -2093,7 +1972,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="717"
+            line="718"
             column="13"/>
     </issue>
 
@@ -2104,7 +1983,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="723"
+            line="724"
             column="13"/>
     </issue>
 
@@ -2115,7 +1994,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="764"
+            line="765"
             column="13"/>
     </issue>
 
@@ -2126,7 +2005,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="798"
+            line="799"
             column="13"/>
     </issue>
 
@@ -2324,7 +2203,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/accountlist/AccountListFragment.kt"
-            line="140"
+            line="135"
             column="17"/>
     </issue>
 
@@ -2599,7 +2478,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/conversation/ConversationsFragment.kt"
-            line="155"
+            line="143"
             column="25"/>
     </issue>
 
@@ -2610,7 +2489,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/conversation/ConversationsFragment.kt"
-            line="157"
+            line="145"
             column="33"/>
     </issue>
 
@@ -2687,7 +2566,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/instancemute/fragment/InstanceListFragment.kt"
-            line="61"
+            line="57"
             column="21"/>
     </issue>
 
@@ -3072,7 +2951,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/MainActivity.kt"
-            line="240"
+            line="241"
             column="37"/>
     </issue>
 
@@ -3083,7 +2962,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/MainActivity.kt"
-            line="244"
+            line="245"
             column="37"/>
     </issue>
 
@@ -3094,7 +2973,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/app/pachli/MainActivity.kt"
-            line="348"
+            line="349"
             column="25"/>
     </issue>
 
@@ -3105,7 +2984,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/app/pachli/MainActivity.kt"
-            line="349"
+            line="350"
             column="29"/>
     </issue>
 
@@ -3116,7 +2995,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/app/pachli/MainActivity.kt"
-            line="351"
+            line="352"
             column="25"/>
     </issue>
 
@@ -3127,7 +3006,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/app/pachli/MainActivity.kt"
-            line="352"
+            line="353"
             column="29"/>
     </issue>
 
@@ -3809,7 +3688,7 @@
         errorLine2="                                              ~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/timeline/TimelineFragment.kt"
-            line="177"
+            line="180"
             column="47"/>
     </issue>
 
@@ -4058,7 +3937,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/res/layout/activity_account.xml"
-            line="116"
+            line="117"
             column="22"/>
     </issue>
 
@@ -4069,7 +3948,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/res/layout/activity_account.xml"
-            line="130"
+            line="131"
             column="22"/>
     </issue>
 
@@ -4080,7 +3959,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/res/layout/activity_account.xml"
-            line="245"
+            line="246"
             column="22"/>
     </issue>
 
@@ -4091,7 +3970,7 @@
         errorLine2="                         ~~~~~~~~">
         <location
             file="src/main/res/layout/activity_account.xml"
-            line="281"
+            line="282"
             column="26"/>
     </issue>
 
@@ -4102,7 +3981,7 @@
         errorLine2="                         ~~~~~~~~">
         <location
             file="src/main/res/layout/activity_account.xml"
-            line="308"
+            line="309"
             column="26"/>
     </issue>
 
@@ -4113,7 +3992,7 @@
         errorLine2="                         ~~~~~~~~">
         <location
             file="src/main/res/layout/activity_account.xml"
-            line="323"
+            line="324"
             column="26"/>
     </issue>
 
@@ -4124,7 +4003,7 @@
         errorLine2="                         ~~~~~~~~">
         <location
             file="src/main/res/layout/activity_account.xml"
-            line="350"
+            line="351"
             column="26"/>
     </issue>
 
@@ -4135,7 +4014,7 @@
         errorLine2="                         ~~~~~~~~">
         <location
             file="src/main/res/layout/activity_account.xml"
-            line="381"
+            line="382"
             column="26"/>
     </issue>
 
@@ -4146,7 +4025,7 @@
         errorLine2="                         ~~~~~~~~">
         <location
             file="src/main/res/layout/activity_account.xml"
-            line="411"
+            line="412"
             column="26"/>
     </issue>
 
@@ -4157,7 +4036,7 @@
         errorLine2="         ~~~~~~~~">
         <location
             file="src/main/res/layout/activity_compose.xml"
-            line="365"
+            line="364"
             column="10"/>
     </issue>
 
@@ -4421,7 +4300,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_conversation.xml"
-            line="233"
+            line="234"
             column="6"/>
     </issue>
 
@@ -5026,7 +4905,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_status_notification.xml"
-            line="49"
+            line="50"
             column="6"/>
     </issue>
 
@@ -5037,7 +4916,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_status_notification.xml"
-            line="70"
+            line="71"
             column="6"/>
     </issue>
 
@@ -5048,7 +4927,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_status_notification.xml"
-            line="84"
+            line="85"
             column="6"/>
     </issue>
 
@@ -5363,72 +5242,6 @@
     <issue
         id="ContentDescription"
         message="Missing `contentDescription` attribute on image"
-        errorLine1="                &lt;ImageView"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_account.xml"
-            line="31"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_account.xml"
-            line="473"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/dialog_focus.xml"
-            line="23"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_account_media.xml"
-            line="12"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_report_notification.xml"
-            line="42"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_status_notification.xml"
-            line="42"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
         errorLine1="    &lt;ImageView"
         errorLine2="     ~~~~~~~~~">
         <location
@@ -5467,28 +5280,6 @@
         <location
             file="src/main/res/layout/item_status_filtered.xml"
             line="18"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Mute&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Mute&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/view_hashtag_toolbar.xml"
-            line="22"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Unmute&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Unmute&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/view_hashtag_toolbar.xml"
-            line="29"
             column="9"/>
     </issue>
 
@@ -5633,743 +5424,6 @@
             file="src/main/res/layout/view_compose_schedule.xml"
             line="38"
             column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    void onViewAccount(String id);"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/interfaces/AccountActionListener.java"
-            line="19"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    void onMute(final boolean mute, final String id, final int position, final boolean notifications);"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/interfaces/AccountActionListener.java"
-            line="20"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    void onBlock(final boolean block, final String id, final int position);"
-        errorLine2="                                            ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/interfaces/AccountActionListener.java"
-            line="21"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    void onRespondToFollowRequest(final boolean accept, final String id, final int position);"
-        errorLine2="                                                              ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/interfaces/AccountActionListener.java"
-            line="22"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public AccountManager accountManager;"
-        errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/BaseActivity.java"
-            line="71"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void startActivityWithSlideInAnimation(Intent intent) {"
-        errorLine2="                                                  ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/BaseActivity.java"
-            line="187"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
-        errorLine2="                                         ~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/BaseActivity.java"
-            line="193"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void showErrorDialog(View anyView, @StringRes int descriptionId, @StringRes int actionId, View.OnClickListener listener) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/app/pachli/BaseActivity.java"
-            line="221"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void showErrorDialog(View anyView, @StringRes int descriptionId, @StringRes int actionId, View.OnClickListener listener) {"
-        errorLine2="                                                                                                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/BaseActivity.java"
-            line="221"
-            column="105"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void showAccountChooserDialog(CharSequence dialogTitle, boolean showActiveAccount, AccountSelectionListener listener) {"
-        errorLine2="                                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/BaseActivity.java"
-            line="229"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void showAccountChooserDialog(CharSequence dialogTitle, boolean showActiveAccount, AccountSelectionListener listener) {"
-        errorLine2="                                                                                              ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/BaseActivity.java"
-            line="229"
-            column="95"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void requestPermissions(String[] permissions, PermissionRequester requester) {"
-        errorLine2="                                   ~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/BaseActivity.java"
-            line="296"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void requestPermissions(String[] permissions, PermissionRequester requester) {"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/BaseActivity.java"
-            line="296"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static android.app.Notification make(final Context context, NotificationManager notificationManager, Notification body, AccountEntity account, boolean isFirstOfBatch) {"
-        errorLine2="                                                      ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="153"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static android.app.Notification make(final Context context, NotificationManager notificationManager, Notification body, AccountEntity account, boolean isFirstOfBatch) {"
-        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="153"
-            column="72"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static android.app.Notification make(final Context context, NotificationManager notificationManager, Notification body, AccountEntity account, boolean isFirstOfBatch) {"
-        errorLine2="                                                                                                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="153"
-            column="113"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static android.app.Notification make(final Context context, NotificationManager notificationManager, Notification body, AccountEntity account, boolean isFirstOfBatch) {"
-        errorLine2="                                                                                                                                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="153"
-            column="132"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static void updateSummaryNotifications(Context context, NotificationManager notificationManager, AccountEntity account) {"
-        errorLine2="                                                  ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="275"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static void updateSummaryNotifications(Context context, NotificationManager notificationManager, AccountEntity account) {"
-        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="275"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static void updateSummaryNotifications(Context context, NotificationManager notificationManager, AccountEntity account) {"
-        errorLine2="                                                                                                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="275"
-            column="109"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static void enablePullNotifications(Context context) {"
-        errorLine2="                                               ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="613"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static void disablePullNotifications(Context context) {"
-        errorLine2="                                                ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="641"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean filterNotification(NotificationManager notificationManager, AccountEntity account, @NonNull Notification notification) {"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="657"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean filterNotification(NotificationManager notificationManager, AccountEntity account, @NonNull Notification notification) {"
-        errorLine2="                                                                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationHelper.java"
-            line="657"
-            column="87"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    void onRequestPermissionsResult(String[] permissions, int[] grantResults);"
-        errorLine2="                                    ~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/interfaces/PermissionRequester.java"
-            line="4"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    void onRequestPermissionsResult(String[] permissions, int[] grantResults);"
-        errorLine2="                                                          ~~~~~">
-        <location
-            file="src/main/java/app/pachli/interfaces/PermissionRequester.java"
-            line="4"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ProgressRequestBody(final InputStream content, long contentLength, final MediaType mediaType, final UploadCallback listener) {"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/network/ProgressRequestBody.java"
-            line="39"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ProgressRequestBody(final InputStream content, long contentLength, final MediaType mediaType, final UploadCallback listener) {"
-        errorLine2="                                                                                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/network/ProgressRequestBody.java"
-            line="39"
-            column="85"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ProgressRequestBody(final InputStream content, long contentLength, final MediaType mediaType, final UploadCallback listener) {"
-        errorLine2="                                                                                                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/network/ProgressRequestBody.java"
-            line="39"
-            column="112"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MediaType contentType() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/network/ProgressRequestBody.java"
-            line="47"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected StatusBaseViewHolder(View itemView) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="133"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setDisplayName(String name, List&lt;Emoji> customEmojis, StatusDisplayOptions statusDisplayOptions) {"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="194"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setDisplayName(String name, List&lt;Emoji> customEmojis, StatusDisplayOptions statusDisplayOptions) {"
-        errorLine2="                                               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="194"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setDisplayName(String name, List&lt;Emoji> customEmojis, StatusDisplayOptions statusDisplayOptions) {"
-        errorLine2="                                                                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="194"
-            column="74"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setUsername(String name) {"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="201"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                                        final StatusActionListener listener) {"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="213"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setMetaData(StatusViewData statusViewData, StatusDisplayOptions statusDisplayOptions, StatusActionListener listener) {"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="343"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setMetaData(StatusViewData statusViewData, StatusDisplayOptions statusDisplayOptions, StatusActionListener listener) {"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="343"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setMetaData(StatusViewData statusViewData, StatusDisplayOptions statusDisplayOptions, StatusActionListener listener) {"
-        errorLine2="                                                                                                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="343"
-            column="106"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            final List&lt;Attachment> attachments,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="494"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            final StatusActionListener listener,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="496"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setMediaLabel(List&lt;Attachment> attachments, boolean sensitive,"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="587"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                                 final StatusActionListener listener, boolean showingContent) {"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="588"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setupButtons(final StatusActionListener listener,"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="633"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                                final String accountId,"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="634"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                                final String statusContent,"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="635"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                                StatusDisplayOptions statusDisplayOptions) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="636"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setupWithStatus(StatusViewData status, final StatusActionListener listener,"
-        errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="755"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setupWithStatus(StatusViewData status, final StatusActionListener listener,"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="755"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                                StatusDisplayOptions statusDisplayOptions) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="756"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected static boolean hasPreviewableAttachment(List&lt;Attachment> attachments) {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="846"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected static CharSequence getVisibilityDescription(Context context, Status.Visibility visibility) {"
-        errorLine2="                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="921"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected static CharSequence getVisibilityDescription(Context context, Status.Visibility visibility) {"
-        errorLine2="                                                           ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="921"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected static CharSequence getVisibilityDescription(Context context, Status.Visibility visibility) {"
-        errorLine2="                                                                            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="921"
-            column="77"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected CharSequence getFavsText(Context context, int count) {"
-        errorLine2="              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="970"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected CharSequence getFavsText(Context context, int count) {"
-        errorLine2="                                       ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="970"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected CharSequence getReblogsText(Context context, int count) {"
-        errorLine2="              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="979"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected CharSequence getReblogsText(Context context, int count) {"
-        errorLine2="                                          ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="979"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            final StatusViewData status,"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="1075"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            final CardViewMode cardViewMode,"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="1077"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            final StatusDisplayOptions statusDisplayOptions,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="1078"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            final StatusActionListener listener"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.java"
-            line="1079"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public StatusDetailedViewHolder(View view) {"
-        errorLine2="                                    ~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusDetailedViewHolder.java"
-            line="38"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setMetaData(StatusViewData statusViewData, StatusDisplayOptions statusDisplayOptions, StatusActionListener listener) {"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusDetailedViewHolder.java"
-            line="46"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setMetaData(StatusViewData statusViewData, StatusDisplayOptions statusDisplayOptions, StatusActionListener listener) {"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusDetailedViewHolder.java"
-            line="46"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setMetaData(StatusViewData statusViewData, StatusDisplayOptions statusDisplayOptions, StatusActionListener listener) {"
-        errorLine2="                                                                                                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusDetailedViewHolder.java"
-            line="46"
-            column="106"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public StatusViewHolder(View itemView) {"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusViewHolder.java"
-            line="53"
-            column="29"/>
     </issue>
 
 </issues>

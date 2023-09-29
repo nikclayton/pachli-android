@@ -1,4 +1,4 @@
-name: Upload blueRelease to Google Play
+name: Upload orangeRelease to Google Play
 
 on:
   workflow_dispatch:
@@ -27,17 +27,20 @@ jobs:
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
+      - name: Test
+        run: ./gradlew app:testOrangeReleaseUnitTest --stacktrace
+
       - name: Build APK
-        run: ./gradlew assembleBlueRelease --stacktrace
+        run: ./gradlew assembleOrangeRelease --stacktrace
 
       - name: Build AAB
-        run: ./gradlew :app:bundleBlueRelease --stacktrace
+        run: ./gradlew :app:bundleOrangeRelease --stacktrace
 
       - uses: r0adkll/sign-android-release@v1.0.4
         name: Sign app APK
         id: sign_app_apk
         with:
-          releaseDirectory: app/build/outputs/apk/blue/release
+          releaseDirectory: app/build/outputs/apk/orange/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.SIGNING_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -49,7 +52,7 @@ jobs:
         name: Sign app AAB
         id: sign_app_aab
         with:
-          releaseDirectory: app/build/outputs/bundle/blueRelease
+          releaseDirectory: app/build/outputs/bundle/orangeRelease
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.SIGNING_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -68,16 +71,16 @@ jobs:
         id: generate-whatsnew
         run: |
           mkdir -p googleplay/whatsnew
-          cp $(find fastlane/metadata/android/en-US/changelogs | sort -n -k6 -t/ | tail -n 1) googleplay/whatsnew/whatsnew-en-US
+          git log -1 --pretty=format:"%s" > googleplay/whatsnew/whatsnew-en-US
 
       - name: Upload AAB to Google Play
         id: upload-release-asset-aab
         uses: r0adkll/upload-google-play@v1.1.2
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_KEY }}
-          packageName: app.pachli
+          packageName: app.pachli.current
           releaseFiles: ${{steps.sign_app_aab.outputs.signedReleaseFile}}
           track: internal
           whatsNewDirectory: googleplay/whatsnew
           status: completed
-          mappingFile: app/build/outputs/mapping/blueRelease/mapping.txt
+          mappingFile: app/build/outputs/mapping/orangeRelease/mapping.txt

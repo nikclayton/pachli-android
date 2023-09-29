@@ -46,12 +46,13 @@ public class ConversationViewHolder extends StatusBaseViewHolder {
 
     private final TextView conversationNameTextView;
     private final Button contentCollapseButton;
+    @NonNull
     private final ImageView[] avatars;
 
     private final StatusDisplayOptions statusDisplayOptions;
     private final StatusActionListener listener;
 
-    ConversationViewHolder(View itemView,
+    ConversationViewHolder(@NonNull View itemView,
                            StatusDisplayOptions statusDisplayOptions,
                            StatusActionListener listener) {
         super(itemView);
@@ -80,7 +81,7 @@ public class ConversationViewHolder extends StatusBaseViewHolder {
 
             setupCollapsedState(statusViewData.isCollapsible(), statusViewData.isCollapsed(), statusViewData.isExpanded(), statusViewData.getSpoilerText(), listener);
 
-            setDisplayName(account.getDisplayName(), account.getEmojis(), statusDisplayOptions);
+            setDisplayName(account.getName(), account.getEmojis(), statusDisplayOptions);
             setUsername(account.getUsername());
             setMetaData(statusViewData, statusDisplayOptions, listener);
             setIsReply(status.getInReplyToId() != null);
@@ -125,7 +126,7 @@ public class ConversationViewHolder extends StatusBaseViewHolder {
         }
     }
 
-    private void setConversationName(List<ConversationAccountEntity> accounts) {
+    private void setConversationName(@NonNull List<ConversationAccountEntity> accounts) {
         Context context = conversationNameTextView.getContext();
         String conversationName = "";
         if (accounts.size() == 1) {
@@ -139,7 +140,7 @@ public class ConversationViewHolder extends StatusBaseViewHolder {
         conversationNameTextView.setText(conversationName);
     }
 
-    private void setAvatars(List<ConversationAccountEntity> accounts) {
+    private void setAvatars(@NonNull List<ConversationAccountEntity> accounts) {
         for (int i = 0; i < avatars.length; i++) {
             ImageView avatarView = avatars[i];
             if (i < accounts.size()) {
@@ -152,7 +153,7 @@ public class ConversationViewHolder extends StatusBaseViewHolder {
         }
     }
 
-    private void setupCollapsedState(boolean collapsible, boolean collapsed, boolean expanded, String spoilerText, final StatusActionListener listener) {
+    private void setupCollapsedState(boolean collapsible, boolean collapsed, boolean expanded, String spoilerText, @NonNull final StatusActionListener listener) {
         /* input filter for TextViews have to be set before text */
         if (collapsible && (expanded || TextUtils.isEmpty(spoilerText))) {
             contentCollapseButton.setOnClickListener(view -> {
