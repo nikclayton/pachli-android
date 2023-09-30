@@ -29,6 +29,7 @@ import kotlinx.serialization.json.decodeFromStream
 import java.io.File
 
 enum class ReleaseType {
+    PATCH,
     MINOR,
     MAJOR;
 
@@ -74,8 +75,8 @@ data class ReleaseSpec(
     fun releaseBranch() = when (thisVersion) {
 //        is PachliVersion.Beta -> "${trackingIssue.number}-${thisVersion.major}.${thisVersion.minor}-b${thisVersion.beta}"
 //        is PachliVersion.Release -> "${trackingIssue.number}-${thisVersion.major}.${thisVersion.minor}"
-        is PachliVersion.Beta -> "release-${thisVersion.major}.${thisVersion.minor}-b${thisVersion.beta}"
-        is PachliVersion.Release -> "release-${thisVersion.major}.${thisVersion.minor}"
+        is PachliVersion.Beta -> "release-${thisVersion.major}.${thisVersion.minor}.${thisVersion.patch}-b${thisVersion.beta}"
+        is PachliVersion.Release -> "release-${thisVersion.major}.${thisVersion.minor}.${thisVersion.patch}"
         else -> throw(Exception("releaseBranch() without setting thisVersion first"))
     }
 
@@ -92,8 +93,8 @@ data class ReleaseSpec(
 
     /** Git tag to use for this version */
     fun releaseTag() = when (thisVersion) {
-        is PachliVersion.Beta -> "v${thisVersion.major}.${thisVersion.minor}-beta.${thisVersion.beta}"
-        is PachliVersion.Release -> "v${thisVersion.major}.${thisVersion.minor}"
+        is PachliVersion.Beta -> "v${thisVersion.major}.${thisVersion.minor}.${thisVersion.patch}-beta.${thisVersion.beta}"
+        is PachliVersion.Release -> "v${thisVersion.major}.${thisVersion.minor}.${thisVersion.patch}"
         else -> throw(Exception("releaseTag() without setting thisVersion first"))
     }
 
@@ -111,8 +112,8 @@ data class ReleaseSpec(
 
     /** Title of this release on the Github "Releases" page */
     fun githubReleaseName() = when (thisVersion) {
-        is PachliVersion.Beta -> "Pachli ${thisVersion.major}.${thisVersion.minor} beta ${thisVersion.beta}"
-        is PachliVersion.Release -> "Pachli ${thisVersion.major}.${thisVersion.minor}"
+        is PachliVersion.Beta -> "Pachli ${thisVersion.major}.${thisVersion.minor}.${thisVersion.patch} beta ${thisVersion.beta}"
+        is PachliVersion.Release -> "Pachli ${thisVersion.major}.${thisVersion.minor}.${thisVersion.patch}"
         else -> throw(Exception("githubReleaseName() without setting thisVersion first"))
     }
 

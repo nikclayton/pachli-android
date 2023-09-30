@@ -51,8 +51,8 @@ import java.net.URL
 class StartRelease : CliktCommand(name = "start") {
     private val globalFlags by requireObject<GlobalFlags>()
 
-    private val releaseType by option().choice("major", "minor").convert { ReleaseType.from(it) }.prompt(
-        text = "[major] release or [minor] release?",
+    private val releaseType by option().choice("major", "minor", "patch").convert { ReleaseType.from(it) }.prompt(
+        text = "[major], [minor], [patch] release?",
         default = "major",
         showDefault = true
     )

@@ -18,27 +18,36 @@
 package app.pachli.mkrelease
 
 import kotlinx.serialization.Serializable
+import kotlin.math.sign
 
 @Serializable
 sealed class PachliVersion : Comparable<PachliVersion> {
     abstract val major: Int
     abstract val minor: Int
+    abstract val patch: Int
     abstract val versionCode: Int
 
-    open fun versionName() = "$major.$minor"
-    open fun versionTag() = "v$major.$minor"
+    open fun versionName() = "$major.$minor.$patch"
+    open fun versionTag() = "v$major.$minor.$patch"
 
     override fun compareTo(other: PachliVersion): Int {
-        val result = compareByMajorMinorType(other)
+        val resultByMMP = compareByMajorMinorPatchType(other)
 
-        if (result != versionCode.compareTo(other.versionCode)) {
-            throw IllegalStateException("Comparison by major/minor/type is not identical to comparison by versionCode")
-        }
+        // Belt and braces -- version code should also compare identically to the
+        // major/minor/patch version.
+        val resultByVC = versionCode.compareTo(other.versionCode)
 
-        return result
+        // Same? All good.
+        if (resultByMMP == resultByVC) return resultByMMP
+
+        // Both have the same sign? Also good.
+        if (resultByMMP.sign == resultByVC.sign) return resultByMMP
+
+        // They differ. Not good.
+        throw IllegalStateException("Comparison by major/minor/patch type is not identical to comparison by versionCode")
     }
 
-    private fun compareByMajorMinorType(other: PachliVersion): Int {
+    private fun compareByMajorMinorPatchType(other: PachliVersion): Int {
         if (this == other) return 0
 
         // Major version number always wins
@@ -46,6 +55,9 @@ sealed class PachliVersion : Comparable<PachliVersion> {
 
         // Minor version number can be checked next
         (this.minor - other.minor).takeIf { it != 0 }?.let { return it }
+
+        // Patch version
+        (this.patch - other.patch).takeIf { it != 0 }?.let { return it }
 
         // Identical major and minor numbers, but the objects are not
         // identical. One or both of them is a beta release with a different
@@ -70,15 +82,24 @@ sealed class PachliVersion : Comparable<PachliVersion> {
         // The version after a release bumps either the major or minor number
         // depending on the release type, and is always a beta.
         is Release -> when (releaseType) {
+            ReleaseType.PATCH -> Beta(
+                major = this.major,
+                minor = this.minor,
+                patch = this.patch + 1,
+                beta = 1,
+                versionCode = this.versionCode + 1
+            )
             ReleaseType.MINOR -> Beta(
                 major = this.major,
                 minor = this.minor + 1,
+                patch = 0,
                 beta = 1,
                 versionCode = this.versionCode + 1
             )
             ReleaseType.MAJOR -> Beta(
                 major = this.major + 1,
                 minor = 0,
+                patch = 0,
                 beta = 1,
                 versionCode = this.versionCode + 1
             )
@@ -89,10 +110,15 @@ sealed class PachliVersion : Comparable<PachliVersion> {
     data class Release(
         override val major: Int,
         override val minor: Int,
+        override val patch: Int,
         override val versionCode: Int
     ) : PachliVersion() {
         /** Move from Release to Release without an intervening beta */
         fun release(releaseType: ReleaseType) = when (releaseType) {
+            ReleaseType.PATCH -> this.copy(
+                patch = this.patch + 1,
+                versionCode = this.versionCode + 1
+            )
             ReleaseType.MINOR -> this.copy(
                 minor = this.minor + 1,
                 versionCode = this.versionCode + 1
@@ -109,11 +135,12 @@ sealed class PachliVersion : Comparable<PachliVersion> {
     data class Beta(
         override val major: Int,
         override val minor: Int,
+        override val patch: Int,
         val beta: Int,
         override val versionCode: Int
     ) : PachliVersion() {
-        override fun versionName() = "$major.$minor beta $beta"
-        override fun versionTag() = "v$major.$minor-beta.$beta"
+        override fun versionName() = "$major.$minor.$patch beta $beta"
+        override fun versionTag() = "v$major.$minor.$patch-beta.$beta"
 
         /**
          * @return A [Release] which represents the version *after* this beta.
@@ -121,19 +148,21 @@ sealed class PachliVersion : Comparable<PachliVersion> {
         fun release() = Release(
             major = this.major,
             minor = this.minor,
+            patch = this.patch,
             versionCode = this.versionCode + 1
         )
     }
 
     companion object {
-        private val VERSION_REGEX = "^(\\d+)\\.(\\d+)$".toRegex()
-        private val VERSION_BETA_REGEX = "^(\\d+)\\.(\\d+) beta (\\d+)$".toRegex()
+        private val VERSION_REGEX = "^(\\d+)\\.(\\d+)(?:\\.(\\d+))?$".toRegex()
+        private val VERSION_BETA_REGEX = "^(\\d+)\\.(\\d+)(?:\\.(\\d+))? beta (\\d+)$".toRegex()
 
         fun from(versionName: String, versionCode: Int): PachliVersion? {
             VERSION_REGEX.matchEntire(versionName)?.let { result ->
                 return Release(
                     major = result.groups[1]!!.value.toInt(),
                     minor = result.groups[2]!!.value.toInt(),
+                    patch = result.groups[3]?.value?.toInt() ?: 0,
                     versionCode = versionCode
                 )
             }
@@ -142,7 +171,8 @@ sealed class PachliVersion : Comparable<PachliVersion> {
                 return Beta(
                     major = result.groups[1]!!.value.toInt(),
                     minor = result.groups[2]!!.value.toInt(),
-                    beta = result.groups[3]!!.value.toInt(),
+                    patch = result.groups[3]?.value?.toInt() ?: 0,
+                    beta = result.groups[4]!!.value.toInt(),
                     versionCode = versionCode
                 )
             }

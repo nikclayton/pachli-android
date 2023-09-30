@@ -299,6 +299,10 @@ object UpdateFilesForRelease : ReleaseStep() {
                 )
         )
 
+        // TODO: Check that spec.prevVersion.versionTag exists, to provide a better
+        // error message here. If you don't do this the git.log() command a few lines
+        // later dies with "findRef(...) must not be null"
+
         // Construct the initial change log by looking for conventional commits
         // with type 'feat' and 'fix'.
         val changelogEntries = git.log()
