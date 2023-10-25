@@ -48,6 +48,7 @@ import app.pachli.entity.Filter
 import app.pachli.entity.Poll
 import app.pachli.entity.Status
 import app.pachli.network.FilterModel
+import app.pachli.network.StatusId
 import app.pachli.settings.PrefKeys
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.SharedPreferencesRepository
@@ -115,7 +116,7 @@ sealed interface InfallibleUiAction : UiAction {
      * Infallible because if it fails there's nowhere to show the error, and nothing the user
      * can do.
      */
-    data class SaveVisibleId(val visibleId: String) : InfallibleUiAction
+    data class SaveVisibleId(val visibleId: StatusId) : InfallibleUiAction
 
     /** Ignore the saved reading position, load the page with the newest items */
     // Resets the account's reading position, which can't fail, which is why this is
@@ -308,7 +309,7 @@ abstract class TimelineViewModel(
     /** The ID of the status to which the user's reading position should be restored */
     // Not part of the UiState as it's only used once in the lifespan of the fragment.
     // Subclasses should set this if they support restoring the reading position.
-    open var readingPositionId: String? = null
+    open var readingPositionId: StatusId? = null
         protected set
 
     init {
@@ -436,7 +437,7 @@ abstract class TimelineViewModel(
         }
     }
 
-    fun getInitialKey(): String? {
+    fun getInitialKey(): StatusId? {
         if (timelineKind != TimelineKind.Home) {
             return null
         }
@@ -456,7 +457,7 @@ abstract class TimelineViewModel(
 
     abstract fun removeAllByInstance(instance: String)
 
-    abstract fun removeStatusWithId(id: String)
+    abstract fun removeStatusWithId(id: StatusId)
 
     abstract fun handleReblogEvent(reblogEvent: ReblogEvent)
 

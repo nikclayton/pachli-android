@@ -29,6 +29,7 @@ import app.pachli.R
 import app.pachli.components.notifications.NotificationHelper
 import app.pachli.db.AccountManager
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 import app.pachli.service.SendStatusService
 import app.pachli.service.StatusToSend
 import app.pachli.util.randomAlphanumericString
@@ -49,7 +50,7 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
             val senderId = intent.getLongExtra(NotificationHelper.KEY_SENDER_ACCOUNT_ID, -1)
             val senderIdentifier = intent.getStringExtra(NotificationHelper.KEY_SENDER_ACCOUNT_IDENTIFIER)
             val senderFullName = intent.getStringExtra(NotificationHelper.KEY_SENDER_ACCOUNT_FULL_NAME)
-            val citedStatusId = intent.getStringExtra(NotificationHelper.KEY_CITED_STATUS_ID)
+            val citedStatusId = intent.getStringExtra(NotificationHelper.KEY_CITED_STATUS_ID)?.let { StatusId(it) }
             val visibility = intent.getSerializableExtra(NotificationHelper.KEY_VISIBILITY) as Status.Visibility
             val spoiler = intent.getStringExtra(NotificationHelper.KEY_SPOILER).orEmpty()
             val mentions = intent.getStringArrayExtra(NotificationHelper.KEY_MENTIONS).orEmpty()

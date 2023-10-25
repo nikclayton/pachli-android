@@ -35,6 +35,7 @@ import app.pachli.entity.NewPoll
 import app.pachli.entity.NewStatus
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.util.unsafeLazy
 import at.connyduck.calladapter.networkresult.fold
 import dagger.hilt.android.AndroidEntryPoint
@@ -462,7 +463,7 @@ data class StatusToSend(
     val sensitive: Boolean,
     val media: List<MediaToSend>,
     val scheduledAt: String?,
-    val inReplyToId: String?,
+    val inReplyToId: StatusId?,
     val poll: NewPoll?,
     val replyingStatusContent: String?,
     val replyingStatusAuthorUsername: String?,
@@ -471,7 +472,7 @@ data class StatusToSend(
     val idempotencyKey: String,
     var retries: Int,
     val language: String?,
-    val statusId: String?,
+    val statusId: StatusId?,
 ) : Parcelable
 
 @Parcelize

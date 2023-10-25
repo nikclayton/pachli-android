@@ -27,6 +27,7 @@ import app.pachli.db.AccountManager
 import app.pachli.entity.DeletedStatus
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.usecase.TimelineCases
 import app.pachli.viewdata.StatusViewData
 import at.connyduck.calladapter.networkresult.NetworkResult
@@ -179,7 +180,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun deleteStatusAsync(id: String): Deferred<NetworkResult<DeletedStatus>> {
+    fun deleteStatusAsync(id: StatusId): Deferred<NetworkResult<DeletedStatus>> {
         return viewModelScope.async {
             timelineCases.delete(id)
         }

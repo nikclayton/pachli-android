@@ -19,6 +19,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import app.pachli.entity.ScheduledStatus
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import at.connyduck.calladapter.networkresult.getOrElse
 
 class ScheduledStatusPagingSourceFactory(
@@ -44,13 +45,13 @@ class ScheduledStatusPagingSourceFactory(
 class ScheduledStatusPagingSource(
     private val mastodonApi: MastodonApi,
     private val scheduledStatusesCache: MutableList<ScheduledStatus>,
-) : PagingSource<String, ScheduledStatus>() {
+) : PagingSource<StatusId, ScheduledStatus>() {
 
-    override fun getRefreshKey(state: PagingState<String, ScheduledStatus>): String? {
+    override fun getRefreshKey(state: PagingState<StatusId, ScheduledStatus>): StatusId? {
         return null
     }
 
-    override suspend fun load(params: LoadParams<String>): LoadResult<String, ScheduledStatus> {
+    override suspend fun load(params: LoadParams<StatusId>): LoadResult<StatusId, ScheduledStatus> {
         return if (params is LoadParams.Refresh && scheduledStatusesCache.isNotEmpty()) {
             LoadResult.Page(
                 data = scheduledStatusesCache,

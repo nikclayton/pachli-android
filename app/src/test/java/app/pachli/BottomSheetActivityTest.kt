@@ -23,6 +23,7 @@ import app.pachli.entity.SearchResult
 import app.pachli.entity.Status
 import app.pachli.entity.TimelineAccount
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import at.connyduck.calladapter.networkresult.NetworkResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -268,7 +269,7 @@ class BottomSheetActivityTest {
             this.accountId = id
         }
 
-        override fun viewThread(statusId: String, url: String?) {
+        override fun viewThread(statusId: StatusId, url: String?) {
             this.statusId = statusId
         }
 

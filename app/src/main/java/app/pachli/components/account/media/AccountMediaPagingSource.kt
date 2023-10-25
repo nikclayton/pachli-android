@@ -17,15 +17,16 @@ package app.pachli.components.account.media
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import app.pachli.network.StatusId
 import app.pachli.viewdata.AttachmentViewData
 
 class AccountMediaPagingSource(
     private val viewModel: AccountMediaViewModel,
-) : PagingSource<String, AttachmentViewData>() {
+) : PagingSource<StatusId, AttachmentViewData>() {
 
-    override fun getRefreshKey(state: PagingState<String, AttachmentViewData>): String? = null
+    override fun getRefreshKey(state: PagingState<StatusId, AttachmentViewData>): StatusId? = null
 
-    override suspend fun load(params: LoadParams<String>): LoadResult<String, AttachmentViewData> {
+    override suspend fun load(params: LoadParams<StatusId>): LoadResult<StatusId, AttachmentViewData> {
         return if (params is LoadParams.Refresh) {
             val list = viewModel.attachmentData.toList()
             LoadResult.Page(list, null, list.lastOrNull()?.statusId)

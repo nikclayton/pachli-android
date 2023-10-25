@@ -50,6 +50,7 @@ import app.pachli.entity.Attachment
 import app.pachli.entity.Status
 import app.pachli.interfaces.AccountSelectionListener
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.openLink
 import app.pachli.util.parseAsMastodonHtml
@@ -100,7 +101,7 @@ abstract class SFragment : Fragment() {
         bottomSheetActivity.viewAccount(status.account.id)
     }
 
-    protected fun viewThread(statusId: String?, statusUrl: String?) {
+    protected fun viewThread(statusId: StatusId, statusUrl: String?) {
         bottomSheetActivity.viewThread(statusId!!, statusUrl)
     }
 
@@ -341,11 +342,11 @@ abstract class SFragment : Fragment() {
         startActivity(newHashtagIntent(requireContext(), tag))
     }
 
-    private fun openReportPage(accountId: String, accountUsername: String, statusId: String) {
+    private fun openReportPage(accountId: String, accountUsername: String, statusId: StatusId) {
         startActivity(getIntent(requireContext(), accountId, accountUsername, statusId))
     }
 
-    private fun showConfirmDeleteDialog(id: String, position: Int) {
+    private fun showConfirmDeleteDialog(id: StatusId, position: Int) {
         AlertDialog.Builder(requireActivity())
             .setMessage(R.string.dialog_delete_post_warning)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
@@ -367,7 +368,7 @@ abstract class SFragment : Fragment() {
             .show()
     }
 
-    private fun showConfirmEditDialog(id: String, position: Int, status: Status) {
+    private fun showConfirmEditDialog(id: StatusId, position: Int, status: Status) {
         if (activity == null) {
             return
         }
@@ -409,7 +410,7 @@ abstract class SFragment : Fragment() {
             .show()
     }
 
-    private fun editStatus(id: String, status: Status) {
+    private fun editStatus(id: StatusId, status: Status) {
         lifecycleScope.launch {
             mastodonApi.statusSource(id).fold(
                 { source ->

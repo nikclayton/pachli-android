@@ -83,6 +83,7 @@ import app.pachli.entity.Attachment
 import app.pachli.entity.Emoji
 import app.pachli.entity.NewPoll
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 import app.pachli.settings.PrefKeys
 import app.pachli.settings.PrefKeys.APP_THEME
 import app.pachli.util.APP_THEME_DEFAULT
@@ -1307,13 +1308,13 @@ class ComposeActivity :
     @Parcelize
     data class ComposeOptions(
         // Let's keep fields var until all consumers are Kotlin
-        var scheduledTootId: String? = null,
+        var scheduledTootId: StatusId? = null,
         var draftId: Int? = null,
         var content: String? = null,
         var mediaUrls: List<String>? = null,
         var mediaDescriptions: List<String>? = null,
         var mentionedUsernames: Set<String>? = null,
-        var inReplyToId: String? = null,
+        var inReplyToId: StatusId? = null,
         var replyVisibility: Status.Visibility? = null,
         var visibility: Status.Visibility? = null,
         var contentWarning: String? = null,
@@ -1326,7 +1327,7 @@ class ComposeActivity :
         var poll: NewPoll? = null,
         var modifiedInitialState: Boolean? = null,
         var language: String? = null,
-        var statusId: String? = null,
+        var statusId: StatusId? = null,
         var kind: ComposeKind? = null,
     ) : Parcelable
 

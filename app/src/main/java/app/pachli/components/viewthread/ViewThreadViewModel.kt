@@ -39,6 +39,7 @@ import app.pachli.entity.FilterV1
 import app.pachli.entity.Status
 import app.pachli.network.FilterModel
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.StatusDisplayOptionsRepository
 import app.pachli.viewdata.StatusViewData
@@ -112,7 +113,7 @@ class ViewThreadViewModel @Inject constructor(
         loadFilters()
     }
 
-    fun loadThread(id: String) {
+    fun loadThread(id: StatusId) {
         _uiState.value = ThreadUiState.Loading
 
         viewModelScope.launch {
@@ -220,12 +221,12 @@ class ViewThreadViewModel @Inject constructor(
         }
     }
 
-    fun retry(id: String) {
+    fun retry(id: StatusId) {
         _uiState.value = ThreadUiState.Loading
         loadThread(id)
     }
 
-    fun refresh(id: String) {
+    fun refresh(id: StatusId) {
         _uiState.value = ThreadUiState.Refreshing
         loadThread(id)
     }
@@ -539,7 +540,7 @@ class ViewThreadViewModel @Inject constructor(
         }
     }
 
-    private fun updateStatusViewData(statusId: String, updater: (StatusViewData) -> StatusViewData) {
+    private fun updateStatusViewData(statusId: StatusId, updater: (StatusViewData) -> StatusViewData) {
         updateSuccess { uiState ->
             uiState.copy(
                 statusViewData = uiState.statusViewData.map { viewData ->
@@ -553,7 +554,7 @@ class ViewThreadViewModel @Inject constructor(
         }
     }
 
-    private fun updateStatus(statusId: String, updater: (Status) -> Status) {
+    private fun updateStatus(statusId: StatusId, updater: (Status) -> Status) {
         updateStatusViewData(statusId) { viewData ->
             viewData.copy(
                 status = updater(viewData.status),

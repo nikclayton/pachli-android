@@ -31,6 +31,7 @@ import app.pachli.entity.Poll
 import app.pachli.entity.Relationship
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.util.getServerErrorMessage
 import at.connyduck.calladapter.networkresult.NetworkResult
 import at.connyduck.calladapter.networkresult.fold
@@ -43,7 +44,7 @@ class TimelineCases @Inject constructor(
     private val eventHub: EventHub,
 ) {
 
-    suspend fun reblog(statusId: String, reblog: Boolean): NetworkResult<Status> {
+    suspend fun reblog(statusId: StatusId, reblog: Boolean): NetworkResult<Status> {
         return if (reblog) {
             mastodonApi.reblogStatus(statusId)
         } else {
@@ -53,7 +54,7 @@ class TimelineCases @Inject constructor(
         }
     }
 
-    suspend fun favourite(statusId: String, favourite: Boolean): NetworkResult<Status> {
+    suspend fun favourite(statusId: StatusId, favourite: Boolean): NetworkResult<Status> {
         return if (favourite) {
             mastodonApi.favouriteStatus(statusId)
         } else {
@@ -63,7 +64,7 @@ class TimelineCases @Inject constructor(
         }
     }
 
-    suspend fun bookmark(statusId: String, bookmark: Boolean): NetworkResult<Status> {
+    suspend fun bookmark(statusId: StatusId, bookmark: Boolean): NetworkResult<Status> {
         return if (bookmark) {
             mastodonApi.bookmarkStatus(statusId)
         } else {
@@ -73,7 +74,7 @@ class TimelineCases @Inject constructor(
         }
     }
 
-    suspend fun muteConversation(statusId: String, mute: Boolean): NetworkResult<Status> {
+    suspend fun muteConversation(statusId: StatusId, mute: Boolean): NetworkResult<Status> {
         return if (mute) {
             mastodonApi.muteConversation(statusId)
         } else {
@@ -101,13 +102,13 @@ class TimelineCases @Inject constructor(
         }
     }
 
-    suspend fun delete(statusId: String): NetworkResult<DeletedStatus> {
+    suspend fun delete(statusId: StatusId): NetworkResult<DeletedStatus> {
         return mastodonApi.deleteStatus(statusId)
             .onSuccess { eventHub.dispatch(StatusDeletedEvent(statusId)) }
             .onFailure { Log.w(TAG, "Failed to delete status", it) }
     }
 
-    suspend fun pin(statusId: String, pin: Boolean): NetworkResult<Status> {
+    suspend fun pin(statusId: StatusId, pin: Boolean): NetworkResult<Status> {
         return if (pin) {
             mastodonApi.pinStatus(statusId)
         } else {
@@ -121,7 +122,7 @@ class TimelineCases @Inject constructor(
         },)
     }
 
-    suspend fun voteInPoll(statusId: String, pollId: String, choices: List<Int>): NetworkResult<Poll> {
+    suspend fun voteInPoll(statusId: StatusId, pollId: String, choices: List<Int>): NetworkResult<Poll> {
         if (choices.isEmpty()) {
             return NetworkResult.failure(IllegalStateException())
         }

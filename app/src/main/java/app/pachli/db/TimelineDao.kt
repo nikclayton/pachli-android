@@ -22,6 +22,7 @@ import androidx.room.MapInfo
 import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Upsert
+import app.pachli.network.StatusId
 
 @Dao
 abstract class TimelineDao {
@@ -72,7 +73,7 @@ SELECT serverId
  WHERE timelineUserId = :account
  ORDER BY LENGTH(serverId) DESC, serverId DESC""",
     )
-    abstract fun getStatusRowNumber(account: Long): List<String>
+    abstract fun getStatusRowNumber(account: Long): List<StatusId>
 
     @Query(
         """
@@ -99,7 +100,7 @@ LEFT JOIN StatusViewDataEntity svd ON (s.timelineUserId = svd.timelineUserId AND
 WHERE (s.serverId = :statusId OR s.reblogServerId = :statusId)
 AND s.authorServerId IS NOT NULL""",
     )
-    abstract suspend fun getStatus(statusId: String): TimelineStatusWithAccount?
+    abstract suspend fun getStatus(statusId: StatusId): TimelineStatusWithAccount?
 
     @Query(
         """DELETE FROM TimelineStatusEntity WHERE timelineUserId = :accountId AND
@@ -114,19 +115,19 @@ AND
         """UPDATE TimelineStatusEntity SET favourited = :favourited
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)""",
     )
-    abstract suspend fun setFavourited(accountId: Long, statusId: String, favourited: Boolean)
+    abstract suspend fun setFavourited(accountId: Long, statusId: StatusId, favourited: Boolean)
 
     @Query(
         """UPDATE TimelineStatusEntity SET bookmarked = :bookmarked
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)""",
     )
-    abstract suspend fun setBookmarked(accountId: Long, statusId: String, bookmarked: Boolean)
+    abstract suspend fun setBookmarked(accountId: Long, statusId: StatusId, bookmarked: Boolean)
 
     @Query(
         """UPDATE TimelineStatusEntity SET reblogged = :reblogged
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)""",
     )
-    abstract suspend fun setReblogged(accountId: Long, statusId: String, reblogged: Boolean)
+    abstract suspend fun setReblogged(accountId: Long, statusId: StatusId, reblogged: Boolean)
 
     @Query(
         """DELETE FROM TimelineStatusEntity WHERE timelineUserId = :accountId AND
@@ -156,7 +157,7 @@ WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = 
         """DELETE FROM TimelineStatusEntity WHERE timelineUserId = :accountId
 AND serverId = :statusId""",
     )
-    abstract suspend fun delete(accountId: Long, statusId: String)
+    abstract suspend fun delete(accountId: Long, statusId: StatusId)
 
     /**
      * Cleans the TimelineStatusEntity and TimelineAccountEntity tables from old entries.
@@ -212,7 +213,7 @@ AND serverId = :statusId""",
         """UPDATE TimelineStatusEntity SET poll = :poll
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)""",
     )
-    abstract suspend fun setVoted(accountId: Long, statusId: String, poll: String)
+    abstract suspend fun setVoted(accountId: Long, statusId: StatusId, poll: String)
 
     @Upsert
     abstract suspend fun upsertStatusViewData(svd: StatusViewDataEntity)
@@ -229,13 +230,13 @@ WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = 
             WHERE timelineUserId = :accountId
               AND serverId IN (:serverIds)""",
     )
-    abstract suspend fun getStatusViewData(accountId: Long, serverIds: List<String>): Map<String, StatusViewDataEntity>
+    abstract suspend fun getStatusViewData(accountId: Long, serverIds: List<StatusId>): Map<StatusId, StatusViewDataEntity>
 
     @Query(
         """UPDATE TimelineStatusEntity SET pinned = :pinned
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)""",
     )
-    abstract suspend fun setPinned(accountId: Long, statusId: String, pinned: Boolean)
+    abstract suspend fun setPinned(accountId: Long, statusId: StatusId, pinned: Boolean)
 
     @Query(
         """DELETE FROM TimelineStatusEntity
@@ -247,7 +248,7 @@ AND timelineUserId = :accountId
     abstract suspend fun deleteAllFromInstance(accountId: Long, instanceDomain: String)
 
     @Query("UPDATE TimelineStatusEntity SET filtered = NULL WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)")
-    abstract suspend fun clearWarning(accountId: Long, statusId: String): Int
+    abstract suspend fun clearWarning(accountId: Long, statusId: StatusId): Int
 
     /**
      * Returns the id directly above [serverId], or null if [serverId] is the id of the top status

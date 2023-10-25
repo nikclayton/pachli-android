@@ -18,14 +18,17 @@ package app.pachli.components.accountlist
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.fragment.app.commit
 import app.pachli.BottomSheetActivity
 import app.pachli.R
 import app.pachli.databinding.ActivityAccountListBinding
 import app.pachli.interfaces.AppBarLayoutHost
+import app.pachli.network.StatusId
 import app.pachli.util.viewBinding
 import com.google.android.material.appbar.AppBarLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.parcelize.Parcelize
 
 @AndroidEntryPoint
 class AccountListActivity : BottomSheetActivity(), AppBarLayoutHost {
@@ -34,51 +37,49 @@ class AccountListActivity : BottomSheetActivity(), AppBarLayoutHost {
     override val appBarLayout: AppBarLayout
         get() = binding.includedToolbar.appbar
 
-    enum class Type {
-        FOLLOWS,
-        FOLLOWERS,
-        BLOCKS,
-        MUTES,
-        FOLLOW_REQUESTS,
-        REBLOGGED,
-        FAVOURITED,
+    @Parcelize
+    sealed class Type : Parcelable{
+        data class Follows(val accountId: String): Type()
+        data class Followers(val accountId: String): Type()
+        data object Blocks: Type()
+        data object Mutes: Type()
+        data object FollowRequests: Type()
+        data class RebloggedBy(val statusId: StatusId): Type()
+        data class Favourited(val statusId: StatusId): Type()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val type = intent.getSerializableExtra(EXTRA_TYPE) as Type
-        val id: String? = intent.getStringExtra(EXTRA_ID)
+        val type = intent.getParcelableExtra<Type>(EXTRA_TYPE)!!
 
         setSupportActionBar(binding.includedToolbar.toolbar)
         supportActionBar?.apply {
             when (type) {
-                Type.BLOCKS -> setTitle(R.string.title_blocks)
-                Type.MUTES -> setTitle(R.string.title_mutes)
-                Type.FOLLOW_REQUESTS -> setTitle(R.string.title_follow_requests)
-                Type.FOLLOWERS -> setTitle(R.string.title_followers)
-                Type.FOLLOWS -> setTitle(R.string.title_follows)
-                Type.REBLOGGED -> setTitle(R.string.title_reblogged_by)
-                Type.FAVOURITED -> setTitle(R.string.title_favourited_by)
+                is Type.Blocks -> setTitle(R.string.title_blocks)
+                is Type.Mutes -> setTitle(R.string.title_mutes)
+                is Type.FollowRequests -> setTitle(R.string.title_follow_requests)
+                is Type.Followers -> setTitle(R.string.title_followers)
+                is Type.Follows -> setTitle(R.string.title_follows)
+                is Type.RebloggedBy -> setTitle(R.string.title_reblogged_by)
+                is Type.Favourited -> setTitle(R.string.title_favourited_by)
             }
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
 
         supportFragmentManager.commit {
-            replace(R.id.fragment_container, AccountListFragment.newInstance(type, id))
+            replace(R.id.fragment_container, AccountListFragment.newInstance(type))
         }
     }
 
     companion object {
         private const val EXTRA_TYPE = "type"
-        private const val EXTRA_ID = "id"
 
-        fun newIntent(context: Context, type: Type, id: String? = null): Intent {
+        fun newIntent(context: Context, type: Type): Intent {
             return Intent(context, AccountListActivity::class.java).apply {
                 putExtra(EXTRA_TYPE, type)
-                putExtra(EXTRA_ID, id)
             }
         }
     }

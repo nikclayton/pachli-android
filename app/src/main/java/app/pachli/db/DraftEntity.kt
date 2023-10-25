@@ -24,6 +24,7 @@ import androidx.room.TypeConverters
 import app.pachli.entity.Attachment
 import app.pachli.entity.NewPoll
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
@@ -32,7 +33,7 @@ import kotlinx.parcelize.Parcelize
 data class DraftEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val accountId: Long,
-    val inReplyToId: String?,
+    val inReplyToId: StatusId?,
     val content: String?,
     val contentWarning: String?,
     val sensitive: Boolean,
@@ -43,7 +44,7 @@ data class DraftEntity(
     val failedToSendNew: Boolean,
     val scheduledAt: String?,
     val language: String?,
-    val statusId: String?,
+    val statusId: StatusId?,
 )
 
 /**

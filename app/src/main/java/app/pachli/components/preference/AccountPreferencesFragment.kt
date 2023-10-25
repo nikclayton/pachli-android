@@ -118,7 +118,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 setIcon(R.drawable.ic_mute_24dp)
                 setOnPreferenceClickListener {
                     val intent = Intent(context, AccountListActivity::class.java)
-                    intent.putExtra("type", AccountListActivity.Type.MUTES)
+                    intent.putExtra("type", AccountListActivity.Type.Mutes)
                     activity?.startActivity(intent)
                     activity?.overridePendingTransition(
                         R.anim.slide_from_right,
@@ -133,7 +133,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 icon = makeIcon(GoogleMaterial.Icon.gmd_block)
                 setOnPreferenceClickListener {
                     val intent = Intent(context, AccountListActivity::class.java)
-                    intent.putExtra("type", AccountListActivity.Type.BLOCKS)
+                    intent.putExtra("type", AccountListActivity.Type.Blocks)
                     activity?.startActivity(intent)
                     activity?.overridePendingTransition(
                         R.anim.slide_from_right,

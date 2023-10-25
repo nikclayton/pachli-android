@@ -15,22 +15,24 @@
 
 package app.pachli.components.report.model
 
+import app.pachli.network.StatusId
+
 class StatusViewState {
-    private val mediaShownState = HashMap<String, Boolean>()
-    private val contentShownState = HashMap<String, Boolean>()
-    private val longContentCollapsedState = HashMap<String, Boolean>()
+    private val mediaShownState = HashMap<StatusId, Boolean>()
+    private val contentShownState = HashMap<StatusId, Boolean>()
+    private val longContentCollapsedState = HashMap<StatusId, Boolean>()
 
-    fun isMediaShow(id: String, isSensitive: Boolean): Boolean = isStateEnabled(mediaShownState, id, !isSensitive)
-    fun setMediaShow(id: String, isShow: Boolean) = setStateEnabled(mediaShownState, id, isShow)
+    fun isMediaShow(id: StatusId, isSensitive: Boolean): Boolean = isStateEnabled(mediaShownState, id, !isSensitive)
+    fun setMediaShow(id: StatusId, isShow: Boolean) = setStateEnabled(mediaShownState, id, isShow)
 
-    fun isContentShow(id: String, isSensitive: Boolean): Boolean = isStateEnabled(contentShownState, id, !isSensitive)
-    fun setContentShow(id: String, isShow: Boolean) = setStateEnabled(contentShownState, id, isShow)
+    fun isContentShow(id: StatusId, isSensitive: Boolean): Boolean = isStateEnabled(contentShownState, id, !isSensitive)
+    fun setContentShow(id: StatusId, isShow: Boolean) = setStateEnabled(contentShownState, id, isShow)
 
-    fun isCollapsed(id: String, isCollapsed: Boolean): Boolean = isStateEnabled(longContentCollapsedState, id, isCollapsed)
-    fun setCollapsed(id: String, isCollapsed: Boolean) = setStateEnabled(longContentCollapsedState, id, isCollapsed)
+    fun isCollapsed(id: StatusId, isCollapsed: Boolean): Boolean = isStateEnabled(longContentCollapsedState, id, isCollapsed)
+    fun setCollapsed(id: StatusId, isCollapsed: Boolean) = setStateEnabled(longContentCollapsedState, id, isCollapsed)
 
-    private fun isStateEnabled(map: Map<String, Boolean>, id: String, def: Boolean): Boolean = map[id]
+    private fun isStateEnabled(map: Map<StatusId, Boolean>, id: StatusId, def: Boolean): Boolean = map[id]
         ?: def
 
-    private fun setStateEnabled(map: MutableMap<String, Boolean>, id: String, state: Boolean) = map.put(id, state)
+    private fun setStateEnabled(map: HashMap<StatusId, Boolean>, id: StatusId, state: Boolean) = map.put(id, state)
 }

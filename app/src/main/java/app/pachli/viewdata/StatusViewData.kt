@@ -22,6 +22,7 @@ import app.pachli.db.TimelineStatusWithAccount
 import app.pachli.entity.Filter
 import app.pachli.entity.Poll
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 import app.pachli.util.parseAsMastodonHtml
 import app.pachli.util.replaceCrashingCharacters
 import app.pachli.util.shouldTrimStatus
@@ -67,7 +68,7 @@ data class StatusViewData(
     // and it's impossible to construct them with an empty list.
     var filterAction: Filter.Action = Filter.Action.NONE,
 ) {
-    val id: String
+    val id: StatusId
         get() = status.id
 
     /**
@@ -87,7 +88,7 @@ data class StatusViewData(
     val actionable: Status
         get() = status.actionableStatus
 
-    val actionableId: String
+    val actionableId: StatusId
         get() = status.actionableStatus.id
 
     val rebloggedAvatar: String?

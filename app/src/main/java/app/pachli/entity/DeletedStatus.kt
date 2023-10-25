@@ -15,12 +15,13 @@
 
 package app.pachli.entity
 
+import app.pachli.network.StatusId
 import com.google.gson.annotations.SerializedName
 import java.util.Date
 
 data class DeletedStatus(
     val text: String?,
-    @SerializedName("in_reply_to_id") val inReplyToId: String?,
+    @SerializedName("in_reply_to_id") val inReplyToId: StatusId?,
     @SerializedName("spoiler_text") val spoilerText: String,
     val visibility: Status.Visibility,
     val sensitive: Boolean,

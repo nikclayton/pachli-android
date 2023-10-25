@@ -15,10 +15,11 @@
 
 package app.pachli.entity
 
+import app.pachli.network.StatusId
 import com.google.gson.annotations.SerializedName
 
 data class StatusSource(
-    val id: String,
+    val id: StatusId,
     val text: String,
     @SerializedName("spoiler_text") val spoilerText: String,
 )

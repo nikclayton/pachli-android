@@ -26,6 +26,7 @@ import app.pachli.entity.HashTag
 import app.pachli.entity.Poll
 import app.pachli.entity.Status
 import app.pachli.entity.TimelineAccount
+import app.pachli.network.StatusId
 import java.util.Date
 
 @Entity(primaryKeys = ["id", "accountId"])
@@ -97,9 +98,9 @@ data class ConversationAccountEntity(
 
 @TypeConverters(Converters::class)
 data class ConversationStatusEntity(
-    val id: String,
+    val id: StatusId,
     val url: String?,
-    val inReplyToId: String?,
+    val inReplyToId: StatusId?,
     val inReplyToAccountId: String?,
     val account: ConversationAccountEntity,
     val content: String,

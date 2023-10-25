@@ -23,6 +23,7 @@ import app.pachli.components.viewthread.edits.PachliTagHandler.Companion.DELETED
 import app.pachli.components.viewthread.edits.PachliTagHandler.Companion.INSERTED_TEXT_EL
 import app.pachli.entity.StatusEdit
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import at.connyduck.calladapter.networkresult.getOrElse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +56,7 @@ class ViewEditsViewModel @Inject constructor(private val api: MastodonApi) : Vie
     /** The API call to fetch edit history returned less than two items */
     object MissingEditsException : Exception()
 
-    fun loadEdits(statusId: String, force: Boolean = false, refreshing: Boolean = false) {
+    fun loadEdits(statusId: StatusId?, force: Boolean = false, refreshing: Boolean = false) {
         if (!force && _uiState.value !is EditsUiState.Initial) return
 
         if (refreshing) {

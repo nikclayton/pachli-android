@@ -27,6 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import app.pachli.components.account.AccountActivity
 import app.pachli.components.viewthread.ViewThreadActivity
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.util.looksLikeMastodonUrl
 import app.pachli.util.openLink
 import at.connyduck.calladapter.networkresult.fold
@@ -102,10 +103,10 @@ abstract class BottomSheetActivity : BaseActivity() {
         }
     }
 
-    open fun viewThread(statusId: String, url: String?) {
+    open fun viewThread(statusId: StatusId, url: String?) {
         if (!isSearching()) {
             val intent = Intent(this, ViewThreadActivity::class.java)
-            intent.putExtra("id", statusId)
+            intent.putExtra("id", statusId as CharSequence)
             intent.putExtra("url", url)
             startActivityWithSlideInAnimation(intent)
         }

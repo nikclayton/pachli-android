@@ -18,9 +18,10 @@ package app.pachli.components.report.adapter
 import android.view.View
 import app.pachli.entity.Status
 import app.pachli.interfaces.LinkListener
+import app.pachli.network.StatusId
 
 interface AdapterHandler : LinkListener {
     fun showMedia(v: View?, status: Status?, idx: Int)
     fun setStatusChecked(status: Status, isChecked: Boolean)
-    fun isStatusChecked(id: String): Boolean
+    fun isStatusChecked(id: StatusId): Boolean
 }

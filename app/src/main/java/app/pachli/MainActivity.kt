@@ -247,7 +247,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                 // user clicked a notification, show follow requests for type FOLLOW_REQUEST,
                 // otherwise show notification tab
                 if (intent.getSerializableExtra(NOTIFICATION_TYPE) == Notification.Type.FOLLOW_REQUEST) {
-                    val intent = AccountListActivity.newIntent(this, AccountListActivity.Type.FOLLOW_REQUESTS)
+                    val intent = AccountListActivity.newIntent(this, AccountListActivity.Type.FollowRequests)
                     startActivityWithSlideInAnimation(intent)
                 } else {
                     showNotificationTab = true
@@ -583,7 +583,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.action_view_follow_requests
                     iconicsIcon = GoogleMaterial.Icon.gmd_person_add
                     onClick = {
-                        val intent = AccountListActivity.newIntent(context, AccountListActivity.Type.FOLLOW_REQUESTS)
+                        val intent = AccountListActivity.newIntent(context, AccountListActivity.Type.FollowRequests)
                         startActivityWithSlideInAnimation(intent)
                     }
                 },

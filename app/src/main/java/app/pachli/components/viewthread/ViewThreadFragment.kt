@@ -40,10 +40,12 @@ import app.pachli.components.viewthread.edits.ViewEditsFragment
 import app.pachli.databinding.FragmentViewThreadBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.StatusActionListener
+import app.pachli.network.StatusId
 import app.pachli.util.ListStatusAccessibilityDelegate
 import app.pachli.util.hide
 import app.pachli.util.openLink
 import app.pachli.util.show
+import app.pachli.util.unsafeLazy
 import app.pachli.util.viewBinding
 import app.pachli.viewdata.AttachmentViewData.Companion.list
 import app.pachli.viewdata.StatusViewData
@@ -68,7 +70,9 @@ class ViewThreadFragment :
     private val binding by viewBinding(FragmentViewThreadBinding::bind)
 
     private lateinit var adapter: ThreadAdapter
-    private lateinit var thisThreadsStatusId: String
+    private val thisThreadsStatusId by unsafeLazy {
+        StatusId(requireArguments().getString(ID_EXTRA)!!)
+    }
 
     private var alwaysShowSensitiveMedia = false
     private var alwaysOpenSpoiler = false
@@ -85,7 +89,6 @@ class ViewThreadFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        thisThreadsStatusId = requireArguments().getString(ID_EXTRA)!!
 
         lifecycleScope.launch {
             val statusDisplayOptions = viewModel.statusDisplayOptions.value
@@ -353,13 +356,13 @@ class ViewThreadFragment :
 
     override fun onShowReblogs(position: Int) {
         val statusId = adapter.currentList[position].id
-        val intent = newIntent(requireContext(), AccountListActivity.Type.REBLOGGED, statusId)
+        val intent = newIntent(requireContext(), AccountListActivity.Type.RebloggedBy(statusId))
         (requireActivity() as BaseActivity).startActivityWithSlideInAnimation(intent)
     }
 
     override fun onShowFavs(position: Int) {
         val statusId = adapter.currentList[position].id
-        val intent = newIntent(requireContext(), AccountListActivity.Type.FAVOURITED, statusId)
+        val intent = newIntent(requireContext(), AccountListActivity.Type.Favourited(statusId))
         (requireActivity() as BaseActivity).startActivityWithSlideInAnimation(intent)
     }
 

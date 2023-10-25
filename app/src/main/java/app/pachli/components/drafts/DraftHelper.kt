@@ -28,6 +28,7 @@ import app.pachli.db.DraftEntity
 import app.pachli.entity.Attachment
 import app.pachli.entity.NewPoll
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 import app.pachli.util.copyToFile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +52,7 @@ class DraftHelper @Inject constructor(
     suspend fun saveDraft(
         draftId: Int,
         accountId: Long,
-        inReplyToId: String?,
+        inReplyToId: StatusId?,
         content: String?,
         contentWarning: String?,
         sensitive: Boolean,
@@ -64,7 +65,7 @@ class DraftHelper @Inject constructor(
         failedToSendAlert: Boolean,
         scheduledAt: String?,
         language: String?,
-        statusId: String?,
+        statusId: StatusId?,
     ) = withContext(Dispatchers.IO) {
         val externalFilesDir = context.getExternalFilesDir("Pachli")
 

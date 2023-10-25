@@ -37,6 +37,7 @@ import app.pachli.di.TransactionProvider
 import app.pachli.entity.Status
 import app.pachli.network.Links
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import com.google.gson.Gson
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -47,7 +48,7 @@ import java.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
 class CachedTimelineRemoteMediator(
-    private val initialKey: String?,
+    private val initialKey: StatusId?,
     private val api: MastodonApi,
     accountManager: AccountManager,
     private val factory: InvalidatingPagingSourceFactory<Int, TimelineStatusWithAccount>,
@@ -85,7 +86,8 @@ class CachedTimelineRemoteMediator(
                         RemoteKeyKind.NEXT,
                     ) ?: return MediatorResult.Success(endOfPaginationReached = true)
                     Log.d(TAG, "Loading from remoteKey: $rke")
-                    api.homeTimeline(maxId = rke.key, limit = state.config.pageSize)
+                    val key = rke.key?.let { StatusId(it) }
+                    api.homeTimeline(maxId = key, limit = state.config.pageSize)
                 }
                 LoadType.PREPEND -> {
                     val rke = remoteKeyDao.remoteKeyForKind(
@@ -94,7 +96,8 @@ class CachedTimelineRemoteMediator(
                         RemoteKeyKind.PREV,
                     ) ?: return MediatorResult.Success(endOfPaginationReached = true)
                     Log.d(TAG, "Loading from remoteKey: $rke")
-                    api.homeTimeline(minId = rke.key, limit = state.config.pageSize)
+                    val key = rke.key?.let { StatusId(it) }
+                    api.homeTimeline(minId = key, limit = state.config.pageSize)
                 }
             }
 
@@ -188,7 +191,7 @@ class CachedTimelineRemoteMediator(
      *   returned (if non-empty)
      * - Finally, fall back to the most recent statuses
      */
-    private suspend fun getInitialPage(statusId: String?, pageSize: Int): Response<List<Status>> = coroutineScope {
+    private suspend fun getInitialPage(statusId: StatusId?, pageSize: Int): Response<List<Status>> = coroutineScope {
         // If the key is null this is straightforward, just return the most recent statuses.
         statusId ?: return@coroutineScope api.homeTimeline(limit = pageSize)
 

@@ -15,6 +15,7 @@
 
 package app.pachli.entity
 
+import app.pachli.network.StatusId
 import com.google.gson.annotations.SerializedName
 
 data class StatusParams(
@@ -22,5 +23,5 @@ data class StatusParams(
     val sensitive: Boolean,
     val visibility: Status.Visibility,
     @SerializedName("spoiler_text") val spoilerText: String,
-    @SerializedName("in_reply_to_id") val inReplyToId: String?,
+    @SerializedName("in_reply_to_id") val inReplyToId: StatusId?,
 )

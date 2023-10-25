@@ -212,11 +212,11 @@ class AccountActivity :
 
         val accountListClickListener = { v: View ->
             val type = when (v.id) {
-                R.id.accountFollowers -> AccountListActivity.Type.FOLLOWERS
-                R.id.accountFollowing -> AccountListActivity.Type.FOLLOWS
+                R.id.accountFollowers -> AccountListActivity.Type.Followers(viewModel.accountId)
+                R.id.accountFollowing -> AccountListActivity.Type.Follows(viewModel.accountId)
                 else -> throw AssertionError()
             }
-            val accountListIntent = AccountListActivity.newIntent(this, type, viewModel.accountId)
+            val accountListIntent = AccountListActivity.newIntent(this, type)
             startActivityWithSlideInAnimation(accountListIntent)
         }
         binding.accountFollowers.setOnClickListener(accountListClickListener)

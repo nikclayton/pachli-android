@@ -15,10 +15,11 @@
 
 package app.pachli.entity
 
+import app.pachli.network.StatusId
 import com.google.gson.annotations.SerializedName
 
 data class ScheduledStatus(
-    val id: String,
+    val id: StatusId,
     @SerializedName("scheduled_at") val scheduledAt: String,
     val params: StatusParams,
     @SerializedName("media_attachments") val mediaAttachments: ArrayList<Attachment>,

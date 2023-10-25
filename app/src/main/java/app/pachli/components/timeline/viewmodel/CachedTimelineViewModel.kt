@@ -35,6 +35,7 @@ import app.pachli.db.AccountManager
 import app.pachli.entity.Filter
 import app.pachli.entity.Poll
 import app.pachli.network.FilterModel
+import app.pachli.network.StatusId
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.SharedPreferencesRepository
 import app.pachli.util.StatusDisplayOptionsRepository
@@ -89,7 +90,7 @@ class CachedTimelineViewModel @Inject constructor(
     /** @return Flow of statuses that make up the timeline of [kind] */
     private fun getStatuses(
         kind: TimelineKind,
-        initialKey: String? = null,
+        initialKey: StatusId? = null,
     ): Flow<PagingData<StatusViewData>> {
         Log.d(TAG, "getStatuses: kind: $kind, initialKey: $initialKey")
         return repository.getStatusStream(kind = kind, initialKey = initialKey)
@@ -147,7 +148,7 @@ class CachedTimelineViewModel @Inject constructor(
         }
     }
 
-    override fun removeStatusWithId(id: String) {
+    override fun removeStatusWithId(id: StatusId) {
         // handled by CacheUpdater
     }
 

@@ -49,6 +49,7 @@ import app.pachli.entity.Status
 import app.pachli.entity.Status.Mention
 import app.pachli.interfaces.AccountSelectionListener
 import app.pachli.interfaces.StatusActionListener
+import app.pachli.network.StatusId
 import app.pachli.util.StatusDisplayOptionsRepository
 import app.pachli.util.openLink
 import app.pachli.view.showMuteAccountDialog
@@ -425,11 +426,11 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         }
     }
 
-    private fun openReportPage(accountId: String, accountUsername: String, statusId: String) {
+    private fun openReportPage(accountId: String, accountUsername: String, statusId: StatusId) {
         startActivity(ReportActivity.getIntent(requireContext(), accountId, accountUsername, statusId))
     }
 
-    private fun showConfirmDeleteDialog(id: String, position: Int) {
+    private fun showConfirmDeleteDialog(id: StatusId, position: Int) {
         context?.let {
             AlertDialog.Builder(it)
                 .setMessage(R.string.dialog_delete_post_warning)
@@ -442,7 +443,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         }
     }
 
-    private fun showConfirmEditDialog(id: String, position: Int, status: Status) {
+    private fun showConfirmEditDialog(id: StatusId, position: Int, status: Status) {
         activity?.let {
             AlertDialog.Builder(it)
                 .setMessage(R.string.dialog_redraft_post_warning)
@@ -486,7 +487,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         }
     }
 
-    private fun editStatus(id: String, position: Int, status: Status) {
+    private fun editStatus(id: StatusId, position: Int, status: Status) {
         lifecycleScope.launch {
             mastodonApi.statusSource(id).fold(
                 { source ->

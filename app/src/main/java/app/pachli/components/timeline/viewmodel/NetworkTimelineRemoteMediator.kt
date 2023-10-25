@@ -28,6 +28,7 @@ import app.pachli.components.timeline.TimelineKind
 import app.pachli.db.AccountManager
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import kotlinx.coroutines.CoroutineScope
 import retrofit2.HttpException
 import retrofit2.Response
@@ -39,14 +40,14 @@ class NetworkTimelineRemoteMediator(
     private val viewModelScope: CoroutineScope,
     private val api: MastodonApi,
     accountManager: AccountManager,
-    private val factory: InvalidatingPagingSourceFactory<String, Status>,
+    private val factory: InvalidatingPagingSourceFactory<StatusId, Status>,
     private val pageCache: PageCache,
     private val timelineKind: TimelineKind,
-) : RemoteMediator<String, Status>() {
+) : RemoteMediator<StatusId, Status>() {
 
     private val activeAccount = accountManager.activeAccount!!
 
-    override suspend fun load(loadType: LoadType, state: PagingState<String, Status>): MediatorResult {
+    override suspend fun load(loadType: LoadType, state: PagingState<StatusId, Status>): MediatorResult {
         if (!activeAccount.isLoggedIn()) {
             return MediatorResult.Success(endOfPaginationReached = true)
         }
@@ -132,7 +133,7 @@ class NetworkTimelineRemoteMediator(
     }
 
     @Throws(IOException::class, HttpException::class)
-    private suspend fun fetchStatusPageByKind(loadType: LoadType, key: String?, loadSize: Int): Response<List<Status>> {
+    private suspend fun fetchStatusPageByKind(loadType: LoadType, key: StatusId?, loadSize: Int): Response<List<Status>> {
         val (maxId, minId) = when (loadType) {
             // When refreshing fetch a page of statuses that are immediately *newer* than the key
             // This is so that the user's reading position is not lost.

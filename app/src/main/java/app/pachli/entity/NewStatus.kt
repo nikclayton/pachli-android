@@ -16,13 +16,14 @@
 package app.pachli.entity
 
 import android.os.Parcelable
+import app.pachli.network.StatusId
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
 data class NewStatus(
     val status: String,
     @SerializedName("spoiler_text") val warningText: String,
-    @SerializedName("in_reply_to_id") val inReplyToId: String?,
+    @SerializedName("in_reply_to_id") val inReplyToId: StatusId?,
     val visibility: String,
     val sensitive: Boolean,
     @SerializedName("media_ids") val mediaIds: List<String>?,

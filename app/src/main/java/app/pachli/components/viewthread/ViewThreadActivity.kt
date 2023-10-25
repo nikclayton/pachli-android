@@ -22,6 +22,7 @@ import androidx.fragment.app.commit
 import app.pachli.BottomSheetActivity
 import app.pachli.R
 import app.pachli.databinding.ActivityViewThreadBinding
+import app.pachli.network.StatusId
 import app.pachli.util.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -51,9 +52,9 @@ class ViewThreadActivity : BottomSheetActivity() {
 
     companion object {
 
-        fun startIntent(context: Context, id: String, url: String): Intent {
+        fun startIntent(context: Context, id: StatusId, url: String): Intent {
             val intent = Intent(context, ViewThreadActivity::class.java)
-            intent.putExtra(ID_EXTRA, id)
+            intent.putExtra(ID_EXTRA, id as CharSequence)
             intent.putExtra(URL_EXTRA, url)
             return intent
         }

@@ -22,6 +22,7 @@ import androidx.paging.RemoteMediator
 import app.pachli.components.timeline.util.ifExpected
 import app.pachli.db.AccountEntity
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.viewdata.AttachmentViewData
 import retrofit2.HttpException
 
@@ -30,10 +31,10 @@ class AccountMediaRemoteMediator(
     private val api: MastodonApi,
     private val activeAccount: AccountEntity,
     private val viewModel: AccountMediaViewModel,
-) : RemoteMediator<String, AttachmentViewData>() {
+) : RemoteMediator<StatusId, AttachmentViewData>() {
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<String, AttachmentViewData>,
+        state: PagingState<StatusId, AttachmentViewData>,
     ): MediatorResult {
         try {
             val statusResponse = when (loadType) {

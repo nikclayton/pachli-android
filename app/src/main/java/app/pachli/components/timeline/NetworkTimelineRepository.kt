@@ -30,6 +30,7 @@ import app.pachli.components.timeline.viewmodel.PageCache
 import app.pachli.db.AccountManager
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.util.getDomain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -74,7 +75,7 @@ class NetworkTimelineRepository @Inject constructor(
 ) {
     private val pageCache = PageCache()
 
-    private var factory: InvalidatingPagingSourceFactory<String, Status>? = null
+    private var factory: InvalidatingPagingSourceFactory<StatusId, Status>? = null
 
     /** @return flow of Mastodon [Status], loaded in [pageSize] increments */
     @OptIn(ExperimentalPagingApi::class)
@@ -82,7 +83,7 @@ class NetworkTimelineRepository @Inject constructor(
         viewModelScope: CoroutineScope,
         kind: TimelineKind,
         pageSize: Int = PAGE_SIZE,
-        initialKey: String? = null,
+        initialKey: StatusId? = null,
     ): Flow<PagingData<Status>> {
         Log.d(TAG, "getStatusStream(): key: $initialKey")
 
@@ -129,7 +130,7 @@ class NetworkTimelineRepository @Inject constructor(
         invalidate()
     }
 
-    fun removeStatusWithId(statusId: String) {
+    fun removeStatusWithId(statusId: StatusId) {
         synchronized(pageCache) {
             pageCache.floorEntry(statusId)?.value?.data?.removeAll { status ->
                 status.id == statusId || status.reblog?.id == statusId
@@ -138,7 +139,7 @@ class NetworkTimelineRepository @Inject constructor(
         invalidate()
     }
 
-    fun updateStatusById(statusId: String, updater: (Status) -> Status) {
+    fun updateStatusById(statusId: StatusId, updater: (Status) -> Status) {
         synchronized(pageCache) {
             pageCache.floorEntry(statusId)?.value?.let { page ->
                 val index = page.data.indexOfFirst { it.id == statusId }
@@ -150,7 +151,7 @@ class NetworkTimelineRepository @Inject constructor(
         invalidate()
     }
 
-    fun updateActionableStatusById(statusId: String, updater: (Status) -> Status) {
+    fun updateActionableStatusById(statusId: StatusId, updater: (Status) -> Status) {
         synchronized(pageCache) {
             pageCache.floorEntry(statusId)?.value?.let { page ->
                 val index = page.data.indexOfFirst { it.id == statusId }

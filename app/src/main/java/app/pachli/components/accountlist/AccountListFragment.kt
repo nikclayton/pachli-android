@@ -80,7 +80,6 @@ class AccountListFragment :
     private val binding by viewBinding(FragmentAccountListBinding::bind)
 
     private lateinit var type: Type
-    private var id: String? = null
 
     private lateinit var scrollListener: EndlessOnScrollListener
     private lateinit var adapter: AccountAdapter<*>
@@ -90,7 +89,6 @@ class AccountListFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         type = requireArguments().getSerializable(ARG_TYPE) as Type
-        id = requireArguments().getString(ARG_ID)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -112,9 +110,9 @@ class AccountListFragment :
         val activeAccount = accountManager.activeAccount!!
 
         adapter = when (type) {
-            Type.BLOCKS -> BlocksAdapter(this, animateAvatar, animateEmojis, showBotOverlay)
-            Type.MUTES -> MutesAdapter(this, animateAvatar, animateEmojis, showBotOverlay)
-            Type.FOLLOW_REQUESTS -> {
+            is Type.Blocks -> BlocksAdapter(this, animateAvatar, animateEmojis, showBotOverlay)
+            is Type.Mutes -> MutesAdapter(this, animateAvatar, animateEmojis, showBotOverlay)
+            is Type.FollowRequests -> {
                 val headerAdapter = FollowRequestsHeaderAdapter(
                     instanceName = activeAccount.domain,
                     accountLocked = activeAccount.locked,
@@ -282,31 +280,29 @@ class AccountListFragment :
     }
 
     private suspend fun getFetchCallByListType(fromId: String?): Response<List<TimelineAccount>> {
-        return when (type) {
-            Type.FOLLOWS -> {
-                val accountId = requireId(type, id)
-                api.accountFollowing(accountId, fromId)
+        return when (val ty = type) {  // Extract because `type` is var and can't be smart cast
+            is Type.Follows -> {
+                api.accountFollowing(ty.accountId, fromId)
             }
-            Type.FOLLOWERS -> {
-                val accountId = requireId(type, id)
-                api.accountFollowers(accountId, fromId)
+            is Type.Followers -> {
+                api.accountFollowers(ty.accountId, fromId)
             }
-            Type.BLOCKS -> api.blocks(fromId)
-            Type.MUTES -> api.mutes(fromId)
-            Type.FOLLOW_REQUESTS -> api.followRequests(fromId)
-            Type.REBLOGGED -> {
-                val statusId = requireId(type, id)
-                api.statusRebloggedBy(statusId, fromId)
+            is Type.Blocks -> {
+                api.blocks(fromId)
             }
-            Type.FAVOURITED -> {
-                val statusId = requireId(type, id)
-                api.statusFavouritedBy(statusId, fromId)
+            is Type.Mutes -> {
+                api.mutes(fromId)
+            }
+            is Type.FollowRequests -> {
+                api.followRequests(fromId)
+            }
+            is Type.RebloggedBy -> {
+                api.statusRebloggedBy(ty.statusId, fromId)
+            }
+            is Type.Favourited -> {
+                api.statusFavouritedBy(ty.statusId, fromId)
             }
         }
-    }
-
-    private fun requireId(type: Type, id: String?): String {
-        return requireNotNull(id) { "id must not be null for type " + type.name }
     }
 
     private fun fetchAccounts(fromId: String? = null) {
@@ -411,13 +407,11 @@ class AccountListFragment :
     companion object {
         private const val TAG = "AccountList" // logging tag
         private const val ARG_TYPE = "type"
-        private const val ARG_ID = "id"
 
-        fun newInstance(type: Type, id: String? = null): AccountListFragment {
+        fun newInstance(type: Type): AccountListFragment {
             return AccountListFragment().apply {
-                arguments = Bundle(3).apply {
-                    putSerializable(ARG_TYPE, type)
-                    putString(ARG_ID, id)
+                arguments = Bundle(2).apply {
+                    putParcelable(ARG_TYPE, type)
                 }
             }
         }

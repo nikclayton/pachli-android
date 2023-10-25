@@ -17,15 +17,16 @@ package app.pachli.entity
 
 import android.text.SpannableStringBuilder
 import android.text.style.URLSpan
+import app.pachli.network.StatusId
 import app.pachli.util.parseAsMastodonHtml
 import com.google.gson.annotations.SerializedName
 import java.util.Date
 
 data class Status(
-    val id: String,
+    val id: StatusId,
     val url: String?, // not present if it's reblog
     val account: TimelineAccount,
-    @SerializedName("in_reply_to_id") val inReplyToId: String?,
+    @SerializedName("in_reply_to_id") val inReplyToId: StatusId?,
     @SerializedName("in_reply_to_account_id") val inReplyToAccountId: String?,
     val reblog: Status?,
     val content: String,
@@ -53,7 +54,7 @@ data class Status(
     val filtered: List<FilterResult>?,
 ) {
 
-    val actionableId: String
+    val actionableId: StatusId
         get() = reblog?.id ?: id
 
     val actionableStatus: Status
@@ -65,6 +66,9 @@ data class Status(
     fun copyWithBookmarked(bookmarked: Boolean): Status = copy(bookmarked = bookmarked)
     fun copyWithPoll(poll: Poll?): Status = copy(poll = poll)
     fun copyWithPinned(pinned: Boolean): Status = copy(pinned = pinned)
+
+    @JvmName("getInReplyToStatusId")
+    fun getInReplyToStatusId(): StatusId? = inReplyToId
 
     enum class Visibility(val num: Int) {
         UNKNOWN(0),

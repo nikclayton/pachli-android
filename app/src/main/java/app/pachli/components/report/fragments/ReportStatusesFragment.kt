@@ -43,6 +43,7 @@ import app.pachli.databinding.FragmentReportStatusesBinding
 import app.pachli.db.AccountManager
 import app.pachli.entity.Attachment
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 import app.pachli.util.viewBinding
 import app.pachli.util.visible
 import app.pachli.viewdata.AttachmentViewData
@@ -204,7 +205,7 @@ class ReportStatusesFragment :
         viewModel.setStatusChecked(status, isChecked)
     }
 
-    override fun isStatusChecked(id: String): Boolean {
+    override fun isStatusChecked(id: StatusId): Boolean {
         return viewModel.isStatusChecked(id)
     }
 

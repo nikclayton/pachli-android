@@ -49,6 +49,7 @@ import app.pachli.entity.Poll;
 import app.pachli.entity.PreviewCardKind;
 import app.pachli.entity.Status;
 import app.pachli.interfaces.StatusActionListener;
+import app.pachli.network.StatusId;
 import app.pachli.util.AbsoluteTimeFormatter;
 import app.pachli.util.AttachmentHelper;
 import app.pachli.util.CardViewMode;
@@ -750,6 +751,7 @@ public abstract class StatusBaseViewHolder extends RecyclerView.ViewHolder {
             setDisplayName(actionable.getAccount().getName(), actionable.getAccount().getEmojis(), statusDisplayOptions);
             setUsername(status.getUsername());
             setMetaData(status, statusDisplayOptions, listener);
+            StatusId id = actionable.getInReplyToStatusId();
             setIsReply(actionable.getInReplyToId() != null);
             setReplyCount(actionable.getRepliesCount(), statusDisplayOptions.showStatsInline());
             setAvatar(actionable.getAccount().getAvatar(), status.getRebloggedAvatar(),

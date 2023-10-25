@@ -25,6 +25,7 @@ import app.pachli.db.DraftDao
 import app.pachli.db.DraftEntity
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import at.connyduck.calladapter.networkresult.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -62,7 +63,7 @@ class DraftsViewModel @Inject constructor(
         }
     }
 
-    suspend fun getStatus(statusId: String): NetworkResult<Status> {
+    suspend fun getStatus(statusId: StatusId): NetworkResult<Status> {
         return api.status(statusId)
     }
 

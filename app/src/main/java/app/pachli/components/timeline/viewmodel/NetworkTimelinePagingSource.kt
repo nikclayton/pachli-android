@@ -22,16 +22,17 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingState
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 import javax.inject.Inject
 
-private val INVALID = LoadResult.Invalid<String, Status>()
+private val INVALID = LoadResult.Invalid<StatusId, Status>()
 
 /** [PagingSource] for Mastodon Status, identified by the Status ID */
 class NetworkTimelinePagingSource @Inject constructor(
     private val pageCache: PageCache,
-) : PagingSource<String, Status>() {
+) : PagingSource<StatusId, Status>() {
 
-    override suspend fun load(params: LoadParams<String>): LoadResult<String, Status> {
+    override suspend fun load(params: LoadParams<StatusId>): LoadResult<StatusId, Status> {
         Log.d(TAG, "- load(), type = ${params.javaClass.simpleName}, key = ${params.key}")
         pageCache.debug()
 
@@ -143,7 +144,7 @@ class NetworkTimelinePagingSource @Inject constructor(
         )
     }
 
-    override fun getRefreshKey(state: PagingState<String, Status>): String? {
+    override fun getRefreshKey(state: PagingState<StatusId, Status>): StatusId? {
         val refreshKey = state.anchorPosition?.let {
             state.closestItemToPosition(it)?.id
         } ?: pageCache.firstEntry()?.value?.data?.let {

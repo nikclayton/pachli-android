@@ -113,8 +113,8 @@ interface MastodonApi {
     @GET("api/v1/timelines/home")
     @Throws(Exception::class)
     suspend fun homeTimeline(
-        @Query("max_id") maxId: String? = null,
-        @Query("min_id") minId: String? = null,
+        @Query("max_id") maxId: StatusId? = null,
+        @Query("min_id") minId: StatusId? = null,
         @Query("since_id") sinceId: String? = null,
         @Query("limit") limit: Int? = null,
     ): Response<List<Status>>
@@ -122,9 +122,9 @@ interface MastodonApi {
     @GET("api/v1/timelines/public")
     suspend fun publicTimeline(
         @Query("local") local: Boolean? = null,
-        @Query("max_id") maxId: String? = null,
+        @Query("max_id") maxId: StatusId? = null,
         @Query("since_id") sinceId: String? = null,
-        @Query("min_id") minId: String? = null,
+        @Query("min_id") minId: StatusId? = null,
         @Query("limit") limit: Int? = null,
     ): Response<List<Status>>
 
@@ -133,18 +133,18 @@ interface MastodonApi {
         @Path("hashtag") hashtag: String,
         @Query("any[]") any: List<String>?,
         @Query("local") local: Boolean?,
-        @Query("max_id") maxId: String? = null,
+        @Query("max_id") maxId: StatusId? = null,
         @Query("since_id") sinceId: String? = null,
-        @Query("min_id") minId: String? = null,
+        @Query("min_id") minId: StatusId? = null,
         @Query("limit") limit: Int? = null,
     ): Response<List<Status>>
 
     @GET("api/v1/timelines/list/{listId}")
     suspend fun listTimeline(
         @Path("listId") listId: String,
-        @Query("max_id") maxId: String? = null,
+        @Query("max_id") maxId: StatusId? = null,
         @Query("since_id") sinceId: String? = null,
-        @Query("min_id") minId: String? = null,
+        @Query("min_id") minId: StatusId? = null,
         @Query("limit") limit: Int? = null,
     ): Response<List<Status>>
 
@@ -216,12 +216,12 @@ interface MastodonApi {
 
     @GET("api/v1/statuses/{id}")
     suspend fun status(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @PUT("api/v1/statuses/{id}")
     suspend fun editStatus(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
         @Header("Authorization") auth: String,
         @Header(DOMAIN_HEADER) domain: String,
         @Header("Idempotency-Key") idempotencyKey: String,
@@ -230,95 +230,95 @@ interface MastodonApi {
 
     @GET("api/v1/statuses/{id}/source")
     suspend fun statusSource(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<StatusSource>
 
     @GET("api/v1/statuses/{id}/context")
     suspend fun statusContext(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<StatusContext>
 
     @GET("api/v1/statuses/{id}/history")
     suspend fun statusEdits(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId?,
     ): NetworkResult<List<StatusEdit>>
 
     @GET("api/v1/statuses/{id}/reblogged_by")
     suspend fun statusRebloggedBy(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
         @Query("max_id") maxId: String?,
     ): Response<List<TimelineAccount>>
 
     @GET("api/v1/statuses/{id}/favourited_by")
     suspend fun statusFavouritedBy(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
         @Query("max_id") maxId: String?,
     ): Response<List<TimelineAccount>>
 
     @DELETE("api/v1/statuses/{id}")
     suspend fun deleteStatus(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<DeletedStatus>
 
     @POST("api/v1/statuses/{id}/reblog")
     suspend fun reblogStatus(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @POST("api/v1/statuses/{id}/unreblog")
     suspend fun unreblogStatus(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @POST("api/v1/statuses/{id}/favourite")
     suspend fun favouriteStatus(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @POST("api/v1/statuses/{id}/unfavourite")
     suspend fun unfavouriteStatus(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @POST("api/v1/statuses/{id}/bookmark")
     suspend fun bookmarkStatus(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @POST("api/v1/statuses/{id}/unbookmark")
     suspend fun unbookmarkStatus(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @POST("api/v1/statuses/{id}/pin")
     suspend fun pinStatus(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @POST("api/v1/statuses/{id}/unpin")
     suspend fun unpinStatus(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @POST("api/v1/statuses/{id}/mute")
     suspend fun muteConversation(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @POST("api/v1/statuses/{id}/unmute")
     suspend fun unmuteConversation(
-        @Path("id") statusId: String,
+        @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
 
     @GET("api/v1/scheduled_statuses")
     suspend fun scheduledStatuses(
         @Query("limit") limit: Int? = null,
-        @Query("max_id") maxId: String? = null,
+        @Query("max_id") maxId: StatusId? = null,
     ): NetworkResult<List<ScheduledStatus>>
 
     @DELETE("api/v1/scheduled_statuses/{id}")
     suspend fun deleteScheduledStatus(
-        @Path("id") scheduledStatusId: String,
+        @Path("id") scheduledStatusId: StatusId,
     ): NetworkResult<ResponseBody>
 
     @GET("api/v1/accounts/verify_credentials")
@@ -388,9 +388,9 @@ interface MastodonApi {
     @GET("api/v1/accounts/{id}/statuses")
     suspend fun accountStatuses(
         @Path("id") accountId: String,
-        @Query("max_id") maxId: String? = null,
+        @Query("max_id") maxId: StatusId? = null,
         @Query("since_id") sinceId: String? = null,
-        @Query("min_id") minId: String? = null,
+        @Query("min_id") minId: StatusId? = null,
         @Query("limit") limit: Int? = null,
         @Query("exclude_reblogs") excludeReblogs: Boolean? = null,
         @Query("exclude_replies") excludeReplies: Boolean? = null,
@@ -491,17 +491,17 @@ interface MastodonApi {
 
     @GET("api/v1/favourites")
     suspend fun favourites(
-        @Query("max_id") maxId: String? = null,
+        @Query("max_id") maxId: StatusId? = null,
         @Query("since_id") sinceId: String? = null,
-        @Query("min_id") minId: String? = null,
+        @Query("min_id") minId: StatusId? = null,
         @Query("limit") limit: Int?,
     ): Response<List<Status>>
 
     @GET("api/v1/bookmarks")
     suspend fun bookmarks(
-        @Query("max_id") maxId: String? = null,
+        @Query("max_id") maxId: StatusId? = null,
         @Query("since_id") sinceId: String? = null,
-        @Query("min_id") minId: String? = null,
+        @Query("min_id") minId: StatusId? = null,
         @Query("limit") limit: Int?,
     ): Response<List<Status>>
 
@@ -713,7 +713,7 @@ interface MastodonApi {
     @POST("api/v1/reports")
     suspend fun report(
         @Field("account_id") accountId: String,
-        @Field("status_ids[]") statusIds: List<String>,
+        @Field("status_ids[]") statusIds: List<StatusId>,
         @Field("comment") comment: String,
         @Field("forward") isNotifyRemote: Boolean?,
     ): NetworkResult<Unit>

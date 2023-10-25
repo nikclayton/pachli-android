@@ -23,6 +23,7 @@ import app.pachli.BottomSheetActivity
 import app.pachli.R
 import app.pachli.components.report.adapter.ReportPagerAdapter
 import app.pachli.databinding.ActivityReportBinding
+import app.pachli.network.StatusId
 import app.pachli.util.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -40,7 +41,11 @@ class ReportActivity : BottomSheetActivity() {
             throw IllegalStateException("accountId ($accountId) or accountUserName ($accountUserName) is null")
         }
 
-        viewModel.init(accountId, accountUserName, intent?.getStringExtra(STATUS_ID))
+        viewModel.init(
+            accountId,
+            accountUserName,
+            intent?.getStringExtra(STATUS_ID)?.let { StatusId(it) }
+        )
 
         setContentView(binding.root)
 
@@ -121,12 +126,12 @@ class ReportActivity : BottomSheetActivity() {
         private const val STATUS_ID = "status_id"
 
         @JvmStatic
-        fun getIntent(context: Context, accountId: String, userName: String, statusId: String? = null) =
+        fun getIntent(context: Context, accountId: String, userName: String, statusId: StatusId? = null) =
             Intent(context, ReportActivity::class.java)
                 .apply {
                     putExtra(ACCOUNT_ID, accountId)
                     putExtra(ACCOUNT_USERNAME, userName)
-                    putExtra(STATUS_ID, statusId)
+                    putExtra(STATUS_ID, statusId as CharSequence)
                 }
     }
 }

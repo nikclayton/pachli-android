@@ -24,6 +24,7 @@ import app.pachli.TabData
 import app.pachli.defaultTabs
 import app.pachli.entity.Emoji
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 
 @Entity(
     indices = [
@@ -100,7 +101,7 @@ data class AccountEntity(
      * ID of the status at the top of the visible list in the home timeline when the
      * user navigated away.
      */
-    var lastVisibleHomeTimelineStatusId: String? = null,
+    var lastVisibleHomeTimelineStatusId: StatusId? = null,
 
     /** true if the connected Mastodon account is locked (has to manually approve all follow requests **/
     @ColumnInfo(defaultValue = "0")

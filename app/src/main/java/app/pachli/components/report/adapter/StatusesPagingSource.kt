@@ -20,6 +20,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -27,15 +28,15 @@ import kotlinx.coroutines.withContext
 class StatusesPagingSource(
     private val accountId: String,
     private val mastodonApi: MastodonApi,
-) : PagingSource<String, Status>() {
+) : PagingSource<StatusId, Status>() {
 
-    override fun getRefreshKey(state: PagingState<String, Status>): String? {
+    override fun getRefreshKey(state: PagingState<StatusId, Status>): StatusId? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestItemToPosition(anchorPosition)?.id
         }
     }
 
-    override suspend fun load(params: LoadParams<String>): LoadResult<String, Status> {
+    override suspend fun load(params: LoadParams<StatusId>): LoadResult<StatusId, Status> {
         val key = params.key
         try {
             val result = if (params is LoadParams.Refresh && key != null) {
@@ -73,11 +74,11 @@ class StatusesPagingSource(
         }
     }
 
-    private suspend fun getSingleStatus(statusId: String): Status? {
+    private suspend fun getSingleStatus(statusId: StatusId): Status? {
         return mastodonApi.status(statusId).getOrNull()
     }
 
-    private suspend fun getStatusList(minId: String? = null, maxId: String? = null, limit: Int): List<Status>? {
+    private suspend fun getStatusList(minId: StatusId? = null, maxId: StatusId? = null, limit: Int): List<Status>? {
         return mastodonApi.accountStatuses(
             accountId = accountId,
             maxId = maxId,

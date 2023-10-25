@@ -35,6 +35,7 @@ import app.pachli.StatusListActivity
 import app.pachli.components.account.AccountActivity
 import app.pachli.databinding.FragmentViewEditsBinding
 import app.pachli.interfaces.LinkListener
+import app.pachli.network.StatusId
 import app.pachli.settings.PrefKeys
 import app.pachli.util.SharedPreferencesRepository
 import app.pachli.util.emojify
@@ -42,6 +43,7 @@ import app.pachli.util.hide
 import app.pachli.util.loadAvatar
 import app.pachli.util.show
 import app.pachli.util.unicodeWrap
+import app.pachli.util.unsafeLazy
 import app.pachli.util.viewBinding
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -67,7 +69,10 @@ class ViewEditsFragment :
 
     private val binding by viewBinding(FragmentViewEditsBinding::bind)
 
-    private lateinit var statusId: String
+    // Inline classes can't be marked lateinit, so initialise lazily
+    private val statusId by unsafeLazy {
+        StatusId(requireArguments().getString(STATUS_ID_EXTRA)!!)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
@@ -82,8 +87,6 @@ class ViewEditsFragment :
             MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
         )
         (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-
-        statusId = requireArguments().getString(STATUS_ID_EXTRA)!!
 
         val animateAvatars = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
         val animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
@@ -202,10 +205,10 @@ class ViewEditsFragment :
 
         private const val STATUS_ID_EXTRA = "id"
 
-        fun newInstance(statusId: String): ViewEditsFragment {
+        fun newInstance(statusId: StatusId): ViewEditsFragment {
             val arguments = Bundle(1)
             val fragment = ViewEditsFragment()
-            arguments.putString(STATUS_ID_EXTRA, statusId)
+            arguments.putString(STATUS_ID_EXTRA, statusId.toString())
             fragment.arguments = arguments
             return fragment
         }

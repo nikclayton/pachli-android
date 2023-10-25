@@ -33,6 +33,7 @@ import app.pachli.entity.Emoji
 import app.pachli.entity.NewPoll
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.service.MediaToSend
 import app.pachli.service.ServiceClient
 import app.pachli.service.StatusToSend
@@ -68,10 +69,10 @@ class ComposeViewModel @Inject constructor(
     internal var startingText: String? = null
     internal var postLanguage: String? = null
     private var draftId: Int = 0
-    private var scheduledTootId: String? = null
+    private var scheduledTootId: StatusId? = null
     private var startingContentWarning: String = ""
-    private var inReplyToId: String? = null
-    private var originalStatusId: String? = null
+    private var inReplyToId: StatusId? = null
+    private var originalStatusId: StatusId? = null
     private var startingVisibility: Status.Visibility = Status.Visibility.UNKNOWN
 
     private var contentWarningStateChanged: Boolean = false

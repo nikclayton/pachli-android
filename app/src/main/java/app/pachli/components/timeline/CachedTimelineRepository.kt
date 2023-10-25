@@ -32,6 +32,7 @@ import app.pachli.db.TimelineStatusWithAccount
 import app.pachli.di.ApplicationScope
 import app.pachli.di.TransactionProvider
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.util.EmptyPagingSource
 import app.pachli.viewdata.StatusViewData
 import com.google.gson.Gson
@@ -66,7 +67,7 @@ class CachedTimelineRepository @Inject constructor(
     fun getStatusStream(
         kind: TimelineKind,
         pageSize: Int = PAGE_SIZE,
-        initialKey: String? = null,
+        initialKey: StatusId? = null,
     ): Flow<PagingData<TimelineStatusWithAccount>> {
         Log.d(TAG, "getStatusStream(): key: $initialKey")
 
@@ -131,7 +132,7 @@ class CachedTimelineRepository @Inject constructor(
     /**
      * @return Map between statusIDs and any viewdata for them cached in the repository.
      */
-    suspend fun getStatusViewData(statusId: List<String>): Map<String, StatusViewDataEntity> {
+    suspend fun getStatusViewData(statusId: List<StatusId>): Map<StatusId, StatusViewDataEntity> {
         return timelineDao.getStatusViewData(activeAccount!!.id, statusId)
     }
 
@@ -146,7 +147,7 @@ class CachedTimelineRepository @Inject constructor(
     }.join()
 
     /** Clear the warning (remove the "filtered" setting) for the given status, for the active account */
-    suspend fun clearStatusWarning(statusId: String) = externalScope.launch {
+    suspend fun clearStatusWarning(statusId: StatusId) = externalScope.launch {
         timelineDao.clearWarning(activeAccount!!.id, statusId)
     }.join()
 

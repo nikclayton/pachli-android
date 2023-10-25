@@ -58,6 +58,7 @@ import app.pachli.interfaces.AppBarLayoutHost
 import app.pachli.interfaces.RefreshableFragment
 import app.pachli.interfaces.ReselectableFragment
 import app.pachli.interfaces.StatusActionListener
+import app.pachli.network.StatusId
 import app.pachli.util.ListStatusAccessibilityDelegate
 import app.pachli.util.PresentationState
 import app.pachli.util.UserRefreshState
@@ -335,7 +336,7 @@ class TimelineFragment :
                     var peeked = false
 
                     /** ID of the item that was first in the adapter before the refresh */
-                    var previousFirstId: String? = null
+                    var previousFirstId: StatusId? = null
 
                     refreshState.collect { userRefreshState ->
                         if (userRefreshState == UserRefreshState.ACTIVE) {
@@ -494,7 +495,7 @@ class TimelineFragment :
      * status is used. It is the first status so that when performing a pull-refresh the
      * previous first status always remains visible.
      */
-    fun saveVisibleId(statusId: String? = null) {
+    fun saveVisibleId(statusId: StatusId? = null) {
         val id = statusId ?: layoutManager.findFirstCompletelyVisibleItemPosition()
             .takeIf { it != RecyclerView.NO_POSITION }
             ?.let { adapter.snapshot().getOrNull(it)?.id }
@@ -610,13 +611,13 @@ class TimelineFragment :
 
     override fun onShowReblogs(position: Int) {
         val statusId = adapter.peek(position)?.id ?: return
-        val intent = newIntent(requireContext(), AccountListActivity.Type.REBLOGGED, statusId)
+        val intent = newIntent(requireContext(), AccountListActivity.Type.RebloggedBy(statusId))
         (activity as BaseActivity).startActivityWithSlideInAnimation(intent)
     }
 
     override fun onShowFavs(position: Int) {
         val statusId = adapter.peek(position)?.id ?: return
-        val intent = newIntent(requireContext(), AccountListActivity.Type.FAVOURITED, statusId)
+        val intent = newIntent(requireContext(), AccountListActivity.Type.Favourited(statusId))
         (activity as BaseActivity).startActivityWithSlideInAnimation(intent)
     }
 

@@ -21,7 +21,7 @@ import android.util.Log
 import app.pachli.BuildConfig
 import app.pachli.entity.Status
 import app.pachli.network.Links
-import app.pachli.util.isLessThan
+import app.pachli.network.StatusId
 import retrofit2.HttpException
 import retrofit2.Response
 import java.util.TreeMap
@@ -36,12 +36,12 @@ data class Page(
      * Key for previous page (newer results, PREPEND operation) if more data can be loaded in
      * that direction, `null` otherwise.
      */
-    val prevKey: String? = null,
+    val prevKey: StatusId? = null,
     /**
      * Key for next page (older results, APPEND operation) if more data can be loaded in that
      * direction, `null` otherwise.
      */
-    val nextKey: String? = null,
+    val nextKey: StatusId? = null,
 ) {
     override fun toString() = "k: ${data.lastOrNull()?.id}, prev: $prevKey, next: $nextKey, size: ${"%2d".format(data.size)}, range: ${data.firstOrNull()?.id}..${data.lastOrNull()?.id}"
 
@@ -56,18 +56,23 @@ data class Page(
         pages.filterNotNull().forEach {
             d.addAll(it.data)
             if (next != null) {
-                if (it.nextKey == null || it.nextKey.isLessThan(next!!)) next = it.nextKey
+                if (it.nextKey == null || it.nextKey < next!!) next = it.nextKey
             }
             if (prev != null) {
-                if (prev!!.isLessThan(it.prevKey ?: "")) prev = it.prevKey
+                if (prev!! < (it.prevKey ?: StatusId(""))) prev = it.prevKey
             }
         }
 
         d.sortWith(compareBy({ it.id.length }, { it.id }))
         d.reverse()
 
-        if (nextKey?.isLessThan(next ?: "") == true) throw java.lang.IllegalStateException("New next $next is greater than old nextKey $nextKey")
-        if (prev?.isLessThan(prevKey ?: "") == true) throw java.lang.IllegalStateException("New prev $prev is less than old $prevKey")
+        nextKey?.let {
+            if (it < (next ?: StatusId("")))  throw java.lang.IllegalStateException("New next $next is greater than old nextKey $nextKey")
+        }
+
+        prev?.let {
+            if (it < (prevKey ?: StatusId(""))) throw java.lang.IllegalStateException("New prev $prev is less than old $prevKey")
+        }
 
         // Debug assertions
         if (BuildConfig.DEBUG) {
@@ -79,7 +84,7 @@ data class Page(
             }
 
             // Data should always be sorted newest first
-            if (d.first().id.isLessThan(d.last().id)) {
+            if (d.first().id < d.last().id) {
                 throw IllegalStateException("Items in data are *not* sorted newest first")
             }
         }
@@ -107,8 +112,8 @@ data class Page(
             return success(
                 Page(
                     data = statuses.toMutableList(),
-                    nextKey = links.next,
-                    prevKey = links.prev,
+                    nextKey = links.next?.let { StatusId(it) },
+                    prevKey = links.prev?.let { StatusId(it) },
                 ),
             )
         }
@@ -129,7 +134,7 @@ data class Page(
  * was used as the key then you might have two pages that contain overlapping
  * items.
  */
-class PageCache : TreeMap<String, Page>(compareBy({ it.length }, { it })) {
+class PageCache : TreeMap<StatusId, Page>(compareBy({ it.length }, { it })) {
     /**
      * Adds a new page to the cache or updates the existing page with the given key
      */

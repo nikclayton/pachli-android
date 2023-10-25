@@ -28,6 +28,7 @@ import app.pachli.entity.HashTag
 import app.pachli.entity.Poll
 import app.pachli.entity.Status
 import app.pachli.entity.TimelineAccount
+import app.pachli.network.StatusId
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
@@ -60,12 +61,12 @@ import java.util.Date
 )
 @TypeConverters(Converters::class)
 data class TimelineStatusEntity(
-    val serverId: String, // id never flips: we need it for sorting so it's a real id
+    val serverId: StatusId, // id never flips: we need it for sorting so it's a real id
     val url: String?,
     // our local id for the logged in user in case there are multiple accounts per instance
     val timelineUserId: Long,
     val authorServerId: String,
-    val inReplyToId: String?,
+    val inReplyToId: StatusId?,
     val inReplyToAccountId: String?,
     val content: String?,
     val createdAt: Long,
@@ -84,7 +85,7 @@ data class TimelineStatusEntity(
     val mentions: String?,
     val tags: String?,
     val application: String?,
-    val reblogServerId: String?, // if it has a reblogged status, it's id is stored here
+    val reblogServerId: StatusId?, // if it has a reblogged status, it's id is stored here
     val reblogAccountId: String?,
     val poll: String?,
     val muted: Boolean?,
@@ -184,7 +185,7 @@ data class TimelineAccountEntity(
     primaryKeys = ["serverId", "timelineUserId"],
 )
 data class StatusViewDataEntity(
-    val serverId: String,
+    val serverId: StatusId,
     val timelineUserId: Long,
     /** Corresponds to [app.pachli.viewdata.StatusViewData.isExpanded] */
     val expanded: Boolean,

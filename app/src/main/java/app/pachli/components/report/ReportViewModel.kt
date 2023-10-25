@@ -31,6 +31,7 @@ import app.pachli.components.report.model.StatusViewState
 import app.pachli.entity.Relationship
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import app.pachli.util.Error
 import app.pachli.util.Loading
 import app.pachli.util.Resource
@@ -89,19 +90,19 @@ class ReportViewModel @Inject constructor(
         }
         .cachedIn(viewModelScope)
 
-    private val selectedIds = HashSet<String>()
+    private val selectedIds = HashSet<StatusId>()
     val statusViewState = StatusViewState()
 
     var reportNote: String = ""
     var isRemoteNotify = false
 
-    private var statusId: String? = null
+    private var statusId: StatusId? = null
     lateinit var accountUserName: String
     lateinit var accountId: String
     var isRemoteAccount: Boolean = false
     var remoteServer: String? = null
 
-    fun init(accountId: String, userName: String, statusId: String?) {
+    fun init(accountId: String, userName: String, statusId: StatusId?) {
         this.accountId = accountId
         this.accountUserName = userName
         this.statusId = statusId
@@ -227,7 +228,7 @@ class ReportViewModel @Inject constructor(
         }
     }
 
-    fun isStatusChecked(id: String): Boolean {
+    fun isStatusChecked(id: StatusId): Boolean {
         return selectedIds.contains(id)
     }
 }

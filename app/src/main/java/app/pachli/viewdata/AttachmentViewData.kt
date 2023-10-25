@@ -18,13 +18,14 @@ package app.pachli.viewdata
 import android.os.Parcelable
 import app.pachli.entity.Attachment
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class AttachmentViewData(
     val attachment: Attachment,
-    val statusId: String,
+    val statusId: StatusId,
     val statusUrl: String,
     val sensitive: Boolean,
     val isRevealed: Boolean,
