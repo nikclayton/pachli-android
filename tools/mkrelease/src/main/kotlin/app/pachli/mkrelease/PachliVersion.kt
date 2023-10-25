@@ -120,10 +120,12 @@ sealed class PachliVersion : Comparable<PachliVersion> {
                 versionCode = this.versionCode + 1
             )
             ReleaseType.MINOR -> this.copy(
+                patch = 0,
                 minor = this.minor + 1,
                 versionCode = this.versionCode + 1
             )
             ReleaseType.MAJOR -> this.copy(
+                patch = 0,
                 minor = 0,
                 major = this.major + 1,
                 versionCode = this.versionCode + 1
