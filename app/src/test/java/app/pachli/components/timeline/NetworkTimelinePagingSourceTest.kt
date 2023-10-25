@@ -28,9 +28,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 
-@Config(sdk = [28])
 @RunWith(AndroidJUnit4::class)
 class NetworkTimelinePagingSourceTest {
     @Test
@@ -84,7 +82,7 @@ class NetworkTimelinePagingSourceTest {
     }
 
     @Test
-    fun `Append returns the page after`() = runTest {
+    fun `append returns the page after`() = runTest {
         // Given
         val pages = PageCache().apply {
             upsert(Page(data = mutableListOf(mockStatus(id = "2")), nextKey = "1"))
@@ -111,7 +109,7 @@ class NetworkTimelinePagingSourceTest {
     }
 
     @Test
-    fun `Prepend returns the page before`() = runTest {
+    fun `prepend returns the page before`() = runTest {
         // Given
         val pages = PageCache().apply {
             upsert(Page(data = mutableListOf(mockStatus(id = "2")), nextKey = "1"))

@@ -26,7 +26,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
@@ -35,10 +34,9 @@ import app.pachli.R
 import app.pachli.StatusListActivity
 import app.pachli.components.account.AccountActivity
 import app.pachli.databinding.FragmentViewEditsBinding
-import app.pachli.di.Injectable
-import app.pachli.di.ViewModelFactory
 import app.pachli.interfaces.LinkListener
 import app.pachli.settings.PrefKeys
+import app.pachli.util.SharedPreferencesRepository
 import app.pachli.util.emojify
 import app.pachli.util.hide
 import app.pachli.util.loadAvatar
@@ -51,20 +49,21 @@ import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class ViewEditsFragment :
     Fragment(R.layout.fragment_view_edits),
     LinkListener,
     OnRefreshListener,
-    MenuProvider,
-    Injectable {
+    MenuProvider {
 
     @Inject
-    lateinit var viewModelFactory: ViewModelFactory
+    lateinit var sharedPreferencesRepository: SharedPreferencesRepository
 
-    private val viewModel: ViewEditsViewModel by viewModels { viewModelFactory }
+    private val viewModel: ViewEditsViewModel by viewModels()
 
     private val binding by viewBinding(FragmentViewEditsBinding::bind)
 
@@ -85,11 +84,10 @@ class ViewEditsFragment :
         (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 
         statusId = requireArguments().getString(STATUS_ID_EXTRA)!!
-        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
-        val animateAvatars = preferences.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
-        val animateEmojis = preferences.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
-        val useBlurhash = preferences.getBoolean(PrefKeys.USE_BLURHASH, true)
+        val animateAvatars = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
+        val animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
+        val useBlurhash = sharedPreferencesRepository.getBoolean(PrefKeys.USE_BLURHASH, true)
         val avatarRadius: Int = requireContext().resources.getDimensionPixelSize(R.dimen.avatar_radius_48dp)
 
         viewLifecycleOwner.lifecycleScope.launch {

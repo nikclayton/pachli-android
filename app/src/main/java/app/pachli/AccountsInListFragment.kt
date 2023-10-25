@@ -26,18 +26,16 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import app.pachli.databinding.FragmentAccountsInListBinding
 import app.pachli.databinding.ItemFollowRequestBinding
-import app.pachli.di.Injectable
-import app.pachli.di.ViewModelFactory
 import app.pachli.entity.TimelineAccount
 import app.pachli.settings.PrefKeys
 import app.pachli.util.BindingHolder
 import app.pachli.util.Either
+import app.pachli.util.SharedPreferencesRepository
 import app.pachli.util.emojify
 import app.pachli.util.hide
 import app.pachli.util.loadAvatar
@@ -46,17 +44,16 @@ import app.pachli.util.unsafeLazy
 import app.pachli.util.viewBinding
 import app.pachli.viewmodel.AccountsInListViewModel
 import app.pachli.viewmodel.State
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private typealias AccountInfo = Pair<TimelineAccount, Boolean>
 
-class AccountsInListFragment : DialogFragment(), Injectable {
+@AndroidEntryPoint
+class AccountsInListFragment : DialogFragment() {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-
-    private val viewModel: AccountsInListViewModel by viewModels { viewModelFactory }
+    private val viewModel: AccountsInListViewModel by viewModels()
     private val binding by viewBinding(FragmentAccountsInListBinding::bind)
 
     private lateinit var listId: String
@@ -65,9 +62,12 @@ class AccountsInListFragment : DialogFragment(), Injectable {
     private val searchAdapter = SearchAdapter()
 
     private val radius by unsafeLazy { resources.getDimensionPixelSize(R.dimen.avatar_radius_48dp) }
-    private val pm by unsafeLazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
-    private val animateAvatar by unsafeLazy { pm.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false) }
-    private val animateEmojis by unsafeLazy { pm.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false) }
+
+    @Inject
+    lateinit var sharedPreferencesRepository: SharedPreferencesRepository
+
+    private val animateAvatar by unsafeLazy { sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false) }
+    private val animateEmojis by unsafeLazy { sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

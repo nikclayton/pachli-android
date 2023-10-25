@@ -26,7 +26,7 @@ import android.view.MenuItem
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import app.pachli.appstore.EventHub
-import app.pachli.appstore.PreferenceChangedEvent
+import app.pachli.appstore.FilterChangedEvent
 import app.pachli.components.timeline.TimelineFragment
 import app.pachli.components.timeline.TimelineKind
 import app.pachli.databinding.ActivityStatuslistBinding
@@ -37,8 +37,7 @@ import app.pachli.util.viewBinding
 import at.connyduck.calladapter.networkresult.fold
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasAndroidInjector
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -47,11 +46,8 @@ import javax.inject.Inject
  * Show a list of statuses of a particular type; containing a particular hashtag,
  * the user's favourites, bookmarks, etc.
  */
-class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, HasAndroidInjector {
-
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
-
+@AndroidEntryPoint
+class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
     @Inject
     lateinit var eventHub: EventHub
 
@@ -245,7 +241,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, HasAndroidIn
                     if (mastodonApi.addFilterKeyword(filterId = filter.id, keyword = tagWithHash, wholeWord = true).isSuccess) {
                         mutedFilter = filter
                         updateTagMuteState(true)
-                        eventHub.dispatch(PreferenceChangedEvent(filter.context[0]))
+                        eventHub.dispatch(FilterChangedEvent(Filter.Kind.from(filter.context[0])))
                         Snackbar.make(binding.root, getString(R.string.confirmation_hashtag_muted, hashtag), Snackbar.LENGTH_SHORT).show()
                     } else {
                         Snackbar.make(binding.root, getString(R.string.error_muting_hashtag_format, hashtag), Snackbar.LENGTH_SHORT).show()
@@ -264,7 +260,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, HasAndroidIn
                             { filter ->
                                 mutedFilterV1 = filter
                                 updateTagMuteState(true)
-                                eventHub.dispatch(PreferenceChangedEvent(filter.context[0]))
+                                eventHub.dispatch(FilterChangedEvent(Filter.Kind.from(filter.context[0])))
                                 Snackbar.make(binding.root, getString(R.string.confirmation_hashtag_muted, hashtag), Snackbar.LENGTH_SHORT).show()
                             },
                             { throwable ->
@@ -322,7 +318,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, HasAndroidIn
                 {
                     updateTagMuteState(false)
                     Snackbar.make(binding.root, getString(R.string.confirmation_hashtag_unmuted, hashtag), Snackbar.LENGTH_SHORT).show()
-                    eventHub.dispatch(PreferenceChangedEvent(Filter.Kind.HOME.kind))
+                    eventHub.dispatch(FilterChangedEvent(Filter.Kind.HOME))
                     mutedFilterV1 = null
                     mutedFilter = null
                 },
@@ -335,8 +331,6 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, HasAndroidIn
 
         return true
     }
-
-    override fun androidInjector() = dispatchingAndroidInjector
 
     companion object {
         private const val EXTRA_KIND = "kind"

@@ -43,7 +43,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.MarginPageTransformer
 import app.pachli.BottomSheetActivity
@@ -58,7 +57,6 @@ import app.pachli.components.report.ReportActivity
 import app.pachli.databinding.ActivityAccountBinding
 import app.pachli.db.AccountEntity
 import app.pachli.db.DraftsAlert
-import app.pachli.di.ViewModelFactory
 import app.pachli.entity.Account
 import app.pachli.entity.Relationship
 import app.pachli.interfaces.AccountSelectionListener
@@ -77,7 +75,6 @@ import app.pachli.util.parseAsMastodonHtml
 import app.pachli.util.reduceSwipeSensitivity
 import app.pachli.util.setClickableText
 import app.pachli.util.show
-import app.pachli.util.unsafeLazy
 import app.pachli.util.viewBinding
 import app.pachli.util.visible
 import app.pachli.view.showMuteAccountDialog
@@ -94,8 +91,7 @@ import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasAndroidInjector
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.NumberFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -103,29 +99,20 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.abs
 
+@AndroidEntryPoint
 class AccountActivity :
     BottomSheetActivity(),
     ActionButtonActivity,
     MenuProvider,
-    HasAndroidInjector,
     LinkListener {
-
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-
     @Inject
     lateinit var draftsAlert: DraftsAlert
 
-    private val viewModel: AccountViewModel by viewModels { viewModelFactory }
+    private val viewModel: AccountViewModel by viewModels()
 
     private val binding: ActivityAccountBinding by viewBinding(ActivityAccountBinding::inflate)
 
     private lateinit var accountFieldAdapter: AccountFieldAdapter
-
-    private val preferences by unsafeLazy { PreferenceManager.getDefaultSharedPreferences(this) }
 
     private var followState: FollowState = FollowState.NOT_FOLLOWING
     private var blocking: Boolean = false
@@ -177,10 +164,9 @@ class AccountActivity :
         // Obtain information to fill out the profile.
         viewModel.setAccountInfo(intent.getStringExtra(KEY_ACCOUNT_ID)!!)
 
-        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
-        animateAvatar = sharedPrefs.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
-        animateEmojis = sharedPrefs.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
-        hideFab = sharedPrefs.getBoolean(PrefKeys.FAB_HIDE, false)
+        animateAvatar = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
+        animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
+        hideFab = sharedPreferencesRepository.getBoolean(PrefKeys.FAB_HIDE, false)
 
         handleWindowInsets()
         setupToolbar()
@@ -245,8 +231,7 @@ class AccountActivity :
         }
 
         // If wellbeing mode is enabled, follow stats and posts count should be hidden
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val wellbeingEnabled = preferences.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_PROFILE, false)
+        val wellbeingEnabled = sharedPreferencesRepository.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_PROFILE, false)
 
         if (wellbeingEnabled) {
             binding.accountStatuses.hide()
@@ -275,7 +260,7 @@ class AccountActivity :
         val pageMargin = resources.getDimensionPixelSize(R.dimen.tab_page_margin)
         binding.accountFragmentViewPager.setPageTransformer(MarginPageTransformer(pageMargin))
 
-        val enableSwipeForTabs = preferences.getBoolean(PrefKeys.ENABLE_SWIPE_FOR_TABS, true)
+        val enableSwipeForTabs = sharedPreferencesRepository.getBoolean(PrefKeys.ENABLE_SWIPE_FOR_TABS, true)
         binding.accountFragmentViewPager.isUserInputEnabled = enableSwipeForTabs
 
         binding.accountTabLayout.addOnTabSelectedListener(
@@ -650,8 +635,7 @@ class AccountActivity :
         showingReblogs = relation.showingReblogs
 
         // If wellbeing mode is enabled, "follows you" text should not be visible
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val wellbeingEnabled = preferences.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_PROFILE, false)
+        val wellbeingEnabled = sharedPreferencesRepository.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_PROFILE, false)
 
         binding.accountFollowsYouTextView.visible(relation.followedBy && !wellbeingEnabled)
 
@@ -1011,8 +995,6 @@ class AccountActivity :
             "@$localUsername@$domain"
         }
     }
-
-    override fun androidInjector() = dispatchingAndroidInjector
 
     companion object {
 

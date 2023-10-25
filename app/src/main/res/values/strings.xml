@@ -144,6 +144,8 @@
     <string name="action_share_account_username">Share username of account</string>
     <string name="action_hide_reblogs">Hide boosts</string>
     <string name="action_show_reblogs">Show boosts</string>
+    <string name="pref_title_show_self_boosts">Show self-boosts</string>
+    <string name="pref_title_show_self_boosts_description">Someone boosting their own post</string>
     <string name="action_report">Report</string>
     <string name="action_edit">Edit</string>
     <string name="action_delete">Delete</string>
@@ -745,13 +747,15 @@
     <string name="pachli_compose_post_quicksetting_label">Compose Post</string>
 
     <string name="account_date_joined">Joined %1$s</string>
+    <string name="announcement_date_updated">(Updated: %1$s)</string>
+    <string name="announcement_date">%1$s %2$s</string>
 
     <string name="saving_draft">Saving draft…</string>
 
     <string name="tips_push_notification_migration">Re-login all accounts to enable push notification support.</string>
     <string name="dialog_push_notification_migration">In order to use push notifications via UnifiedPush, Pachli needs permission to subscribe to notifications on your Mastodon server. This requires a re-login to change the OAuth scopes granted to Pachli. Using the re-login option here or in "Account preferences" will preserve all of your local drafts and cache.</string>
     <string name="dialog_push_notification_migration_other_accounts">You have re-logged into your current account to grant push subscription permission to Pachli. However, you still have other accounts that have not been migrated this way. Switch to them and re-login one by one in order to enable UnifiedPush notifications support.</string>
-    <string name="url_domain_notifier">%s (🔗 %s)</string>
+    <string name="url_domain_notifier">\u0020(🔗 %s)</string>
 
     <string name="delete_scheduled_post_warning">Delete this scheduled post?</string>
 
@@ -824,4 +828,6 @@
     <string name="dialog_delete_filter_text">Delete filter \'%1$s\'?"</string>
     <string name="dialog_delete_filter_positive_action">Delete</string>
     <string name="dialog_save_profile_changes_message">Do you want to save your profile changes?</string>
+
+    <string name="reaction_name_and_count">%1$s %2$d</string>
 </resources>

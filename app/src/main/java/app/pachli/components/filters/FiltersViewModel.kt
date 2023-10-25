@@ -4,18 +4,19 @@ import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pachli.appstore.EventHub
-import app.pachli.appstore.PreferenceChangedEvent
+import app.pachli.appstore.FilterChangedEvent
 import app.pachli.entity.Filter
-import app.pachli.entity.FilterV1
 import app.pachli.network.MastodonApi
 import at.connyduck.calladapter.networkresult.fold
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
 
+@HiltViewModel
 class FiltersViewModel @Inject constructor(
     private val api: MastodonApi,
     private val eventHub: EventHub,
@@ -66,7 +67,7 @@ class FiltersViewModel @Inject constructor(
                 {
                     this@FiltersViewModel._state.value = State(this@FiltersViewModel._state.value.filters.filter { it.id != filter.id }, LoadingState.LOADED)
                     for (context in filter.context) {
-                        eventHub.dispatch(PreferenceChangedEvent(context))
+                        eventHub.dispatch(FilterChangedEvent(Filter.Kind.from(context)))
                     }
                 },
                 { throwable ->
@@ -85,16 +86,5 @@ class FiltersViewModel @Inject constructor(
                 },
             )
         }
-    }
-
-    companion object {
-        /** Preference keys that, if changed, indicate that a filter preference has changed */
-        val FILTER_PREF_KEYS = setOf(
-            FilterV1.HOME,
-            FilterV1.NOTIFICATIONS,
-            FilterV1.THREAD,
-            FilterV1.PUBLIC,
-            FilterV1.ACCOUNT,
-        )
     }
 }

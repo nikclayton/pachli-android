@@ -17,7 +17,6 @@ package app.pachli.components.announcements
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -26,7 +25,6 @@ import android.view.View
 import android.widget.PopupWindow
 import androidx.activity.viewModels
 import androidx.core.view.MenuProvider
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.pachli.BottomSheetActivity
 import app.pachli.R
@@ -34,8 +32,6 @@ import app.pachli.StatusListActivity
 import app.pachli.adapter.EmojiAdapter
 import app.pachli.adapter.OnEmojiSelectedListener
 import app.pachli.databinding.ActivityAnnouncementsBinding
-import app.pachli.di.Injectable
-import app.pachli.di.ViewModelFactory
 import app.pachli.settings.PrefKeys
 import app.pachli.util.Error
 import app.pachli.util.Loading
@@ -51,19 +47,16 @@ import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
-import javax.inject.Inject
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AnnouncementsActivity :
     BottomSheetActivity(),
     AnnouncementActionListener,
     OnEmojiSelectedListener,
-    MenuProvider,
-    Injectable {
+    MenuProvider {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-
-    private val viewModel: AnnouncementsViewModel by viewModels { viewModelFactory }
+    private val viewModel: AnnouncementsViewModel by viewModels()
 
     private val binding by viewBinding(ActivityAnnouncementsBinding::inflate)
 
@@ -103,11 +96,11 @@ class AnnouncementsActivity :
             MaterialDividerItemDecoration(this, MaterialDividerItemDecoration.VERTICAL),
         )
 
-        val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val wellbeingEnabled = preferences.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_POSTS, false)
-        val animateEmojis = preferences.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
+        val wellbeingEnabled = sharedPreferencesRepository.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_POSTS, false)
+        val animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
+        val useAbsoluteTime = sharedPreferencesRepository.getBoolean(PrefKeys.ABSOLUTE_TIME_VIEW, false)
 
-        adapter = AnnouncementAdapter(emptyList(), this, wellbeingEnabled, animateEmojis)
+        adapter = AnnouncementAdapter(emptyList(), this, wellbeingEnabled, animateEmojis, useAbsoluteTime)
 
         binding.announcementsList.adapter = adapter
 

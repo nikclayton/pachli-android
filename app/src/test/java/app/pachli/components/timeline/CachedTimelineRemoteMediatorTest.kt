@@ -1,6 +1,5 @@
 package app.pachli.components.timeline
 
-import android.os.Looper.getMainLooper
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.LoadType
@@ -20,6 +19,7 @@ import app.pachli.db.Converters
 import app.pachli.db.RemoteKeyEntity
 import app.pachli.db.RemoteKeyKind
 import app.pachli.db.TimelineStatusWithAccount
+import app.pachli.di.TransactionProvider
 import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,13 +37,10 @@ import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
-import org.robolectric.Shadows.shadowOf
-import org.robolectric.annotation.Config
 import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
 
-@Config(sdk = [28])
 @RunWith(AndroidJUnit4::class)
 class CachedTimelineRemoteMediatorTest {
 
@@ -59,18 +56,18 @@ class CachedTimelineRemoteMediatorTest {
     }
 
     private lateinit var db: AppDatabase
+    private lateinit var transactionProvider: TransactionProvider
 
     private lateinit var pagingSourceFactory: InvalidatingPagingSourceFactory<Int, TimelineStatusWithAccount>
 
     @Before
     @ExperimentalCoroutinesApi
     fun setup() {
-        shadowOf(getMainLooper()).idle()
-
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .addTypeConverter(Converters(Gson()))
             .build()
+        transactionProvider = TransactionProvider(db)
 
         pagingSourceFactory = mock()
     }
@@ -91,7 +88,9 @@ class CachedTimelineRemoteMediatorTest {
                 onBlocking { homeTimeline(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()) } doReturn Response.error(500, "".toResponseBody())
             },
             factory = pagingSourceFactory,
-            db = db,
+            transactionProvider = transactionProvider,
+            timelineDao = db.timelineDao(),
+            remoteKeyDao = db.remoteKeyDao(),
             gson = Gson(),
         )
 
@@ -112,7 +111,9 @@ class CachedTimelineRemoteMediatorTest {
                 onBlocking { homeTimeline(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()) } doThrow IOException()
             },
             factory = pagingSourceFactory,
-            db = db,
+            transactionProvider = transactionProvider,
+            timelineDao = db.timelineDao(),
+            remoteKeyDao = db.remoteKeyDao(),
             gson = Gson(),
         )
 
@@ -130,7 +131,9 @@ class CachedTimelineRemoteMediatorTest {
             accountManager = accountManager,
             api = mock(),
             factory = pagingSourceFactory,
-            db = db,
+            transactionProvider = transactionProvider,
+            timelineDao = db.timelineDao(),
+            remoteKeyDao = db.remoteKeyDao(),
             gson = Gson(),
         )
 
@@ -168,7 +171,9 @@ class CachedTimelineRemoteMediatorTest {
                 )
             },
             factory = pagingSourceFactory,
-            db = db,
+            transactionProvider = transactionProvider,
+            timelineDao = db.timelineDao(),
+            remoteKeyDao = db.remoteKeyDao(),
             gson = Gson(),
         )
 
@@ -220,7 +225,9 @@ class CachedTimelineRemoteMediatorTest {
                 )
             },
             factory = pagingSourceFactory,
-            db = db,
+            transactionProvider = transactionProvider,
+            timelineDao = db.timelineDao(),
+            remoteKeyDao = db.remoteKeyDao(),
             gson = Gson(),
         )
 
@@ -279,7 +286,9 @@ class CachedTimelineRemoteMediatorTest {
                 )
             },
             factory = pagingSourceFactory,
-            db = db,
+            transactionProvider = transactionProvider,
+            timelineDao = db.timelineDao(),
+            remoteKeyDao = db.remoteKeyDao(),
             gson = Gson(),
         )
 

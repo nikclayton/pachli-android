@@ -18,26 +18,24 @@
 package app.pachli
 
 import android.app.Application
-import android.content.SharedPreferences
 import android.util.Log
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import app.pachli.components.notifications.NotificationHelper
-import app.pachli.di.AppInjector
 import app.pachli.settings.NEW_INSTALL_SCHEMA_VERSION
 import app.pachli.settings.PrefKeys
 import app.pachli.settings.PrefKeys.APP_THEME
 import app.pachli.settings.SCHEMA_VERSION
 import app.pachli.util.APP_THEME_DEFAULT
 import app.pachli.util.LocaleManager
+import app.pachli.util.SharedPreferencesRepository
 import app.pachli.util.setAppNightMode
 import app.pachli.worker.PruneCacheWorker
 import app.pachli.worker.WorkerFactory
 import autodispose2.AutoDisposePlugins
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasAndroidInjector
+import dagger.hilt.android.HiltAndroidApp
 import de.c1710.filemojicompat_defaults.DefaultEmojiPackList
 import de.c1710.filemojicompat_ui.helpers.EmojiPackHelper
 import de.c1710.filemojicompat_ui.helpers.EmojiPreference
@@ -47,10 +45,8 @@ import java.security.Security
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class PachliApplication : Application(), HasAndroidInjector {
-    @Inject
-    lateinit var androidInjector: DispatchingAndroidInjector<Any>
-
+@HiltAndroidApp
+class PachliApplication : Application() {
     @Inject
     lateinit var workerFactory: WorkerFactory
 
@@ -58,7 +54,7 @@ class PachliApplication : Application(), HasAndroidInjector {
     lateinit var localeManager: LocaleManager
 
     @Inject
-    lateinit var sharedPreferences: SharedPreferences
+    lateinit var sharedPreferencesRepository: SharedPreferencesRepository
 
     override fun onCreate() {
         // Uncomment me to get StrictMode violation logs
@@ -77,10 +73,8 @@ class PachliApplication : Application(), HasAndroidInjector {
 
         AutoDisposePlugins.setHideProxies(false) // a small performance optimization
 
-        AppInjector.init(this)
-
         // Migrate shared preference keys and defaults from version to version.
-        val oldVersion = sharedPreferences.getInt(PrefKeys.SCHEMA_VERSION, NEW_INSTALL_SCHEMA_VERSION)
+        val oldVersion = sharedPreferencesRepository.getInt(PrefKeys.SCHEMA_VERSION, NEW_INSTALL_SCHEMA_VERSION)
         if (oldVersion != SCHEMA_VERSION) {
             upgradeSharedPreferences(oldVersion, SCHEMA_VERSION)
         }
@@ -91,7 +85,7 @@ class PachliApplication : Application(), HasAndroidInjector {
         EmojiPackHelper.init(this, DefaultEmojiPackList.get(this), allowPackImports = false)
 
         // init night mode
-        val theme = sharedPreferences.getString(APP_THEME, APP_THEME_DEFAULT)
+        val theme = sharedPreferencesRepository.getString(APP_THEME, APP_THEME_DEFAULT)
         setAppNightMode(theme)
 
         localeManager.setLocale()
@@ -120,11 +114,9 @@ class PachliApplication : Application(), HasAndroidInjector {
         )
     }
 
-    override fun androidInjector() = androidInjector
-
     private fun upgradeSharedPreferences(oldVersion: Int, newVersion: Int) {
         Log.d(TAG, "Upgrading shared preferences: $oldVersion -> $newVersion")
-        val editor = sharedPreferences.edit()
+        val editor = sharedPreferencesRepository.edit()
 
         // General usage is:
         //

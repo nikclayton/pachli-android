@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.IBinder
 import android.os.Parcelable
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
@@ -28,7 +29,6 @@ import app.pachli.components.compose.UploadEvent
 import app.pachli.components.drafts.DraftHelper
 import app.pachli.components.notifications.NotificationHelper
 import app.pachli.db.AccountManager
-import app.pachli.di.Injectable
 import app.pachli.entity.Attachment
 import app.pachli.entity.MediaAttribute
 import app.pachli.entity.NewPoll
@@ -37,20 +37,22 @@ import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
 import app.pachli.util.unsafeLazy
 import at.connyduck.calladapter.networkresult.fold
-import dagger.android.AndroidInjection
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
 import retrofit2.HttpException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class SendStatusService : Service(), Injectable {
+@AndroidEntryPoint
+class SendStatusService : Service() {
 
     @Inject
     lateinit var mastodonApi: MastodonApi
@@ -74,11 +76,6 @@ class SendStatusService : Service(), Injectable {
     private val sendJobs = ConcurrentHashMap<Int, Job>()
 
     private val notificationManager by unsafeLazy { getSystemService(NOTIFICATION_SERVICE) as NotificationManager }
-
-    override fun onCreate() {
-        AndroidInjection.inject(this)
-        super.onCreate()
-    }
 
     override fun onBind(intent: Intent): IBinder? = null
 
@@ -293,6 +290,17 @@ class SendStatusService : Service(), Injectable {
         if (statusesToSend.isEmpty()) {
             ServiceCompat.stopForeground(this@SendStatusService, ServiceCompat.STOP_FOREGROUND_REMOVE)
             stopSelf()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun onTimeout(startId: Int) {
+        // Android wants the service to shut down. Fail any statuses that still need to be sent
+        // and shut down. See https://developer.android.com/about/versions/14/changes/fgs-types-required
+        runBlocking {
+            statusesToSend.forEach { (i, _) ->
+                failSending(i) // Will stop the service when there are no more statuses
+            }
         }
     }
 

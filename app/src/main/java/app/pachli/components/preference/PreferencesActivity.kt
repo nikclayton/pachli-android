@@ -17,7 +17,6 @@ package app.pachli.components.preference
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.OnBackPressedCallback
@@ -26,34 +25,28 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
 import app.pachli.BaseActivity
 import app.pachli.MainActivity
 import app.pachli.R
 import app.pachli.appstore.EventHub
-import app.pachli.appstore.PreferenceChangedEvent
 import app.pachli.databinding.ActivityPreferencesBinding
 import app.pachli.settings.PrefKeys
 import app.pachli.settings.PrefKeys.APP_THEME
 import app.pachli.util.APP_THEME_DEFAULT
 import app.pachli.util.getNonNullString
 import app.pachli.util.setAppNightMode
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasAndroidInjector
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class PreferencesActivity :
     BaseActivity(),
-    SharedPreferences.OnSharedPreferenceChangeListener,
-    PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
-    HasAndroidInjector {
+    PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     @Inject
     lateinit var eventHub: EventHub
-
-    @Inject
-    lateinit var androidInjector: DispatchingAndroidInjector<Any>
 
     private val restartActivitiesOnBackPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
@@ -99,6 +92,31 @@ class PreferencesActivity :
         restartActivitiesOnBackPressedCallback.isEnabled = intent.extras?.getBoolean(
             EXTRA_RESTART_ON_BACK,
         ) ?: savedInstanceState?.getBoolean(EXTRA_RESTART_ON_BACK, false) ?: false
+
+        lifecycleScope.launch {
+            sharedPreferencesRepository.changes.filterNotNull().collect { key ->
+                when (key) {
+                    APP_THEME -> {
+                        val theme = sharedPreferencesRepository.getNonNullString(APP_THEME, APP_THEME_DEFAULT)
+                        Log.d("activeTheme", theme)
+                        setAppNightMode(theme)
+
+                        restartActivitiesOnBackPressedCallback.isEnabled = true
+                        this@PreferencesActivity.restartCurrentActivity()
+                    }
+                    PrefKeys.FONT_FAMILY, PrefKeys.UI_TEXT_SCALE_RATIO -> {
+                        restartActivitiesOnBackPressedCallback.isEnabled = true
+                        this@PreferencesActivity.restartCurrentActivity()
+                    }
+                    PrefKeys.STATUS_TEXT_SIZE, PrefKeys.ABSOLUTE_TIME_VIEW, PrefKeys.SHOW_BOT_OVERLAY, PrefKeys.ANIMATE_GIF_AVATARS, PrefKeys.USE_BLURHASH,
+                    PrefKeys.SHOW_SELF_USERNAME, PrefKeys.SHOW_CARDS_IN_TIMELINES, PrefKeys.CONFIRM_REBLOGS, PrefKeys.CONFIRM_FAVOURITES,
+                    PrefKeys.ENABLE_SWIPE_FOR_TABS, PrefKeys.MAIN_NAV_POSITION, PrefKeys.HIDE_TOP_TOOLBAR, PrefKeys.SHOW_STATS_INLINE,
+                    -> {
+                        restartActivitiesOnBackPressedCallback.isEnabled = true
+                    }
+                }
+            }
+        }
     }
 
     override fun onPreferenceStartFragment(
@@ -125,16 +143,6 @@ class PreferencesActivity :
         return true
     }
 
-    override fun onResume() {
-        super.onResume()
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this)
-    }
-
     private fun saveInstanceState(outState: Bundle) {
         outState.putBoolean(EXTRA_RESTART_ON_BACK, restartActivitiesOnBackPressedCallback.isEnabled)
     }
@@ -142,32 +150,6 @@ class PreferencesActivity :
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(EXTRA_RESTART_ON_BACK, restartActivitiesOnBackPressedCallback.isEnabled)
         super.onSaveInstanceState(outState)
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        when (key) {
-            APP_THEME -> {
-                val theme = sharedPreferences.getNonNullString(APP_THEME, APP_THEME_DEFAULT)
-                Log.d("activeTheme", theme)
-                setAppNightMode(theme)
-
-                restartActivitiesOnBackPressedCallback.isEnabled = true
-                this.restartCurrentActivity()
-            }
-            PrefKeys.FONT_FAMILY, PrefKeys.UI_TEXT_SCALE_RATIO -> {
-                restartActivitiesOnBackPressedCallback.isEnabled = true
-                this.restartCurrentActivity()
-            }
-            PrefKeys.STATUS_TEXT_SIZE, PrefKeys.ABSOLUTE_TIME_VIEW, PrefKeys.SHOW_BOT_OVERLAY, PrefKeys.ANIMATE_GIF_AVATARS, PrefKeys.USE_BLURHASH,
-            PrefKeys.SHOW_SELF_USERNAME, PrefKeys.SHOW_CARDS_IN_TIMELINES, PrefKeys.CONFIRM_REBLOGS, PrefKeys.CONFIRM_FAVOURITES,
-            PrefKeys.ENABLE_SWIPE_FOR_TABS, PrefKeys.MAIN_NAV_POSITION, PrefKeys.HIDE_TOP_TOOLBAR, PrefKeys.SHOW_STATS_INLINE,
-            -> {
-                restartActivitiesOnBackPressedCallback.isEnabled = true
-            }
-        }
-        lifecycleScope.launch {
-            eventHub.dispatch(PreferenceChangedEvent(key))
-        }
     }
 
     private fun restartCurrentActivity() {
@@ -179,8 +161,6 @@ class PreferencesActivity :
         finish()
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
-
-    override fun androidInjector() = androidInjector
 
     companion object {
         @Suppress("unused")

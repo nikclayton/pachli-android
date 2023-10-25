@@ -16,7 +16,6 @@
 package app.pachli.di
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
 import app.pachli.BuildConfig
@@ -29,12 +28,16 @@ import app.pachli.settings.PrefKeys.HTTP_PROXY_ENABLED
 import app.pachli.settings.PrefKeys.HTTP_PROXY_PORT
 import app.pachli.settings.PrefKeys.HTTP_PROXY_SERVER
 import app.pachli.settings.ProxyConfiguration
+import app.pachli.util.SharedPreferencesRepository
 import app.pachli.util.getNonNullString
 import at.connyduck.calladapter.networkresult.NetworkResultCallAdapterFactory
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import okhttp3.Cache
 import okhttp3.OkHttp
 import okhttp3.OkHttpClient
@@ -49,8 +52,10 @@ import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
+@InstallIn(SingletonComponent::class)
 @Module
-class NetworkModule {
+object NetworkModule {
+    private const val TAG = "NetworkModule"
 
     @Provides
     @Singleton
@@ -62,8 +67,8 @@ class NetworkModule {
     @Singleton
     fun providesHttpClient(
         accountManager: AccountManager,
-        context: Context,
-        preferences: SharedPreferences,
+        @ApplicationContext context: Context,
+        preferences: SharedPreferencesRepository,
     ): OkHttpClient {
         val httpProxyEnabled = preferences.getBoolean(HTTP_PROXY_ENABLED, false)
         val httpServer = preferences.getNonNullString(HTTP_PROXY_SERVER, "")
@@ -120,10 +125,6 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun providesApi(retrofit: Retrofit): MastodonApi = retrofit.create()
-
-    @Provides
-    @Singleton
     fun providesMediaUploadApi(retrofit: Retrofit, okHttpClient: OkHttpClient): MediaUploadApi {
         val longTimeOutOkHttpClient = okHttpClient.newBuilder()
             .readTimeout(100, TimeUnit.SECONDS)
@@ -134,9 +135,5 @@ class NetworkModule {
             .client(longTimeOutOkHttpClient)
             .build()
             .create()
-    }
-
-    companion object {
-        private const val TAG = "NetworkModule"
     }
 }

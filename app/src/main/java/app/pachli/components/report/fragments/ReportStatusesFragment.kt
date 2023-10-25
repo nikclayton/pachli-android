@@ -28,7 +28,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
@@ -42,11 +41,8 @@ import app.pachli.components.report.adapter.AdapterHandler
 import app.pachli.components.report.adapter.StatusesAdapter
 import app.pachli.databinding.FragmentReportStatusesBinding
 import app.pachli.db.AccountManager
-import app.pachli.di.Injectable
-import app.pachli.di.ViewModelFactory
 import app.pachli.entity.Attachment
 import app.pachli.entity.Status
-import app.pachli.util.StatusDisplayOptions
 import app.pachli.util.viewBinding
 import app.pachli.util.visible
 import app.pachli.viewdata.AttachmentViewData
@@ -57,24 +53,22 @@ import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class ReportStatusesFragment :
     Fragment(R.layout.fragment_report_statuses),
-    Injectable,
     OnRefreshListener,
     MenuProvider,
     AdapterHandler {
 
     @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-
-    @Inject
     lateinit var accountManager: AccountManager
 
-    private val viewModel: ReportViewModel by activityViewModels { viewModelFactory }
+    private val viewModel: ReportViewModel by activityViewModels()
 
     private val binding by viewBinding(FragmentReportStatusesBinding::bind)
 
@@ -143,41 +137,45 @@ class ReportStatusesFragment :
     }
 
     private fun initStatusesView() {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val statusDisplayOptions = StatusDisplayOptions.from(
-            preferences,
-            accountManager.activeAccount!!,
-        )
-
-        adapter = StatusesAdapter(statusDisplayOptions, viewModel.statusViewState, this)
-
-        binding.recyclerView.addItemDecoration(
-            MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
-        )
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = adapter
-        (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-
         lifecycleScope.launch {
+            val statusDisplayOptions = viewModel.statusDisplayOptions.value
+
+            adapter = StatusesAdapter(
+                statusDisplayOptions,
+                viewModel.statusViewState,
+                this@ReportStatusesFragment,
+            )
+
+            binding.recyclerView.addItemDecoration(
+                MaterialDividerItemDecoration(
+                    requireContext(),
+                    MaterialDividerItemDecoration.VERTICAL,
+                ),
+            )
+            binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            binding.recyclerView.adapter = adapter
+            (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations =
+                false
+
+            adapter.addLoadStateListener { loadState ->
+                if (loadState.refresh is LoadState.Error ||
+                    loadState.append is LoadState.Error ||
+                    loadState.prepend is LoadState.Error
+                ) {
+                    showError()
+                }
+
+                binding.progressBarBottom.visible(loadState.append == LoadState.Loading)
+                binding.progressBarTop.visible(loadState.prepend == LoadState.Loading)
+                binding.progressBarLoading.visible(loadState.refresh == LoadState.Loading && !binding.swipeRefreshLayout.isRefreshing)
+
+                if (loadState.refresh != LoadState.Loading) {
+                    binding.swipeRefreshLayout.isRefreshing = false
+                }
+            }
+
             viewModel.statusesFlow.collectLatest { pagingData ->
                 adapter.submitData(pagingData)
-            }
-        }
-
-        adapter.addLoadStateListener { loadState ->
-            if (loadState.refresh is LoadState.Error ||
-                loadState.append is LoadState.Error ||
-                loadState.prepend is LoadState.Error
-            ) {
-                showError()
-            }
-
-            binding.progressBarBottom.visible(loadState.append == LoadState.Loading)
-            binding.progressBarTop.visible(loadState.prepend == LoadState.Loading)
-            binding.progressBarLoading.visible(loadState.refresh == LoadState.Loading && !binding.swipeRefreshLayout.isRefreshing)
-
-            if (loadState.refresh != LoadState.Loading) {
-                binding.swipeRefreshLayout.isRefreshing = false
             }
         }
     }

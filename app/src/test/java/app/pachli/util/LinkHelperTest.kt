@@ -3,6 +3,7 @@ package app.pachli.util
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.style.URLSpan
+import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import app.pachli.R
@@ -13,9 +14,7 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import org.robolectric.annotation.Config
 
-@Config(sdk = [28])
 @RunWith(AndroidJUnit4::class)
 class LinkHelperTest {
     private val listener = object : LinkListener {
@@ -33,8 +32,11 @@ class LinkHelperTest {
         HashTag("mastodev", "https://example.com/Tags/mastodev"),
     )
 
+    private val textView: TextView
+        get() = TextView(InstrumentationRegistry.getInstrumentation().targetContext)
+
     private val context: Context
-        get() = InstrumentationRegistry.getInstrumentation().targetContext
+        get() = textView.context
 
     @Test
     fun whenSettingClickableText_mentionUrlsArePreserved() {
@@ -168,8 +170,8 @@ class LinkHelperTest {
         content.append(displayedContent, URLSpan(maliciousUrl), 0)
         val oldContent = content.toString()
         Assert.assertEquals(
-            context.getString(R.string.url_domain_notifier, displayedContent, maliciousDomain),
-            markupHiddenUrls(context, content).toString(),
+            "$displayedContent${context.getString(R.string.url_domain_notifier, maliciousDomain)}",
+            markupHiddenUrls(textView, content).toString(),
         )
         Assert.assertEquals(oldContent, content.toString())
     }
@@ -182,8 +184,8 @@ class LinkHelperTest {
         val content = SpannableStringBuilder()
         content.append(displayedContent, URLSpan(maliciousUrl), 0)
         Assert.assertEquals(
-            context.getString(R.string.url_domain_notifier, displayedContent, maliciousDomain),
-            markupHiddenUrls(context, content).toString(),
+            "$displayedContent${context.getString(R.string.url_domain_notifier, maliciousDomain)}",
+            markupHiddenUrls(textView, content).toString(),
         )
     }
 
@@ -196,9 +198,9 @@ class LinkHelperTest {
             content.append(displayedContent, URLSpan("https://$domain/foo/bar"), 0)
         }
 
-        val markedUpContent = markupHiddenUrls(context, content)
+        val markedUpContent = markupHiddenUrls(textView, content)
         for (domain in domains) {
-            Assert.assertTrue(markedUpContent.contains(context.getString(R.string.url_domain_notifier, displayedContent, domain)))
+            Assert.assertTrue(markedUpContent.contains(context.getString(R.string.url_domain_notifier, domain)))
         }
     }
 
@@ -215,7 +217,7 @@ class LinkHelperTest {
             .append("$domain/", URLSpan("https://$domain"), 0)
             .append("$domain/", URLSpan("https://www.$domain"), 0)
 
-        val markedUpContent = markupHiddenUrls(context, content)
+        val markedUpContent = markupHiddenUrls(textView, content)
         Assert.assertFalse(markedUpContent.contains("🔗"))
     }
 
@@ -228,7 +230,7 @@ class LinkHelperTest {
             .append("Some Place | https://some.place/", URLSpan("https://some.place/"), 0)
             .append("Some Place https://some.place/path", URLSpan("https://some.place/path"), 0)
 
-        val markedUpContent = markupHiddenUrls(context, content)
+        val markedUpContent = markupHiddenUrls(textView, content)
         Assert.assertFalse(markedUpContent.contains("🔗"))
     }
 
@@ -241,7 +243,7 @@ class LinkHelperTest {
             .append("Another Place | https://another.place/", URLSpan("https://some.place/"), 0)
             .append("Another Place https://another.place/path", URLSpan("https://some.place/path"), 0)
 
-        val markedUpContent = markupHiddenUrls(context, content)
+        val markedUpContent = markupHiddenUrls(textView, content)
         val asserts = listOf(
             "Another Place: another.place",
             "Another Place: another.place/",
@@ -250,7 +252,7 @@ class LinkHelperTest {
             "Another Place https://another.place/path",
         )
         asserts.forEach {
-            Assert.assertTrue(markedUpContent.contains(context.getString(R.string.url_domain_notifier, it, "some.place")))
+            Assert.assertTrue(markedUpContent.contains(context.getString(R.string.url_domain_notifier, "some.place")))
         }
     }
 
@@ -262,7 +264,7 @@ class LinkHelperTest {
             builder.append(" ")
         }
 
-        val markedUpContent = markupHiddenUrls(context, builder)
+        val markedUpContent = markupHiddenUrls(textView, builder)
         for (mention in mentions) {
             Assert.assertFalse(markedUpContent.contains("${getDomain(mention.url)})"))
         }
@@ -276,7 +278,7 @@ class LinkHelperTest {
             builder.append(" ")
         }
 
-        val markedUpContent = markupHiddenUrls(context, builder)
+        val markedUpContent = markupHiddenUrls(textView, builder)
         for (mention in mentions) {
             Assert.assertFalse(markedUpContent.contains("${getDomain(mention.url)})"))
         }
@@ -290,7 +292,7 @@ class LinkHelperTest {
             builder.append(" ")
         }
 
-        val markedUpContent = markupHiddenUrls(context, builder)
+        val markedUpContent = markupHiddenUrls(textView, builder)
         for (tag in tags) {
             Assert.assertFalse(markedUpContent.contains("${getDomain(tag.url)})"))
         }
@@ -304,7 +306,7 @@ class LinkHelperTest {
             builder.append(" ")
         }
 
-        val markedUpContent = markupHiddenUrls(context, builder)
+        val markedUpContent = markupHiddenUrls(textView, builder)
         for (tag in tags) {
             Assert.assertFalse(markedUpContent.contains("${getDomain(tag.url)})"))
         }

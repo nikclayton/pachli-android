@@ -20,7 +20,6 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,7 +39,6 @@ import app.pachli.components.accountlist.adapter.FollowRequestsHeaderAdapter
 import app.pachli.components.accountlist.adapter.MutesAdapter
 import app.pachli.databinding.FragmentAccountListBinding
 import app.pachli.db.AccountManager
-import app.pachli.di.Injectable
 import app.pachli.entity.Relationship
 import app.pachli.entity.TimelineAccount
 import app.pachli.interfaces.AccountActionListener
@@ -49,6 +47,7 @@ import app.pachli.interfaces.LinkListener
 import app.pachli.network.MastodonApi
 import app.pachli.settings.PrefKeys
 import app.pachli.util.HttpHeaderLink
+import app.pachli.util.SharedPreferencesRepository
 import app.pachli.util.hide
 import app.pachli.util.show
 import app.pachli.util.viewBinding
@@ -57,22 +56,26 @@ import at.connyduck.calladapter.networkresult.fold
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class AccountListFragment :
     Fragment(R.layout.fragment_account_list),
     AccountActionListener,
-    LinkListener,
-    Injectable {
+    LinkListener {
 
     @Inject
     lateinit var api: MastodonApi
 
     @Inject
     lateinit var accountManager: AccountManager
+
+    @Inject
+    lateinit var sharedPreferencesRepository: SharedPreferencesRepository
 
     private val binding by viewBinding(FragmentAccountListBinding::bind)
 
@@ -102,10 +105,9 @@ class AccountListFragment :
         binding.swipeRefreshLayout.setOnRefreshListener { fetchAccounts() }
         binding.swipeRefreshLayout.setColorSchemeColors(MaterialColors.getColor(binding.root, androidx.appcompat.R.attr.colorPrimary))
 
-        val pm = PreferenceManager.getDefaultSharedPreferences(view.context)
-        val animateAvatar = pm.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
-        val animateEmojis = pm.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
-        val showBotOverlay = pm.getBoolean(PrefKeys.SHOW_BOT_OVERLAY, true)
+        val animateAvatar = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
+        val animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
+        val showBotOverlay = sharedPreferencesRepository.getBoolean(PrefKeys.SHOW_BOT_OVERLAY, true)
 
         val activeAccount = accountManager.activeAccount!!
 

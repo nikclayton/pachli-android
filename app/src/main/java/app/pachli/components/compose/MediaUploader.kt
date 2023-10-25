@@ -37,6 +37,7 @@ import app.pachli.util.getImageSquarePixels
 import app.pachli.util.getMediaSize
 import app.pachli.util.getServerErrorMessage
 import app.pachli.util.randomAlphanumericString
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -64,12 +65,12 @@ import javax.inject.Singleton
 
 sealed interface FinalUploadEvent
 
-sealed class UploadEvent {
-    data class ProgressEvent(val percentage: Int) : UploadEvent()
+sealed interface UploadEvent {
+    data class ProgressEvent(val percentage: Int) : UploadEvent
     data class FinishedEvent(val mediaId: String, val processed: Boolean) :
-        UploadEvent(),
+        UploadEvent,
         FinalUploadEvent
-    data class ErrorEvent(val error: Throwable) : UploadEvent(), FinalUploadEvent
+    data class ErrorEvent(val error: Throwable) : UploadEvent, FinalUploadEvent
 }
 
 data class UploadData(
@@ -98,7 +99,7 @@ class UploadServerError(val errorMessage: String) : Exception()
 
 @Singleton
 class MediaUploader @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val mediaUploadApi: MediaUploadApi,
 ) {
 

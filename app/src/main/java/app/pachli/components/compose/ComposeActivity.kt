@@ -20,7 +20,6 @@ import android.app.ProgressDialog
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
@@ -62,7 +61,6 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionManager
 import app.pachli.BaseActivity
@@ -81,8 +79,6 @@ import app.pachli.components.instanceinfo.InstanceInfoRepository
 import app.pachli.databinding.ActivityComposeBinding
 import app.pachli.db.AccountEntity
 import app.pachli.db.DraftAttachment
-import app.pachli.di.Injectable
-import app.pachli.di.ViewModelFactory
 import app.pachli.entity.Attachment
 import app.pachli.entity.Emoji
 import app.pachli.entity.NewPoll
@@ -92,6 +88,7 @@ import app.pachli.settings.PrefKeys.APP_THEME
 import app.pachli.util.APP_THEME_DEFAULT
 import app.pachli.util.MentionSpan
 import app.pachli.util.PickMediaFiles
+import app.pachli.util.SharedPreferencesRepository
 import app.pachli.util.THEME_BLACK
 import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
@@ -102,7 +99,6 @@ import app.pachli.util.loadAvatar
 import app.pachli.util.modernLanguageCode
 import app.pachli.util.setDrawableTint
 import app.pachli.util.show
-import app.pachli.util.unsafeLazy
 import app.pachli.util.viewBinding
 import app.pachli.util.visible
 import com.canhub.cropper.CropImage
@@ -115,6 +111,7 @@ import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -124,22 +121,19 @@ import java.io.File
 import java.io.IOException
 import java.text.DecimalFormat
 import java.util.Locale
-import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
 
+@AndroidEntryPoint
 class ComposeActivity :
     BaseActivity(),
     ComposeOptionsListener,
     ComposeAutoCompleteAdapter.AutocompletionProvider,
     OnEmojiSelectedListener,
-    Injectable,
+
     OnReceiveContentListener,
     ComposeScheduleView.OnTimeSetListener,
     CaptionDialog.Listener {
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
 
     private lateinit var composeOptionsBehavior: BottomSheetBehavior<*>
     private lateinit var addMediaBehavior: BottomSheetBehavior<*>
@@ -151,13 +145,11 @@ class ComposeActivity :
 
     private var photoUploadUri: Uri? = null
 
-    private val preferences by unsafeLazy { PreferenceManager.getDefaultSharedPreferences(this) }
-
     @VisibleForTesting
     var maximumTootCharacters = InstanceInfoRepository.DEFAULT_CHARACTER_LIMIT
     var charactersReservedPerUrl = InstanceInfoRepository.DEFAULT_CHARACTERS_RESERVED_PER_URL
 
-    private val viewModel: ComposeViewModel by viewModels { viewModelFactory }
+    private val viewModel: ComposeViewModel by viewModels()
 
     private val binding by viewBinding(ActivityComposeBinding::inflate)
 
@@ -210,7 +202,7 @@ class ComposeActivity :
 
         activeAccount = accountManager.activeAccount ?: return
 
-        val theme = preferences.getString(APP_THEME, APP_THEME_DEFAULT)
+        val theme = sharedPreferencesRepository.getString(APP_THEME, APP_THEME_DEFAULT)
         if (theme == THEME_BLACK) {
             setTheme(R.style.AppDialogActivityBlackTheme)
         }
@@ -267,7 +259,7 @@ class ComposeActivity :
         }
 
         setupLanguageSpinner(getInitialLanguages(composeOptions?.language, activeAccount))
-        setupComposeField(preferences, viewModel.startingText)
+        setupComposeField(sharedPreferencesRepository, viewModel.startingText)
         setupContentWarningField(composeOptions?.contentWarning)
         setupPollView()
         applyShareIntent(intent, savedInstanceState)
@@ -371,7 +363,7 @@ class ComposeActivity :
         binding.composeContentWarningField.doOnTextChanged { _, _, _, _ -> updateVisibleCharactersLeft() }
     }
 
-    private fun setupComposeField(preferences: SharedPreferences, startingText: String?) {
+    private fun setupComposeField(preferences: SharedPreferencesRepository, startingText: String?) {
         binding.composeEditField.setOnReceiveContentListener(this)
 
         binding.composeEditField.setOnKeyListener { _, keyCode, event -> this.onKeyDown(keyCode, event) }
@@ -579,7 +571,7 @@ class ComposeActivity :
             a.getDimensionPixelSize(0, 1)
         }
 
-        val animateAvatars = preferences.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
+        val animateAvatars = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
         loadAvatar(
             activeAccount.profilePictureUrl,
             binding.composeAvatar,
@@ -1251,7 +1243,7 @@ class ComposeActivity :
 
     private fun setEmojiList(emojiList: List<Emoji>?) {
         if (emojiList != null) {
-            val animateEmojis = preferences.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
+            val animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
             binding.emojiView.adapter = EmojiAdapter(emojiList, this@ComposeActivity, animateEmojis)
             enableButton(binding.composeEmojiButton, true, emojiList.isNotEmpty())
         }
