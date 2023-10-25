@@ -366,6 +366,17 @@ ${changelogEntries[Section.Fixes]?.joinToString("\n") { "- ${it.withPrLink()}" }
 """.trimIndent()
                         )
                     }
+
+                    if (changelogEntries[Section.Translations]?.isNotEmpty() == true) {
+                        w.println(
+                            """
+### Translations
+
+${changelogEntries[Section.Translations]?.joinToString("\n") { "- ${it.withPrLink()}" }}
+
+""".trimIndent()
+                        )
+                    }
                     w.println(line)
                     done = true
                     continue

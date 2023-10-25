@@ -59,17 +59,21 @@ data class LogEntry(
 
 data class Changes(
     val features: List<String>,
-    val fixes: List<String>
+    val fixes: List<String>,
+    val translations: List<String>
 )
 
 enum class Section {
     Features,
     Fixes,
+    Translations,
     Unknown;
 
     companion object {
         fun fromCommitTitle(title: String) = when {
             title.startsWith("feat:") -> Features
+            title.startsWith("feat(l10n)") -> Translations
+            title.startsWith("fix(l10n)") -> Translations
             title.startsWith("fix:") -> Fixes
             else -> Unknown
         }
@@ -82,6 +86,7 @@ enum class Section {
 fun getChangelogHighlights(changelog: File, nextVersionName: String): Changes {
     val features = mutableListOf<String>()
     val fixes = mutableListOf<String>()
+    val translations = mutableListOf<String>()
 
     val rxMarkdownLink = """\(.*?\[.+?\]\(.+?\)\)""".toRegex()
 
@@ -107,18 +112,25 @@ fun getChangelogHighlights(changelog: File, nextVersionName: String): Changes {
                 continue
             }
 
+            if (line.startsWith("Translations")) {
+                section = Section.Translations
+                continue
+            }
+
             // Pull out the bullet points
             if (active && line.startsWith("-")) {
+                val entry = rxMarkdownLink.replace(line, "")
                 when (section) {
-                    Section.Features -> features.add(rxMarkdownLink.replace(line, ""))
-                    Section.Fixes -> fixes.add(rxMarkdownLink.replace(line, ""))
+                    Section.Features -> features.add(entry)
+                    Section.Fixes -> fixes.add(entry)
+                    Section.Translations -> translations.add(entry)
                     Section.Unknown -> throw Exception("Active, found a bullet point, but section is not set")
                 }
             }
         }
     }
 
-    return Changes(features, fixes)
+    return Changes(features, fixes, translations)
 }
 
 /**
@@ -170,6 +182,22 @@ fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName
                     .replace("**", "")
                     .replace(", \\[.*".toRegex(), "")
             )
+        }
+    }
+
+    if (changes.translations.isNotEmpty()) {
+        w.println(
+            """
+
+        Translations:
+
+            """.trimIndent()
+        )
+        changes.translations.forEach {
+            // Strip out the Markdown formatting and the links at the end
+            it
+                .replace("**", "")
+                .replace(", \\[.*".toRegex(), "")
         }
     }
     w.close()
