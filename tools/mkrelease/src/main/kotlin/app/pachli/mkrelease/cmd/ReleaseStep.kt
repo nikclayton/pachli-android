@@ -350,7 +350,7 @@ data object UpdateFilesForRelease : ReleaseStep() {
                                 """
 ### New features and other improvements
 
-${changelogEntries[Section.Features]?.joinToString("\n") { "- ${it.withPrLink()}" }}
+${changelogEntries[Section.Features]?.joinToString("\n") { "-${it.withPrLink()}" }}
 
 """
                         )
@@ -361,7 +361,7 @@ ${changelogEntries[Section.Features]?.joinToString("\n") { "- ${it.withPrLink()}
                             """
 ### Significant bug fixes
 
-${changelogEntries[Section.Fixes]?.joinToString("\n") { "- ${it.withPrLink()}" }}
+${changelogEntries[Section.Fixes]?.joinToString("\n") { "-${it.withPrLink()}" }}
 
 """.trimIndent()
                         )
@@ -372,7 +372,7 @@ ${changelogEntries[Section.Fixes]?.joinToString("\n") { "- ${it.withPrLink()}" }
                             """
 ### Translations
 
-${changelogEntries[Section.Translations]?.joinToString("\n") { "- ${it.withPrLink()}" }}
+${changelogEntries[Section.Translations]?.joinToString("\n") { "-${it.withPrLink()}" }}
 
 """.trimIndent()
                         )
