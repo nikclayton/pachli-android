@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.search
 
@@ -154,7 +155,6 @@ class SearchActivity : BottomSheetActivity(), MenuProvider, SearchView.OnQueryTe
     }
 
     companion object {
-        const val TAG = "SearchActivity"
         fun getIntent(context: Context) = Intent(context, SearchActivity::class.java)
     }
 }

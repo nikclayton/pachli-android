@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.viewthread
 
@@ -50,7 +51,6 @@ class ViewThreadActivity : BottomSheetActivity() {
     }
 
     companion object {
-
         fun startIntent(context: Context, id: String, url: String): Intent {
             val intent = Intent(context, ViewThreadActivity::class.java)
             intent.putExtra(ID_EXTRA, id)

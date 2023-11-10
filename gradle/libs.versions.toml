@@ -22,7 +22,8 @@ androidx-testing = "2.2.0"
 androidx-test-core-ktx = "1.5.0"
 androidx-viewpager2 = "1.0.0"
 androidx-work = "2.8.1"
-androidx-room = "2.5.2"
+androidx-room = "2.6.0"
+app-update = "2.1.0"
 autodispose = "2.2.1"
 bouncycastle = "1.70"
 conscrypt = "2.5.2"
@@ -36,7 +37,7 @@ glide = "4.16.0"
 glide-animation-plugin = "2.23.0"
 gson = "2.10.1"
 hilt = "2.48.1"
-kotlin = "1.9.10"
+kotlin = "1.9.20"
 image-cropper = "4.3.2"
 material = "1.9.0"
 material-drawer = "8.4.5"
@@ -51,6 +52,7 @@ rxandroid3 = "3.0.2"
 rxjava3 = "3.1.7"
 rxkotlin3 = "3.0.1"
 sparkbutton = "4.1.0"
+timber = "5.0.1"
 touchimageview = "3.6"
 truth = "1.1.5"
 turbine = "1.0.0"
@@ -60,11 +62,12 @@ xmlwriter = "1.0.4"
 [plugins]
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
 android-application = { id = "com.android.application", version.ref = "agp" }
-google-ksp = "com.google.devtools.ksp:1.9.10-1.0.13"
+google-ksp = "com.google.devtools.ksp:1.9.20-1.0.14"
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:11.6.1"
+room = { id = "androidx.room", version.ref = "androidx-room" }
 
 [libraries]
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
@@ -107,6 +110,8 @@ androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "andro
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "androidx-viewpager2" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "androidx-work" }
+app-update = { module = "com.google.android.play:app-update", version.ref = "app-update" }
+app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "app-update" }
 autodispose-android-lifecycle = { module = "com.uber.autodispose2:autodispose-androidx-lifecycle", version.ref = "autodispose" }
 autodispose-core = { module = "com.uber.autodispose2:autodispose", version.ref = "autodispose" }
 bouncycastle = { module = "org.bouncycastle:bcprov-jdk15on", version.ref = "bouncycastle" }
@@ -144,6 +149,7 @@ rxjava3-android = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rx
 rxjava3-core = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava3" }
 rxjava3-kotlin = { module = "io.reactivex.rxjava3:rxkotlin", version.ref = "rxkotlin3" }
 sparkbutton = { module = "com.github.connyduck:sparkbutton", version.ref = "sparkbutton" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 touchimageview = { module = "com.github.MikeOrtiz:TouchImageView", version.ref = "touchimageview" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }

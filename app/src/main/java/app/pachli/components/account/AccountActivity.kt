@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.account
 
@@ -111,6 +112,15 @@ class AccountActivity :
     private val viewModel: AccountViewModel by viewModels()
 
     private val binding: ActivityAccountBinding by viewBinding(ActivityAccountBinding::inflate)
+
+    override val actionButton: FloatingActionButton?
+        get() {
+            return if (!blocking) {
+                binding.accountFloatingActionButton
+            } else {
+                null
+            }
+        }
 
     private lateinit var accountFieldAdapter: AccountFieldAdapter
 
@@ -977,14 +987,6 @@ class AccountActivity :
         return false
     }
 
-    override fun getActionButton(): FloatingActionButton? {
-        return if (!blocking) {
-            binding.accountFloatingActionButton
-        } else {
-            null
-        }
-    }
-
     private fun getFullUsername(account: Account): String {
         return if (account.isRemote()) {
             "@" + account.username
@@ -997,7 +999,6 @@ class AccountActivity :
     }
 
     companion object {
-
         private const val KEY_ACCOUNT_ID = "id"
         private val argbEvaluator = ArgbEvaluator()
 

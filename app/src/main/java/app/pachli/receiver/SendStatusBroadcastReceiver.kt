@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.receiver
 
@@ -20,22 +21,30 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import app.pachli.R
-import app.pachli.components.notifications.NotificationHelper
+import app.pachli.components.notifications.CHANNEL_MENTION
+import app.pachli.components.notifications.KEY_CITED_STATUS_ID
+import app.pachli.components.notifications.KEY_MENTIONS
+import app.pachli.components.notifications.KEY_NOTIFICATION_ID
+import app.pachli.components.notifications.KEY_REPLY
+import app.pachli.components.notifications.KEY_SENDER_ACCOUNT_FULL_NAME
+import app.pachli.components.notifications.KEY_SENDER_ACCOUNT_ID
+import app.pachli.components.notifications.KEY_SENDER_ACCOUNT_IDENTIFIER
+import app.pachli.components.notifications.KEY_SPOILER
+import app.pachli.components.notifications.KEY_VISIBILITY
+import app.pachli.components.notifications.REPLY_ACTION
 import app.pachli.db.AccountManager
 import app.pachli.entity.Status
 import app.pachli.service.SendStatusService
 import app.pachli.service.StatusToSend
 import app.pachli.util.randomAlphanumericString
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
-
-private const val TAG = "SendStatusBR"
 
 @AndroidEntryPoint
 class SendStatusBroadcastReceiver : BroadcastReceiver() {
@@ -44,15 +53,15 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
     lateinit var accountManager: AccountManager
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == NotificationHelper.REPLY_ACTION) {
-            val notificationId = intent.getIntExtra(NotificationHelper.KEY_NOTIFICATION_ID, -1)
-            val senderId = intent.getLongExtra(NotificationHelper.KEY_SENDER_ACCOUNT_ID, -1)
-            val senderIdentifier = intent.getStringExtra(NotificationHelper.KEY_SENDER_ACCOUNT_IDENTIFIER)
-            val senderFullName = intent.getStringExtra(NotificationHelper.KEY_SENDER_ACCOUNT_FULL_NAME)
-            val citedStatusId = intent.getStringExtra(NotificationHelper.KEY_CITED_STATUS_ID)
-            val visibility = intent.getSerializableExtra(NotificationHelper.KEY_VISIBILITY) as Status.Visibility
-            val spoiler = intent.getStringExtra(NotificationHelper.KEY_SPOILER).orEmpty()
-            val mentions = intent.getStringArrayExtra(NotificationHelper.KEY_MENTIONS).orEmpty()
+        if (intent.action == REPLY_ACTION) {
+            val notificationId = intent.getIntExtra(KEY_NOTIFICATION_ID, -1)
+            val senderId = intent.getLongExtra(KEY_SENDER_ACCOUNT_ID, -1)
+            val senderIdentifier = intent.getStringExtra(KEY_SENDER_ACCOUNT_IDENTIFIER)
+            val senderFullName = intent.getStringExtra(KEY_SENDER_ACCOUNT_FULL_NAME)
+            val citedStatusId = intent.getStringExtra(KEY_CITED_STATUS_ID)
+            val visibility = intent.getSerializableExtra(KEY_VISIBILITY) as Status.Visibility
+            val spoiler = intent.getStringExtra(KEY_SPOILER).orEmpty()
+            val mentions = intent.getStringArrayExtra(KEY_MENTIONS).orEmpty()
 
             val account = accountManager.getAccountById(senderId)
 
@@ -61,13 +70,13 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
             val message = getReplyMessage(intent)
 
             if (account == null) {
-                Log.w(TAG, "Account \"$senderId\" not found in database. Aborting quick reply!")
+                Timber.w("Account \"$senderId\" not found in database. Aborting quick reply!")
 
                 if (ActivityCompat.checkSelfPermission(context, POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
                     return
                 }
 
-                val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_MENTION + senderIdentifier)
+                val builder = NotificationCompat.Builder(context, CHANNEL_MENTION + senderIdentifier)
                     .setSmallIcon(R.drawable.ic_notify)
                     .setColor(context.getColor(R.color.tusky_blue))
                     .setGroup(senderFullName)
@@ -109,7 +118,7 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
 
                 context.startService(sendIntent)
 
-                val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_MENTION + senderIdentifier)
+                val builder = NotificationCompat.Builder(context, CHANNEL_MENTION + senderIdentifier)
                     .setSmallIcon(R.drawable.ic_notify)
                     .setColor(context.getColor(R.color.notification_color))
                     .setGroup(senderFullName)
@@ -132,6 +141,6 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
     private fun getReplyMessage(intent: Intent): CharSequence {
         val remoteInput = RemoteInput.getResultsFromIntent(intent)
 
-        return remoteInput?.getCharSequence(NotificationHelper.KEY_REPLY, "") ?: ""
+        return remoteInput?.getCharSequence(KEY_REPLY, "") ?: ""
     }
 }

@@ -10,13 +10,13 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.compose
 
 import android.net.Uri
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -379,7 +380,7 @@ class ComposeViewModel @Inject constructor(
                     .fold({ accounts ->
                         accounts.map { AutocompleteResult.AccountResult(it) }
                     }, { e ->
-                        Log.e(TAG, "Autocomplete search for $token failed.", e)
+                        Timber.e("Autocomplete search for $token failed.", e)
                         emptyList()
                     },)
             }
@@ -388,7 +389,7 @@ class ComposeViewModel @Inject constructor(
                     .fold({ searchResult ->
                         searchResult.hashtags.map { AutocompleteResult.HashtagResult(it.name) }
                     }, { e ->
-                        Log.e(TAG, "Autocomplete search for $token failed.", e)
+                        Timber.e("Autocomplete search for $token failed.", e)
                         emptyList()
                     },)
             }
@@ -405,7 +406,7 @@ class ComposeViewModel @Inject constructor(
                 }
             }
             else -> {
-                Log.w(TAG, "Unexpected autocompletion token: $token")
+                Timber.w("Unexpected autocompletion token: $token")
                 return emptyList()
             }
         }
@@ -508,10 +509,6 @@ class ComposeViewModel @Inject constructor(
 
     val editing: Boolean
         get() = !originalStatusId.isNullOrEmpty()
-
-    private companion object {
-        const val TAG = "ComposeViewModel"
-    }
 
     enum class ConfirmationKind {
         NONE, // just close

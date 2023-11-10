@@ -10,12 +10,12 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.scheduled
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -27,6 +27,7 @@ import app.pachli.network.MastodonApi
 import at.connyduck.calladapter.networkresult.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,7 +51,7 @@ class ScheduledStatusViewModel @Inject constructor(
                     pagingSourceFactory.remove(status)
                 },
                 { throwable ->
-                    Log.w("ScheduledTootViewModel", "Error deleting scheduled status", throwable)
+                    Timber.w("Error deleting scheduled status", throwable)
                 },
             )
         }

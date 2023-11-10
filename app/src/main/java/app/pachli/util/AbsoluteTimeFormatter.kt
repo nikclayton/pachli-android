@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.util
 
@@ -39,7 +40,6 @@ class AbsoluteTimeFormatter @JvmOverloads constructor(private val tz: TimeZone =
     }
 
     companion object {
-
         private fun isSameDate(dateOne: Date, dateTwo: Date, tz: TimeZone): Boolean {
             val calendarOne = Calendar.getInstance(tz).apply { time = dateOne }
             val calendarTwo = Calendar.getInstance(tz).apply { time = dateTwo }
