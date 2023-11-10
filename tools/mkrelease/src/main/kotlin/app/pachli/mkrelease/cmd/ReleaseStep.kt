@@ -869,7 +869,7 @@ data object PromoteRelease : ReleaseStep() {
 
         T.info(
             """
-1. Open the open testing track, https://play.google.com/console/u/0/developers/8419715224772184120/app/4973838218515056581/tracks/open-testing
+1. Open the "Internal testing" release track https://play.google.com/console/u/0/developers/6635489183012320500/app/4974842442400419596/tracks/internal-testing
 2. Confirm the testing version is ${thisVersion.versionCode}
 3. Click "Promote release" and choose "Production"
 4. Confirm correct version code and release notes are present
