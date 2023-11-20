@@ -211,7 +211,6 @@
 
     <string name="rick_roll_url">https://www.youtube.com/watch?v=dQw4w9WgXcQ</string>
 
-
     <string-array name="poll_duration_names">
         <item>@string/duration_5_min</item>
         <item>@string/duration_30_min</item>

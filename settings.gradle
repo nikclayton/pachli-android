@@ -20,4 +20,5 @@ enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 
 include ':app'
 include ':tools:mklanguages'
+include ':tools:mkserverlist'
 include ':checks'

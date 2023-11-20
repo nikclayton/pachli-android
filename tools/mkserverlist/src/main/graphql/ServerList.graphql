@@ -1,0 +1,11 @@
+query ServerList {
+  nodes(status: "UP") {
+    domain
+    name
+    softwarename
+    masterversion
+    shortversion
+    fullversion
+    total_users
+  }
+}
