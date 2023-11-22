@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.fragment
 
@@ -318,7 +319,7 @@ class ViewVideoFragment : ViewMediaFragment() {
         ExoPlayer.Builder(requireContext())
             .setMediaSourceFactory(mediaSourceFactory)
             .build().apply {
-                if (BuildConfig.DEBUG) addAnalyticsListener(EventLogger("$TAG:ExoPlayer"))
+                if (BuildConfig.DEBUG) addAnalyticsListener(EventLogger("${javaClass.simpleName}:ExoPlayer"))
                 setMediaItem(MediaItem.fromUri(mediaAttachment.url))
                 addListener(mediaPlayerListener)
                 repeatMode = Player.REPEAT_MODE_ONE
@@ -426,7 +427,6 @@ class ViewVideoFragment : ViewMediaFragment() {
     override fun onTransitionEnd() { }
 
     companion object {
-        private const val TAG = "ViewVideoFragment"
         private const val CONTROLS_TIMEOUT_MS = 2000 // Consistent with YouTube player
         private const val SEEK_POSITION = "seekPosition"
     }

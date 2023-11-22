@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.db
 
@@ -27,6 +28,8 @@ import app.pachli.entity.HashTag
 import app.pachli.entity.NewPoll
 import app.pachli.entity.Poll
 import app.pachli.entity.Status
+import app.pachli.entity.TranslatedAttachment
+import app.pachli.entity.TranslatedPoll
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.net.URLDecoder
@@ -174,5 +177,25 @@ class Converters @Inject constructor(
     @TypeConverter
     fun jsonToFilterResultList(filterResultListJson: String?): List<FilterResult>? {
         return gson.fromJson(filterResultListJson, object : TypeToken<List<FilterResult>>() {}.type)
+    }
+
+    @TypeConverter
+    fun translatedPolltoJson(translatedPoll: TranslatedPoll?): String? {
+        return gson.toJson(translatedPoll)
+    }
+
+    @TypeConverter
+    fun jsonToTranslatedPoll(translatedPollJson: String?): TranslatedPoll? {
+        return gson.fromJson(translatedPollJson, TranslatedPoll::class.java)
+    }
+
+    @TypeConverter
+    fun translatedAttachmentToJson(translatedAttachment: List<TranslatedAttachment>?): String {
+        return gson.toJson(translatedAttachment)
+    }
+
+    @TypeConverter
+    fun jsonToTranslatedAttachment(translatedAttachmentJson: String): List<TranslatedAttachment>? {
+        return gson.fromJson(translatedAttachmentJson, object : TypeToken<List<TranslatedAttachment>>() {}.type)
     }
 }

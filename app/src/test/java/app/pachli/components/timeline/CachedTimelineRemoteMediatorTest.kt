@@ -20,6 +20,7 @@ import app.pachli.db.RemoteKeyEntity
 import app.pachli.db.RemoteKeyKind
 import app.pachli.db.TimelineStatusWithAccount
 import app.pachli.di.TransactionProvider
+import app.pachli.network.StatusId
 import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -274,7 +275,7 @@ class CachedTimelineRemoteMediatorTest {
             initialKey = null,
             accountManager = accountManager,
             api = mock {
-                onBlocking { homeTimeline(maxId = "5", limit = 20) } doReturn Response.success(
+                onBlocking { homeTimeline(maxId = StatusId("5"), limit = 20) } doReturn Response.success(
                     listOf(
                         mockStatus("3"),
                         mockStatus("2"),

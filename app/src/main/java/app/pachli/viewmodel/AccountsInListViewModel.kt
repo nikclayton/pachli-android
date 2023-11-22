@@ -10,13 +10,12 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
  * see <http://www.gnu.org/licenses>.
  */
 
 package app.pachli.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pachli.entity.TimelineAccount
@@ -30,6 +29,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class State(val accounts: Either<Throwable, List<TimelineAccount>>, val searchResult: List<TimelineAccount>?)
@@ -66,8 +66,7 @@ class AccountsInListViewModel @Inject constructor(private val api: MastodonApi) 
                         }
                     },
                     {
-                        Log.i(
-                            javaClass.simpleName,
+                        Timber.i(
                             "Failed to add account to list: ${account.username}",
                         )
                     },
@@ -89,8 +88,7 @@ class AccountsInListViewModel @Inject constructor(private val api: MastodonApi) 
                         }
                     },
                     {
-                        Log.i(
-                            javaClass.simpleName,
+                        Timber.i(
                             "Failed to remove account from list: $accountId",
                         )
                     },

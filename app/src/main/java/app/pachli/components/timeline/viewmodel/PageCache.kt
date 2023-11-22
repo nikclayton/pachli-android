@@ -17,13 +17,13 @@
 
 package app.pachli.components.timeline.viewmodel
 
-import android.util.Log
 import app.pachli.BuildConfig
 import app.pachli.entity.Status
 import app.pachli.network.Links
 import app.pachli.network.StatusId
 import retrofit2.HttpException
 import retrofit2.Response
+import timber.log.Timber
 import java.util.TreeMap
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
@@ -97,8 +97,6 @@ data class Page(
     }
 
     companion object {
-        private const val TAG = "Page"
-
         fun tryFrom(response: Response<List<Status>>): Result<Page> {
             val statuses = response.body()
             if (!response.isSuccessful || statuses == null) {
@@ -106,8 +104,8 @@ data class Page(
             }
 
             val links = Links.from(response.headers()["link"])
-            Log.d(TAG, "  link: " + response.headers()["link"])
-            Log.d(TAG, "  ${statuses.size} - # statuses loaded")
+            Timber.d("  link: " + response.headers()["link"])
+            Timber.d("  ${statuses.size} - # statuses loaded")
 
             return success(
                 Page(
@@ -141,8 +139,8 @@ class PageCache : TreeMap<StatusId, Page>(compareBy({ it.length }, { it })) {
     fun upsert(page: Page) {
         val key = page.data.last().id
 
-        Log.d(TAG, "Inserting new page:")
-        Log.d(TAG, "  $page")
+        Timber.d("Inserting new page:")
+        Timber.d("  $page")
 
         this[key] = page
 
@@ -163,18 +161,14 @@ class PageCache : TreeMap<StatusId, Page>(compareBy({ it.length }, { it })) {
      */
     fun debug() {
         if (BuildConfig.DEBUG) { // Makes it easier for Proguard to optimise this out
-            Log.d(TAG, "Page cache state:")
+            Timber.d("Page cache state:")
             if (this.isEmpty()) {
-                Log.d(TAG, "  ** empty **")
+                Timber.d("  ** empty **")
             } else {
                 this.onEachIndexed { index, entry ->
-                    Log.d(TAG, "  $index: ${entry.value}")
+                    Timber.d("  $index: ${entry.value}")
                 }
             }
         }
-    }
-
-    companion object {
-        private const val TAG = "PageCache"
     }
 }

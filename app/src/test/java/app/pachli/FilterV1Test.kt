@@ -11,7 +11,7 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
  * see <http://www.gnu.org/licenses>.
  */
 
@@ -26,6 +26,7 @@ import app.pachli.entity.Poll
 import app.pachli.entity.PollOption
 import app.pachli.entity.Status
 import app.pachli.network.FilterModel
+import app.pachli.network.StatusId
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -41,7 +42,6 @@ class FilterV1Test {
 
     @Before
     fun setup() {
-        filterModel = FilterModel()
         val filters = listOf(
             FilterV1(
                 id = "123",
@@ -101,14 +101,14 @@ class FilterV1Test {
             ),
         )
 
-        filterModel.initWithFilters(filters)
+        filterModel = FilterModel(Filter.Kind.HOME, filters)
     }
 
     @Test
     fun shouldNotFilter() {
         assertEquals(
             Filter.Action.NONE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "should not be filtered"),
             ),
         )
@@ -118,7 +118,7 @@ class FilterV1Test {
     fun shouldFilter_whenContentMatchesBadWord() {
         assertEquals(
             Filter.Action.HIDE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "one two badWord three"),
             ),
         )
@@ -128,7 +128,7 @@ class FilterV1Test {
     fun shouldFilter_whenContentMatchesBadWordPart() {
         assertEquals(
             Filter.Action.HIDE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "one two badWordPart three"),
             ),
         )
@@ -138,7 +138,7 @@ class FilterV1Test {
     fun shouldFilter_whenContentMatchesBadWholeWord() {
         assertEquals(
             Filter.Action.HIDE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "one two badWholeWord three"),
             ),
         )
@@ -148,7 +148,7 @@ class FilterV1Test {
     fun shouldNotFilter_whenContentDoesNotMatchWholeWord() {
         assertEquals(
             Filter.Action.NONE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "one two badWholeWordTest three"),
             ),
         )
@@ -158,7 +158,7 @@ class FilterV1Test {
     fun shouldFilter_whenSpoilerTextDoesMatch() {
         assertEquals(
             Filter.Action.HIDE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(
                     content = "should not be filtered",
                     spoilerText = "badWord should be filtered",
@@ -171,7 +171,7 @@ class FilterV1Test {
     fun shouldFilter_whenPollTextDoesMatch() {
         assertEquals(
             Filter.Action.HIDE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(
                     content = "should not be filtered",
                     spoilerText = "should not be filtered",
@@ -185,7 +185,7 @@ class FilterV1Test {
     fun shouldFilter_whenMediaDescriptionDoesMatch() {
         assertEquals(
             Filter.Action.HIDE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(
                     content = "should not be filtered",
                     spoilerText = "should not be filtered",
@@ -199,7 +199,7 @@ class FilterV1Test {
     fun shouldFilterPartialWord_whenWholeWordFilterContainsNonAlphanumericCharacters() {
         assertEquals(
             Filter.Action.HIDE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "one two someone@twitter.com three"),
             ),
         )
@@ -209,7 +209,7 @@ class FilterV1Test {
     fun shouldFilterHashtags() {
         assertEquals(
             Filter.Action.HIDE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "#hashtag one two three"),
             ),
         )
@@ -219,7 +219,7 @@ class FilterV1Test {
     fun shouldFilterHashtags_whenContentIsMarkedUp() {
         assertEquals(
             Filter.Action.HIDE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "<p><a href=\"https://foo.bar/tags/hashtag\" class=\"mention hashtag\" rel=\"nofollow noopener noreferrer\" target=\"_blank\">#<span>hashtag</span></a>one two three</p>"),
             ),
         )
@@ -229,7 +229,7 @@ class FilterV1Test {
     fun shouldNotFilterHtmlAttributes() {
         assertEquals(
             Filter.Action.NONE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "<p><a href=\"https://foo.bar/\">https://foo.bar/</a> one two three</p>"),
             ),
         )
@@ -239,7 +239,7 @@ class FilterV1Test {
     fun shouldNotFilter_whenFilterIsExpired() {
         assertEquals(
             Filter.Action.NONE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "content matching expired filter should not be filtered"),
             ),
         )
@@ -249,7 +249,7 @@ class FilterV1Test {
     fun shouldFilter_whenFilterIsUnexpired() {
         assertEquals(
             Filter.Action.HIDE,
-            filterModel.shouldFilterStatus(
+            filterModel.filterActionFor(
                 mockStatus(content = "content matching unexpired filter should be filtered"),
             ),
         )
@@ -279,7 +279,7 @@ class FilterV1Test {
             attachmentsDescriptions: List<String>? = null,
         ): Status {
             return Status(
-                id = "123",
+                id = StatusId("123"),
                 url = "https://mastodon.social/@Tusky/100571663297225812",
                 account = mock(),
                 inReplyToId = null,

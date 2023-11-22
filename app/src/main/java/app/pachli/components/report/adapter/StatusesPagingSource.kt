@@ -10,12 +10,12 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.report.adapter
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import app.pachli.entity.Status
@@ -24,6 +24,7 @@ import app.pachli.network.StatusId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class StatusesPagingSource(
     private val accountId: String,
@@ -69,7 +70,7 @@ class StatusesPagingSource(
                 nextKey = result.lastOrNull()?.id,
             )
         } catch (e: Exception) {
-            Log.w("StatusesPagingSource", "failed to load statuses", e)
+            Timber.w("failed to load statuses", e)
             return LoadResult.Error(e)
         }
     }

@@ -10,12 +10,12 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.instanceinfo
 
-import android.util.Log
 import app.pachli.db.AccountManager
 import app.pachli.db.EmojisEntity
 import app.pachli.db.InstanceDao
@@ -27,6 +27,7 @@ import at.connyduck.calladapter.networkresult.getOrElse
 import at.connyduck.calladapter.networkresult.onSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class InstanceInfoRepository @Inject constructor(
@@ -45,7 +46,7 @@ class InstanceInfoRepository @Inject constructor(
         api.getCustomEmojis()
             .onSuccess { emojiList -> instanceDao.upsert(EmojisEntity(instanceName, emojiList)) }
             .getOrElse { throwable ->
-                Log.w(TAG, "failed to load custom emojis, falling back to cache", throwable)
+                Timber.w("failed to load custom emojis, falling back to cache", throwable)
                 instanceDao.getEmojiInfo(instanceName)?.emojiList.orEmpty()
             }
     }
@@ -56,7 +57,7 @@ class InstanceInfoRepository @Inject constructor(
      * Never throws, returns defaults of vanilla Mastodon in case of error.
      */
     suspend fun getInstanceInfo(): InstanceInfo = withContext(Dispatchers.IO) {
-        api.getInstance()
+        api.getInstanceV1()
             .fold(
                 { instance ->
                     val instanceEntity = InstanceInfoEntity(
@@ -80,7 +81,7 @@ class InstanceInfoRepository @Inject constructor(
                     instanceEntity
                 },
                 { throwable ->
-                    Log.w(TAG, "failed to instance, falling back to cache and default values", throwable)
+                    Timber.w("failed to instance, falling back to cache and default values", throwable)
                     try { instanceDao.getInstanceInfo(instanceName) } catch (_: Exception) { null }
                 },
             ).let { instanceInfo: InstanceInfoEntity? ->
@@ -104,8 +105,6 @@ class InstanceInfoRepository @Inject constructor(
     }
 
     companion object {
-        private const val TAG = "InstanceInfoRepo"
-
         const val DEFAULT_CHARACTER_LIMIT = 500
         private const val DEFAULT_MAX_OPTION_COUNT = 4
         private const val DEFAULT_MAX_OPTION_LENGTH = 50

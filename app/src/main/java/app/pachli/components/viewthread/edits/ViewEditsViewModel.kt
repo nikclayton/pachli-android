@@ -130,10 +130,6 @@ class ViewEditsViewModel @Inject constructor(private val api: MastodonApi) : Vie
             }
         }
     }
-
-    companion object {
-        const val TAG = "ViewEditsViewModel"
-    }
 }
 
 sealed interface EditsUiState {

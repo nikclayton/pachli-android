@@ -10,12 +10,15 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.entity
 
 import android.os.Parcelable
+import androidx.annotation.DrawableRes
+import app.pachli.R
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -51,6 +54,15 @@ data class Attachment(
 
         @SerializedName("unknown")
         UNKNOWN,
+    }
+
+    /** @return a drawable resource for an icon to indicate the attachment type */
+    @DrawableRes
+    fun iconResource() = when (this.type) {
+        Type.IMAGE -> R.drawable.ic_photo_24dp
+        Type.GIFV, Type.VIDEO -> R.drawable.ic_videocam_24dp
+        Type.AUDIO -> R.drawable.ic_music_box_24dp
+        Type.UNKNOWN -> R.drawable.ic_attach_file_24dp
     }
 
     class MediaTypeDeserializer : JsonDeserializer<Type> {

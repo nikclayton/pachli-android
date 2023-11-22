@@ -6,7 +6,9 @@ import app.pachli.db.TimelineStatusEntity
 import app.pachli.db.TimelineStatusWithAccount
 import app.pachli.entity.Status
 import app.pachli.entity.TimelineAccount
+import app.pachli.network.StatusId
 import app.pachli.viewdata.StatusViewData
+import app.pachli.viewdata.TranslationState
 import com.google.gson.Gson
 import java.util.Date
 
@@ -21,7 +23,7 @@ fun mockStatus(
     favourited: Boolean = true,
     bookmarked: Boolean = true,
 ) = Status(
-    id = id,
+    id = StatusId(id),
     url = "https://mastodon.example/@ConnyDuck/$id",
     account = TimelineAccount(
         id = "1",
@@ -32,7 +34,7 @@ fun mockStatus(
         url = "https://mastodon.example/@ConnyDuck",
         avatar = "https://mastodon.example/system/accounts/avatars/000/150/486/original/ab27d7ddd18a10ea.jpg",
     ),
-    inReplyToId = inReplyToId,
+    inReplyToId = inReplyToId?.let { StatusId(it) },
     inReplyToAccountId = inReplyToAccountId,
     reblog = null,
     content = "Test",
@@ -86,6 +88,7 @@ fun mockStatusViewData(
     isShowingContent = isShowingContent,
     isCollapsed = isCollapsed,
     isDetailed = isDetailed,
+    translationState = TranslationState.SHOW_ORIGINAL,
 )
 
 fun mockStatusEntityWithAccount(
@@ -108,11 +111,12 @@ fun mockStatusEntityWithAccount(
             gson = gson,
         ),
         viewData = StatusViewDataEntity(
-            serverId = id,
+            serverId = StatusId(id),
             timelineUserId = userId,
             expanded = expanded,
             contentShowing = false,
             contentCollapsed = true,
+            translationState = TranslationState.SHOW_ORIGINAL,
         ),
     )
 }

@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.login
 
@@ -44,6 +45,7 @@ import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl
+import timber.log.Timber
 import javax.inject.Inject
 
 /** Main login page, the first thing that users see. Has prompt for instance and login button. */
@@ -195,7 +197,7 @@ class LoginActivity : BaseActivity() {
                     binding.domainTextInputLayout.error =
                         getString(R.string.error_failed_app_registration)
                     setLoading(false)
-                    Log.e(TAG, Log.getStackTraceString(e))
+                    Timber.e(Log.getStackTraceString(e))
                     return@launch
                 },
             )
@@ -264,7 +266,7 @@ class LoginActivity : BaseActivity() {
             getString(R.string.error_authorization_unknown)
         } else {
             // Use error returned by the server or fall back to the generic message
-            Log.e(TAG, "%s %s".format(getString(R.string.error_authorization_denied), error))
+            Timber.e("%s %s".format(getString(R.string.error_authorization_denied), error))
             error.ifBlank { getString(R.string.error_authorization_denied) }
         }
     }
@@ -292,7 +294,7 @@ class LoginActivity : BaseActivity() {
                 setLoading(false)
                 binding.domainTextInputLayout.error =
                     getString(R.string.error_retrieving_oauth_token)
-                Log.e(TAG, getString(R.string.error_retrieving_oauth_token), e)
+                Timber.e(getString(R.string.error_retrieving_oauth_token), e)
             },
         )
     }
@@ -325,7 +327,7 @@ class LoginActivity : BaseActivity() {
             setLoading(false)
             binding.domainTextInputLayout.error =
                 getString(R.string.error_loading_account_details)
-            Log.e(TAG, getString(R.string.error_loading_account_details), e)
+            Timber.e(getString(R.string.error_loading_account_details), e)
         },)
     }
 
@@ -349,7 +351,6 @@ class LoginActivity : BaseActivity() {
     }
 
     companion object {
-        private const val TAG = "LoginActivity" // logging tag
         private const val OAUTH_SCOPES = "read write follow push"
         private const val LOGIN_MODE = "LOGIN_MODE"
         private const val DOMAIN = "domain"

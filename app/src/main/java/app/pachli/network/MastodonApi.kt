@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.network
 
@@ -27,7 +28,7 @@ import app.pachli.entity.Filter
 import app.pachli.entity.FilterKeyword
 import app.pachli.entity.FilterV1
 import app.pachli.entity.HashTag
-import app.pachli.entity.Instance
+import app.pachli.entity.InstanceV1
 import app.pachli.entity.Marker
 import app.pachli.entity.MastoList
 import app.pachli.entity.MediaUploadResult
@@ -43,8 +44,10 @@ import app.pachli.entity.StatusContext
 import app.pachli.entity.StatusEdit
 import app.pachli.entity.StatusSource
 import app.pachli.entity.TimelineAccount
+import app.pachli.entity.Translation
 import app.pachli.entity.TrendingTag
 import app.pachli.entity.TrendsLink
+import app.pachli.network.model.InstanceV2
 import app.pachli.util.HttpHeaderLink
 import at.connyduck.calladapter.networkresult.NetworkResult
 import okhttp3.MultipartBody
@@ -102,7 +105,10 @@ interface MastodonApi {
     suspend fun getCustomEmojis(): NetworkResult<List<Emoji>>
 
     @GET("api/v1/instance")
-    suspend fun getInstance(@Header(DOMAIN_HEADER) domain: String? = null): NetworkResult<Instance>
+    suspend fun getInstanceV1(@Header(DOMAIN_HEADER) domain: String? = null): NetworkResult<InstanceV1>
+
+    @GET("api/v2/instance")
+    suspend fun getInstanceV2(@Header(DOMAIN_HEADER) domain: String? = null): NetworkResult<InstanceV2>
 
     @GET("api/v1/filters")
     suspend fun getFiltersV1(): NetworkResult<List<FilterV1>>
@@ -309,6 +315,11 @@ interface MastodonApi {
     suspend fun unmuteConversation(
         @Path("id") statusId: StatusId,
     ): NetworkResult<Status>
+
+    @POST("api/v1/statuses/{id}/translate")
+    suspend fun translate(
+        @Path("id") statusId: StatusId,
+    ): NetworkResult<Translation>
 
     @GET("api/v1/scheduled_statuses")
     suspend fun scheduledStatuses(

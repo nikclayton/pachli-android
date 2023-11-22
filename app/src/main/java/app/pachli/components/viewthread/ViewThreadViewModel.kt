@@ -10,18 +10,19 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.viewthread
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pachli.appstore.BlockEvent
 import app.pachli.appstore.BookmarkEvent
 import app.pachli.appstore.EventHub
 import app.pachli.appstore.FavoriteEvent
+import app.pachli.appstore.FilterChangedEvent
 import app.pachli.appstore.PinEvent
 import app.pachli.appstore.ReblogEvent
 import app.pachli.appstore.StatusComposedEvent
@@ -34,8 +35,8 @@ import app.pachli.components.timeline.util.ifExpected
 import app.pachli.db.AccountEntity
 import app.pachli.db.AccountManager
 import app.pachli.db.TimelineDao
+import app.pachli.db.TranslatedStatusEntity
 import app.pachli.entity.Filter
-import app.pachli.entity.FilterV1
 import app.pachli.entity.Status
 import app.pachli.network.FilterModel
 import app.pachli.network.MastodonApi
@@ -43,6 +44,7 @@ import app.pachli.network.StatusId
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.StatusDisplayOptionsRepository
 import app.pachli.viewdata.StatusViewData
+import app.pachli.viewdata.TranslationState
 import at.connyduck.calladapter.networkresult.fold
 import at.connyduck.calladapter.networkresult.getOrElse
 import at.connyduck.calladapter.networkresult.getOrThrow
@@ -56,12 +58,13 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class ViewThreadViewModel @Inject constructor(
     private val api: MastodonApi,
-    private val filterModel: FilterModel,
     private val timelineCases: TimelineCases,
     eventHub: EventHub,
     accountManager: AccountManager,
@@ -89,6 +92,8 @@ class ViewThreadViewModel @Inject constructor(
 
     val activeAccount: AccountEntity
 
+    private var filterModel: FilterModel? = null
+
     init {
         activeAccount = accountManager.activeAccount!!
         alwaysShowSensitiveMedia = activeAccount.alwaysShowSensitiveMedia
@@ -106,6 +111,11 @@ class ViewThreadViewModel @Inject constructor(
                         is StatusComposedEvent -> handleStatusComposedEvent(event)
                         is StatusDeletedEvent -> handleStatusDeletedEvent(event)
                         is StatusEditedEvent -> handleStatusEditedEvent(event)
+                        is FilterChangedEvent -> {
+                            if (event.filterKind == Filter.Kind.THREAD) {
+                                loadFilters()
+                            }
+                        }
                     }
                 }
         }
@@ -117,12 +127,12 @@ class ViewThreadViewModel @Inject constructor(
         _uiState.value = ThreadUiState.Loading
 
         viewModelScope.launch {
-            Log.d(TAG, "Finding status with: $id")
+            Timber.d("Finding status with: $id")
             val contextCall = async { api.statusContext(id) }
             val timelineStatusWithAccount = timelineDao.getStatus(id)
 
             var detailedStatus = if (timelineStatusWithAccount != null) {
-                Log.d(TAG, "Loaded status from local timeline")
+                Timber.d("Loaded status from local timeline")
                 val status = timelineStatusWithAccount.toStatus(gson)
 
                 // Return the correct status, depending on which one matched. If you do not do
@@ -136,6 +146,8 @@ class ViewThreadViewModel @Inject constructor(
                         isShowingContent = timelineStatusWithAccount.viewData?.contentShowing ?: (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
                         isCollapsed = timelineStatusWithAccount.viewData?.contentCollapsed ?: true,
                         isDetailed = true,
+                        translationState = timelineStatusWithAccount.viewData?.translationState ?: TranslationState.SHOW_ORIGINAL,
+                        translation = timelineStatusWithAccount.translatedStatus,
                     )
                 } else {
                     StatusViewData.from(
@@ -144,10 +156,11 @@ class ViewThreadViewModel @Inject constructor(
                         isExpanded = alwaysOpenSpoiler,
                         isShowingContent = (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
                         isDetailed = true,
+                        translationState = TranslationState.SHOW_ORIGINAL,
                     )
                 }
             } else {
-                Log.d(TAG, "Loaded status from network")
+                Timber.d("Loaded status from network")
                 val result = api.status(id).getOrElse { exception ->
                     _uiState.value = ThreadUiState.Error(exception)
                     return@launch
@@ -172,6 +185,8 @@ class ViewThreadViewModel @Inject constructor(
                         isExpanded = detailedStatus.isExpanded,
                         isCollapsed = detailedStatus.isCollapsed,
                         isDetailed = true,
+                        translationState = detailedStatus.translationState,
+                        translation = detailedStatus.translation,
                     )
                 }
             }
@@ -190,6 +205,7 @@ class ViewThreadViewModel @Inject constructor(
                         isExpanded = svd?.expanded ?: alwaysOpenSpoiler,
                         isCollapsed = svd?.contentCollapsed ?: true,
                         isDetailed = false,
+                        translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
                     )
                 }.filterByFilterAction()
                 val descendants = statusContext.descendants.map {
@@ -201,6 +217,7 @@ class ViewThreadViewModel @Inject constructor(
                         isExpanded = svd?.expanded ?: alwaysOpenSpoiler,
                         isCollapsed = svd?.contentCollapsed ?: true,
                         isDetailed = false,
+                        translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
                     )
                 }.filterByFilterAction()
                 val statuses = ancestors + detailedStatus + descendants
@@ -246,7 +263,7 @@ class ViewThreadViewModel @Inject constructor(
             timelineCases.reblog(status.actionableId, reblog).getOrThrow()
         } catch (t: Exception) {
             ifExpected(t) {
-                Log.d(TAG, "Failed to reblog status " + status.actionableId, t)
+                Timber.d("Failed to reblog status " + status.actionableId, t)
             }
         }
     }
@@ -256,7 +273,7 @@ class ViewThreadViewModel @Inject constructor(
             timelineCases.favourite(status.actionableId, favorite).getOrThrow()
         } catch (t: Exception) {
             ifExpected(t) {
-                Log.d(TAG, "Failed to favourite status " + status.actionableId, t)
+                Timber.d("Failed to favourite status " + status.actionableId, t)
             }
         }
     }
@@ -266,14 +283,14 @@ class ViewThreadViewModel @Inject constructor(
             timelineCases.bookmark(status.actionableId, bookmark).getOrThrow()
         } catch (t: Exception) {
             ifExpected(t) {
-                Log.d(TAG, "Failed to bookmark status " + status.actionableId, t)
+                Timber.d("Failed to bookmark status " + status.actionableId, t)
             }
         }
     }
 
     fun voteInPoll(choices: List<Int>, status: StatusViewData): Job = viewModelScope.launch {
         val poll = status.status.actionableStatus.poll ?: run {
-            Log.w(TAG, "No poll on status ${status.id}")
+            Timber.w("No poll on status ${status.id}")
             return@launch
         }
 
@@ -286,7 +303,7 @@ class ViewThreadViewModel @Inject constructor(
             timelineCases.voteInPoll(status.actionableId, poll.id, choices).getOrThrow()
         } catch (t: Exception) {
             ifExpected(t) {
-                Log.d(TAG, "Failed to vote in poll: " + status.actionableId, t)
+                Timber.d("Failed to vote in poll: " + status.actionableId, t)
             }
         }
     }
@@ -432,6 +449,44 @@ class ViewThreadViewModel @Inject constructor(
         }
     }
 
+    fun translate(statusViewData: StatusViewData) {
+        viewModelScope.launch {
+            repository.translate(statusViewData).fold({
+                val translatedEntity = TranslatedStatusEntity(
+                    serverId = statusViewData.actionableId,
+                    timelineUserId = activeAccount.id,
+                    content = it.content,
+                    spoilerText = it.spoilerText,
+                    poll = it.poll,
+                    attachments = it.attachments,
+                    provider = it.provider,
+                )
+                updateStatusViewData(statusViewData.status.id) { viewData ->
+                    viewData.copy(translation = translatedEntity, translationState = TranslationState.SHOW_TRANSLATION)
+                }
+            }, {
+                // Mastodon returns 403 if it thinks the original status language is the
+                // same as the user's language, ignoring the actual content of the status
+                // (https://github.com/mastodon/documentation/issues/1330). Nothing useful
+                // to do here so swallow the error
+                if (it is HttpException && it.code() == 403) return@fold
+
+                _errors.emit(it)
+            },)
+        }
+    }
+
+    fun translateUndo(statusViewData: StatusViewData) {
+        updateStatusViewData(statusViewData.status.id) { viewData ->
+            viewData.copy(translationState = TranslationState.SHOW_ORIGINAL)
+        }
+        viewModelScope.launch {
+            repository.saveStatusViewData(
+                statusViewData.copy(translationState = TranslationState.SHOW_ORIGINAL),
+            )
+        }
+    }
+
     private fun StatusViewData.getRevealButtonState(): RevealButtonState {
         val hasWarnings = status.spoilerText.isNotEmpty()
 
@@ -474,16 +529,9 @@ class ViewThreadViewModel @Inject constructor(
     private fun loadFilters() {
         viewModelScope.launch {
             try {
-                when (val filters = filtersRepository.getFilters()) {
-                    is FilterKind.V1 -> {
-                        filterModel.initWithFilters(
-                            filters.filters.filter { filter ->
-                                filter.context.contains(FilterV1.THREAD)
-                            },
-                        )
-                    }
-
-                    is FilterKind.V2 -> filterModel.kind = Filter.Kind.THREAD
+                filterModel = when (val filters = filtersRepository.getFilters()) {
+                    is FilterKind.V1 -> FilterModel(Filter.Kind.THREAD, filters.filters)
+                    is FilterKind.V2 -> FilterModel(Filter.Kind.THREAD)
                 }
                 updateStatuses()
             } catch (_: Exception) {
@@ -509,7 +557,7 @@ class ViewThreadViewModel @Inject constructor(
             if (status.isDetailed) {
                 true
             } else {
-                status.filterAction = filterModel.shouldFilterStatus(status.status)
+                status.filterAction = filterModel?.filterActionFor(status.status) ?: Filter.Action.NONE
                 status.filterAction != Filter.Action.HIDE
             }
         }
@@ -566,10 +614,6 @@ class ViewThreadViewModel @Inject constructor(
         updateStatus(viewData.id) { status ->
             status.copy(filtered = null)
         }
-    }
-
-    companion object {
-        private const val TAG = "ViewThreadViewModel"
     }
 }
 

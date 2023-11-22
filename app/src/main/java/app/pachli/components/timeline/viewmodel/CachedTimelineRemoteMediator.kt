@@ -17,7 +17,6 @@
 
 package app.pachli.components.timeline.viewmodel
 
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.InvalidatingPagingSourceFactory
@@ -44,6 +43,7 @@ import kotlinx.coroutines.coroutineScope
 import okhttp3.Headers
 import retrofit2.HttpException
 import retrofit2.Response
+import timber.log.Timber
 import java.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
@@ -67,7 +67,7 @@ class CachedTimelineRemoteMediator(
             return MediatorResult.Success(endOfPaginationReached = true)
         }
 
-        Log.d(TAG, "load(), LoadType = $loadType")
+        Timber.d("load(), LoadType = $loadType")
 
         return try {
             val response = when (loadType) {
@@ -76,7 +76,7 @@ class CachedTimelineRemoteMediator(
                         state.closestItemToPosition(maxOf(0, it - (state.config.pageSize / 2)))
                     }?.status?.serverId
                     val statusId = closestItem ?: initialKey
-                    Log.d(TAG, "Loading from item: $statusId")
+                    Timber.d("Loading from item: $statusId")
                     getInitialPage(statusId, state.config.pageSize)
                 }
                 LoadType.APPEND -> {
@@ -85,7 +85,7 @@ class CachedTimelineRemoteMediator(
                         TIMELINE_ID,
                         RemoteKeyKind.NEXT,
                     ) ?: return MediatorResult.Success(endOfPaginationReached = true)
-                    Log.d(TAG, "Loading from remoteKey: $rke")
+                    Timber.d("Loading from remoteKey: $rke")
                     val key = rke.key?.let { StatusId(it) }
                     api.homeTimeline(maxId = key, limit = state.config.pageSize)
                 }
@@ -95,7 +95,7 @@ class CachedTimelineRemoteMediator(
                         TIMELINE_ID,
                         RemoteKeyKind.PREV,
                     ) ?: return MediatorResult.Success(endOfPaginationReached = true)
-                    Log.d(TAG, "Loading from remoteKey: $rke")
+                    Timber.d("Loading from remoteKey: $rke")
                     val key = rke.key?.let { StatusId(it) }
                     api.homeTimeline(minId = key, limit = state.config.pageSize)
                 }
@@ -106,7 +106,7 @@ class CachedTimelineRemoteMediator(
                 return MediatorResult.Error(HttpException(response))
             }
 
-            Log.d(TAG, "${statuses.size} - # statuses loaded")
+            Timber.d("${statuses.size} - # statuses loaded")
 
             // This request succeeded with no new data, and pagination ends (unless this is a
             // REFRESH, which must always set endOfPaginationReached to false).
@@ -115,7 +115,7 @@ class CachedTimelineRemoteMediator(
                 return MediatorResult.Success(endOfPaginationReached = loadType != LoadType.REFRESH)
             }
 
-            Log.d(TAG, "  ${statuses.first().id}..${statuses.last().id}")
+            Timber.d("  ${statuses.first().id}..${statuses.last().id}")
 
             val links = Links.from(response.headers()["link"])
 
@@ -274,8 +274,6 @@ class CachedTimelineRemoteMediator(
     }
 
     companion object {
-        private const val TAG = "CachedTimelineRemoteMediator"
-
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val TIMELINE_ID = "HOME"
     }

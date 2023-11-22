@@ -19,12 +19,14 @@ package app.pachli.components.notifications
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.pachli.appstore.EventHub
+import app.pachli.components.timeline.FilterKind
 import app.pachli.components.timeline.FiltersRepository
 import app.pachli.components.timeline.MainCoroutineRule
 import app.pachli.db.AccountEntity
 import app.pachli.db.AccountManager
 import app.pachli.fakes.InMemorySharedPreferences
-import app.pachli.network.FilterModel
+import app.pachli.network.MastodonApi
+import app.pachli.network.ServerCapabilitiesRepository
 import app.pachli.settings.AccountPreferenceDataStore
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.SharedPreferencesRepository
@@ -36,6 +38,7 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -51,7 +54,6 @@ abstract class NotificationsViewModelTestBase {
     protected lateinit var viewModel: NotificationsViewModel
     private lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
     private lateinit var filtersRepository: FiltersRepository
-    private lateinit var filterModel: FilterModel
 
     private val eventHub = EventHub()
 
@@ -96,16 +98,29 @@ abstract class NotificationsViewModelTestBase {
         )
 
         timelineCases = mock()
-        filtersRepository = mock()
-        filterModel = mock()
+        filtersRepository = mock {
+            onBlocking { getFilters() } doReturn FilterKind.V2(emptyList())
+        }
 
         sharedPreferencesRepository = SharedPreferencesRepository(
             InMemorySharedPreferences(),
             TestScope(),
         )
 
+        val mastodonApi: MastodonApi = mock {
+            onBlocking { getInstanceV2() } doAnswer { null }
+            onBlocking { getInstanceV1() } doAnswer { null }
+        }
+
+        val serverCapabilitiesRepository = ServerCapabilitiesRepository(
+            mastodonApi,
+            accountManager,
+            TestScope(),
+        )
+
         statusDisplayOptionsRepository = StatusDisplayOptionsRepository(
             sharedPreferencesRepository,
+            serverCapabilitiesRepository,
             accountManager,
             accountPreferenceDataStore,
             TestScope(),
@@ -117,7 +132,6 @@ abstract class NotificationsViewModelTestBase {
             timelineCases,
             eventHub,
             filtersRepository,
-            filterModel,
             statusDisplayOptionsRepository,
             sharedPreferencesRepository,
         )

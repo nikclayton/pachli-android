@@ -11,7 +11,7 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
  * see <http://www.gnu.org/licenses>.
  */
 
@@ -34,7 +34,6 @@ import android.os.Build
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuInflater
@@ -48,6 +47,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.IntentCompat
+import androidx.core.content.edit
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
@@ -68,9 +68,10 @@ import app.pachli.components.compose.ComposeActivity
 import app.pachli.components.compose.ComposeActivity.Companion.canHandleMimeType
 import app.pachli.components.drafts.DraftsActivity
 import app.pachli.components.login.LoginActivity
-import app.pachli.components.notifications.NotificationHelper
+import app.pachli.components.notifications.createNotificationChannelsForAccount
 import app.pachli.components.notifications.disableAllNotifications
 import app.pachli.components.notifications.enablePushNotificationsWithFallback
+import app.pachli.components.notifications.notificationsAreEnabled
 import app.pachli.components.notifications.showMigrationNoticeIfNecessary
 import app.pachli.components.preference.PreferencesActivity
 import app.pachli.components.scheduled.ScheduledStatusActivity
@@ -87,15 +88,19 @@ import app.pachli.interfaces.FabFragment
 import app.pachli.interfaces.ReselectableFragment
 import app.pachli.pager.MainPagerAdapter
 import app.pachli.settings.PrefKeys
+import app.pachli.updatecheck.UpdateCheck
+import app.pachli.updatecheck.UpdateNotificationFrequency
 import app.pachli.usecase.DeveloperToolsUseCase
 import app.pachli.usecase.LogoutUsecase
 import app.pachli.util.EmbeddedFontFamily
+import app.pachli.util.await
 import app.pachli.util.deleteStaleCachedMedia
 import app.pachli.util.emojify
 import app.pachli.util.getDimension
 import app.pachli.util.hide
 import app.pachli.util.reduceSwipeSensitivity
 import app.pachli.util.show
+import app.pachli.util.unsafeLazy
 import app.pachli.util.updateShortcut
 import app.pachli.util.viewBinding
 import at.connyduck.calladapter.networkresult.fold
@@ -141,6 +146,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.c1710.filemojicompat_ui.helpers.EMOJI_PREFERENCE
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -158,9 +164,14 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     lateinit var draftsAlert: DraftsAlert
 
     @Inject
+    lateinit var updateCheck: UpdateCheck
+
+    @Inject
     lateinit var developerToolsUseCase: DeveloperToolsUseCase
 
     private val binding by viewBinding(ActivityMainBinding::inflate)
+
+    override val actionButton by unsafeLazy { binding.composeButton }
 
     private lateinit var header: AccountHeaderView
 
@@ -392,15 +403,85 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         super.onResume()
         val currentEmojiPack = sharedPreferencesRepository.getString(EMOJI_PREFERENCE, "")
         if (currentEmojiPack != selectedEmojiPack) {
-            Log.d(
-                TAG,
+            Timber.d(
                 "onResume: EmojiPack has been changed from %s to %s"
                     .format(selectedEmojiPack, currentEmojiPack),
             )
             selectedEmojiPack = currentEmojiPack
             recreate()
         }
+
+        // TODO: This can be removed after 2024-03-01, assume everyone has upgraded by then
+        if (sharedPreferencesRepository.getBoolean(PrefKeys.SHOW_JANKY_ANIMATION_WARNING, true)) {
+            showJankyAnimationWarning()
+        }
+
+        checkForUpdate()
     }
+
+    /** Warn the user about possibly-broken animations. */
+    private fun showJankyAnimationWarning() = lifecycleScope.launch {
+        AlertDialog.Builder(this@MainActivity)
+            .setTitle(R.string.janky_animation_title)
+            .setMessage(R.string.janky_animation_msg)
+            .create()
+            .await(android.R.string.ok)
+        sharedPreferencesRepository.edit { putBoolean(PrefKeys.SHOW_JANKY_ANIMATION_WARNING, false) }
+    }
+
+    /**
+     * Check for available updates, and prompt user to update.
+     *
+     * Show a dialog prompting the user to update if a newer version of the app is available.
+     * The user can start an update, ignore this version, or dismiss all future update
+     * notifications.
+     */
+    private fun checkForUpdate() = lifecycleScope.launch {
+        val frequency = UpdateNotificationFrequency.from(sharedPreferencesRepository.getString(PrefKeys.UPDATE_NOTIFICATION_FREQUENCY, null))
+        if (frequency == UpdateNotificationFrequency.NEVER) return@launch
+
+        val latestVersionCode = updateCheck.getLatestVersionCode()
+
+        if (latestVersionCode <= BuildConfig.VERSION_CODE) return@launch
+
+        if (frequency == UpdateNotificationFrequency.ONCE_PER_VERSION) {
+            val ignoredVersion = sharedPreferencesRepository.getInt(PrefKeys.UPDATE_NOTIFICATION_VERSIONCODE, -1)
+            if (latestVersionCode == ignoredVersion) {
+                Timber.d("Ignoring update to $latestVersionCode")
+                return@launch
+            }
+        }
+
+        Timber.d("New version is: $latestVersionCode")
+        when (showUpdateDialog()) {
+            AlertDialog.BUTTON_POSITIVE -> {
+                startActivity(updateCheck.updateIntent)
+            }
+            AlertDialog.BUTTON_NEUTRAL -> {
+                with(sharedPreferencesRepository.edit()) {
+                    putInt(PrefKeys.UPDATE_NOTIFICATION_VERSIONCODE, latestVersionCode)
+                    apply()
+                }
+            }
+            AlertDialog.BUTTON_NEGATIVE -> {
+                with(sharedPreferencesRepository.edit()) {
+                    putString(
+                        PrefKeys.UPDATE_NOTIFICATION_FREQUENCY,
+                        UpdateNotificationFrequency.NEVER.name,
+                    )
+                    apply()
+                }
+            }
+        }
+    }
+
+    private suspend fun showUpdateDialog() = AlertDialog.Builder(this)
+        .setTitle(R.string.update_dialog_title)
+        .setMessage(R.string.update_dialog_message)
+        .setCancelable(true)
+        .setIcon(R.mipmap.ic_launcher)
+        .create()
+        .await(R.string.update_dialog_positive, R.string.update_dialog_negative, R.string.update_dialog_neutral)
 
     override fun onStart() {
         super.onStart()
@@ -707,12 +788,13 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                 arrayOf(
                     "Clear home timeline cache",
                     "Remove first 40 statuses",
+                    "Reset janky animation warning flag",
                 ),
             ) { _, which ->
-                Log.d(TAG, "Developer tools: $which")
+                Timber.d("Developer tools: $which")
                 when (which) {
                     0 -> {
-                        Log.d(TAG, "Clearing home timeline cache")
+                        Timber.d("Clearing home timeline cache")
                         lifecycleScope.launch {
                             accountManager.activeAccount?.let {
                                 developerToolsUseCase.clearHomeTimelineCache(it.id)
@@ -720,12 +802,15 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                         }
                     }
                     1 -> {
-                        Log.d(TAG, "Removing most recent 40 statuses")
+                        Timber.d("Removing most recent 40 statuses")
                         lifecycleScope.launch {
                             accountManager.activeAccount?.let {
                                 developerToolsUseCase.deleteFirstKStatuses(it.id, 40)
                             }
                         }
+                    }
+                    2 -> {
+                        developerToolsUseCase.resetJankyAnimationWarningFlag()
                     }
                 }
             }
@@ -921,7 +1006,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                 onFetchUserInfoSuccess(userInfo)
             },
             { throwable ->
-                Log.e(TAG, "Failed to fetch user info. " + throwable.message)
+                Timber.e("Failed to fetch user info. " + throwable.message)
             },
         )
     }
@@ -934,7 +1019,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         loadDrawerAvatar(me.avatar, false)
 
         accountManager.updateActiveAccount(me)
-        NotificationHelper.createNotificationChannelsForAccount(accountManager.activeAccount!!, this)
+        createNotificationChannelsForAccount(accountManager.activeAccount!!, this)
 
         // Setup push notifications
         showMigrationNoticeIfNecessary(
@@ -944,7 +1029,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
             accountManager,
             sharedPreferencesRepository,
         )
-        if (NotificationHelper.areNotificationsEnabled(this, accountManager)) {
+        if (notificationsAreEnabled(this, accountManager)) {
             lifecycleScope.launch {
                 enablePushNotificationsWithFallback(this@MainActivity, mastodonApi, accountManager)
             }
@@ -1054,7 +1139,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                         updateAnnouncementsBadge()
                     },
                     { throwable ->
-                        Log.w(TAG, "Failed to fetch announcements.", throwable)
+                        Timber.w("Failed to fetch announcements.", throwable)
                     },
                 )
         }
@@ -1095,10 +1180,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         }
     }
 
-    override fun getActionButton() = binding.composeButton
-
     companion object {
-        private const val TAG = "MainActivity" // logging tag
         private const val DRAWER_ITEM_ADD_ACCOUNT: Long = -13
         private const val DRAWER_ITEM_ANNOUNCEMENTS: Long = 14
         private const val REDIRECT_URL = "redirectUrl"

@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.compose
 
@@ -31,7 +32,6 @@ import android.os.Parcelable
 import android.provider.MediaStore
 import android.text.Spanned
 import android.text.style.URLSpan
-import android.util.Log
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
@@ -118,6 +118,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import java.text.DecimalFormat
@@ -190,9 +191,9 @@ class ComposeActivity :
                 }
             }
         } else if (result == CropImage.CancelledResult) {
-            Log.w("ComposeActivity", "Edit image cancelled by user")
+            Timber.w("Edit image cancelled by user")
         } else {
-            Log.w("ComposeActivity", "Edit image failed: " + result.error)
+            Timber.w("Edit image failed: " + result.error)
             displayTransientMessage(R.string.error_image_edit_failed)
         }
         viewModel.cropImageItemOld = null
@@ -260,7 +261,7 @@ class ComposeActivity :
         }
 
         setupLanguageSpinner(getInitialLanguages(composeOptions?.language, activeAccount))
-        setupComposeField(sharedPreferencesRepository, viewModel.startingText)
+        setupComposeField(sharedPreferencesRepository, viewModel.startingText, composeOptions)
         setupContentWarningField(composeOptions?.contentWarning)
         setupPollView()
         applyShareIntent(intent, savedInstanceState)
@@ -364,7 +365,11 @@ class ComposeActivity :
         binding.composeContentWarningField.doOnTextChanged { _, _, _, _ -> updateVisibleCharactersLeft() }
     }
 
-    private fun setupComposeField(preferences: SharedPreferencesRepository, startingText: String?) {
+    private fun setupComposeField(
+        preferences: SharedPreferencesRepository,
+        startingText: String?,
+        composeOptions: ComposeOptions?,
+    ) {
         binding.composeEditField.setOnReceiveContentListener(this)
 
         binding.composeEditField.setOnKeyListener { _, keyCode, event -> this.onKeyDown(keyCode, event) }
@@ -380,7 +385,13 @@ class ComposeActivity :
         binding.composeEditField.setTokenizer(ComposeTokenizer())
 
         binding.composeEditField.setText(startingText)
-        binding.composeEditField.setSelection(binding.composeEditField.length())
+
+        when (composeOptions?.initialCursorPosition ?: InitialCursorPosition.END) {
+            InitialCursorPosition.START -> binding.composeEditField.setSelection(0)
+            InitialCursorPosition.END -> binding.composeEditField.setSelection(
+                binding.composeEditField.length(),
+            )
+        }
 
         val mentionColour = binding.composeEditField.linkTextColors.defaultColor
         highlightSpans(binding.composeEditField.text, mentionColour)
@@ -1305,6 +1316,15 @@ class ComposeActivity :
         EDIT_SCHEDULED,
     }
 
+    /**
+     * Initial position of the cursor in EditText when the compose button is clicked
+     * in a hashtag timeline
+     */
+    enum class InitialCursorPosition {
+        START,
+        END,
+    }
+
     @Parcelize
     data class ComposeOptions(
         // Let's keep fields var until all consumers are Kotlin
@@ -1329,11 +1349,10 @@ class ComposeActivity :
         var language: String? = null,
         var statusId: StatusId? = null,
         var kind: ComposeKind? = null,
+        var initialCursorPosition: InitialCursorPosition = InitialCursorPosition.END,
     ) : Parcelable
 
     companion object {
-        @Suppress("unused")
-        private const val TAG = "ComposeActivity"
         private const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1
 
         internal const val COMPOSE_OPTIONS_EXTRA = "COMPOSE_OPTIONS"

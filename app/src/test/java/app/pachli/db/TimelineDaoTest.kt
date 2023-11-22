@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -181,12 +182,12 @@ class TimelineDaoTest {
             timelineDao.insertStatus(status)
         }
 
-        assertEquals(3, timelineDao.deleteRange(1, "12", "14"))
-        assertEquals(0, timelineDao.deleteRange(1, "80", "80"))
-        assertEquals(0, timelineDao.deleteRange(1, "60", "80"))
-        assertEquals(0, timelineDao.deleteRange(1, "5", "8"))
-        assertEquals(0, timelineDao.deleteRange(1, "101", "1000"))
-        assertEquals(1, timelineDao.deleteRange(1, "50", "50"))
+        assertEquals(3, timelineDao.deleteRange(1, StatusId("12"), StatusId("14")))
+        assertEquals(0, timelineDao.deleteRange(1, StatusId("80"), StatusId("80")))
+        assertEquals(0, timelineDao.deleteRange(1, StatusId("60"), StatusId("80")))
+        assertEquals(0, timelineDao.deleteRange(1, StatusId("5"), StatusId("8")))
+        assertEquals(0, timelineDao.deleteRange(1, StatusId("101"), StatusId("1000")))
+        assertEquals(1, timelineDao.deleteRange(1, StatusId("50"), StatusId("50")))
 
         val loadParams: PagingSource.LoadParams<Int> = PagingSource.LoadParams.Refresh(null, 100, false)
 
@@ -333,11 +334,11 @@ class TimelineDaoTest {
         }
         val even = accountId % 2 == 0L
         val status = TimelineStatusEntity(
-            serverId = statusId.toString(),
+            serverId = StatusId(statusId.toString()),
             url = "https://$domain/whatever/$statusId",
             timelineUserId = accountId,
             authorServerId = authorServerId,
-            inReplyToId = "inReplyToId$statusId",
+            inReplyToId = StatusId("inReplyToId$statusId"),
             inReplyToAccountId = "inReplyToAccountId$statusId",
             content = "Content!$statusId",
             createdAt = createdAt,
@@ -356,7 +357,7 @@ class TimelineDaoTest {
             mentions = "mentions$accountId",
             tags = "tags$accountId",
             application = "application$accountId",
-            reblogServerId = if (reblog) (statusId * 100).toString() else null,
+            reblogServerId = if (reblog) StatusId((statusId * 100).toString()) else null,
             reblogAccountId = reblogAuthor?.serverId,
             poll = null,
             muted = false,

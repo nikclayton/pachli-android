@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.search.fragments
 
@@ -25,7 +26,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -61,6 +61,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -414,11 +415,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     downloadAllMedia(status)
                 } else {
-                    Toast.makeText(
-                        context,
-                        R.string.error_media_download_permission,
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    Toast.makeText(context, R.string.error_media_download_permission, Toast.LENGTH_SHORT).show()
                 }
             }
         } else {
@@ -476,7 +473,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                                 startActivity(intent)
                             },
                             { error ->
-                                Log.w("SearchStatusesFragment", "error deleting status", error)
+                                Timber.w("error deleting status", error)
                                 Toast.makeText(context, R.string.error_generic, Toast.LENGTH_SHORT).show()
                             },
                         )

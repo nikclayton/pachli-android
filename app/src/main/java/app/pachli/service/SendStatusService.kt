@@ -12,7 +12,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.os.Parcelable
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
@@ -27,7 +26,7 @@ import app.pachli.appstore.StatusScheduledEvent
 import app.pachli.components.compose.MediaUploader
 import app.pachli.components.compose.UploadEvent
 import app.pachli.components.drafts.DraftHelper
-import app.pachli.components.notifications.NotificationHelper
+import app.pachli.components.notifications.pendingIntentFlags
 import app.pachli.db.AccountManager
 import app.pachli.entity.Attachment
 import app.pachli.entity.MediaAttribute
@@ -48,6 +47,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
 import retrofit2.HttpException
+import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -145,7 +145,7 @@ class SendStatusService : Service() {
                     when (val uploadState = mediaUploader.getMediaUploadState(mediaItem.localId)) {
                         is UploadEvent.FinishedEvent -> mediaItem.copy(id = uploadState.mediaId, processed = uploadState.processed)
                         is UploadEvent.ErrorEvent -> {
-                            Log.w(TAG, "failed uploading media", uploadState.error)
+                            Timber.w("failed uploading media", uploadState.error)
                             failSending(statusId)
                             stopSelfWhenDone()
                             return@launch
@@ -177,7 +177,7 @@ class SendStatusService : Service() {
                     mediaCheckRetries++
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "failed getting media status", e)
+                Timber.w("failed getting media status", e)
                 retrySending(statusId)
                 return@launch
             }
@@ -190,7 +190,7 @@ class SendStatusService : Service() {
                         mastodonApi.updateMedia(mediaItem.id!!, mediaItem.description, mediaItem.focus?.toMastodonApiString())
                             .fold({
                             }, { throwable ->
-                                Log.w(TAG, "failed to update media on status send", throwable)
+                                Timber.w("failed to update media on status send", throwable)
                                 failOrRetry(throwable, statusId)
 
                                 return@launch
@@ -258,7 +258,7 @@ class SendStatusService : Service() {
 
                 notificationManager.cancel(statusId)
             }, { throwable ->
-                Log.w(TAG, "failed sending status", throwable)
+                Timber.w("failed sending status", throwable)
                 failOrRetry(throwable, statusId)
             },)
             stopSelfWhenDone()
@@ -380,7 +380,7 @@ class SendStatusService : Service() {
             this,
             statusId,
             intent,
-            NotificationHelper.pendingIntentFlags(false),
+            pendingIntentFlags(false),
         )
     }
 
@@ -396,7 +396,7 @@ class SendStatusService : Service() {
             this,
             statusId,
             intent,
-            NotificationHelper.pendingIntentFlags(false),
+            pendingIntentFlags(false),
         )
 
         return NotificationCompat.Builder(this@SendStatusService, CHANNEL_ID)
@@ -416,8 +416,6 @@ class SendStatusService : Service() {
     }
 
     companion object {
-        private const val TAG = "SendStatusService"
-
         private const val KEY_STATUS = "status"
         private const val KEY_CANCEL = "cancel_id"
         private const val CHANNEL_ID = "send_toots"

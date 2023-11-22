@@ -10,17 +10,17 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
  * see <http://www.gnu.org/licenses>.
  */
 
 package app.pachli.util
 
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import timber.log.Timber
 
 fun View.show() {
     this.visibility = View.VISIBLE
@@ -64,7 +64,7 @@ fun ViewPager2.reduceSwipeSensitivity() {
         val scaleFactor = 2
         touchSlopField.set(recyclerView, touchSlop * scaleFactor)
     } catch (e: Exception) {
-        Log.w("reduceSwipeSensitivity", e)
+        Timber.tag("reduceSwipeSensitibity").w(e)
     }
 }
 

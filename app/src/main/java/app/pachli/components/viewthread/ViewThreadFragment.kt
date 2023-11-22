@@ -10,13 +10,13 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.viewthread
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -57,6 +57,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ViewThreadFragment :
@@ -105,6 +106,7 @@ class ViewThreadFragment :
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         binding.swipeRefreshLayout.setOnRefreshListener(this)
@@ -168,7 +170,7 @@ class ViewThreadFragment :
                         binding.statusView.hide()
                     }
                     is ThreadUiState.Error -> {
-                        Log.w(TAG, "failed to load status", uiState.throwable)
+                        Timber.w("failed to load status", uiState.throwable)
                         initialProgressBar.cancel()
                         threadProgressBar.cancel()
 
@@ -216,8 +218,9 @@ class ViewThreadFragment :
 
         lifecycleScope.launch {
             viewModel.errors.collect { throwable ->
-                Log.w(TAG, "failed to load status context", throwable)
-                Snackbar.make(binding.root, R.string.error_generic, Snackbar.LENGTH_SHORT)
+                Timber.w("failed to load status context", throwable)
+                val msg = view.context.getString(R.string.error_generic_fmt, throwable)
+                Snackbar.make(binding.root, msg, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.action_retry) {
                         viewModel.retry(thisThreadsStatusId)
                     }
@@ -256,6 +259,16 @@ class ViewThreadFragment :
             }
             else -> false
         }
+    }
+
+    override fun canTranslate() = true
+
+    override fun onTranslate(statusViewData: StatusViewData) {
+        viewModel.translate(statusViewData)
+    }
+
+    override fun onTranslateUndo(statusViewData: StatusViewData) {
+        viewModel.translateUndo(statusViewData)
     }
 
     override fun onResume() {
@@ -309,7 +322,7 @@ class ViewThreadFragment :
     }
 
     override fun onMore(view: View, position: Int) {
-        super.more(adapter.currentList[position].status, view, position)
+        super.more(adapter.currentList[position], view, position)
     }
 
     override fun onViewMedia(position: Int, attachmentIndex: Int, view: View?) {
@@ -410,8 +423,6 @@ class ViewThreadFragment :
     }
 
     companion object {
-        private const val TAG = "ViewThreadFragment"
-
         private const val ID_EXTRA = "id"
         private const val URL_EXTRA = "url"
 

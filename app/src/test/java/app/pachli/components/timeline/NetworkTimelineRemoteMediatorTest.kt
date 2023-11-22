@@ -31,6 +31,7 @@ import app.pachli.components.timeline.viewmodel.PageCache
 import app.pachli.db.AccountEntity
 import app.pachli.db.AccountManager
 import app.pachli.entity.Status
+import app.pachli.network.StatusId
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import okhttp3.Headers
@@ -61,7 +62,7 @@ class NetworkTimelineRemoteMediatorTest {
         )
     }
 
-    private lateinit var pagingSourceFactory: InvalidatingPagingSourceFactory<String, Status>
+    private lateinit var pagingSourceFactory: InvalidatingPagingSourceFactory<StatusId, Status>
 
     @Before
     fun setup() {
@@ -151,8 +152,8 @@ class NetworkTimelineRemoteMediatorTest {
             upsert(
                 Page(
                     data = mutableListOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
-                    prevKey = "7",
-                    nextKey = "5",
+                    prevKey = StatusId("7"),
+                    nextKey = StatusId("5"),
                 ),
             )
         }
@@ -173,8 +174,8 @@ class NetworkTimelineRemoteMediatorTest {
             upsert(
                 Page(
                     data = mutableListOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
-                    prevKey = "7",
-                    nextKey = "5",
+                    prevKey = StatusId("7"),
+                    nextKey = StatusId("5"),
                 ),
             )
         }
@@ -200,8 +201,8 @@ class NetworkTimelineRemoteMediatorTest {
             listOf(
                 PagingSource.LoadResult.Page(
                     data = listOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
-                    prevKey = "7",
-                    nextKey = "5",
+                    prevKey = StatusId("7"),
+                    nextKey = StatusId("5"),
                 ),
             ),
         )
@@ -214,15 +215,15 @@ class NetworkTimelineRemoteMediatorTest {
             upsert(
                 Page(
                     data = mutableListOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
-                    prevKey = "7",
-                    nextKey = "5",
+                    prevKey = StatusId("7"),
+                    nextKey = StatusId("5"),
                 ),
             )
             upsert(
                 Page(
                     data = mutableListOf(mockStatus("10"), mockStatus("9"), mockStatus("8")),
-                    prevKey = "10",
-                    nextKey = "8",
+                    prevKey = StatusId("10"),
+                    nextKey = StatusId("8"),
                 ),
             )
         }
@@ -243,8 +244,8 @@ class NetworkTimelineRemoteMediatorTest {
             upsert(
                 Page(
                     data = mutableListOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
-                    prevKey = "7",
-                    nextKey = "5",
+                    prevKey = StatusId("7"),
+                    nextKey = StatusId("5"),
                 ),
             )
         }
@@ -270,8 +271,8 @@ class NetworkTimelineRemoteMediatorTest {
             listOf(
                 PagingSource.LoadResult.Page(
                     data = listOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
-                    prevKey = "7",
-                    nextKey = "5",
+                    prevKey = StatusId("7"),
+                    nextKey = StatusId("5"),
                 ),
             ),
         )
@@ -284,15 +285,15 @@ class NetworkTimelineRemoteMediatorTest {
             upsert(
                 Page(
                     data = mutableListOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
-                    prevKey = "7",
-                    nextKey = "5",
+                    prevKey = StatusId("7"),
+                    nextKey = StatusId("5"),
                 ),
             )
             upsert(
                 Page(
                     data = mutableListOf(mockStatus("4"), mockStatus("3"), mockStatus("2")),
-                    prevKey = "4",
-                    nextKey = "2",
+                    prevKey = StatusId("4"),
+                    nextKey = StatusId("2"),
                 ),
             )
         }
@@ -308,7 +309,7 @@ class NetworkTimelineRemoteMediatorTest {
     companion object {
         private const val PAGE_SIZE = 20
 
-        private fun state(pages: List<PagingSource.LoadResult.Page<String, Status>> = emptyList()) =
+        private fun state(pages: List<PagingSource.LoadResult.Page<StatusId, Status>> = emptyList()) =
             PagingState(
                 pages = pages,
                 anchorPosition = null,

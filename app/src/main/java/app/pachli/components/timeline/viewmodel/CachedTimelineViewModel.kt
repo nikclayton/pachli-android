@@ -17,7 +17,7 @@
 
 package app.pachli.components.timeline.viewmodel
 
-import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -30,7 +30,6 @@ import app.pachli.appstore.PinEvent
 import app.pachli.appstore.ReblogEvent
 import app.pachli.components.timeline.CachedTimelineRepository
 import app.pachli.components.timeline.FiltersRepository
-import app.pachli.components.timeline.TimelineKind
 import app.pachli.db.AccountManager
 import app.pachli.entity.Filter
 import app.pachli.entity.Poll
@@ -47,13 +46,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
  * TimelineViewModel that caches all statuses in a local database
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CachedTimelineViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val repository: CachedTimelineRepository,
     timelineCases: TimelineCases,
     eventHub: EventHub,
@@ -61,39 +63,33 @@ class CachedTimelineViewModel @Inject constructor(
     accountManager: AccountManager,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     sharedPreferencesRepository: SharedPreferencesRepository,
-    filterModel: FilterModel,
     private val gson: Gson,
 ) : TimelineViewModel(
+    savedStateHandle,
     timelineCases,
     eventHub,
     filtersRepository,
     accountManager,
-    filterModel,
     statusDisplayOptionsRepository,
     sharedPreferencesRepository,
 ) {
 
-    override lateinit var statuses: Flow<PagingData<StatusViewData>>
+    override var statuses: Flow<PagingData<StatusViewData>>
 
     init {
         readingPositionId = activeAccount.lastVisibleHomeTimelineStatusId
-    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun init(timelineKind: TimelineKind) {
-        super.init(timelineKind)
         statuses = reload.flatMapLatest {
-            getStatuses(timelineKind, initialKey = getInitialKey())
+            getStatuses(initialKey = getInitialKey())
         }.cachedIn(viewModelScope)
     }
 
-    /** @return Flow of statuses that make up the timeline of [kind] */
+    /** @return Flow of statuses that make up the timeline of [timelineKind] */
     private fun getStatuses(
-        kind: TimelineKind,
         initialKey: StatusId? = null,
     ): Flow<PagingData<StatusViewData>> {
-        Log.d(TAG, "getStatuses: kind: $kind, initialKey: $initialKey")
-        return repository.getStatusStream(kind = kind, initialKey = initialKey)
+        Timber.d("getStatuses: kind: $timelineKind, initialKey: $initialKey")
+        return repository.getStatusStream(kind = timelineKind, initialKey = initialKey)
             .map { pagingData ->
                 pagingData
                     .map {
@@ -184,9 +180,5 @@ class CachedTimelineViewModel @Inject constructor(
 
     override suspend fun invalidate() {
         repository.invalidate()
-    }
-
-    companion object {
-        private const val TAG = "CachedTimelineViewModel"
     }
 }

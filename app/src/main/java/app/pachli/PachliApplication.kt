@@ -11,19 +11,19 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
  * see <http://www.gnu.org/licenses>.
  */
 
 package app.pachli
 
 import android.app.Application
-import android.util.Log
+import androidx.core.content.edit
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import app.pachli.components.notifications.NotificationHelper
+import app.pachli.components.notifications.createWorkerNotificationChannel
 import app.pachli.settings.NEW_INSTALL_SCHEMA_VERSION
 import app.pachli.settings.PrefKeys
 import app.pachli.settings.PrefKeys.APP_THEME
@@ -41,6 +41,7 @@ import de.c1710.filemojicompat_ui.helpers.EmojiPackHelper
 import de.c1710.filemojicompat_ui.helpers.EmojiPreference
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import org.conscrypt.Conscrypt
+import timber.log.Timber
 import java.security.Security
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -73,6 +74,8 @@ class PachliApplication : Application() {
 
         AutoDisposePlugins.setHideProxies(false) // a small performance optimization
 
+        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
+
         // Migrate shared preference keys and defaults from version to version.
         val oldVersion = sharedPreferencesRepository.getInt(PrefKeys.SCHEMA_VERSION, NEW_INSTALL_SCHEMA_VERSION)
         if (oldVersion != SCHEMA_VERSION) {
@@ -91,10 +94,10 @@ class PachliApplication : Application() {
         localeManager.setLocale()
 
         RxJavaPlugins.setErrorHandler {
-            Log.w("RxJava", "undeliverable exception", it)
+            Timber.tag("RxJava").w(it, "undeliverable exception")
         }
 
-        NotificationHelper.createWorkerNotificationChannel(this)
+        createWorkerNotificationChannel(this)
 
         WorkManager.initialize(
             this,
@@ -115,8 +118,16 @@ class PachliApplication : Application() {
     }
 
     private fun upgradeSharedPreferences(oldVersion: Int, newVersion: Int) {
-        Log.d(TAG, "Upgrading shared preferences: $oldVersion -> $newVersion")
+        Timber.d("Upgrading shared preferences: $oldVersion -> $newVersion")
         val editor = sharedPreferencesRepository.edit()
+
+        if (oldVersion != NEW_INSTALL_SCHEMA_VERSION) {
+            // Upgrading rather than a new install. Possibly show the janky animation warning,
+            // see https://github.com/material-components/material-components-android/issues/3644
+            if (!sharedPreferencesRepository.contains(PrefKeys.SHOW_JANKY_ANIMATION_WARNING)) {
+                sharedPreferencesRepository.edit { putBoolean(PrefKeys.SHOW_JANKY_ANIMATION_WARNING, true) }
+            }
+        }
 
         // General usage is:
         //
@@ -126,9 +137,5 @@ class PachliApplication : Application() {
 
         editor.putInt(PrefKeys.SCHEMA_VERSION, newVersion)
         editor.apply()
-    }
-
-    companion object {
-        private const val TAG = "PachliApplication"
     }
 }

@@ -145,7 +145,7 @@ class NotificationsPagingAdapter(
                 )
             }
             NotificationViewKind.STATUS_FILTERED -> {
-                StatusViewHolder(
+                FilterableStatusViewHolder(
                     ItemStatusWrapperBinding.inflate(inflater, parent, false),
                     statusActionListener,
                     accountId,
@@ -222,10 +222,5 @@ class NotificationsPagingAdapter(
         ) {
             binding.text1.text = viewData.statusViewData?.content
         }
-    }
-
-    companion object {
-        @Suppress("unused")
-        private const val TAG = "NotificationsPagingAdapter"
     }
 }

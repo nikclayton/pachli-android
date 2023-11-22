@@ -19,7 +19,7 @@
 plugins {
     `java-gradle-plugin`
     `maven-publish`
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "1.9.20"
 }
 
 repositories {
@@ -41,8 +41,8 @@ gradlePlugin {
 
 dependencies {
     implementation("com.android.tools.build:gradle:8.1.2")
-    implementation("org.jetbrains:markdown:0.5.0")
-    implementation("com.squareup:javapoet:1.12.1")
+    implementation("org.jetbrains:markdown:0.5.2")
+    implementation("com.squareup:javapoet:1.13.0")
 }
 
 kotlin {

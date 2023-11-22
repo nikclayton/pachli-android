@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.fragment
 
@@ -192,7 +193,7 @@ class ViewImageFragment : ViewMediaFragment() {
                     if (abs(view.translationY) > 180) {
                         photoActionsListener.onDismiss()
                     } else {
-                        view.animate().translationY(0f).scaleX(1f).start()
+                        view.animate().translationY(0f).scaleX(1f).scaleY(1f).start()
                     }
                 }
             },

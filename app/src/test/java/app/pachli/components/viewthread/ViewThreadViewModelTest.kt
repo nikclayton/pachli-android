@@ -18,8 +18,9 @@ import app.pachli.db.AccountManager
 import app.pachli.db.TimelineDao
 import app.pachli.entity.Account
 import app.pachli.entity.StatusContext
-import app.pachli.network.FilterModel
 import app.pachli.network.MastodonApi
+import app.pachli.network.ServerCapabilitiesRepository
+import app.pachli.network.StatusId
 import app.pachli.settings.AccountPreferenceDataStore
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.SharedPreferencesRepository
@@ -119,7 +120,7 @@ class ViewThreadViewModelTest {
 
     private lateinit var viewModel: ViewThreadViewModel
 
-    private val threadId = "1234"
+    private val threadId = StatusId("1234")
 
     @Before
     fun setup() {
@@ -129,8 +130,6 @@ class ViewThreadViewModelTest {
         filtersRepository.stub {
             onBlocking { getFilters() } doReturn FilterKind.V2(emptyList())
         }
-
-        val filterModel = FilterModel()
 
         val defaultAccount = AccountEntity(
             id = 1,
@@ -169,8 +168,15 @@ class ViewThreadViewModelTest {
             onBlocking { getStatusViewData(any()) } doReturn emptyMap()
         }
 
+        val serverCapabilitiesRepository = ServerCapabilitiesRepository(
+            mastodonApi,
+            accountManager,
+            TestScope(),
+        )
+
         statusDisplayOptionsRepository = StatusDisplayOptionsRepository(
             sharedPreferencesRepository,
+            serverCapabilitiesRepository,
             accountManager,
             accountPreferenceDataStore,
             TestScope(),
@@ -178,7 +184,6 @@ class ViewThreadViewModelTest {
 
         viewModel = ViewThreadViewModel(
             mastodonApi,
-            filterModel,
             timelineCases,
             eventHub,
             accountManager,
@@ -333,7 +338,7 @@ class ViewThreadViewModelTest {
         viewModel.loadThread(threadId)
 
         runBlocking {
-            eventHub.dispatch(FavoriteEvent(statusId = "1", false))
+            eventHub.dispatch(FavoriteEvent(statusId = StatusId("1"), false))
 
             assertEquals(
                 ThreadUiState.Success(
@@ -368,7 +373,7 @@ class ViewThreadViewModelTest {
         viewModel.loadThread(threadId)
 
         runBlocking {
-            eventHub.dispatch(ReblogEvent(statusId = "2", true))
+            eventHub.dispatch(ReblogEvent(statusId = StatusId("2"), true))
 
             assertEquals(
                 ThreadUiState.Success(
@@ -404,7 +409,7 @@ class ViewThreadViewModelTest {
         viewModel.loadThread(threadId)
 
         runBlocking {
-            eventHub.dispatch(BookmarkEvent(statusId = "3", false))
+            eventHub.dispatch(BookmarkEvent(statusId = StatusId("3"), false))
 
             assertEquals(
                 ThreadUiState.Success(

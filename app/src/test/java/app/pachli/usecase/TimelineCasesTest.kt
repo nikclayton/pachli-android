@@ -4,8 +4,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import app.pachli.appstore.EventHub
 import app.pachli.appstore.PinEvent
+import app.pachli.components.timeline.CachedTimelineRepository
 import app.pachli.entity.Status
 import app.pachli.network.MastodonApi
+import app.pachli.network.StatusId
 import at.connyduck.calladapter.networkresult.NetworkResult
 import kotlinx.coroutines.runBlocking
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -25,15 +27,17 @@ class TimelineCasesTest {
 
     private lateinit var api: MastodonApi
     private lateinit var eventHub: EventHub
+    private lateinit var cachedTimelineRepository: CachedTimelineRepository
     private lateinit var timelineCases: TimelineCases
 
-    private val statusId = "1234"
+    private val statusId = StatusId("1234")
 
     @Before
     fun setup() {
         api = mock()
         eventHub = EventHub()
-        timelineCases = TimelineCases(api, eventHub)
+        cachedTimelineRepository = mock()
+        timelineCases = TimelineCases(api, eventHub, cachedTimelineRepository)
     }
 
     @Test
@@ -72,7 +76,7 @@ class TimelineCasesTest {
 
     private fun mockStatus(pinned: Boolean = false): Status {
         return Status(
-            id = "123",
+            id = StatusId("123"),
             url = "https://mastodon.social/@Tusky/100571663297225812",
             account = mock(),
             inReplyToId = null,

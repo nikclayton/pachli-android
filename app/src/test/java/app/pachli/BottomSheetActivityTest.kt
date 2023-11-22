@@ -11,7 +11,7 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
  * see <http://www.gnu.org/licenses>.
  */
 
@@ -74,7 +74,7 @@ class BottomSheetActivityTest {
     )
 
     private val status = Status(
-        id = "1",
+        id = StatusId("1"),
         url = statusQuery,
         account = account,
         inReplyToId = null,
@@ -251,7 +251,7 @@ class BottomSheetActivityTest {
 
     class FakeBottomSheetActivity(api: MastodonApi) : BottomSheetActivity() {
 
-        var statusId: String? = null
+        var statusId: StatusId? = null
         var accountId: String? = null
         var link: String? = null
         var fallbackBehavior: PostLookupFallbackBehavior? = null

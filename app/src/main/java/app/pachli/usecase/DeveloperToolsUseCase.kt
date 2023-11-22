@@ -17,8 +17,11 @@
 
 package app.pachli.usecase
 
+import androidx.core.content.edit
 import app.pachli.db.TimelineDao
 import app.pachli.di.TransactionProvider
+import app.pachli.settings.PrefKeys
+import app.pachli.util.SharedPreferencesRepository
 import javax.inject.Inject
 
 /**
@@ -28,6 +31,7 @@ import javax.inject.Inject
 class DeveloperToolsUseCase @Inject constructor(
     private val transactionProvider: TransactionProvider,
     private val timelineDao: TimelineDao,
+    private val sharedPreferencesRepository: SharedPreferencesRepository,
 ) {
     /**
      * Clear the home timeline cache.
@@ -46,7 +50,8 @@ class DeveloperToolsUseCase @Inject constructor(
         }
     }
 
-    companion object {
-        const val TAG = "DeveloperToolsUseCase"
+    /** Reset the SHOW_JANKY_ANIMATION_WARNING flag */
+    fun resetJankyAnimationWarningFlag() = sharedPreferencesRepository.edit {
+        putBoolean(PrefKeys.SHOW_JANKY_ANIMATION_WARNING, true)
     }
 }

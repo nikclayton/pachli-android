@@ -18,6 +18,7 @@
 package app.pachli.components.timeline
 
 import app.pachli.components.timeline.viewmodel.InfallibleUiAction
+import app.pachli.network.StatusId
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.runTest
@@ -35,7 +36,7 @@ class NetworkTimelineViewModelTestVisibleId : NetworkTimelineViewModelTestBase()
             .isNotEqualTo(TimelineKind.Home)
 
         // When
-        viewModel.accept(InfallibleUiAction.SaveVisibleId("1234"))
+        viewModel.accept(InfallibleUiAction.SaveVisibleId(StatusId("1234")))
 
         // Then
         // As a non-Home timline this should *not* save the account, and

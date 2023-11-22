@@ -11,7 +11,7 @@
   ~ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
   ~ Public License for more details.
   ~
-  ~ You should have received a copy of the GNU General Public License along with Tusky; if not,
+  ~ You should have received a copy of the GNU General Public License along with Pachli; if not,
   ~ see <http://www.gnu.org/licenses>.
   -->
 
@@ -206,6 +206,8 @@
     <string name="action_dismiss">Dismiss</string>
     <string name="action_details">Details</string>
     <string name="action_add_reaction">add reaction</string>
+    <string name="action_translate">Translate</string>
+    <string name="action_translate_undo">Undo translate</string>
 
     <string name="title_hashtags_dialog">Hashtags</string>
     <string name="title_mentions_dialog">Mentions</string>
@@ -406,7 +408,7 @@
     <string name="about_title_activity">About</string>
     <string name="about_pachli_version">Pachli %s</string>
     <string name="about_device_info_title">Your device</string>
-    <string name="about_device_info">%s %s\nAndroid version: %s\nSDK version: %d</string>
+    <string name="about_device_info">%s %s\nAndroid version: %s\nSDK level: %d</string>
     <string name="about_account_info_title">Your account</string>
     <string name="about_account_info">\@%s\@%s\nVersion: %s</string>
     <string name="about_powered_by_pachli">Powered by Pachli</string>
@@ -457,7 +459,7 @@
     <string name="replying_to">Replying to @%s</string>
 
     <string name="pref_title_public_filter_keywords">Public timelines</string>
-    <string name="pref_title_thread_filter_keywords">Conversations</string>
+    <string name="pref_title_thread_filter_keywords">Threads</string>
     <string name="pref_title_account_filter_keywords">Profiles</string>
     <string name="filter_addition_title">Add filter</string>
     <string name="filter_edit_title">Edit filter</string>
@@ -793,6 +795,7 @@
     <string name="ui_error_favourite">Favoriting post failed: %s</string>
     <string name="ui_error_reblog">Boosting post failed: %s</string>
     <string name="ui_error_vote">Voting in poll failed: %s</string>
+    <string name="ui_error_translate_status">Translation failed: %s</string>
     <string name="ui_error_accept_follow_request">Accepting follow request failed: %s</string>
     <string name="ui_error_reject_follow_request">Rejecting follow request failed: %s</string>
     <string name="ui_error_filter_v1_load">Loading filters failed: %s</string>
@@ -828,6 +831,20 @@
     <string name="dialog_delete_filter_text">Delete filter \'%1$s\'?"</string>
     <string name="dialog_delete_filter_positive_action">Delete</string>
     <string name="dialog_save_profile_changes_message">Do you want to save your profile changes?</string>
-
     <string name="reaction_name_and_count">%1$s %2$d</string>
+
+    <string name="pref_title_update_settings">Software updates</string>
+    <string name="pref_title_update_notification_frequency">Tell me about new Pachli versions</string>
+    <string name="pref_update_notification_frequency_never">Never</string>
+    <string name="pref_update_notification_frequency_once_per_version">Once per version</string>
+    <string name="pref_update_notification_frequency_always">Always</string>
+    <string name="update_dialog_title">An update is available</string>
+    <string name="update_dialog_neutral">Don\'t remind me for this version</string>
+    <string name="update_dialog_negative">Never remind me</string>
+
+    <string name="translating">Translating…</string>
+    <string name="translation_provider_fmt">%1$s</string>
+
+    <string name="janky_animation_title">You may need to restart your device</string>
+    <string name="janky_animation_msg">This version of Pachli may trigger an Android bug on some devices, and show broken animations.\n\nFor example, when tapping a post to view a thread.\n\nIf you see this you will need to restart your device.\n\nYou only need to do this once.\n\nThis is Android bug, there is nothing Pachli can do.</string>
 </resources>

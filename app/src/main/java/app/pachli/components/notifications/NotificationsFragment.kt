@@ -20,7 +20,6 @@ package app.pachli.components.notifications
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -82,6 +81,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class NotificationsFragment :
@@ -207,7 +207,7 @@ class NotificationsFragment :
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.pagingData.collectLatest { pagingData ->
-                        Log.d(TAG, "Submitting data to adapter")
+                        Timber.d("Submitting data to adapter")
                         adapter.submitData(pagingData)
                     }
                 }
@@ -224,7 +224,7 @@ class NotificationsFragment :
                 // - With a "Retry" option if the error included a UiAction to retry.
                 launch {
                     viewModel.uiError.collect { error ->
-                        Log.d(TAG, error.toString())
+                        Timber.d(error.toString())
                         val message = getString(
                             error.message,
                             error.throwable.localizedMessage
@@ -491,7 +491,7 @@ class NotificationsFragment :
     override fun onRefresh() {
         binding.progressBar.isVisible = false
         adapter.refresh()
-        NotificationHelper.clearNotificationsForAccount(requireContext(), viewModel.account)
+        clearNotificationsForAccount(requireContext(), viewModel.account)
     }
 
     override fun onPause() {
@@ -508,7 +508,7 @@ class NotificationsFragment :
 
     override fun onResume() {
         super.onResume()
-        NotificationHelper.clearNotificationsForAccount(requireContext(), viewModel.account)
+        clearNotificationsForAccount(requireContext(), viewModel.account)
     }
 
     override fun onReply(position: Int) {
@@ -538,8 +538,8 @@ class NotificationsFragment :
     }
 
     override fun onMore(view: View, position: Int) {
-        val status = adapter.peek(position)?.statusViewData?.status ?: return
-        super.more(status, view, position)
+        val statusViewData = adapter.peek(position)?.statusViewData ?: return
+        super.more(statusViewData, view, position)
     }
 
     override fun onViewMedia(position: Int, attachmentIndex: Int, view: View?) {
@@ -657,7 +657,6 @@ class NotificationsFragment :
     }
 
     companion object {
-        private const val TAG = "NotificationsFragment"
         fun newInstance() = NotificationsFragment()
 
         private val notificationDiffCallback: DiffUtil.ItemCallback<NotificationViewData> =

@@ -11,7 +11,7 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
  * see <https://www.gnu.org/licenses>.
  */
 
@@ -20,26 +20,30 @@ package app.pachli
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import app.pachli.appstore.EventHub
 import app.pachli.appstore.FilterChangedEvent
+import app.pachli.components.compose.ComposeActivity
 import app.pachli.components.timeline.TimelineFragment
 import app.pachli.components.timeline.TimelineKind
 import app.pachli.databinding.ActivityStatuslistBinding
 import app.pachli.entity.Filter
 import app.pachli.entity.FilterV1
+import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.AppBarLayoutHost
+import app.pachli.util.unsafeLazy
 import app.pachli.util.viewBinding
 import at.connyduck.calladapter.networkresult.fold
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -47,7 +51,7 @@ import javax.inject.Inject
  * the user's favourites, bookmarks, etc.
  */
 @AndroidEntryPoint
-class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
+class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonActivity {
     @Inject
     lateinit var eventHub: EventHub
 
@@ -56,6 +60,8 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
 
     override val appBarLayout: AppBarLayout
         get() = binding.includedToolbar.appbar
+
+    override val actionButton: FloatingActionButton? by unsafeLazy { binding.composeButton }
 
     /**
      * If showing statuses with a hashtag, the hashtag being used, without the
@@ -72,7 +78,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
     private var mutedFilter: Filter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("StatusListActivity", "onCreate")
+        Timber.d("onCreate")
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
@@ -103,6 +109,27 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
                 replace(R.id.fragmentContainer, fragment)
             }
         }
+
+        val composeIntent = when (timelineKind) {
+            is TimelineKind.Tag -> {
+                val tag = (timelineKind as TimelineKind.Tag).tags.first()
+                ComposeActivity.startIntent(
+                    this,
+                    ComposeActivity.ComposeOptions(
+                        content = getString(R.string.title_tag_with_initial_position).format(tag),
+                        initialCursorPosition = ComposeActivity.InitialCursorPosition.START,
+                    ),
+                )
+            }
+            else -> null
+        }
+
+        if (composeIntent == null) {
+            binding.composeButton.hide()
+        } else {
+            binding.composeButton.setOnClickListener { startActivity(composeIntent) }
+            binding.composeButton.show()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -125,7 +152,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
                         updateMuteTagMenuItems()
                     },
                     {
-                        Log.w(TAG, "Failed to query tag #$tag", it)
+                        Timber.w("Failed to query tag #$tag", it)
                     },
                 )
             }
@@ -145,7 +172,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
                     },
                     {
                         Snackbar.make(binding.root, getString(R.string.error_following_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
-                        Log.e(TAG, "Failed to follow #$tag", it)
+                        Timber.e("Failed to follow #$tag", it)
                     },
                 )
             }
@@ -165,7 +192,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
                     },
                     {
                         Snackbar.make(binding.root, getString(R.string.error_unfollowing_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
-                        Log.e(TAG, "Failed to unfollow #$tag", it)
+                        Timber.e("Failed to unfollow #$tag", it)
                     },
                 )
             }
@@ -204,11 +231,11 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
                                 updateTagMuteState(mutedFilterV1 != null)
                             },
                             { throwable ->
-                                Log.e(TAG, "Error getting filters: $throwable")
+                                Timber.e("Error getting filters: $throwable")
                             },
                         )
                     } else {
-                        Log.e(TAG, "Error getting filters: $throwable")
+                        Timber.e("Error getting filters: $throwable")
                     }
                 },
             )
@@ -245,7 +272,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
                         Snackbar.make(binding.root, getString(R.string.confirmation_hashtag_muted, hashtag), Snackbar.LENGTH_SHORT).show()
                     } else {
                         Snackbar.make(binding.root, getString(R.string.error_muting_hashtag_format, hashtag), Snackbar.LENGTH_SHORT).show()
-                        Log.e(TAG, "Failed to mute $tagWithHash")
+                        Timber.e("Failed to mute $tagWithHash")
                     }
                 },
                 { throwable ->
@@ -265,12 +292,12 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
                             },
                             { throwable ->
                                 Snackbar.make(binding.root, getString(R.string.error_muting_hashtag_format, hashtag), Snackbar.LENGTH_SHORT).show()
-                                Log.e(TAG, "Failed to mute $tagWithHash", throwable)
+                                Timber.e("Failed to mute $tagWithHash", throwable)
                             },
                         )
                     } else {
                         Snackbar.make(binding.root, getString(R.string.error_muting_hashtag_format, hashtag), Snackbar.LENGTH_SHORT).show()
-                        Log.e(TAG, "Failed to mute $tagWithHash", throwable)
+                        Timber.e("Failed to mute $tagWithHash", throwable)
                     }
                 },
             )
@@ -324,7 +351,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
                 },
                 { throwable ->
                     Snackbar.make(binding.root, getString(R.string.error_unmuting_hashtag_format, hashtag), Snackbar.LENGTH_SHORT).show()
-                    Log.e(TAG, "Failed to unmute $tagWithHash", throwable)
+                    Timber.e("Failed to unmute $tagWithHash", throwable)
                 },
             )
         }
@@ -334,7 +361,6 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost {
 
     companion object {
         private const val EXTRA_KIND = "kind"
-        private const val TAG = "StatusListActivity"
 
         fun newFavouritesIntent(context: Context) =
             Intent(context, StatusListActivity::class.java).apply {

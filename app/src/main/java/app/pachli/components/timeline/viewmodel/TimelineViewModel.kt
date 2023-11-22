@@ -17,9 +17,11 @@
 
 package app.pachli.components.timeline.viewmodel
 
-import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
+import androidx.annotation.VisibleForTesting
+import androidx.core.os.bundleOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -73,24 +75,13 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import kotlin.time.Duration.Companion.milliseconds
 
 data class UiState(
     /** True if the FAB should be shown while scrolling */
     val showFabWhileScrolling: Boolean,
 )
-
-/** Preferences the UI reacts to */
-data class UiPrefs(
-    val showFabWhileScrolling: Boolean,
-) {
-    companion object {
-        /** Relevant preference keys. Changes to any of these trigger a display update */
-        val prefKeys = setOf(
-            PrefKeys.FAB_HIDE,
-        )
-    }
-}
 
 // TODO: Ui* classes are copied from NotificationsViewModel. Not yet sure whether these actions
 // are "global" across all timelines (including notifications) or whether notifications are
@@ -123,6 +114,8 @@ sealed interface InfallibleUiAction : UiAction {
     // infallible. Reloading the data may fail, but that's handled by the paging system /
     // adapter refresh logic.
     data object LoadNewest : InfallibleUiAction
+
+    data class TranslateUndo(val statusViewData: StatusViewData) : InfallibleUiAction
 }
 
 sealed interface UiSuccess {
@@ -169,6 +162,9 @@ sealed interface StatusAction : FallibleUiAction {
         val choices: List<Int>,
         override val statusViewData: StatusViewData,
     ) : StatusAction
+
+    /** Translate a status */
+    data class Translate(override val statusViewData: StatusViewData) : StatusAction
 }
 
 /** Changes to a status' visible state after API calls */
@@ -183,12 +179,15 @@ sealed interface StatusActionSuccess : UiSuccess {
 
     data class VoteInPoll(override val action: StatusAction.VoteInPoll) : StatusActionSuccess
 
+    data class Translate(override val action: StatusAction.Translate) : StatusActionSuccess
+
     companion object {
         fun from(action: StatusAction) = when (action) {
             is StatusAction.Bookmark -> Bookmark(action)
             is StatusAction.Favourite -> Favourite(action)
             is StatusAction.Reblog -> Reblog(action)
             is StatusAction.VoteInPoll -> VoteInPoll(action)
+            is StatusAction.Translate -> Translate(action)
         }
     }
 }
@@ -237,6 +236,12 @@ sealed interface UiError {
         override val message: Int = R.string.ui_error_vote,
     ) : UiError
 
+    data class TranslateStatus(
+        override val throwable: Throwable,
+        override val action: StatusAction.Translate,
+        override val message: Int = R.string.ui_error_translate_status,
+    ) : UiError
+
     data class GetFilters(
         override val throwable: Throwable,
         override val action: UiAction? = null,
@@ -249,16 +254,17 @@ sealed interface UiError {
             is StatusAction.Favourite -> Favourite(throwable, action)
             is StatusAction.Reblog -> Reblog(throwable, action)
             is StatusAction.VoteInPoll -> VoteInPoll(throwable, action)
+            is StatusAction.Translate -> TranslateStatus(throwable, action)
         }
     }
 }
 
 abstract class TimelineViewModel(
+    savedStateHandle: SavedStateHandle,
     private val timelineCases: TimelineCases,
     private val eventHub: EventHub,
     private val filtersRepository: FiltersRepository,
     protected val accountManager: AccountManager,
-    private val filterModel: FilterModel,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     private val sharedPreferencesRepository: SharedPreferencesRepository,
 ) : ViewModel() {
@@ -297,8 +303,7 @@ abstract class TimelineViewModel(
         viewModelScope.launch { uiAction.emit(action) }
     }
 
-    var timelineKind: TimelineKind = TimelineKind.Home
-        private set
+    val timelineKind: TimelineKind = savedStateHandle.get<TimelineKind>(TIMELINE_KIND_TAG)!!
 
     private var filterRemoveReplies = false
     private var filterRemoveReblogs = false
@@ -312,10 +317,12 @@ abstract class TimelineViewModel(
     open var readingPositionId: StatusId? = null
         protected set
 
+    private var filterModel: FilterModel? = null
+
     init {
         viewModelScope.launch {
             updateFiltersFromPreferences().collectLatest {
-                Log.d(TAG, "Filters updated")
+                Timber.d("Filters updated")
             }
         }
 
@@ -347,6 +354,9 @@ abstract class TimelineViewModel(
                                     action.poll.id,
                                     action.choices,
                                 )
+                            is StatusAction.Translate -> {
+                                timelineCases.translate(action.statusViewData)
+                            }
                         }.getOrThrow()
                         uiSuccess.emit(StatusActionSuccess.from(action))
                     } catch (e: Exception) {
@@ -378,20 +388,13 @@ abstract class TimelineViewModel(
             .filter { it == PrefKeys.FAB_HIDE }
             .map {
                 UiState(
-                    sharedPreferencesRepository.getBoolean(PrefKeys.FAB_HIDE, false),
+                    showFabWhileScrolling = !sharedPreferencesRepository.getBoolean(PrefKeys.FAB_HIDE, false),
                 )
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
-                initialValue = UiState(showFabWhileScrolling = true),
+                initialValue = UiState(showFabWhileScrolling = !sharedPreferencesRepository.getBoolean(PrefKeys.FAB_HIDE, false)),
             )
-    }
-
-    @CallSuper
-    open fun init(timelineKind: TimelineKind) {
-        this.timelineKind = timelineKind
-
-        filterModel.kind = Filter.Kind.from(timelineKind)
 
         if (timelineKind is TimelineKind.Home) {
             // Note the variable is "true if filter" but the underlying preference/settings text is "true if show"
@@ -410,7 +413,7 @@ abstract class TimelineViewModel(
                     .filterIsInstance<InfallibleUiAction.SaveVisibleId>()
                     .distinctUntilChanged()
                     .collectLatest { action ->
-                        Log.d(TAG, "Saving Home timeline position at: ${action.visibleId}")
+                        Timber.d("Saving Home timeline position at: ${action.visibleId}")
                         activeAccount.lastVisibleHomeTimelineStatusId = action.visibleId
                         accountManager.saveAccount(activeAccount)
                         readingPositionId = action.visibleId
@@ -429,6 +432,13 @@ abstract class TimelineViewModel(
                     }
                     reloadFromNewest()
                 }
+        }
+
+        // Undo status translations
+        viewModelScope.launch {
+            uiAction.filterIsInstance<InfallibleUiAction.TranslateUndo>().collectLatest {
+                timelineCases.translateUndo(it.statusViewData)
+            }
         }
 
         viewModelScope.launch {
@@ -502,46 +512,33 @@ abstract class TimelineViewModel(
         ) {
             return Filter.Action.HIDE
         } else {
-            statusViewData.filterAction = filterModel.shouldFilterStatus(status.actionableStatus)
+            statusViewData.filterAction = filterModel?.filterActionFor(status.actionableStatus) ?: Filter.Action.NONE
             statusViewData.filterAction
         }
     }
 
     /** Updates the current set of filters if filter-related preferences change */
-    // TODO: https://github.com/tuskyapp/Tusky/issues/3546, and update if a v2 filter is
-    // updated as well.
     private fun updateFiltersFromPreferences() = eventHub.events
         .filterIsInstance<FilterChangedEvent>()
         .filter { filterContextMatchesKind(timelineKind, listOf(it.filterKind)) }
-        .distinctUntilChanged()
-        .map { getFilters() }
+        .map {
+            getFilters()
+            reloadKeepingReadingPosition()
+        }
         .onStart { getFilters() }
 
-    /**
-     * Gets the current filters from the repository. Applies them locally if they are
-     * v1 filters.
-     *
-     * Whatever the filter kind, the current timeline is invalidated, so it updates with the
-     * most recent filters.
-     */
+    /** Gets the current filters from the repository. */
     private fun getFilters() {
         viewModelScope.launch {
-            Log.d(TAG, "getFilters()")
+            Timber.d("getFilters()")
             try {
-                when (val filters = filtersRepository.getFilters()) {
-                    is FilterKind.V1 -> {
-                        filterModel.initWithFilters(
-                            filters.filters.filter {
-                                filterContextMatchesString(timelineKind, it.context)
-                            },
-                        )
-                        invalidate()
-                    }
-
-                    is FilterKind.V2 -> invalidate()
+                val filterKind = Filter.Kind.from(timelineKind)
+                filterModel = when (val filters = filtersRepository.getFilters()) {
+                    is FilterKind.V1 -> FilterModel(filterKind, filters.filters)
+                    is FilterKind.V2 -> FilterModel(filterKind)
                 }
             } catch (throwable: Throwable) {
-                Log.d(TAG, "updateFilter(): Error fetching filters: ${throwable.message}")
+                Timber.d("updateFilter(): Error fetching filters: ${throwable.message}")
                 _uiErrorChannel.send(UiError.GetFilters(throwable))
             }
         }
@@ -617,15 +614,16 @@ abstract class TimelineViewModel(
     }
 
     companion object {
-        private const val TAG = "TimelineViewModel"
         private val THROTTLE_TIMEOUT = 500.milliseconds
 
-        fun filterContextMatchesString(
-            timelineKind: TimelineKind,
-            filterContext: List<String>,
-        ): Boolean {
-            return filterContext.contains(Filter.Kind.from(timelineKind).kind)
-        }
+        /** Tag for the timelineKind in `savedStateHandle` */
+        @VisibleForTesting(VisibleForTesting.PRIVATE)
+        const val TIMELINE_KIND_TAG = "timelineKind"
+
+        /** Create extras for this view model */
+        fun creationExtras(timelineKind: TimelineKind) = bundleOf(
+            TIMELINE_KIND_TAG to timelineKind,
+        )
 
         fun filterContextMatchesKind(
             timelineKind: TimelineKind,

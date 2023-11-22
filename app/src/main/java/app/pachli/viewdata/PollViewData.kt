@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.viewdata
 
@@ -22,6 +23,7 @@ import androidx.core.text.parseAsHtml
 import app.pachli.R
 import app.pachli.entity.Poll
 import app.pachli.entity.PollOption
+import app.pachli.entity.TranslatedPoll
 import java.util.Date
 import kotlin.math.roundToInt
 
@@ -34,7 +36,15 @@ data class PollViewData(
     val votersCount: Int?,
     val options: List<PollOptionViewData>,
     var voted: Boolean,
+    val translatedPoll: TranslatedPoll?,
 ) {
+    /**
+     * @param timeInMs A timestamp in milliseconds-since-the-epoch
+     * @return true if this poll is either marked as expired, or [timeInMs] is after this poll's
+     *     expiry time.
+     */
+    fun expired(timeInMs: Long) = expired || ((expiresAt != null) && (timeInMs > expiresAt.time))
+
     companion object {
         fun from(poll: Poll) = PollViewData(
             id = poll.id,
@@ -45,6 +55,7 @@ data class PollViewData(
             votersCount = poll.votersCount,
             options = poll.options.mapIndexed { index, option -> PollOptionViewData.from(option, poll.ownVotes?.contains(index) == true) },
             voted = poll.voted,
+            translatedPoll = null,
         )
     }
 }

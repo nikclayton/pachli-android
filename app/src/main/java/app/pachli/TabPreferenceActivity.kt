@@ -11,7 +11,7 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
  * see <http://www.gnu.org/licenses>.
  */
 
@@ -20,7 +20,6 @@ package app.pachli
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -64,6 +63,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.regex.Pattern
 import javax.inject.Inject
 
@@ -332,7 +332,7 @@ class TabPreferenceActivity : BaseActivity(), ItemInteractionListener {
                 },
                 { throwable ->
                     dialog.hide()
-                    Log.e("TabPreferenceActivity", "failed to load lists", throwable)
+                    Timber.w(throwable, "failed to load lists")
                     Snackbar.make(binding.root, R.string.error_list_load, Snackbar.LENGTH_LONG).show()
                 },
             )

@@ -10,15 +10,18 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.preference
 
 import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat
 import app.pachli.R
-import app.pachli.components.notifications.NotificationHelper
+import app.pachli.components.notifications.disablePullNotifications
+import app.pachli.components.notifications.enablePullNotifications
+import app.pachli.components.notifications.notificationsAreEnabled
 import app.pachli.db.AccountEntity
 import app.pachli.db.AccountManager
 import app.pachli.settings.PrefKeys
@@ -45,10 +48,10 @@ class NotificationPreferencesFragment : PreferenceFragmentCompat() {
                 isChecked = activeAccount.notificationsEnabled
                 setOnPreferenceChangeListener { _, newValue ->
                     updateAccount { it.notificationsEnabled = newValue as Boolean }
-                    if (NotificationHelper.areNotificationsEnabled(context, accountManager)) {
-                        NotificationHelper.enablePullNotifications(context)
+                    if (notificationsAreEnabled(context, accountManager)) {
+                        enablePullNotifications(context)
                     } else {
-                        NotificationHelper.disablePullNotifications(context)
+                        disablePullNotifications(context)
                     }
                     true
                 }

@@ -10,8 +10,9 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Tusky; if not,
- * see <http://www.gnu.org/licenses>. */
+ * You should have received a copy of the GNU General Public License along with Pachli; if not,
+ * see <http://www.gnu.org/licenses>.
+ */
 
 package app.pachli.components.compose
 
@@ -22,7 +23,6 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_MIMETYPE
 import android.net.Uri
 import android.os.Environment
-import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
@@ -55,6 +55,7 @@ import kotlinx.coroutines.flow.shareIn
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import retrofit2.HttpException
+import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -169,7 +170,7 @@ class MediaUploader @Inject constructor(
 
                     contentResolver.openInputStream(inUri).use { input ->
                         if (input == null) {
-                            Log.w(TAG, "Media input is null")
+                            Timber.w("Media input is null")
                             uri = inUri
                             return@use
                         }
@@ -188,7 +189,7 @@ class MediaUploader @Inject constructor(
                 ContentResolver.SCHEME_FILE -> {
                     val path = uri.path
                     if (path == null) {
-                        Log.w(TAG, "empty uri path $uri")
+                        Timber.w("empty uri path $uri")
                         throw CouldNotOpenFileException()
                     }
                     val inputFile = File(path)
@@ -208,16 +209,16 @@ class MediaUploader @Inject constructor(
                     }
                 }
                 else -> {
-                    Log.w(TAG, "Unknown uri scheme $uri")
+                    Timber.w("Unknown uri scheme $uri")
                     throw CouldNotOpenFileException()
                 }
             }
         } catch (e: IOException) {
-            Log.w(TAG, e)
+            Timber.w(e)
             throw CouldNotOpenFileException()
         }
         if (mediaSize == MEDIA_SIZE_UNKNOWN) {
-            Log.w(TAG, "Could not determine file size of upload")
+            Timber.w("Could not determine file size of upload")
             throw MediaTypeException()
         }
 
@@ -243,7 +244,7 @@ class MediaUploader @Inject constructor(
                 }
             }
         } else {
-            Log.w(TAG, "Could not determine mime type of upload")
+            Timber.w("Could not determine mime type of upload")
             throw MediaTypeException()
         }
     }
@@ -334,9 +335,5 @@ class MediaUploader @Inject constructor(
     private fun shouldResizeMedia(media: QueuedMedia, instanceInfo: InstanceInfo): Boolean {
         return media.type == QueuedMedia.Type.IMAGE &&
             (media.mediaSize > instanceInfo.imageSizeLimit || getImageSquarePixels(context.contentResolver, media.uri) > instanceInfo.imageMatrixLimit)
-    }
-
-    private companion object {
-        private const val TAG = "MediaUploader"
     }
 }
