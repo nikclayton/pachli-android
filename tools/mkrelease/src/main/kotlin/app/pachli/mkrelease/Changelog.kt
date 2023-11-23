@@ -18,6 +18,7 @@
 package app.pachli.mkrelease
 
 import com.github.ajalt.clikt.output.TermUi
+import org.eclipse.jgit.lib.PersonIdent
 import java.io.File
 import kotlin.io.path.fileSize
 
@@ -45,16 +46,28 @@ fun getChangelog(changelog: File, nextVersionName: String): String {
 
 data class LogEntry(
     val section: Section,
-    val text: String
+    val text: String,
+    val author: PersonIdent,
 ) {
     /** Regex to match "(#<some numbers>)" in a commit title, which refers to the PR */
     private val rxPr = """\((?<text>#(?<pr>\d+))\)""".toRegex()
 
-    // Replace "(#\d+)" in the log message, which refers to the PR, with
-    // a markdown link to the PR
-    fun withPrLink() = rxPr.replace(text) { mr ->
-        "(#[${mr.groups["pr"]?.value}](https://github.com/pachli/pachli-android/pull/${mr.groups["pr"]?.value}))"
+    // Returns a link'ified version of the LogEntry.
+    //
+    // - PR references (if present) are converted to links
+    // - A link to the author's commits on GitHub is added
+    fun withLinks(): String {
+        val newText = rxPr.replace(text) { mr ->
+            "(${prLink(mr.groups["pr"]!!.value)}, ${authorLink()})"
+        }
+        if (newText != text) return newText
+
+        return "$text (${authorLink()})"
     }
+
+    private fun prLink(pr: String) = "#[${pr}](https://github.com/pachli/pachli-android/pull/${pr})"
+
+    private fun authorLink() = "[${author.name}](https://github.com/pachli/pachli-android/commits?author=${author.emailAddress})"
 }
 
 data class Changes(

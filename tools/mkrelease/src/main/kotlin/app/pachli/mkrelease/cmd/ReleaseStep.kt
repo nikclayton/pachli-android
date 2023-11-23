@@ -26,6 +26,9 @@ import app.pachli.mkrelease.PasswordCredentialsProvider
 import app.pachli.mkrelease.ReleaseSpec
 import app.pachli.mkrelease.SPEC_FILE
 import app.pachli.mkrelease.Section
+import app.pachli.mkrelease.Section.Features
+import app.pachli.mkrelease.Section.Fixes
+import app.pachli.mkrelease.Section.Translations
 import app.pachli.mkrelease.T
 import app.pachli.mkrelease.confirm
 import app.pachli.mkrelease.createFastlaneFromChangelog
@@ -319,7 +322,7 @@ data object UpdateFilesForRelease : ReleaseStep() {
 
                 if (section == Section.Unknown) return@mapNotNull null
 
-                LogEntry(section, components[1])
+                LogEntry(section, components[1], it.authorIdent)
             }
             .groupBy { it.section }
 
@@ -341,38 +344,34 @@ data object UpdateFilesForRelease : ReleaseStep() {
                 // The first entry with a version number -- must be the most recent version,
                 // so insert the placeholder immediately before.
                 if (line.startsWith("## v")) {
-                    w.println(
-                        """
-## v${spec.thisVersion.versionName()}
-""")
-                    if (changelogEntries[Section.Features]?.isNotEmpty() == true) {
+                    w.println("## v${spec.thisVersion.versionName()}")
+                    if (changelogEntries[Features]?.isNotEmpty() == true) {
                         w.println(
                                 """
 ### New features and other improvements
 
-${changelogEntries[Section.Features]?.joinToString("\n") { "-${it.withPrLink()}" }}
-
+${changelogEntries[Features]?.joinToString("\n") { "-${it.withLinks()}" }}
 """
                         )
                     }
 
-                    if (changelogEntries[Section.Fixes]?.isNotEmpty() == true) {
+                    if (changelogEntries[Fixes]?.isNotEmpty() == true) {
                         w.println(
                             """
 ### Significant bug fixes
 
-${changelogEntries[Section.Fixes]?.joinToString("\n") { "-${it.withPrLink()}" }}
+${changelogEntries[Fixes]?.joinToString("\n") { "-${it.withLinks()}" }}
 
 """.trimIndent()
                         )
                     }
 
-                    if (changelogEntries[Section.Translations]?.isNotEmpty() == true) {
+                    if (changelogEntries[Translations]?.isNotEmpty() == true) {
                         w.println(
                             """
 ### Translations
 
-${changelogEntries[Section.Translations]?.joinToString("\n") { "-${it.withPrLink()}" }}
+${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
 
 """.trimIndent()
                         )
