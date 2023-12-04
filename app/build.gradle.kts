@@ -198,6 +198,7 @@ dependencies {
 
     implementation(libs.semver)
 
+    implementation(libs.palette.ktx)
     debugImplementation(libs.leakcanary)
 
     testImplementation(projects.core.testing)

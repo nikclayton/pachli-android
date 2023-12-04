@@ -22,6 +22,7 @@ import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
@@ -55,6 +56,7 @@ import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.palette.graphics.Palette
 import androidx.viewpager2.widget.MarginPageTransformer
 import app.pachli.appstore.CacheUpdater
 import app.pachli.components.notifications.createNotificationChannelsForAccount
@@ -126,9 +128,13 @@ import app.pachli.util.UpdateShortCutsUseCase
 import app.pachli.util.getDimension
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.FixedSizeDrawable
+import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
@@ -138,7 +144,6 @@ import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.materialdrawer.holder.BadgeStyle
 import com.mikepenz.materialdrawer.holder.ColorHolder
-import com.mikepenz.materialdrawer.holder.ImageHolder
 import com.mikepenz.materialdrawer.holder.StringHolder
 import com.mikepenz.materialdrawer.iconics.iconicsIcon
 import com.mikepenz.materialdrawer.model.AbstractDrawerItem
@@ -158,6 +163,7 @@ import com.mikepenz.materialdrawer.model.interfaces.nameRes
 import com.mikepenz.materialdrawer.model.interfaces.nameText
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
+import com.mikepenz.materialdrawer.util.FixStateListDrawable
 import com.mikepenz.materialdrawer.util.addItemAtPosition
 import com.mikepenz.materialdrawer.util.addItems
 import com.mikepenz.materialdrawer.util.addItemsAtPosition
@@ -384,7 +390,54 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 // Process changes to the account's header picture.
                 launch {
                     account.distinctUntilChangedBy { it.entity.profileHeaderPictureUrl }.collectLatest {
-                        header.headerBackground = ImageHolder(it.entity.profileHeaderPictureUrl)
+//                        header.headerBackground = ImageHolder(it.entity.profileHeaderPictureUrl)
+                        glide.asBitmap()
+//            .load(me.header)
+//                            .load("https://files.mastodon.social/cache/accounts/headers/111/435/570/632/897/037/original/591235c546145c67.jpg")
+                            .load(it.entity.profileHeaderPictureUrl)
+                            .listener(
+                                object : RequestListener<Bitmap> {
+                                    override fun onLoadFailed(
+                                        e: GlideException?,
+                                        model: Any?,
+                                        target: Target<Bitmap>,
+                                        isFirstResource: Boolean,
+                                    ): Boolean {
+                                        // TODO("Not yet implemented")
+                                        return false
+                                    }
+
+                                    override fun onResourceReady(
+                                        resource: Bitmap,
+                                        model: Any,
+                                        target: Target<Bitmap>?,
+                                        dataSource: DataSource,
+                                        isFirstResource: Boolean,
+                                    ): Boolean {
+                                        // TODO setRegion
+                                        val palette = Palette
+                                            .from(resource)
+//                            .setRegion(
+//                                0,
+//                                (resource.height * 0.66).toInt(),
+//                                resource.width,
+//                                resource.height,
+//                            )
+                                            .generate()
+                                        palette.mutedSwatch?.let {
+                                            header.currentProfileName.setTextColor(it.titleTextColor)
+                                            header.currentProfileEmail.setTextColor(it.bodyTextColor)
+                                            (header.accountSwitcherArrow.drawable as FixStateListDrawable)
+//                                .color = ColorStateList.valueOf(it.bodyTextColor)
+                                                .color = ColorStateList.valueOf(resources.getColor(android.R.color.white))
+//                                .setTint(it.bodyTextColor)
+//                                .setTintList(ColorStateList.valueOf(it.bodyTextColor))
+                                        }
+                                        return false
+                                    }
+                                },
+                            )
+                            .into(header.accountHeaderBackground)
                     }
                 }
             }
