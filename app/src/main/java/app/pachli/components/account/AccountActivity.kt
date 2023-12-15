@@ -22,10 +22,14 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.text.TextWatcher
+import android.text.style.StyleSpan
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -33,10 +37,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.annotation.Px
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -47,24 +53,28 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.MarginPageTransformer
 import app.pachli.BottomSheetActivity
-import app.pachli.EditProfileActivity
 import app.pachli.R
-import app.pachli.StatusListActivity
-import app.pachli.ViewMediaActivity
 import app.pachli.components.account.list.ListsForAccountFragment
-import app.pachli.components.accountlist.AccountListActivity
-import app.pachli.components.compose.ComposeActivity
-import app.pachli.components.report.ReportActivity
+import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.navigation.AccountActivityIntent
+import app.pachli.core.navigation.AccountListActivityIntent
+import app.pachli.core.navigation.ComposeActivityIntent
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
+import app.pachli.core.navigation.EditProfileActivityIntent
+import app.pachli.core.navigation.ReportActivityIntent
+import app.pachli.core.navigation.StatusListActivityIntent
+import app.pachli.core.navigation.ViewMediaActivityIntent
+import app.pachli.core.network.model.Account
+import app.pachli.core.network.model.Relationship
+import app.pachli.core.network.parseAsMastodonHtml
+import app.pachli.core.preferences.AppTheme
+import app.pachli.core.preferences.PrefKeys
 import app.pachli.databinding.ActivityAccountBinding
-import app.pachli.db.AccountEntity
 import app.pachli.db.DraftsAlert
-import app.pachli.entity.Account
-import app.pachli.entity.Relationship
 import app.pachli.interfaces.AccountSelectionListener
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.LinkListener
 import app.pachli.interfaces.ReselectableFragment
-import app.pachli.settings.PrefKeys
 import app.pachli.util.Error
 import app.pachli.util.Loading
 import app.pachli.util.Success
@@ -72,7 +82,6 @@ import app.pachli.util.emojify
 import app.pachli.util.getDomain
 import app.pachli.util.hide
 import app.pachli.util.loadAvatar
-import app.pachli.util.parseAsMastodonHtml
 import app.pachli.util.reduceSwipeSensitivity
 import app.pachli.util.setClickableText
 import app.pachli.util.show
@@ -81,6 +90,7 @@ import app.pachli.util.visible
 import app.pachli.view.showMuteAccountDialog
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.chip.Chip
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.shape.MaterialShapeDrawable
@@ -100,6 +110,9 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.abs
 
+/**
+ * Show a single account's profile details.
+ */
 @AndroidEntryPoint
 class AccountActivity :
     BottomSheetActivity(),
@@ -172,7 +185,7 @@ class AccountActivity :
         addMenuProvider(this)
 
         // Obtain information to fill out the profile.
-        viewModel.setAccountInfo(intent.getStringExtra(KEY_ACCOUNT_ID)!!)
+        viewModel.setAccountInfo(AccountActivityIntent.getAccountId(intent))
 
         animateAvatar = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
         animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
@@ -212,7 +225,7 @@ class AccountActivity :
         binding.accountFloatingActionButton.hide()
         binding.accountFollowButton.hide()
         binding.accountMuteButton.hide()
-        binding.accountFollowsYouTextView.hide()
+        binding.accountFollowsYouChip.hide()
 
         // setup the RecyclerView for the account fields
         accountFieldAdapter = AccountFieldAdapter(this, animateEmojis)
@@ -221,12 +234,12 @@ class AccountActivity :
         binding.accountFieldList.adapter = accountFieldAdapter
 
         val accountListClickListener = { v: View ->
-            val type = when (v.id) {
-                R.id.accountFollowers -> AccountListActivity.Type.FOLLOWERS
-                R.id.accountFollowing -> AccountListActivity.Type.FOLLOWS
+            val kind = when (v.id) {
+                R.id.accountFollowers -> AccountListActivityIntent.Kind.FOLLOWERS
+                R.id.accountFollowing -> AccountListActivityIntent.Kind.FOLLOWS
                 else -> throw AssertionError()
             }
-            val accountListIntent = AccountListActivity.newIntent(this, type, viewModel.accountId)
+            val accountListIntent = AccountListActivityIntent(this, kind, viewModel.accountId)
             startActivityWithSlideInAnimation(accountListIntent)
         }
         binding.accountFollowers.setOnClickListener(accountListClickListener)
@@ -479,10 +492,10 @@ class AccountActivity :
         accountFieldAdapter.notifyDataSetChanged()
 
         binding.accountLockedImageView.visible(account.locked)
-        binding.accountBadgeTextView.visible(account.bot)
 
         updateAccountAvatar()
         updateToolbar()
+        updateBadges()
         updateMovedAccount()
         updateRemoteAccount()
         updateAccountJoinedDate()
@@ -498,13 +511,15 @@ class AccountActivity :
     private fun updateAccountJoinedDate() {
         loadedAccount?.let { account ->
             try {
-                binding.accountDateJoined.text = resources.getString(
-                    R.string.account_date_joined,
-                    SimpleDateFormat("MMMM, yyyy", Locale.getDefault()).format(account.createdAt),
-                )
-                binding.accountDateJoined.visibility = View.VISIBLE
+                account.createdAt?.let { createdAt ->
+                    binding.accountDateJoined.text = resources.getString(
+                        R.string.account_date_joined,
+                        SimpleDateFormat("MMMM, yyyy", Locale.getDefault()).format(createdAt),
+                    )
+                    binding.accountDateJoined.show()
+                } ?: binding.accountDateJoined.hide()
             } catch (e: ParseException) {
-                binding.accountDateJoined.visibility = View.GONE
+                binding.accountDateJoined.hide()
             }
         }
     }
@@ -540,7 +555,7 @@ class AccountActivity :
     private fun viewImage(view: View, uri: String) {
         view.transitionName = uri
         startActivity(
-            ViewMediaActivity.newSingleImageIntent(view.context, uri),
+            ViewMediaActivityIntent(view.context, uri),
             ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, uri).toBundle(),
         )
     }
@@ -606,7 +621,7 @@ class AccountActivity :
 
             binding.accountFollowButton.setOnClickListener {
                 if (viewModel.isSelf) {
-                    val intent = Intent(this@AccountActivity, EditProfileActivity::class.java)
+                    val intent = EditProfileActivityIntent(this@AccountActivity)
                     startActivity(intent)
                     return@setOnClickListener
                 }
@@ -647,7 +662,7 @@ class AccountActivity :
         // If wellbeing mode is enabled, "follows you" text should not be visible
         val wellbeingEnabled = sharedPreferencesRepository.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_PROFILE, false)
 
-        binding.accountFollowsYouTextView.visible(relation.followedBy && !wellbeingEnabled)
+        binding.accountFollowsYouChip.visible(relation.followedBy && !wellbeingEnabled)
 
         // because subscribing is Pleroma extension, enable it __only__ when we have non-null subscribing field
         // it's also now supported in Mastodon 3.3.0rc but called notifying and use different API call
@@ -659,9 +674,9 @@ class AccountActivity :
                 viewModel.changeSubscribingState()
             }
             if (relation.notifying != null) {
-                subscribing = relation.notifying
+                subscribing = relation.notifying!!
             } else if (relation.subscribing != null) {
-                subscribing = relation.subscribing
+                subscribing = relation.subscribing!!
             }
         }
 
@@ -743,6 +758,48 @@ class AccountActivity :
             binding.accountFollowButton.hide()
             binding.accountMuteButton.hide()
             binding.accountSubscribeButton.hide()
+        }
+    }
+
+    private fun updateBadges() {
+        binding.accountBadgeContainer.removeAllViews()
+
+        val isLight = when (AppTheme.from(sharedPreferencesRepository)) {
+            AppTheme.DAY -> true
+            AppTheme.NIGHT, AppTheme.BLACK -> false
+            AppTheme.AUTO, AppTheme.AUTO_SYSTEM -> {
+                (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO
+            }
+        }
+
+        if (loadedAccount?.bot == true) {
+            val badgeView = getBadge(
+                MaterialColors.getColor(
+                    binding.accountBadgeContainer,
+                    com.google.android.material.R.attr.colorSurfaceVariant,
+                ),
+                R.drawable.ic_bot_24dp,
+                getString(R.string.profile_badge_bot_text),
+                isLight,
+            )
+            binding.accountBadgeContainer.addView(badgeView)
+        }
+
+        // Display badges for any roles. Per the API spec this should only include
+        // roles with a true `highlighted` property, but the web UI doesn't do that,
+        // so follow suit for the moment, https://github.com/mastodon/mastodon/issues/28327
+        loadedAccount?.roles?.forEach { role ->
+            val badgeColor = if (role.color.isNotBlank()) {
+                Color.parseColor(role.color)
+            } else {
+                MaterialColors.getColor(binding.accountBadgeContainer, android.R.attr.colorPrimary)
+            }
+
+            val sb = SpannableStringBuilder("${role.name} ${viewModel.domain}")
+            sb.setSpan(StyleSpan(Typeface.BOLD), 0, role.name.length, 0)
+
+            val badgeView = getBadge(badgeColor, R.drawable.profile_role_badge, sb, isLight)
+            binding.accountBadgeContainer.addView(badgeView)
         }
     }
 
@@ -879,26 +936,25 @@ class AccountActivity :
     private fun mention() {
         loadedAccount?.let {
             val options = if (viewModel.isSelf) {
-                ComposeActivity.ComposeOptions(kind = ComposeActivity.ComposeKind.NEW)
+                ComposeOptions(kind = ComposeOptions.ComposeKind.NEW)
             } else {
-                ComposeActivity.ComposeOptions(
+                ComposeOptions(
                     mentionedUsernames = setOf(it.username),
-                    kind = ComposeActivity.ComposeKind.NEW,
+                    kind = ComposeOptions.ComposeKind.NEW,
                 )
             }
-            val intent = ComposeActivity.startIntent(this, options)
+            val intent = ComposeActivityIntent(this, options)
             startActivity(intent)
         }
     }
 
     override fun onViewTag(tag: String) {
-        val intent = StatusListActivity.newHashtagIntent(this, tag)
+        val intent = StatusListActivityIntent.hashtag(this, tag)
         startActivityWithSlideInAnimation(intent)
     }
 
     override fun onViewAccount(id: String) {
-        val intent = Intent(this, AccountActivity::class.java)
-        intent.putExtra("id", id)
+        val intent = AccountActivityIntent(this, id)
         startActivityWithSlideInAnimation(intent)
     }
 
@@ -979,7 +1035,7 @@ class AccountActivity :
             }
             R.id.action_report -> {
                 loadedAccount?.let { loadedAccount ->
-                    startActivity(ReportActivity.getIntent(this, viewModel.accountId, loadedAccount.username))
+                    startActivity(ReportActivityIntent(this, viewModel.accountId, loadedAccount.username))
                 }
                 return true
             }
@@ -998,15 +1054,54 @@ class AccountActivity :
         }
     }
 
-    companion object {
-        private const val KEY_ACCOUNT_ID = "id"
-        private val argbEvaluator = ArgbEvaluator()
+    private fun getBadge(
+        @ColorInt baseColor: Int,
+        @DrawableRes icon: Int,
+        text: CharSequence,
+        isLight: Boolean,
+    ): Chip {
+        val badge = Chip(this)
 
-        @JvmStatic
-        fun getIntent(context: Context, accountId: String): Intent {
-            val intent = Intent(context, AccountActivity::class.java)
-            intent.putExtra(KEY_ACCOUNT_ID, accountId)
-            return intent
-        }
+        // Text colour is black or white with ~ 70% opacity
+        // Experiments with the Palette library to extract the colour and pick an
+        // appropriate text colour showed that although the resulting colour could
+        // have marginally more contrast you could get a dark text colour when the
+        // other text colours were light, and vice-versa, making the badge text
+        // appear to be more prominent/important in the information hierarchy.
+        val textColor = if (isLight) Color.argb(178, 0, 0, 0) else Color.argb(178, 255, 255, 255)
+
+        // Badge background colour with 50% transparency so it blends in with the theme background
+        val backgroundColor = Color.argb(128, Color.red(baseColor), Color.green(baseColor), Color.blue(baseColor))
+
+        // Outline colour blends the two
+        val outlineColor = ColorUtils.blendARGB(textColor, baseColor, 0.7f)
+
+        // Configure the badge
+        badge.text = text
+        badge.setTextColor(textColor)
+        badge.chipStrokeWidth = resources.getDimension(R.dimen.profile_badge_stroke_width)
+        badge.chipStrokeColor = ColorStateList.valueOf(outlineColor)
+        badge.setChipIconResource(icon)
+        badge.isChipIconVisible = true
+        badge.chipIconSize = resources.getDimension(R.dimen.profile_badge_icon_size)
+        badge.chipIconTint = ColorStateList.valueOf(textColor)
+        badge.chipBackgroundColor = ColorStateList.valueOf(backgroundColor)
+
+        // Badge isn't clickable, so disable all related behavior
+        badge.isClickable = false
+        badge.isFocusable = false
+        badge.setEnsureMinTouchTargetSize(false)
+
+        // Reset some chip defaults so it looks better for our badge usecase
+        badge.iconStartPadding = resources.getDimension(R.dimen.profile_badge_icon_start_padding)
+        badge.iconEndPadding = resources.getDimension(R.dimen.profile_badge_icon_end_padding)
+        badge.minHeight = resources.getDimensionPixelSize(R.dimen.profile_badge_min_height)
+        badge.chipMinHeight = resources.getDimension(R.dimen.profile_badge_min_height)
+        badge.updatePadding(top = 0, bottom = 0)
+        return badge
+    }
+
+    companion object {
+        private val argbEvaluator = ArgbEvaluator()
     }
 }

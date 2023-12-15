@@ -31,17 +31,17 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.BottomSheetActivity
 import app.pachli.R
-import app.pachli.StatusListActivity
-import app.pachli.components.account.AccountActivity
+import app.pachli.core.common.string.unicodeWrap
+import app.pachli.core.navigation.AccountActivityIntent
+import app.pachli.core.navigation.StatusListActivityIntent
+import app.pachli.core.preferences.PrefKeys
+import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.databinding.FragmentViewEditsBinding
 import app.pachli.interfaces.LinkListener
-import app.pachli.settings.PrefKeys
-import app.pachli.util.SharedPreferencesRepository
 import app.pachli.util.emojify
 import app.pachli.util.hide
 import app.pachli.util.loadAvatar
 import app.pachli.util.show
-import app.pachli.util.unicodeWrap
 import app.pachli.util.viewBinding
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -184,11 +184,11 @@ class ViewEditsFragment :
     }
 
     override fun onViewAccount(id: String) {
-        bottomSheetActivity?.startActivityWithSlideInAnimation(AccountActivity.getIntent(requireContext(), id))
+        bottomSheetActivity?.startActivityWithSlideInAnimation(AccountActivityIntent(requireContext(), id))
     }
 
     override fun onViewTag(tag: String) {
-        bottomSheetActivity?.startActivityWithSlideInAnimation(StatusListActivity.newHashtagIntent(requireContext(), tag))
+        bottomSheetActivity?.startActivityWithSlideInAnimation(StatusListActivityIntent.hashtag(requireContext(), tag))
     }
 
     override fun onViewUrl(url: String) {

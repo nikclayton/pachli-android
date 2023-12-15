@@ -18,8 +18,6 @@
 package app.pachli.components.trending
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -32,7 +30,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import app.pachli.BottomSheetActivity
 import app.pachli.R
 import app.pachli.components.timeline.TimelineFragment
-import app.pachli.components.timeline.TimelineKind
+import app.pachli.core.network.model.TimelineKind
 import app.pachli.databinding.ActivityTrendingBinding
 import app.pachli.interfaces.AppBarLayoutHost
 import app.pachli.util.reduceSwipeSensitivity
@@ -85,10 +83,6 @@ class TrendingActivity : BottomSheetActivity(), AppBarLayoutHost, MenuProvider {
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return super.onOptionsItemSelected(menuItem)
-    }
-
-    companion object {
-        fun getIntent(context: Context) = Intent(context, TrendingActivity::class.java)
     }
 }
 

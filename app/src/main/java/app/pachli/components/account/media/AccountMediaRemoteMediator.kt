@@ -21,9 +21,9 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import app.pachli.components.timeline.util.ifExpected
-import app.pachli.db.AccountEntity
-import app.pachli.network.MastodonApi
-import app.pachli.viewdata.AttachmentViewData
+import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.navigation.AttachmentViewData
+import app.pachli.core.network.retrofit.MastodonApi
 import retrofit2.HttpException
 
 @OptIn(ExperimentalPagingApi::class)

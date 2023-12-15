@@ -1,5 +1,6 @@
 package app.pachli.service
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -27,13 +28,13 @@ import app.pachli.components.compose.MediaUploader
 import app.pachli.components.compose.UploadEvent
 import app.pachli.components.drafts.DraftHelper
 import app.pachli.components.notifications.pendingIntentFlags
-import app.pachli.db.AccountManager
-import app.pachli.entity.Attachment
-import app.pachli.entity.MediaAttribute
-import app.pachli.entity.NewPoll
-import app.pachli.entity.NewStatus
-import app.pachli.entity.Status
-import app.pachli.network.MastodonApi
+import app.pachli.core.accounts.AccountManager
+import app.pachli.core.network.model.Attachment
+import app.pachli.core.network.model.MediaAttribute
+import app.pachli.core.network.model.NewPoll
+import app.pachli.core.network.model.NewStatus
+import app.pachli.core.network.model.Status
+import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.util.unsafeLazy
 import at.connyduck.calladapter.networkresult.fold
 import dagger.hilt.android.AndroidEntryPoint
@@ -373,6 +374,8 @@ class SendStatusService : Service() {
     }
 
     private fun cancelSendingIntent(statusId: Int): PendingIntent {
+        // TODO: Revisit suppressing this when this file is moved
+        @SuppressLint("IntentDetector")
         val intent = Intent(this, SendStatusService::class.java)
         intent.putExtra(KEY_CANCEL, statusId)
         return PendingIntent.getService(
@@ -428,6 +431,8 @@ class SendStatusService : Service() {
             context: Context,
             statusToSend: StatusToSend,
         ): Intent {
+            // TODO: Revisit suppressing this when this file is moved
+            @SuppressLint("IntentDetector")
             val intent = Intent(context, SendStatusService::class.java)
             intent.putExtra(KEY_STATUS, statusToSend)
 

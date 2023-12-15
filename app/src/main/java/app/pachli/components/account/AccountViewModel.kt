@@ -9,10 +9,10 @@ import app.pachli.appstore.EventHub
 import app.pachli.appstore.MuteEvent
 import app.pachli.appstore.ProfileEditedEvent
 import app.pachli.appstore.UnfollowEvent
-import app.pachli.db.AccountManager
-import app.pachli.entity.Account
-import app.pachli.entity.Relationship
-import app.pachli.network.MastodonApi
+import app.pachli.core.accounts.AccountManager
+import app.pachli.core.network.model.Account
+import app.pachli.core.network.model.Relationship
+import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.util.Error
 import app.pachli.util.Loading
 import app.pachli.util.Resource
@@ -44,6 +44,9 @@ class AccountViewModel @Inject constructor(
     lateinit var accountId: String
     var isSelf = false
 
+    /** The domain of the viewed account **/
+    var domain = ""
+
     /** True if the viewed account has the same domain as the active account */
     var isFromOwnDomain = false
 
@@ -70,11 +73,12 @@ class AccountViewModel @Inject constructor(
                 mastodonApi.account(accountId)
                     .fold(
                         { account ->
+                            domain = getDomain(account.url)
                             accountData.postValue(Success(account))
                             isDataLoading = false
                             isRefreshing.postValue(false)
 
-                            isFromOwnDomain = getDomain(account.url) == activeAccount.domain
+                            isFromOwnDomain = domain == activeAccount.domain
                         },
                         { t ->
                             Timber.w("failed obtaining account", t)

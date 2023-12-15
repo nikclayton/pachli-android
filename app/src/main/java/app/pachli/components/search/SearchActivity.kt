@@ -29,8 +29,8 @@ import androidx.core.view.MenuProvider
 import app.pachli.BottomSheetActivity
 import app.pachli.R
 import app.pachli.components.search.adapter.SearchPagerAdapter
+import app.pachli.core.preferences.PrefKeys
 import app.pachli.databinding.ActivitySearchBinding
-import app.pachli.settings.PrefKeys
 import app.pachli.util.reduceSwipeSensitivity
 import app.pachli.util.viewBinding
 import com.google.android.material.tabs.TabLayoutMediator
@@ -152,9 +152,5 @@ class SearchActivity : BottomSheetActivity(), MenuProvider, SearchView.OnQueryTe
         viewModel.currentSearchFieldContent = newText
 
         return false
-    }
-
-    companion object {
-        fun getIntent(context: Context) = Intent(context, SearchActivity::class.java)
     }
 }

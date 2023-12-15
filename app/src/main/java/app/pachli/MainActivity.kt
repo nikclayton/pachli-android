@@ -46,7 +46,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
-import androidx.core.content.IntentCompat
 import androidx.core.content.edit
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.content.res.ResourcesCompat
@@ -61,33 +60,42 @@ import app.pachli.appstore.CacheUpdater
 import app.pachli.appstore.EventHub
 import app.pachli.appstore.MainTabsChangedEvent
 import app.pachli.appstore.ProfileEditedEvent
-import app.pachli.components.account.AccountActivity
-import app.pachli.components.accountlist.AccountListActivity
-import app.pachli.components.announcements.AnnouncementsActivity
-import app.pachli.components.compose.ComposeActivity
 import app.pachli.components.compose.ComposeActivity.Companion.canHandleMimeType
-import app.pachli.components.drafts.DraftsActivity
-import app.pachli.components.login.LoginActivity
 import app.pachli.components.notifications.createNotificationChannelsForAccount
 import app.pachli.components.notifications.disableAllNotifications
 import app.pachli.components.notifications.enablePushNotificationsWithFallback
 import app.pachli.components.notifications.notificationsAreEnabled
 import app.pachli.components.notifications.showMigrationNoticeIfNecessary
-import app.pachli.components.preference.PreferencesActivity
-import app.pachli.components.scheduled.ScheduledStatusActivity
-import app.pachli.components.search.SearchActivity
-import app.pachli.components.trending.TrendingActivity
+import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.database.model.TabKind
+import app.pachli.core.navigation.AboutActivityIntent
+import app.pachli.core.navigation.AccountActivityIntent
+import app.pachli.core.navigation.AccountListActivityIntent
+import app.pachli.core.navigation.AnnouncementsActivityIntent
+import app.pachli.core.navigation.ComposeActivityIntent
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
+import app.pachli.core.navigation.DraftsActivityIntent
+import app.pachli.core.navigation.EditProfileActivityIntent
+import app.pachli.core.navigation.ListActivityIntent
+import app.pachli.core.navigation.LoginActivityIntent
+import app.pachli.core.navigation.LoginActivityIntent.LoginMode
+import app.pachli.core.navigation.MainActivityIntent
+import app.pachli.core.navigation.PreferencesActivityIntent
+import app.pachli.core.navigation.PreferencesActivityIntent.PreferenceScreen
+import app.pachli.core.navigation.ScheduledStatusActivityIntent
+import app.pachli.core.navigation.SearchActivityIntent
+import app.pachli.core.navigation.StatusListActivityIntent
+import app.pachli.core.navigation.TrendingActivityIntent
+import app.pachli.core.network.model.Account
+import app.pachli.core.network.model.Notification
+import app.pachli.core.preferences.PrefKeys
 import app.pachli.databinding.ActivityMainBinding
-import app.pachli.db.AccountEntity
 import app.pachli.db.DraftsAlert
-import app.pachli.entity.Account
-import app.pachli.entity.Notification
 import app.pachli.interfaces.AccountSelectionListener
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.FabFragment
 import app.pachli.interfaces.ReselectableFragment
 import app.pachli.pager.MainPagerAdapter
-import app.pachli.settings.PrefKeys
 import app.pachli.updatecheck.UpdateCheck
 import app.pachli.updatecheck.UpdateNotificationFrequency
 import app.pachli.usecase.DeveloperToolsUseCase
@@ -252,13 +260,13 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     )
                 }
             } else if (openDrafts) {
-                val intent = DraftsActivity.newIntent(this)
+                val intent = DraftsActivityIntent(this)
                 startActivity(intent)
             } else if (accountRequested && intent.hasExtra(NOTIFICATION_TYPE)) {
                 // user clicked a notification, show follow requests for type FOLLOW_REQUEST,
                 // otherwise show notification tab
                 if (intent.getSerializableExtra(NOTIFICATION_TYPE) == Notification.Type.FOLLOW_REQUEST) {
-                    val intent = AccountListActivity.newIntent(this, AccountListActivity.Type.FOLLOW_REQUESTS)
+                    val intent = AccountListActivityIntent(this, AccountListActivityIntent.Kind.FOLLOW_REQUESTS)
                     startActivityWithSlideInAnimation(intent)
                 } else {
                     showNotificationTab = true
@@ -271,7 +279,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         glide = Glide.with(this)
 
         binding.composeButton.setOnClickListener {
-            val composeIntent = Intent(applicationContext, ComposeActivity::class.java)
+            val composeIntent = ComposeActivityIntent(applicationContext)
             startActivity(composeIntent)
         }
 
@@ -392,7 +400,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_search -> {
-                startActivity(SearchActivity.getIntent(this@MainActivity))
+                startActivity(SearchActivityIntent(this@MainActivity))
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -502,7 +510,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                 return true
             }
             KeyEvent.KEYCODE_SEARCH -> {
-                startActivityWithSlideInAnimation(SearchActivity.getIntent(this))
+                startActivityWithSlideInAnimation(SearchActivityIntent(this))
                 return true
             }
         }
@@ -511,7 +519,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
             when (keyCode) {
                 KeyEvent.KEYCODE_N -> {
                     // open compose activity by pressing SHIFT + N (or CTRL + N)
-                    val composeIntent = Intent(applicationContext, ComposeActivity::class.java)
+                    val composeIntent = ComposeActivityIntent(applicationContext)
                     startActivity(composeIntent)
                     return true
                 }
@@ -532,12 +540,12 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     }
 
     private fun forwardToComposeActivity(intent: Intent) {
-        val composeOptions = IntentCompat.getParcelableExtra(intent, COMPOSE_OPTIONS, ComposeActivity.ComposeOptions::class.java)
+        val composeOptions = ComposeActivityIntent.getOptions(intent)
 
         val composeIntent = if (composeOptions != null) {
-            ComposeActivity.startIntent(this, composeOptions)
+            ComposeActivityIntent(this, composeOptions)
         } else {
-            Intent(this, ComposeActivity::class.java).apply {
+            ComposeActivityIntent(this).apply {
                 action = intent.action
                 type = intent.type
                 putExtras(intent)
@@ -639,7 +647,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.action_edit_profile
                     iconicsIcon = GoogleMaterial.Icon.gmd_person
                     onClick = {
-                        val intent = Intent(context, EditProfileActivity::class.java)
+                        val intent = EditProfileActivityIntent(context)
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
@@ -648,7 +656,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     isSelectable = false
                     iconicsIcon = GoogleMaterial.Icon.gmd_star
                     onClick = {
-                        val intent = StatusListActivity.newFavouritesIntent(context)
+                        val intent = StatusListActivityIntent.favourites(context)
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
@@ -656,7 +664,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.action_view_bookmarks
                     iconicsIcon = GoogleMaterial.Icon.gmd_bookmark
                     onClick = {
-                        val intent = StatusListActivity.newBookmarksIntent(context)
+                        val intent = StatusListActivityIntent.bookmarks(context)
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
@@ -664,7 +672,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.action_view_follow_requests
                     iconicsIcon = GoogleMaterial.Icon.gmd_person_add
                     onClick = {
-                        val intent = AccountListActivity.newIntent(context, AccountListActivity.Type.FOLLOW_REQUESTS)
+                        val intent = AccountListActivityIntent(context, AccountListActivityIntent.Kind.FOLLOW_REQUESTS)
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
@@ -672,14 +680,14 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.action_lists
                     iconicsIcon = GoogleMaterial.Icon.gmd_list
                     onClick = {
-                        startActivityWithSlideInAnimation(ListsActivity.newIntent(context))
+                        startActivityWithSlideInAnimation(ListActivityIntent(context))
                     }
                 },
                 primaryDrawerItem {
                     nameRes = R.string.action_access_drafts
                     iconRes = R.drawable.ic_notebook
                     onClick = {
-                        val intent = DraftsActivity.newIntent(context)
+                        val intent = DraftsActivityIntent(context)
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
@@ -687,7 +695,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.action_access_scheduled_posts
                     iconRes = R.drawable.ic_access_time
                     onClick = {
-                        startActivityWithSlideInAnimation(ScheduledStatusActivity.newIntent(context))
+                        startActivityWithSlideInAnimation(ScheduledStatusActivityIntent(context))
                     }
                 },
                 primaryDrawerItem {
@@ -695,7 +703,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.title_announcements
                     iconRes = R.drawable.ic_bullhorn_24dp
                     onClick = {
-                        startActivityWithSlideInAnimation(AnnouncementsActivity.newIntent(context))
+                        startActivityWithSlideInAnimation(AnnouncementsActivityIntent(context))
                     }
                     badgeStyle = BadgeStyle().apply {
                         textColor = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorOnPrimary))
@@ -707,7 +715,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.action_view_account_preferences
                     iconRes = R.drawable.ic_account_settings
                     onClick = {
-                        val intent = PreferencesActivity.newIntent(context, PreferencesActivity.ACCOUNT_PREFERENCES)
+                        val intent = PreferencesActivityIntent(context, PreferenceScreen.ACCOUNT)
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
@@ -715,7 +723,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.action_view_preferences
                     iconicsIcon = GoogleMaterial.Icon.gmd_settings
                     onClick = {
-                        val intent = PreferencesActivity.newIntent(context, PreferencesActivity.GENERAL_PREFERENCES)
+                        val intent = PreferencesActivityIntent(context, PreferenceScreen.GENERAL)
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
@@ -723,7 +731,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.about_title_activity
                     iconicsIcon = GoogleMaterial.Icon.gmd_info
                     onClick = {
-                        val intent = Intent(context, AboutActivity::class.java)
+                        val intent = AboutActivityIntent(context)
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
@@ -741,7 +749,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                         nameRes = R.string.action_search
                         iconicsIcon = GoogleMaterial.Icon.gmd_search
                         onClick = {
-                            startActivityWithSlideInAnimation(SearchActivity.getIntent(context))
+                            startActivityWithSlideInAnimation(SearchActivityIntent(context))
                         }
                     },
                 )
@@ -753,7 +761,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.title_public_trending
                     iconicsIcon = GoogleMaterial.Icon.gmd_trending_up
                     onClick = {
-                        startActivityWithSlideInAnimation(TrendingActivity.getIntent(context))
+                        startActivityWithSlideInAnimation(TrendingActivityIntent(context))
                     }
                 },
             )
@@ -854,7 +862,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         // Save the previous tab so it can be restored later
         val previousTab = tabAdapter.tabs.getOrNull(binding.viewPager.currentItem)
 
-        val tabs = accountManager.activeAccount!!.tabPreferences
+        val tabs = accountManager.activeAccount!!.tabPreferences.map { TabViewData.from(it) }
 
         // Detach any existing mediator before changing tab contents and attaching a new mediator
         tabLayoutMediator?.detach()
@@ -865,8 +873,8 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         tabLayoutMediator = TabLayoutMediator(activeTabLayout, binding.viewPager, true) {
                 tab: TabLayout.Tab, position: Int ->
             tab.icon = AppCompatResources.getDrawable(this@MainActivity, tabs[position].icon)
-            tab.contentDescription = when (tabs[position].id) {
-                LIST -> tabs[position].arguments[1]
+            tab.contentDescription = when (tabs[position].kind) {
+                TabKind.LIST -> tabs[position].arguments[1]
                 else -> getString(tabs[position].text)
             }
         }.also { it.attach() }
@@ -876,7 +884,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         // - The previously selected tab (if it hasn't been removed)
         // - Left-most tab
         val position = if (selectNotificationTab) {
-            tabs.indexOfFirst { it.id == NOTIFICATIONS }
+            tabs.indexOfFirst { it.kind == TabKind.NOTIFICATIONS }
         } else {
             previousTab?.let { tabs.indexOfFirst { it == previousTab } }
         }.takeIf { it != -1 } ?: 0
@@ -940,13 +948,15 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
 
         // open profile when active image was clicked
         if (current && activeAccount != null) {
-            val intent = AccountActivity.getIntent(this, activeAccount.accountId)
+            val intent = AccountActivityIntent(this, activeAccount.accountId)
             startActivityWithSlideInAnimation(intent)
             return
         }
         // open LoginActivity to add new account
         if (profile.identifier == DRAWER_ITEM_ADD_ACCOUNT) {
-            startActivityWithSlideInAnimation(LoginActivity.getIntent(this, LoginActivity.MODE_ADDITIONAL_LOGIN))
+            startActivityWithSlideInAnimation(
+                LoginActivityIntent(this, LoginMode.ADDITIONAL_LOGIN),
+            )
             return
         }
         // change Account
@@ -957,7 +967,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     private fun changeAccount(newSelectedId: Long, forward: Intent?) {
         cacheUpdater.stop()
         accountManager.setActiveAccount(newSelectedId)
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = MainActivityIntent(this)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         if (forward != null) {
             intent.type = forward.type
@@ -987,9 +997,9 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     lifecycleScope.launch {
                         val otherAccountAvailable = logoutUsecase.logout()
                         val intent = if (otherAccountAvailable) {
-                            Intent(this@MainActivity, MainActivity::class.java)
+                            MainActivityIntent(this@MainActivity)
                         } else {
-                            LoginActivity.getIntent(this@MainActivity, LoginActivity.MODE_DEFAULT)
+                            LoginActivityIntent(this@MainActivity, LoginMode.DEFAULT)
                         }
                         startActivity(intent)
                         finishWithoutSlideOutAnimation()
@@ -1196,7 +1206,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
          */
         @JvmStatic
         fun accountSwitchIntent(context: Context, pachliAccountId: Long): Intent {
-            return Intent(context, MainActivity::class.java).apply {
+            return MainActivityIntent(context).apply {
                 putExtra(PACHLI_ACCOUNT_ID, pachliAccountId)
             }
         }
@@ -1220,7 +1230,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         @JvmStatic
         fun composeIntent(
             context: Context,
-            options: ComposeActivity.ComposeOptions,
+            options: ComposeOptions,
             pachliAccountId: Long = -1,
             notificationTag: String? = null,
             notificationId: Int = -1,

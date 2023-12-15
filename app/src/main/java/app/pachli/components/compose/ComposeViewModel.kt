@@ -20,23 +20,24 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.pachli.components.compose.ComposeActivity.ComposeKind
 import app.pachli.components.compose.ComposeActivity.QueuedMedia
 import app.pachli.components.compose.ComposeAutoCompleteAdapter.AutocompleteResult
 import app.pachli.components.drafts.DraftHelper
 import app.pachli.components.instanceinfo.InstanceInfo
 import app.pachli.components.instanceinfo.InstanceInfoRepository
 import app.pachli.components.search.SearchType
-import app.pachli.db.AccountManager
-import app.pachli.entity.Attachment
-import app.pachli.entity.Emoji
-import app.pachli.entity.NewPoll
-import app.pachli.entity.Status
-import app.pachli.network.MastodonApi
+import app.pachli.core.accounts.AccountManager
+import app.pachli.core.common.string.randomAlphanumericString
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.ComposeKind
+import app.pachli.core.network.model.Attachment
+import app.pachli.core.network.model.Emoji
+import app.pachli.core.network.model.NewPoll
+import app.pachli.core.network.model.Status
+import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.service.MediaToSend
 import app.pachli.service.ServiceClient
 import app.pachli.service.StatusToSend
-import app.pachli.util.randomAlphanumericString
 import at.connyduck.calladapter.networkresult.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -412,7 +413,7 @@ class ComposeViewModel @Inject constructor(
         }
     }
 
-    fun setup(composeOptions: ComposeActivity.ComposeOptions?) {
+    fun setup(composeOptions: ComposeOptions?) {
         if (setupComplete) {
             return
         }

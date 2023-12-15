@@ -1,14 +1,14 @@
 package app.pachli.components.filters
 
 import android.content.DialogInterface.BUTTON_POSITIVE
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import app.pachli.BaseActivity
 import app.pachli.R
+import app.pachli.core.navigation.EditFilterActivityIntent
+import app.pachli.core.network.model.Filter
 import app.pachli.databinding.ActivityFiltersBinding
-import app.pachli.entity.Filter
 import app.pachli.util.hide
 import app.pachli.util.show
 import app.pachli.util.viewBinding
@@ -95,11 +95,7 @@ class FiltersActivity : BaseActivity(), FiltersListener {
     }
 
     private fun launchEditFilterActivity(filter: Filter? = null) {
-        val intent = Intent(this, EditFilterActivity::class.java).apply {
-            if (filter != null) {
-                putExtra(EditFilterActivity.FILTER_TO_EDIT, filter)
-            }
-        }
+        val intent = EditFilterActivityIntent(this, filter)
         startActivity(intent)
         overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left)
     }

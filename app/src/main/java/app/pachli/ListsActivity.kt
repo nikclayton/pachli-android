@@ -18,8 +18,6 @@
 package app.pachli
 
 import android.app.Dialog
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,9 +34,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import app.pachli.core.navigation.StatusListActivityIntent
+import app.pachli.core.network.model.MastoList
 import app.pachli.databinding.ActivityListsBinding
 import app.pachli.databinding.DialogListBinding
-import app.pachli.entity.MastoList
 import app.pachli.util.hide
 import app.pachli.util.show
 import app.pachli.util.viewBinding
@@ -134,13 +133,9 @@ class ListsActivity : BaseActivity() {
             editText.text?.let { editText.setSelection(it.length) }
         }
 
-        list?.let {
-            if (it.exclusive == null) {
-                binding.exclusiveCheckbox.visible(false)
-            } else {
-                binding.exclusiveCheckbox.isChecked = it.exclusive
-            }
-        }
+        list?.exclusive?.let {
+            binding.exclusiveCheckbox.isChecked = isTaskRoot
+        } ?: binding.exclusiveCheckbox.hide()
     }
 
     private fun showListDeleteDialog(list: MastoList) {
@@ -195,7 +190,7 @@ class ListsActivity : BaseActivity() {
 
     private fun onListSelected(listId: String, listTitle: String) {
         startActivityWithSlideInAnimation(
-            StatusListActivity.newListIntent(this, listId, listTitle),
+            StatusListActivityIntent.list(this, listId, listTitle),
         )
     }
 
@@ -280,9 +275,5 @@ class ListsActivity : BaseActivity() {
         } else {
             viewModel.updateList(listId, name, exclusive)
         }
-    }
-
-    companion object {
-        fun newIntent(context: Context) = Intent(context, ListsActivity::class.java)
     }
 }

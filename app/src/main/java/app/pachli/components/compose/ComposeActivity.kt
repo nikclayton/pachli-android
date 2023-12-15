@@ -19,7 +19,6 @@ package app.pachli.components.compose
 import android.Manifest
 import android.app.ProgressDialog
 import android.content.ClipData
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -28,8 +27,8 @@ import android.graphics.PorterDuffColorFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.provider.MediaStore
+import android.text.InputFilter
 import android.text.Spanned
 import android.text.style.URLSpan
 import android.view.KeyEvent
@@ -76,20 +75,20 @@ import app.pachli.components.compose.dialog.showAddPollDialog
 import app.pachli.components.compose.view.ComposeOptionsListener
 import app.pachli.components.compose.view.ComposeScheduleView
 import app.pachli.components.instanceinfo.InstanceInfoRepository
+import app.pachli.core.common.string.mastodonLength
+import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.navigation.ComposeActivityIntent
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InitialCursorPosition
+import app.pachli.core.network.model.Attachment
+import app.pachli.core.network.model.Emoji
+import app.pachli.core.network.model.Status
+import app.pachli.core.preferences.AppTheme
+import app.pachli.core.preferences.PrefKeys
+import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.databinding.ActivityComposeBinding
-import app.pachli.db.AccountEntity
-import app.pachli.db.DraftAttachment
-import app.pachli.entity.Attachment
-import app.pachli.entity.Emoji
-import app.pachli.entity.NewPoll
-import app.pachli.entity.Status
-import app.pachli.settings.PrefKeys
-import app.pachli.settings.PrefKeys.APP_THEME
-import app.pachli.util.APP_THEME_DEFAULT
 import app.pachli.util.MentionSpan
 import app.pachli.util.PickMediaFiles
-import app.pachli.util.SharedPreferencesRepository
-import app.pachli.util.THEME_BLACK
 import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
 import app.pachli.util.getMediaSize
@@ -116,7 +115,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.parcelize.Parcelize
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -125,6 +123,10 @@ import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
+/**
+ * Compose a status, either by creating one from scratch, or by editing an existing
+ * status, draft, or scheduled status.
+ */
 @AndroidEntryPoint
 class ComposeActivity :
     BaseActivity(),
@@ -203,8 +205,8 @@ class ComposeActivity :
 
         activeAccount = accountManager.activeAccount ?: return
 
-        val theme = sharedPreferencesRepository.getString(APP_THEME, APP_THEME_DEFAULT)
-        if (theme == THEME_BLACK) {
+        val theme = AppTheme.from(sharedPreferencesRepository)
+        if (theme == AppTheme.BLACK) {
             setTheme(R.style.AppDialogActivityBlackTheme)
         }
         setContentView(binding.root)
@@ -233,7 +235,7 @@ class ComposeActivity :
 
         /* If the composer is started up as a reply to another post, override the "starting" state
          * based on what the intent from the reply request passes. */
-        val composeOptions: ComposeOptions? = IntentCompat.getParcelableExtra(intent, COMPOSE_OPTIONS_EXTRA, ComposeOptions::class.java)
+        val composeOptions: ComposeOptions? = ComposeActivityIntent.getOptions(intent)
         viewModel.setup(composeOptions)
 
         setupButtons()
@@ -1297,60 +1299,6 @@ class ComposeActivity :
         viewModel.updateDescription(localId, description)
     }
 
-    /**
-     * Status' kind. This particularly affects how the status is handled if the user
-     * backs out of the edit.
-     */
-    enum class ComposeKind {
-        /** Status is new */
-        NEW,
-
-        /** Editing a posted status */
-        EDIT_POSTED,
-
-        /** Editing a status started as an existing draft */
-        EDIT_DRAFT,
-
-        /** Editing an an existing scheduled status */
-        EDIT_SCHEDULED,
-    }
-
-    /**
-     * Initial position of the cursor in EditText when the compose button is clicked
-     * in a hashtag timeline
-     */
-    enum class InitialCursorPosition {
-        START,
-        END,
-    }
-
-    @Parcelize
-    data class ComposeOptions(
-        // Let's keep fields var until all consumers are Kotlin
-        var scheduledTootId: String? = null,
-        var draftId: Int? = null,
-        var content: String? = null,
-        var mediaUrls: List<String>? = null,
-        var mediaDescriptions: List<String>? = null,
-        var mentionedUsernames: Set<String>? = null,
-        var inReplyToId: String? = null,
-        var replyVisibility: Status.Visibility? = null,
-        var visibility: Status.Visibility? = null,
-        var contentWarning: String? = null,
-        var replyingStatusAuthor: String? = null,
-        var replyingStatusContent: String? = null,
-        var mediaAttachments: List<Attachment>? = null,
-        var draftAttachments: List<DraftAttachment>? = null,
-        var scheduledAt: String? = null,
-        var sensitive: Boolean? = null,
-        var poll: NewPoll? = null,
-        var modifiedInitialState: Boolean? = null,
-        var language: String? = null,
-        var statusId: String? = null,
-        var kind: ComposeKind? = null,
-        var initialCursorPosition: InitialCursorPosition = InitialCursorPosition.END,
-    ) : Parcelable
-
     companion object {
         private const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1
 
@@ -1359,20 +1307,6 @@ class ComposeActivity :
         private const val VISIBILITY_KEY = "VISIBILITY"
         private const val SCHEDULED_TIME_KEY = "SCHEDULE"
         private const val CONTENT_WARNING_VISIBLE_KEY = "CONTENT_WARNING_VISIBLE"
-
-        /**
-         * @param options ComposeOptions to configure the ComposeActivity
-         * @return an Intent to start the ComposeActivity
-         */
-        @JvmStatic
-        fun startIntent(
-            context: Context,
-            options: ComposeOptions,
-        ): Intent {
-            return Intent(context, ComposeActivity::class.java).apply {
-                putExtra(COMPOSE_OPTIONS_EXTRA, options)
-            }
-        }
 
         fun canHandleMimeType(mimeType: String?): Boolean {
             return mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("audio/") || mimeType == "text/plain")
@@ -1391,6 +1325,7 @@ class ComposeActivity :
          *   (https://docs.joinmastodon.org/user/posting/#mentions)
          * - Hashtags are always treated as their actual length, including the "#"
          *   (https://docs.joinmastodon.org/user/posting/#hashtags)
+         * - Emojis are treated as a single character
          *
          * Content warning text is always treated as its full length, URLs and other entities
          * are not treated differently.
@@ -1400,9 +1335,8 @@ class ComposeActivity :
          * @param urlLength the number of characters attributed to URLs
          * @return the effective status length
          */
-        @JvmStatic
         fun statusLength(body: Spanned, contentWarning: Spanned?, urlLength: Int): Int {
-            var length = body.length - body.getSpans(0, body.length, URLSpan::class.java)
+            var length = body.toString().mastodonLength() - body.getSpans(0, body.length, URLSpan::class.java)
                 .fold(0) { acc, span ->
                     // Accumulate a count of characters to be *ignored* in the final length
                     acc + when (span) {
@@ -1415,15 +1349,50 @@ class ComposeActivity :
                         }
                         else -> {
                             // Expected to be negative if the URL length < maxUrlLength
-                            span.url.length - urlLength
+                            span.url.mastodonLength() - urlLength
                         }
                     }
                 }
 
             // Content warning text is treated as is, URLs or mentions there are not special
-            contentWarning?.let { length += it.length }
+            contentWarning?.let { length += it.toString().mastodonLength() }
 
             return length
+        }
+
+        /**
+         * [InputFilter] that uses the "Mastodon" length of a string, where emojis always
+         * count as a single character.
+         *
+         * Unlike [InputFilter.LengthFilter] the source input is not trimmed if it is
+         * too long, it's just rejected.
+         */
+        class MastodonLengthFilter(private val maxLength: Int) : InputFilter {
+            override fun filter(
+                source: CharSequence?,
+                start: Int,
+                end: Int,
+                dest: Spanned?,
+                dstart: Int,
+                dend: Int,
+            ): CharSequence? {
+                val destRemovedLength = dest?.subSequence(dstart, dend).toString().mastodonLength()
+                val available = maxLength - dest.toString().mastodonLength() + destRemovedLength
+                val sourceLength = source?.subSequence(start, end).toString().mastodonLength()
+
+                // Not enough space to insert the new text
+                if (sourceLength > available) return REJECT
+
+                return ALLOW
+            }
+
+            companion object {
+                /** Filter result allowing the changes */
+                val ALLOW = null
+
+                /** Filter result preventing the changes */
+                const val REJECT = ""
+            }
         }
     }
 }

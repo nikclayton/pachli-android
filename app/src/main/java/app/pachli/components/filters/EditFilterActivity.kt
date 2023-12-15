@@ -8,18 +8,18 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.IntentCompat
 import androidx.core.view.size
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import app.pachli.BaseActivity
 import app.pachli.R
 import app.pachli.appstore.EventHub
+import app.pachli.core.navigation.EditFilterActivityIntent
+import app.pachli.core.network.model.Filter
+import app.pachli.core.network.model.FilterKeyword
+import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.databinding.ActivityEditFilterBinding
 import app.pachli.databinding.DialogFilterBinding
-import app.pachli.entity.Filter
-import app.pachli.entity.FilterKeyword
-import app.pachli.network.MastodonApi
 import app.pachli.util.viewBinding
 import app.pachli.util.visible
 import at.connyduck.calladapter.networkresult.fold
@@ -32,6 +32,9 @@ import retrofit2.HttpException
 import java.util.Date
 import javax.inject.Inject
 
+/**
+ * Edit a single server-side filter.
+ */
 @AndroidEntryPoint
 class EditFilterActivity : BaseActivity() {
     @Inject
@@ -50,7 +53,7 @@ class EditFilterActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        originalFilter = IntentCompat.getParcelableExtra(intent, FILTER_TO_EDIT, Filter::class.java)
+        originalFilter = EditFilterActivityIntent.getFilter(intent)
         filter = originalFilter ?: Filter("", "", listOf(), null, Filter.Action.WARN.action, listOf())
         binding.apply {
             contextSwitches = mapOf(
@@ -295,8 +298,6 @@ class EditFilterActivity : BaseActivity() {
     }
 
     companion object {
-        const val FILTER_TO_EDIT = "FilterToEdit"
-
         // Mastodon *stores* the absolute date in the filter,
         // but create/edit take a number of seconds (relative to the time the operation is posted)
         fun getSecondsForDurationIndex(index: Int, context: Context?, default: Date? = null): Int? {

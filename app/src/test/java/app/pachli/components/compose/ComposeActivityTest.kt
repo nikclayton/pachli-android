@@ -23,13 +23,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.pachli.PachliApplication
 import app.pachli.R
 import app.pachli.components.instanceinfo.InstanceInfoRepository
-import app.pachli.db.AccountManager
-import app.pachli.entity.Account
-import app.pachli.entity.InstanceConfiguration
-import app.pachli.entity.InstanceV1
-import app.pachli.entity.StatusConfiguration
-import app.pachli.network.MastodonApi
-import app.pachli.rules.lazyActivityScenarioRule
+import app.pachli.core.accounts.AccountManager
+import app.pachli.core.navigation.ComposeActivityIntent
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
+import app.pachli.core.network.model.Account
+import app.pachli.core.network.model.InstanceConfiguration
+import app.pachli.core.network.model.InstanceV1
+import app.pachli.core.network.model.StatusConfiguration
+import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.testing.rules.lazyActivityScenarioRule
 import at.connyduck.calladapter.networkresult.NetworkResult
 import dagger.hilt.android.testing.CustomTestApplication
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -138,7 +140,7 @@ class ComposeActivityTest {
 
     @Test
     fun whenModifiedInitialState_andCloseButtonPressed_notFinish() {
-        rule.launch(intent(ComposeActivity.ComposeOptions(modifiedInitialState = true)))
+        rule.launch(intent(ComposeOptions(modifiedInitialState = true)))
         rule.getScenario().onActivity {
             clickUp(it)
             assertFalse(it.isFinishing)
@@ -167,7 +169,7 @@ class ComposeActivityTest {
 
     @Test
     fun whenModifiedInitialState_andBackButtonPressed_notFinish() {
-        rule.launch(intent(ComposeActivity.ComposeOptions(modifiedInitialState = true)))
+        rule.launch(intent(ComposeOptions(modifiedInitialState = true)))
         rule.getScenario().onActivity {
             clickBack(it)
             assertFalse(it.isFinishing)
@@ -233,6 +235,49 @@ class ComposeActivityTest {
         rule.getScenario().onActivity {
             insertSomeTextInContent(it, content)
             assertEquals(content.length, it.calculateTextLength())
+        }
+    }
+
+    @Test
+    fun whenTextContainsEmoji_emojisAreCountedAsOneCharacter() {
+        val content = "Test 😜"
+        rule.launch()
+        rule.getScenario().onActivity {
+            insertSomeTextInContent(it, content)
+            assertEquals(6, it.calculateTextLength())
+        }
+    }
+
+    @Test
+    fun whenTextContainsConesecutiveEmoji_emojisAreCountedAsSeparateCharacters() {
+        val content = "Test 😜😜"
+        rule.launch()
+        rule.getScenario().onActivity {
+            insertSomeTextInContent(it, content)
+            assertEquals(7, it.calculateTextLength())
+        }
+    }
+
+    @Test
+    fun whenTextContainsUrlWithEmoji_ellipsizedUrlIsCountedCorrectly() {
+        val content = "https://🤪.com"
+        rule.launch()
+        rule.getScenario().onActivity {
+            insertSomeTextInContent(it, content)
+            assertEquals(
+                InstanceInfoRepository.DEFAULT_CHARACTERS_RESERVED_PER_URL,
+                it.calculateTextLength(),
+            )
+        }
+    }
+
+    @Test
+    fun whenTextContainsNonEnglishCharacters_lengthIsCountedCorrectly() {
+        val content = "こんにちは. General Kenobi" // "Hello there. General Kenobi"
+        rule.launch()
+        rule.getScenario().onActivity {
+            insertSomeTextInContent(it, content)
+            assertEquals(21, it.calculateTextLength())
         }
     }
 
@@ -512,7 +557,7 @@ class ComposeActivityTest {
 
     @Test
     fun languageGivenInComposeOptionsIsRespected() {
-        rule.launch(intent(ComposeActivity.ComposeOptions(language = "no")))
+        rule.launch(intent(ComposeOptions(language = "no")))
         rule.getScenario().onActivity {
             assertEquals("no", it.selectedLanguage)
         }
@@ -522,7 +567,7 @@ class ComposeActivityTest {
     fun modernLanguageCodeIsUsed() {
         // https://github.com/tuskyapp/Tusky/issues/2903
         // "ji" was deprecated in favor of "yi"
-        rule.launch(intent(ComposeActivity.ComposeOptions(language = "ji")))
+        rule.launch(intent(ComposeOptions(language = "ji")))
         rule.getScenario().onActivity {
             assertEquals("yi", it.selectedLanguage)
         }
@@ -530,14 +575,14 @@ class ComposeActivityTest {
 
     @Test
     fun unknownLanguageGivenInComposeOptionsIsRespected() {
-        rule.launch(intent(ComposeActivity.ComposeOptions(language = "zzz")))
+        rule.launch(intent(ComposeOptions(language = "zzz")))
         rule.getScenario().onActivity {
             assertEquals("zzz", it.selectedLanguage)
         }
     }
 
     /** Returns an intent to launch [ComposeActivity] with the given options */
-    private fun intent(composeOptions: ComposeActivity.ComposeOptions) = ComposeActivity.startIntent(
+    private fun intent(composeOptions: ComposeOptions) = ComposeActivityIntent(
         ApplicationProvider.getApplicationContext(),
         composeOptions,
     )

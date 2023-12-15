@@ -34,18 +34,16 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import app.pachli.MainActivity.Companion.redirectIntent
 import app.pachli.adapter.AccountSelectionAdapter
-import app.pachli.components.login.LoginActivity
-import app.pachli.db.AccountEntity
-import app.pachli.db.AccountManager
+import app.pachli.core.accounts.AccountManager
+import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.navigation.LoginActivityIntent
+import app.pachli.core.preferences.AppTheme
+import app.pachli.core.preferences.PrefKeys
+import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.interfaces.AccountSelectionListener
 import app.pachli.interfaces.PermissionRequester
-import app.pachli.settings.PrefKeys
-import app.pachli.settings.PrefKeys.APP_THEME
-import app.pachli.util.APP_THEME_DEFAULT
 import app.pachli.util.EmbeddedFontFamily
 import app.pachli.util.EmbeddedFontFamily.Companion.from
-import app.pachli.util.SharedPreferencesRepository
-import app.pachli.util.THEME_BLACK
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.EntryPoint
@@ -84,9 +82,9 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // Set the theme from preferences
-        val theme = sharedPreferencesRepository.getString(APP_THEME, APP_THEME_DEFAULT)
+        val theme = AppTheme.from(sharedPreferencesRepository)
         Timber.d("activeTheme: %s", theme)
-        if (theme == THEME_BLACK) {
+        if (theme == AppTheme.BLACK) {
             setTheme(R.style.Theme_Pachli_Black)
         }
 
@@ -182,7 +180,7 @@ abstract class BaseActivity : AppCompatActivity() {
     private fun redirectIfNotLoggedIn() {
         val account = accountManager.activeAccount
         if (account == null) {
-            val intent = Intent(this, LoginActivity::class.java)
+            val intent = LoginActivityIntent(this)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivityWithSlideInAnimation(intent)
             finish()

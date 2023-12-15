@@ -23,20 +23,21 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import app.pachli.components.timeline.viewmodel.CachedTimelineRemoteMediator
-import app.pachli.db.AccountManager
-import app.pachli.db.RemoteKeyDao
-import app.pachli.db.StatusViewDataEntity
-import app.pachli.db.TimelineDao
-import app.pachli.db.TimelineStatusWithAccount
-import app.pachli.db.TranslatedStatusDao
-import app.pachli.db.TranslatedStatusEntity
-import app.pachli.di.ApplicationScope
-import app.pachli.di.TransactionProvider
-import app.pachli.entity.Translation
-import app.pachli.network.MastodonApi
+import app.pachli.core.accounts.AccountManager
+import app.pachli.core.common.di.ApplicationScope
+import app.pachli.core.database.dao.RemoteKeyDao
+import app.pachli.core.database.dao.TimelineDao
+import app.pachli.core.database.dao.TranslatedStatusDao
+import app.pachli.core.database.di.TransactionProvider
+import app.pachli.core.database.model.StatusViewDataEntity
+import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.database.model.TranslatedStatusEntity
+import app.pachli.core.database.model.TranslationState
+import app.pachli.core.network.model.TimelineKind
+import app.pachli.core.network.model.Translation
+import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.util.EmptyPagingSource
 import app.pachli.viewdata.StatusViewData
-import app.pachli.viewdata.TranslationState
 import at.connyduck.calladapter.networkresult.NetworkResult
 import at.connyduck.calladapter.networkresult.fold
 import com.google.gson.Gson
@@ -153,6 +154,13 @@ class CachedTimelineRepository @Inject constructor(
      */
     suspend fun getStatusViewData(statusId: List<String>): Map<String, StatusViewDataEntity> {
         return timelineDao.getStatusViewData(activeAccount!!.id, statusId)
+    }
+
+    /**
+     * @return Map between statusIDs and any translations for them cached in the repository.
+     */
+    suspend fun getStatusTranslations(statusIds: List<String>): Map<String, TranslatedStatusEntity> {
+        return translatedStatusDao.getTranslations(activeAccount!!.id, statusIds)
     }
 
     /** Remove all statuses authored/boosted by the given account, for the active account */

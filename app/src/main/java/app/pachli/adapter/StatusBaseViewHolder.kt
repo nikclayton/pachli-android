@@ -20,25 +20,27 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
-import app.pachli.ViewMediaActivity.Companion.newSingleImageIntent
-import app.pachli.entity.Attachment
-import app.pachli.entity.Emoji
-import app.pachli.entity.PreviewCardKind
-import app.pachli.entity.Status
-import app.pachli.entity.description
+import app.pachli.core.common.util.AbsoluteTimeFormatter
+import app.pachli.core.common.util.formatNumber
+import app.pachli.core.database.model.TranslationState
+import app.pachli.core.navigation.ViewMediaActivityIntent
+import app.pachli.core.network.model.Attachment
+import app.pachli.core.network.model.Emoji
+import app.pachli.core.network.model.PreviewCardKind
+import app.pachli.core.network.model.Status
 import app.pachli.interfaces.StatusActionListener
-import app.pachli.util.AbsoluteTimeFormatter
 import app.pachli.util.CardViewMode
 import app.pachli.util.CompositeWithOpaqueBackground
 import app.pachli.util.StatusDisplayOptions
 import app.pachli.util.aspectRatios
 import app.pachli.util.decodeBlurHash
+import app.pachli.util.description
 import app.pachli.util.emojify
 import app.pachli.util.expandTouchSizeToFillRow
-import app.pachli.util.formatNumber
 import app.pachli.util.getFormattedDescription
 import app.pachli.util.getRelativeTimeSpanString
 import app.pachli.util.hide
+import app.pachli.util.iconResource
 import app.pachli.util.loadAvatar
 import app.pachli.util.makeIcon
 import app.pachli.util.setClickableMentions
@@ -50,7 +52,6 @@ import app.pachli.view.PollView
 import app.pachli.view.PreviewCardView
 import app.pachli.viewdata.PollViewData.Companion.from
 import app.pachli.viewdata.StatusViewData
-import app.pachli.viewdata.TranslationState
 import at.connyduck.sparkbutton.SparkButton
 import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.Glide
@@ -349,7 +350,7 @@ abstract class StatusBaseViewHolder protected constructor(itemView: View) :
             avatar,
             avatarRadius,
             statusDisplayOptions.animateAvatars,
-            listOf(CompositeWithOpaqueBackground(avatar)),
+            listOf(CompositeWithOpaqueBackground(MaterialColors.getColor(avatar, android.R.attr.colorBackground))),
         )
     }
 
@@ -876,7 +877,7 @@ abstract class StatusBaseViewHolder protected constructor(itemView: View) :
             cardView.bind(card, status.actionable.sensitive, statusDisplayOptions) { target ->
                 if (card.kind == PreviewCardKind.PHOTO && card.embedUrl.isNotEmpty() && target == PreviewCardView.Target.IMAGE) {
                     context.startActivity(
-                        newSingleImageIntent(context, card.embedUrl),
+                        ViewMediaActivityIntent(context, card.embedUrl),
                     )
                 } else {
                     listener.onViewUrl(card.url)

@@ -32,18 +32,18 @@ import app.pachli.components.timeline.CachedTimelineRepository
 import app.pachli.components.timeline.FilterKind
 import app.pachli.components.timeline.FiltersRepository
 import app.pachli.components.timeline.util.ifExpected
-import app.pachli.db.AccountEntity
-import app.pachli.db.AccountManager
-import app.pachli.db.TimelineDao
-import app.pachli.db.TranslatedStatusEntity
-import app.pachli.entity.Filter
-import app.pachli.entity.Status
+import app.pachli.core.accounts.AccountManager
+import app.pachli.core.database.dao.TimelineDao
+import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.database.model.TranslatedStatusEntity
+import app.pachli.core.database.model.TranslationState
+import app.pachli.core.network.model.Filter
+import app.pachli.core.network.model.Status
+import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.network.FilterModel
-import app.pachli.network.MastodonApi
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.StatusDisplayOptionsRepository
 import app.pachli.viewdata.StatusViewData
-import app.pachli.viewdata.TranslationState
 import at.connyduck.calladapter.networkresult.fold
 import at.connyduck.calladapter.networkresult.getOrElse
 import at.connyduck.calladapter.networkresult.getOrThrow
@@ -195,8 +195,8 @@ class ViewThreadViewModel @Inject constructor(
             contextResult.fold({ statusContext ->
                 val ids = statusContext.ancestors.map { it.id } + statusContext.descendants.map { it.id }
                 val cachedViewData = repository.getStatusViewData(ids)
-                val ancestors = statusContext.ancestors.map {
-                        status ->
+                val cachedTranslations = repository.getStatusTranslations(ids)
+                val ancestors = statusContext.ancestors.map { status ->
                     val svd = cachedViewData[status.id]
                     StatusViewData.from(
                         status,
@@ -205,6 +205,7 @@ class ViewThreadViewModel @Inject constructor(
                         isCollapsed = svd?.contentCollapsed ?: true,
                         isDetailed = false,
                         translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
+                        translation = cachedTranslations[status.id],
                     )
                 }.filterByFilterAction()
                 val descendants = statusContext.descendants.map {
@@ -217,6 +218,7 @@ class ViewThreadViewModel @Inject constructor(
                         isCollapsed = svd?.contentCollapsed ?: true,
                         isDetailed = false,
                         translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
+                        translation = cachedTranslations[status.id],
                     )
                 }.filterByFilterAction()
                 val statuses = ancestors + detailedStatus + descendants
