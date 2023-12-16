@@ -285,20 +285,20 @@ data object UpdateFilesForRelease : ReleaseStep() {
         git.checkout().setName(branch).info().call()
 
         // No API to update the files, so edit in place
-        val buildDotGradleFile = File(File(root, "app"), "build.gradle")
-        val content = buildDotGradleFile.readText()
-        content.contains("versionCode ${spec.prevVersion.versionCode}") || throw UsageError("can't find 'versionCode ${spec.prevVersion.versionCode}' in $buildDotGradleFile")
-        content.contains("versionName \"${spec.prevVersion.versionName()}\"") || throw UsageError("can't find 'versionName \"${spec.prevVersion.versionName()}\"' in $buildDotGradleFile")
+        val buildDotGradleKtsFile = File(File(root, "app"), "build.gradle.kts")
+        val content = buildDotGradleKtsFile.readText()
+        content.contains("versionCode = ${spec.prevVersion.versionCode}") || throw UsageError("can't find 'versionCode ${spec.prevVersion.versionCode}' in $buildDotGradleKtsFile")
+        content.contains("versionName = \"${spec.prevVersion.versionName()}\"") || throw UsageError("can't find 'versionName \"${spec.prevVersion.versionName()}\"' in $buildDotGradleKtsFile")
 
-        buildDotGradleFile.writeText(
+        buildDotGradleKtsFile.writeText(
             content
                 .replace(
-                    "versionCode ${spec.prevVersion.versionCode}",
-                    "versionCode ${spec.thisVersion.versionCode}"
+                    "versionCode = ${spec.prevVersion.versionCode}",
+                    "versionCode = ${spec.thisVersion.versionCode}"
                 )
                 .replace(
-                    "versionName \"${spec.prevVersion.versionName()}\"",
-                    "versionName \"${spec.thisVersion.versionName()}\""
+                    "versionName = \"${spec.prevVersion.versionName()}\"",
+                    "versionName = \"${spec.thisVersion.versionName()}\""
                 )
         )
 
@@ -404,7 +404,7 @@ ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
         git.add()
             .setUpdate(false)
             .addFilepattern("CHANGELOG.md")
-            .addFilepattern("app/build.gradle")
+            .addFilepattern("app/build.gradle.kts")
             .addFilepattern(spec.fastlanePath())
             .info()
             .call()
