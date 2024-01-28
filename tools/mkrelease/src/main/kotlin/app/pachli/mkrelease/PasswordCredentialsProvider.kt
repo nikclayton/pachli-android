@@ -17,7 +17,7 @@
 
 package app.pachli.mkrelease
 
-import com.github.ajalt.clikt.output.TermUi
+import com.github.ajalt.mordant.terminal.Terminal
 import org.eclipse.jgit.transport.CredentialItem
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.URIish
@@ -29,7 +29,7 @@ import org.eclipse.jgit.transport.URIish
  * For example, prompting a GPG password for a Git operation, where Git already knows which
  * signing key (effectively the username) that the password is for.
  */
-class PasswordCredentialsProvider : CredentialsProvider() {
+class PasswordCredentialsProvider(private val t: Terminal) : CredentialsProvider() {
     private var password: String? = null
 
     override fun isInteractive() = true
@@ -40,7 +40,7 @@ class PasswordCredentialsProvider : CredentialsProvider() {
                 is CredentialItem.InformationalMessage -> continue
                 is CredentialItem.Password -> continue
                 else -> {
-                    println("Unsupported item type in GpgCredentialsProvider: $item")
+                    t.println("Unsupported item type in GpgCredentialsProvider: $item")
                     return false
                 }
             }
@@ -53,7 +53,7 @@ class PasswordCredentialsProvider : CredentialsProvider() {
         for (item in items) {
             when (item) {
                 is CredentialItem.InformationalMessage -> {
-                    password = TermUi.prompt(item.promptText, hideInput = true)
+                    password = t.prompt(item.promptText, hideInput = true)
                 }
                 is CredentialItem.Password -> item.value = password?.toCharArray()
             }

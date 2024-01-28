@@ -17,6 +17,12 @@
 
 package app.pachli.mkrelease
 
+import com.github.ajalt.mordant.terminal.Terminal
+import java.io.File
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import org.eclipse.jgit.api.AddCommand
 import org.eclipse.jgit.api.CheckoutCommand
 import org.eclipse.jgit.api.CloneCommand
@@ -39,11 +45,6 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RefSpec
 import org.eclipse.jgit.transport.URIish
-import java.io.File
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 object RepositoryIsNotClean : Exception()
 
@@ -51,11 +52,11 @@ object RepositoryIsNotClean : Exception()
  * Checks to see if the repository's working tree is clean, prints diagnostic
  * message if not, and throws RepositoryIsNotClean
  */
-fun Git.ensureClean() {
-    val status = this.status().info().call()
+fun Git.ensureClean(t: Terminal) {
+    val status = this.status().info(t).call()
 
     if (!status.isClean) {
-        T.danger("Warning: ${this.repository.workTree} is not clean")
+        t.danger("Warning: ${this.repository.workTree} is not clean")
         status.conflicting.forEach { println("Conflict          - $it") }
         status.added.forEach { println("Added             - $it") }
         status.changed.forEach { println("Changed           - $it") }
@@ -67,7 +68,7 @@ fun Git.ensureClean() {
         status.untrackedFolders.forEach { println("Untracked folder  - $it") }
         status.conflictingStageState.forEach { println("Conflicting state - $it") }
 
-        if (T.confirm("See the diffs?")) {
+        if (t.confirm("See the diffs?")) {
             this.diff()
                 .setOutputStream(System.out)
                 .call()
@@ -78,7 +79,7 @@ fun Git.ensureClean() {
                 .call()
         }
 
-        if (T.confirm("Reset the tree now?")) {
+        if (t.confirm("Reset the tree now?")) {
             this.reset().setMode(ResetCommand.ResetType.HARD).call()
             this.clean().call()
             return
@@ -110,9 +111,9 @@ $tabbedCommitMessage
     """.trimIndent()
 }
 
-//https://gist.github.com/paulwellnerbou/67c1758055710a7eb88e
+// https://gist.github.com/paulwellnerbou/67c1758055710a7eb88e
 fun Git.getActualRefObjectId(ref: Ref): ObjectId {
-    val repoPeeled = this.repository.refDatabase.peel(ref);
+    val repoPeeled = this.repository.refDatabase.peel(ref)
     return repoPeeled.peeledObjectId ?: ref.objectId
 }
 
@@ -125,16 +126,16 @@ inline fun <reified T : Any, R> T.getPrivateProperty(name: String): R? {
     return field.get(this) as R?
 }
 
-fun AddCommand.info(): AddCommand {
+fun AddCommand.info(t: Terminal): AddCommand {
     val update = if (this.getPrivateProperty<AddCommand, Boolean>("update") == true) " --update" else ""
     val filePatterns = this.getPrivateProperty<AddCommand, Collection<String>>("filepatterns")
         ?.joinToString(" ")
 
-    T.info("- git add$update $filePatterns")
+    t.info("- git add$update $filePatterns")
     return this
 }
 
-fun CheckoutCommand.info(): CheckoutCommand {
+fun CheckoutCommand.info(t: Terminal): CheckoutCommand {
     val createBranch = when (this.getPrivateProperty<CheckoutCommand, Boolean>("createBranch")) {
         true -> " -b"
         false, null -> ""
@@ -148,24 +149,24 @@ fun CheckoutCommand.info(): CheckoutCommand {
     val name = this.getPrivateProperty<CheckoutCommand, String>("name")
     val startPoint = this.getPrivateProperty<CheckoutCommand, String>("startPoint")?.let { " $it" } ?: ""
 
-    T.info("- git checkout$createBranch $name$upstreamMode$startPoint")
+    t.info("- git checkout$createBranch $name$upstreamMode$startPoint")
     return this
 }
 
-fun CloneCommand.info(): CloneCommand {
+fun CloneCommand.info(t: Terminal): CloneCommand {
     val uri = this.getPrivateProperty<CloneCommand, String>("uri")
     val directory = this.getPrivateProperty<CloneCommand, File>("directory")
-    T.info("- git clone $uri $directory")
+    t.info("- git clone $uri $directory")
     return this
 }
 
-fun CommitCommand.info(): CommitCommand {
+fun CommitCommand.info(t: Terminal): CommitCommand {
     val message = this.getPrivateProperty<CommitCommand, String>("message")
-    T.info("- git commit -m '$message'")
+    t.info("- git commit -m '$message'")
     return this
 }
 
-fun CreateBranchCommand.info(): CreateBranchCommand {
+fun CreateBranchCommand.info(t: Terminal): CreateBranchCommand {
     val name = this.getPrivateProperty<CreateBranchCommand, String>("name")
     val upstreamMode = when (this.getPrivateProperty<CreateBranchCommand, CreateBranchCommand.SetupUpstreamMode>("upstreamMode")) {
         CreateBranchCommand.SetupUpstreamMode.TRACK -> " --track"
@@ -173,17 +174,17 @@ fun CreateBranchCommand.info(): CreateBranchCommand {
         CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM -> " --set-upstream"
         null -> TODO()
     }
-    T.info("- git branch$upstreamMode $name")
+    t.info("- git branch$upstreamMode $name")
     return this
 }
 
-fun FetchCommand.info(): FetchCommand {
+fun FetchCommand.info(t: Terminal): FetchCommand {
     val remote = this.getPrivateProperty<FetchCommand, String>("remote") ?: ""
-    T.info("- git fetch $remote")
+    t.info("- git fetch $remote")
     return this
 }
 
-fun LogCommand.info(): LogCommand {
+fun LogCommand.info(t: Terminal): LogCommand {
     val maxCount = this.getPrivateProperty<LogCommand, Int>("maxCount")
         .takeIf { it != -1 }
         ?.let { " --max-count=$it" }
@@ -196,11 +197,11 @@ fun LogCommand.info(): LogCommand {
         emptyList()
     }
 
-    T.info("- git log$maxCount ${roots.joinToString("..") { it.name }}")
+    t.info("- git log$maxCount ${roots.joinToString("..") { it.name }}")
     return this
 }
 
-fun MergeCommand.info(): MergeCommand {
+fun MergeCommand.info(t: Terminal): MergeCommand {
     val commits = this.getPrivateProperty<MergeCommand, List<Ref>>("commits")?.let { refs ->
         refs.map { it.name }
     }?.joinToString(" ") ?: ""
@@ -210,11 +211,11 @@ fun MergeCommand.info(): MergeCommand {
         FastForwardMode.FF_ONLY -> " --ff-only"
         null -> ""
     }
-    T.info("- git merge$fastForwardMode $commits")
+    t.info("- git merge$fastForwardMode $commits")
     return this
 }
 
-fun PullCommand.info(): PullCommand {
+fun PullCommand.info(t: Terminal): PullCommand {
     val remote = this.getPrivateProperty<PullCommand, String>("remote") ?: ""
     val fastForwardMode = when (this.getPrivateProperty<PullCommand, FastForwardMode>("fastForwardMode")) {
         FastForwardMode.FF -> " --ff"
@@ -222,33 +223,33 @@ fun PullCommand.info(): PullCommand {
         FastForwardMode.FF_ONLY -> " --ff-only"
         null -> ""
     }
-    T.info("- git pull$fastForwardMode $remote")
+    t.info("- git pull$fastForwardMode $remote")
     return this
 }
 
-fun PushCommand.info(): PushCommand {
+fun PushCommand.info(t: Terminal): PushCommand {
     val remote = this.getPrivateProperty<PushCommand, String>("remote")?.let { " $it" } ?: ""
     val refSpecs = this.getPrivateProperty<PushCommand, List<RefSpec>>("refSpecs")?.joinToString(" ")
-    T.info("- git push$remote $refSpecs")
+    t.info("- git push$remote $refSpecs")
     return this
 }
 
-fun RemoteAddCommand.info(): RemoteAddCommand {
+fun RemoteAddCommand.info(t: Terminal): RemoteAddCommand {
     val name = this.getPrivateProperty<RemoteAddCommand, String>("name")
     val uri = this.getPrivateProperty<RemoteAddCommand, URIish>("uri")
-    T.info("- git remote add $name $uri")
+    t.info("- git remote add $name $uri")
     return this
 }
 
-fun StatusCommand.info(): StatusCommand {
-    T.info("- git status")
+fun StatusCommand.info(t: Terminal): StatusCommand {
+    t.info("- git status")
     return this
 }
 
-fun TagCommand.info(): TagCommand {
+fun TagCommand.info(t: Terminal): TagCommand {
     val name = this.getPrivateProperty<TagCommand, String>("name")?.let { " $it" } ?: ""
     val message = this.getPrivateProperty<TagCommand, String>("message")?.let { " -m '$it'" } ?: ""
     val signed = this.getPrivateProperty<TagCommand, Boolean>("signed")?.let { " -s" } ?: ""
-    T.info("- git tag$signed$message$name")
+    t.info("- git tag$signed$message$name")
     return this
 }

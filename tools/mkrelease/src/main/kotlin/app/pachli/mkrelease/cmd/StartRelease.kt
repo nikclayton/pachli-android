@@ -25,16 +25,14 @@ import app.pachli.mkrelease.PachliVersion
 import app.pachli.mkrelease.ReleaseSpec
 import app.pachli.mkrelease.ReleaseType
 import app.pachli.mkrelease.SPEC_FILE
-import app.pachli.mkrelease.T
 import app.pachli.mkrelease.ensureClean
 import app.pachli.mkrelease.ensureRepo
 import app.pachli.mkrelease.getGradle
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
 import com.android.builder.model.v2.models.AndroidDsl
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.requireObject
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
@@ -53,25 +51,25 @@ class StartRelease : CliktCommand(name = "start") {
 
     private val releaseType by option().choice("major", "minor", "patch").convert { ReleaseType.from(it) }.prompt(
         text = "[major], [minor], [patch] release?",
-        default = "major",
-        showDefault = true
+        default = ReleaseType.MAJOR,
+        showDefault = true,
     )
 
     private val issueUrl by option().convert { GitHubIssue(URL(it)) }.prompt(
-        text = "Go to GitHub, create an issue to track this release"
+        text = "Go to GitHub, create an issue to track this release",
     )
 
     override fun run() {
         val log = globalFlags.log
-        (log.underlyingLogger as Logger).level = if (globalFlags.verbose) Level.INFO else Level.WARN
+//        (log.underlyingLogger as Logger).level = if (globalFlags.verbose) Level.INFO else Level.WARN
         log.info("startRelease")
 
         val config = Config.from(CONFIG_FILE)
 
-        val git = ensureRepo(config.repositoryFork.gitUrl, config.pachliForkRoot)
-            .also { it.ensureClean() }
+        val git = ensureRepo(terminal, config.repositoryFork.gitUrl, config.pachliForkRoot)
+            .also { it.ensureClean(terminal) }
 
-        T.info("${config.pachliForkRoot} is clean")
+        terminal.info("${config.pachliForkRoot} is clean")
 
         // TODO: Should warn if there's a release in progress (e.g., SPEC_FILE exists)
 
@@ -111,7 +109,7 @@ class StartRelease : CliktCommand(name = "start") {
             trackingIssue = issueUrl,
             releaseType = releaseType,
 //            finalVersion = finalRelease,
-            prevVersion = prevRelease
+            prevVersion = prevRelease,
         )
 
         releaseSpec.save(SPEC_FILE)

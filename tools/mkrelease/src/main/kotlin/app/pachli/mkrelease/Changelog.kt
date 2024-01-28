@@ -18,9 +18,10 @@
 package app.pachli.mkrelease
 
 import com.github.ajalt.clikt.output.TermUi
-import org.eclipse.jgit.lib.PersonIdent
+import com.github.ajalt.mordant.terminal.Terminal
 import java.io.File
 import kotlin.io.path.fileSize
+import org.eclipse.jgit.lib.PersonIdent
 
 fun getChangelog(changelog: File, nextVersionName: String): String {
     val result = mutableListOf<String>()
@@ -65,7 +66,7 @@ data class LogEntry(
         return "$text (${authorLink()})"
     }
 
-    private fun prLink(pr: String) = "#[${pr}](https://github.com/pachli/pachli-android/pull/${pr})"
+    private fun prLink(pr: String) = "#[$pr](https://github.com/pachli/pachli-android/pull/$pr)"
 
     private fun authorLink() = "[${author.name}](https://github.com/pachli/pachli-android/commits?author=${author.emailAddress})"
 }
@@ -73,14 +74,15 @@ data class LogEntry(
 data class Changes(
     val features: List<String>,
     val fixes: List<String>,
-    val translations: List<String>
+    val translations: List<String>,
 )
 
 enum class Section {
     Features,
     Fixes,
     Translations,
-    Unknown;
+    Unknown,
+    ;
 
     companion object {
         fun fromCommitTitle(title: String) = when {
@@ -149,7 +151,7 @@ fun getChangelogHighlights(changelog: File, nextVersionName: String): Changes {
 /**
  * Copies the contents for [nextVersionName] from [changelog] in to [fastlane].
  */
-fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName: String) {
+fun createFastlaneFromChangelog(t: Terminal, changelog: File, fastlane: File, nextVersionName: String) {
     val changes = getChangelogHighlights(changelog, nextVersionName)
     if (fastlane.exists()) fastlane.delete()
     fastlane.createNewFile()
@@ -158,7 +160,7 @@ fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName
     w.println(
         """
                 Pachli $nextVersionName
-        """.trimIndent()
+        """.trimIndent(),
     )
 
     if (changes.features.isNotEmpty()) {
@@ -167,7 +169,7 @@ fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName
 
         New features:
 
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         changes.features.forEach {
@@ -175,7 +177,7 @@ fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName
                 // Strip out the Markdown formatting and the links at the end
                 it
                     .replace("**", "")
-                    .replace(", \\[.*".toRegex(), "")
+                    .replace(", \\[.*".toRegex(), ""),
             )
         }
     }
@@ -186,14 +188,14 @@ fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName
 
         Fixes:
 
-            """.trimIndent()
+            """.trimIndent(),
         )
         changes.fixes.forEach {
             w.println(
                 // Strip out the Markdown formatting and the links at the end
                 it
                     .replace("**", "")
-                    .replace(", \\[.*".toRegex(), "")
+                    .replace(", \\[.*".toRegex(), ""),
             )
         }
     }
@@ -204,7 +206,7 @@ fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName
 
         Translations:
 
-            """.trimIndent()
+            """.trimIndent(),
         )
         changes.translations.forEach {
             // Strip out the Markdown formatting and the links at the end
@@ -216,8 +218,8 @@ fun createFastlaneFromChangelog(changelog: File, fastlane: File, nextVersionName
     w.close()
 
     while (fastlane.toPath().fileSize() > 500) {
-        T.danger("${fastlane.path} is ${fastlane.toPath().fileSize()} bytes, and will be truncated on F-Droid (> 500)")
-        if (T.confirm("Open file in editor to modify it?")) {
+        t.danger("${fastlane.path} is ${fastlane.toPath().fileSize()} bytes, and will be truncated on F-Droid (> 500)")
+        if (t.confirm("Open file in editor to modify it?")) {
             TermUi.editFile(fastlane.path)
         } else {
             break

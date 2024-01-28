@@ -29,7 +29,6 @@ import app.pachli.mkrelease.Section
 import app.pachli.mkrelease.Section.Features
 import app.pachli.mkrelease.Section.Fixes
 import app.pachli.mkrelease.Section.Translations
-import app.pachli.mkrelease.T
 import app.pachli.mkrelease.confirm
 import app.pachli.mkrelease.createFastlaneFromChangelog
 import app.pachli.mkrelease.ensureClean
@@ -44,6 +43,13 @@ import com.android.builder.model.v2.models.AndroidDsl
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.mordant.rendering.TextColors
+import com.github.ajalt.mordant.terminal.Terminal
+import java.io.File
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import kotlin.io.path.createTempFile
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -59,12 +65,6 @@ import org.gitlab4j.api.GitLabApi
 import org.kohsuke.github.GHPullRequestReviewState
 import org.kohsuke.github.GHReleaseBuilder
 import org.kohsuke.github.GitHubBuilder
-import java.io.File
-import java.net.URL
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import kotlin.io.path.createTempFile
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * One or more pieces of work that to complete a release, but that should be completed as an
@@ -72,13 +72,13 @@ import kotlin.time.Duration.Companion.seconds
  */
 @Serializable
 sealed class ReleaseStep {
-    abstract fun run(config: Config, spec: ReleaseSpec): ReleaseSpec?
+    abstract fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec?
     open fun desc(): String = this.javaClass.simpleName
 }
 
 @Serializable
 data object EnsureCleanReleaseSpec : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         spec.thisVersion?.let {
             throw UsageError("thisVersion is set in the release spec, there is an ongoing release process: $it")
         }
@@ -95,39 +95,39 @@ data object EnsureCleanReleaseSpec : ReleaseStep() {
  */
 @Serializable
 data object PreparePachliForkRepository : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryFork
         val root = config.pachliForkRoot
 
-        val git = ensureRepo(repo.gitUrl, root)
-            .also { it.ensureClean() }
+        val git = ensureRepo(t, repo.gitUrl, root)
+            .also { it.ensureClean(t) }
 
         // git remote add upstream https://...
         git.remoteAdd()
             .setName("upstream")
             .setUri(URIish(config.repositoryMain.gitUrl))
-            .info()
+            .info(t)
             .call()
 
         val defaultBranchRef = Git.lsRemoteRepository()
             .setRemote(repo.gitUrl.toString())
             .callAsMap()["HEAD"]?.target?.name ?: throw UsageError("Could not determine default branch name")
-        T.info("default branch ref is $defaultBranchRef")
+        t.info("default branch ref is $defaultBranchRef")
         val defaultBranch = defaultBranchRef.split("/").last()
 
-        T.info("default branch: $defaultBranch")
+        t.info("default branch: $defaultBranch")
 
         // git checkout main
         git.checkout()
             .setName(defaultBranch)
-            .info()
+            .info(t)
             .call()
 
         // git fetch upstream
         git.fetch()
             .setRemote("upstream")
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
 
         // git pull upstream $defaultBranch
@@ -136,7 +136,7 @@ data object PreparePachliForkRepository : ReleaseStep() {
             .setRemote("upstream")
             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
 
         // git push origin $defaultBranch
@@ -144,18 +144,18 @@ data object PreparePachliForkRepository : ReleaseStep() {
             .setCredentialsProvider(DelegatingCredentialsProvider(root.toPath()))
             .setRemote("origin")
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
 
         // Checkout `main` branch,
-        git.checkout().setName("main").info().call()
+        git.checkout().setName("main").info(t).call()
 
         // Pull everything.
         // - FF_ONLY, a non-FF pull indicates a merge commit is needed, which is bad
 //            git.pull()
 //                .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
 //                .call()
-        git.ensureClean()
+        git.ensureClean(t)
 
         return null
     }
@@ -167,14 +167,14 @@ data object PreparePachliForkRepository : ReleaseStep() {
  */
 @Serializable
 data object GetCurrentAppVersion : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec {
         val repo = config.repositoryFork
         val root = config.pachliForkRoot
 
-        ensureRepo(repo.gitUrl, root)
-            .also { it.ensureClean() }
+        ensureRepo(t, repo.gitUrl, root)
+            .also { it.ensureClean(t) }
 
-        T.info("- Determining current release version")
+        t.info("- Determining current release version")
         val currentRelease = getGradle(root).use {
             val androidDsl = it.model(AndroidDsl::class.java).get()
             val versionCode = androidDsl.defaultConfig.versionCode
@@ -185,10 +185,10 @@ data object GetCurrentAppVersion : ReleaseStep() {
                 ?: throw UsageError("Could not parse '$versionName' as release version")
         }
 
-        T.success("  $currentRelease")
+        t.success("  $currentRelease")
 
         return spec.copy(
-            prevVersion = currentRelease
+            prevVersion = currentRelease,
         )
     }
 }
@@ -198,34 +198,34 @@ data object GetCurrentAppVersion : ReleaseStep() {
  */
 @Serializable
 data object ConfirmCurrentVersionIsBeta : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         if (spec.prevVersion !is PachliVersion.Beta) {
             throw UsageError("Current Pachli version is not a beta")
         }
 
-        T.success("Current version (${spec.prevVersion}) is a beta")
+        t.success("Current version (${spec.prevVersion}) is a beta")
         return null
     }
 }
 
 @Serializable
 data object SetNextVersionAsBeta : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val releaseVersion = spec.prevVersion.next(spec.releaseType)
-        T.success("Release version is $releaseVersion")
+        t.success("Release version is $releaseVersion")
         return spec.copy(thisVersion = releaseVersion)
     }
 }
 
 @Serializable
 data object SetNextVersionAsRelease : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec {
         val releaseVersion = when (spec.prevVersion) {
             is PachliVersion.Beta -> spec.prevVersion.release()
             is PachliVersion.Release -> spec.prevVersion.release(spec.releaseType)
         }
 //        val releaseVersion = (spec.prevVersion as PachliVersion.Beta).release()
-        T.success("Release version is $releaseVersion")
+        t.success("Release version is $releaseVersion")
         return spec.copy(thisVersion = releaseVersion)
     }
 }
@@ -234,29 +234,29 @@ class BranchExists(message: String) : Throwable(message)
 
 @Serializable
 data object CreateReleaseBranch : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryFork
         val root = config.pachliForkRoot
 
-        val git = ensureRepo(repo.gitUrl, root)
-            .also { it.ensureClean() }
+        val git = ensureRepo(t, repo.gitUrl, root)
+            .also { it.ensureClean(t) }
 
         // Create branch (${issue}-${major}.${minor}-b${beta})
         val branch = spec.releaseBranch()
-        T.info("- Release branch will be $branch")
+        t.info("- Release branch will be $branch")
 
         try {
             git.branchCreate()
                 // Below was SET_UPSTREAM, but that's deprecated in Git docs
                 .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                 .setName(branch)
-                .info()
+                .info(t)
                 .call()
         } catch (e: RefAlreadyExistsException) {
             throw BranchExists("Branch $branch already exists")
         }
 
-        T.success("  ... done.")
+        t.success("  ... done.")
 
         return null
     }
@@ -266,12 +266,12 @@ class BranchMissing(message: String) : Exception(message)
 
 @Serializable
 data object UpdateFilesForRelease : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryFork
         val root = config.pachliForkRoot
 
-        val git = ensureRepo(repo.gitUrl, root)
-            .also { it.ensureClean() }
+        val git = ensureRepo(t, repo.gitUrl, root)
+            .also { it.ensureClean(t) }
 
         val branch = spec.releaseBranch()
         spec.thisVersion ?: throw UsageError("releaseSpec.thisVersion is null and should not be")
@@ -282,7 +282,7 @@ data object UpdateFilesForRelease : ReleaseStep() {
 
         // Switch to branch
         // TODO: This will fail if the branch doesn't exist, maybe the previous check is unnecessary
-        git.checkout().setName(branch).info().call()
+        git.checkout().setName(branch).info(t).call()
 
         // No API to update the files, so edit in place
         val buildDotGradleKtsFile = File(File(root, "app"), "build.gradle.kts")
@@ -294,12 +294,12 @@ data object UpdateFilesForRelease : ReleaseStep() {
             content
                 .replace(
                     "versionCode = ${spec.prevVersion.versionCode}",
-                    "versionCode = ${spec.thisVersion.versionCode}"
+                    "versionCode = ${spec.thisVersion.versionCode}",
                 )
                 .replace(
                     "versionName = \"${spec.prevVersion.versionName()}\"",
-                    "versionName = \"${spec.thisVersion.versionName()}\""
-                )
+                    "versionName = \"${spec.thisVersion.versionName()}\"",
+                ),
         )
 
         // TODO: Check that spec.prevVersion.versionTag exists, to provide a better
@@ -311,11 +311,11 @@ data object UpdateFilesForRelease : ReleaseStep() {
         val changelogEntries = git.log()
             .addRange(
                 git.getActualRefObjectId(spec.prevVersion.versionTag()),
-                git.getActualRefObjectId("main")
+                git.getActualRefObjectId("main"),
             )
-            .info().call().mapNotNull {
+            .info(t).call().mapNotNull {
                 val components = it.shortMessage.split(":", limit = 2)
-                T.info(components)
+                t.info(components)
                 if (components.size != 2) return@mapNotNull null
 
                 val section = Section.fromCommitTitle(it.shortMessage)
@@ -326,7 +326,7 @@ data object UpdateFilesForRelease : ReleaseStep() {
             }
             .groupBy { it.section }
 
-        T.info(changelogEntries)
+        t.info(changelogEntries)
         // Add entry to CHANGELOG.md
         // No good third-party libraries for parsing Markdown to an AST **and then manipulating
         // that tree**, so add the new block by hand
@@ -347,11 +347,11 @@ data object UpdateFilesForRelease : ReleaseStep() {
                     w.println("## v${spec.thisVersion.versionName()}")
                     if (changelogEntries[Features]?.isNotEmpty() == true) {
                         w.println(
-                                """
+                            """
 ### New features and other improvements
 
 ${changelogEntries[Features]?.joinToString("\n") { "-${it.withLinks()}" }}
-"""
+""",
                         )
                     }
 
@@ -362,7 +362,7 @@ ${changelogEntries[Features]?.joinToString("\n") { "-${it.withLinks()}" }}
 
 ${changelogEntries[Fixes]?.joinToString("\n") { "-${it.withLinks()}" }}
 
-""".trimIndent()
+                            """.trimIndent(),
                         )
                     }
 
@@ -373,7 +373,7 @@ ${changelogEntries[Fixes]?.joinToString("\n") { "-${it.withLinks()}" }}
 
 ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
 
-""".trimIndent()
+                            """.trimIndent(),
                         )
                     }
                     w.println(line)
@@ -387,26 +387,26 @@ ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
         Files.move(
             tmpFile.toPath(),
             ChangelogFile.toPath(),
-            StandardCopyOption.REPLACE_EXISTING
+            StandardCopyOption.REPLACE_EXISTING,
         )
 
-        T.info("- Edit CHANGELOG.md for this release")
-        T.muted("  To see what's changed between this release and the last,")
-        T.muted("  https://github.com/pachli/pachli-android/compare/${spec.prevVersion.versionTag()}...main")
+        t.info("- Edit CHANGELOG.md for this release")
+        t.muted("  To see what's changed between this release and the last,")
+        t.muted("  https://github.com/pachli/pachli-android/compare/${spec.prevVersion.versionTag()}...main")
         TermUi.editFile(ChangelogFile.toString())
 
         // TODO: Check the "ENTER NEW LOG HERE" string has been removed
 
         // Pull out the new lines from the changelog
         val fastlaneFile = spec.fastlaneFile(config.pachliForkRoot)
-        createFastlaneFromChangelog(ChangelogFile, fastlaneFile, spec.thisVersion.versionName())
+        createFastlaneFromChangelog(t, ChangelogFile, fastlaneFile, spec.thisVersion.versionName())
 
         git.add()
             .setUpdate(false)
             .addFilepattern("CHANGELOG.md")
             .addFilepattern("app/build.gradle.kts")
             .addFilepattern(spec.fastlanePath())
-            .info()
+            .info(t)
             .call()
 
         var changesAreOk = false
@@ -415,23 +415,23 @@ ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
                 .setOutputStream(System.out)
                 .setCached(true)
                 .call()
-            changesAreOk = T.confirm("Do these changes look OK?")
+            changesAreOk = t.confirm("Do these changes look OK?")
             if (!changesAreOk) {
-                val r = T.prompt(
+                val r = t.prompt(
                     TextColors.yellow("Edit Changelog or Fastlane?"),
-                    choices = listOf("c", "f")
+                    choices = listOf("c", "f"),
                 )
                 when (r) {
                     "c" -> {
                         TermUi.editFile(ChangelogFile.toString())
-                        createFastlaneFromChangelog(ChangelogFile, fastlaneFile, spec.thisVersion.versionName())
+                        createFastlaneFromChangelog(t, ChangelogFile, fastlaneFile, spec.thisVersion.versionName())
                     }
                     "f" -> TermUi.editFile(fastlaneFile.toString())
                 }
                 git.add()
                     .addFilepattern("CHANGELOG.md")
                     .addFilepattern(spec.fastlanePath())
-                    .info()
+                    .info(t)
                     .call()
             }
         }
@@ -439,21 +439,21 @@ ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
         // Commit
         val commitMsg =
             "chore: Prepare release ${spec.thisVersion.versionName()} (versionCode ${spec.thisVersion.versionCode})"
-        T.info("""- git commit -m "$commitMsg"""")
+        t.info("""- git commit -m "$commitMsg"""")
         git.commit()
             .setMessage(commitMsg)
             .setSign(null)
-            .setCredentialsProvider(PasswordCredentialsProvider())
-            .info()
+            .setCredentialsProvider(PasswordCredentialsProvider(t))
+            .info(t)
             .call()
 
         // Push
-        T.info("- Pushing changes to ${config.repositoryFork.githubUrl}")
+        t.info("- Pushing changes to ${config.repositoryFork.githubUrl}")
         git.push()
             .setCredentialsProvider(DelegatingCredentialsProvider(config.pachliForkRoot.toPath()))
             .setRemote("origin")
             .setRefSpecs(RefSpec("$branch:$branch"))
-            .info()
+            .info(t)
             .call()
 
         return null
@@ -462,8 +462,8 @@ ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
 
 @Serializable
 data object CreateReleaseBranchPullRequest : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        T.info("- Create pull request at https://github.com/${config.repositoryMain.owner}/${config.repositoryMain.repo}/compare/main...${config.repositoryFork.owner}:${config.repositoryFork.repo}:${spec.releaseBranch()}?expand=1")
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        t.info("- Create pull request at https://github.com/${config.repositoryMain.owner}/${config.repositoryMain.repo}/compare/main...${config.repositoryFork.owner}:${config.repositoryFork.repo}:${spec.releaseBranch()}?expand=1")
         return null
     }
 }
@@ -473,9 +473,9 @@ data object CreateReleaseBranchPullRequest : ReleaseStep() {
  */
 @Serializable
 data object SavePullRequest : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec {
         val pullRequest = GitHubPullRequest(
-            URL(T.prompt(TextColors.yellow("Enter pull request URL")))
+            URL(t.prompt(TextColors.yellow("Enter pull request URL"))),
         )
         return spec.copy(pullRequest = pullRequest)
     }
@@ -486,7 +486,7 @@ data object SavePullRequest : ReleaseStep() {
  */
 @Serializable
 data object WaitForPullRequestMerged : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? = runBlocking {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? = runBlocking {
         val pullRequest = spec.pullRequest
             ?: throw UsageError("pullRequest is null, but should not be")
 
@@ -498,21 +498,21 @@ data object WaitForPullRequestMerged : ReleaseStep() {
         val github = GitHubBuilder().withOAuthToken(githubToken).build()
         val pull = github.getRepository("${repo.owner}/${repo.repo}").getPullRequest(pullRequest.number.toInt())
 
-        T.info("- Checking $pullRequest")
-        T.success("  Title: ${pull.title}")
+        t.info("- Checking $pullRequest")
+        t.success("  Title: ${pull.title}")
 
         do {
             if (pull.isMerged) {
-                T.success("Has been merged")
+                t.success("Has been merged")
                 break
             }
             var lines = 0
             if (pull.isDraft) {
-                T.warning("  Marked as draft")
+                t.warning("  Marked as draft")
                 lines++
             }
             if (!pull.mergeable) {
-                T.warning("  Not currently mergeable")
+                t.warning("  Not currently mergeable")
                 lines++
             }
 
@@ -521,35 +521,36 @@ data object WaitForPullRequestMerged : ReleaseStep() {
             val requestedReviewers = pull.requestedReviewers
             val reviews = pull.listReviews().toList()
             if (requestedReviewers.isEmpty() && reviews.isEmpty()) {
-                T.warning("  No reviewers are assigned")
+                t.warning("  No reviewers are assigned")
                 lines++
             } else if (reviews.isEmpty()) {
-                T.info("  Waiting for review from ${requestedReviewers.map { it.login }}")
+                t.info("  Waiting for review from ${requestedReviewers.map { it.login }}")
                 lines++
             } else {
                 for (review in reviews) {
                     when (review.state) {
-                        GHPullRequestReviewState.PENDING -> T.info("  ${review.user.login}: PENDING")
-                        GHPullRequestReviewState.APPROVED -> T.success("  ${review.user.login}: APPROVED")
+                        GHPullRequestReviewState.PENDING -> t.info("  ${review.user.login}: PENDING")
+                        GHPullRequestReviewState.APPROVED -> t.success("  ${review.user.login}: APPROVED")
                         GHPullRequestReviewState.CHANGES_REQUESTED,
-                        GHPullRequestReviewState.REQUEST_CHANGES -> T.danger("  ${review.user.login}: CHANGES_REQUESTED")
-                        GHPullRequestReviewState.COMMENTED -> T.warning("  ${review.user.login}: COMMENTED")
-                        GHPullRequestReviewState.DISMISSED -> T.warning("  ${review.user.login}: DISMISSED")
-                        null -> T.danger("  ${review.user.login}: null state")
+                        GHPullRequestReviewState.REQUEST_CHANGES,
+                        -> t.danger("  ${review.user.login}: CHANGES_REQUESTED")
+                        GHPullRequestReviewState.COMMENTED -> t.warning("  ${review.user.login}: COMMENTED")
+                        GHPullRequestReviewState.DISMISSED -> t.warning("  ${review.user.login}: DISMISSED")
+                        null -> t.danger("  ${review.user.login}: null state")
                     }
                     lines++
                 }
             }
             repeat(300) {
-                T.info("Waiting until next check in: $it / 300 seconds")
+                t.info("Waiting until next check in: $it / 300 seconds")
                 delay(1.seconds)
-                T.cursor.move {
+                t.cursor.move {
                     up(1)
                     startOfLine()
                     clearLineAfterCursor()
                 }
             }
-            T.cursor.move {
+            t.cursor.move {
                 up(lines)
                 startOfLine()
                 clearScreenAfterCursor()
@@ -567,7 +568,7 @@ data object WaitForPullRequestMerged : ReleaseStep() {
  */
 @Serializable
 data object MergeDevelopToMain : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
         val root = config.pachliMainRoot
 
@@ -577,17 +578,17 @@ data object MergeDevelopToMain : ReleaseStep() {
         val githubToken = System.getenv("GITHUB_TOKEN")
             ?: throw UsageError("GITHUB_TOKEN is null")
 
-        val git = ensureRepo(repo.gitUrl, root).also { it.ensureClean() }
+        val git = ensureRepo(t, repo.gitUrl, root).also { it.ensureClean(t) }
 
         git.fetch()
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
-        git.checkout().setName("develop").info().call()
+        git.checkout().setName("develop").info(t).call()
         git.pull()
             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
 
         val github = GitHubBuilder().withOAuthToken(githubToken).build()
@@ -595,56 +596,56 @@ data object MergeDevelopToMain : ReleaseStep() {
 
         pull.isMerged || throw UsageError("$pullRequest is not merged!")
 
-        T.info("- Merge commit SHA: ${pull.mergeCommitSha}")
+        t.info("- Merge commit SHA: ${pull.mergeCommitSha}")
         val mergeCommitSha = ObjectId.fromString(pull.mergeCommitSha)
         git.log()
             .add(mergeCommitSha)
             .setMaxCount(1)
-            .info()
+            .info(t)
             .call()
             .forEach { println(it.message()) }
 
-        T.confirm("Does that look like the correct commit on develop?", abort = true)
+        t.confirm("Does that look like the correct commit on develop?", abort = true)
 
-        T.info("- Syncing main branch")
+        t.info("- Syncing main branch")
         git.checkout()
             .setCreateBranch(!git.hasBranch("refs/heads/main"))
             .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
             .setName("main")
             .setStartPoint("origin/main")
-            .info()
+            .info(t)
             .call()
         git.pull()
             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
-        git.log().setMaxCount(1).info().call().forEach { println(it.message()) }
+        git.log().setMaxCount(1).info(t).call().forEach { println(it.message()) }
 
-        T.confirm("Does that look like the correct most recent commit on main?", abort = true)
+        t.confirm("Does that look like the correct most recent commit on main?", abort = true)
 
         val headBeforeMerge = git.repository.resolve("main")
         git.merge()
             .include(mergeCommitSha)
             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
-            .info()
+            .info(t)
             .call()
 
         // TODO: This should probably show the short title, not the full message
         git.log()
             .addRange(headBeforeMerge, mergeCommitSha)
-            .info()
+            .info(t)
             .call()
             .forEach { println(it.message()) }
 
-        T.confirm("Does that look like the correct commits have been merged to main?", abort = true)
+        t.confirm("Does that look like the correct commits have been merged to main?", abort = true)
         return null
     }
 }
 
 @Serializable
 data object FetchMainToTag : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
         val root = config.pachliMainRoot
 
@@ -654,17 +655,17 @@ data object FetchMainToTag : ReleaseStep() {
         val githubToken = System.getenv("GITHUB_TOKEN")
             ?: throw UsageError("GITHUB_TOKEN is null")
 
-        val git = ensureRepo(repo.gitUrl, root).also { it.ensureClean() }
+        val git = ensureRepo(t, repo.gitUrl, root).also { it.ensureClean(t) }
 
         git.fetch()
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
-        git.checkout().setName("main").info().call()
+        git.checkout().setName("main").info(t).call()
         git.pull()
             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
 
         val github = GitHubBuilder().withOAuthToken(githubToken).build()
@@ -672,66 +673,67 @@ data object FetchMainToTag : ReleaseStep() {
 
         pull.isMerged || throw UsageError("$pullRequest is not merged!")
 
-        T.info("- Merge commit SHA: ${pull.mergeCommitSha}")
+        t.info("- Merge commit SHA: ${pull.mergeCommitSha}")
         val mergeCommitSha = ObjectId.fromString(pull.mergeCommitSha)
         git.log()
             .add(mergeCommitSha)
             .setMaxCount(1)
-            .info()
+            .info(t)
             .call()
             .forEach { println(it.message()) }
 
-        T.confirm("Does that look like the correct commit on main?", abort = true)
+        t.confirm("Does that look like the correct commit on main?", abort = true)
 
-//        T.info("- Syncing main branch")
+//        t.info("- Syncing main branch")
 //        git.checkout()
 //            .setCreateBranch(!git.hasBranch("refs/heads/main"))
 //            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
 //            .setName("main")
 //            .setStartPoint("origin/main")
-//            .info()
+//            .info(t)
 //            .call()
 //        git.pull()
 //            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
 //            .setProgressMonitor(TextProgressMonitor())
-//            .info()
+//            .info(t)
 //            .call()
-//        git.log().setMaxCount(1).info().call().forEach { println(it.message()) }
+//        git.log().setMaxCount(1).info(t).call().forEach { println(it.message()) }
 //
-//        T.confirm("Does that look like the correct most recent commit on main?", abort = true)
+//        t.confirm("Does that look like the correct most recent commit on main?", abort = true)
 
 //        val headBeforeMerge = git.repository.resolve("main")
 //        git.merge()
 //            .include(mergeCommitSha)
 //            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
-//            .info()
+//            .info(t)
 //            .call()
 //
 //        // TODO: This should probably show the short title, not the full message
 //        git.log()
 //            .addRange(headBeforeMerge, mergeCommitSha)
-//            .info()
+//            .info(t)
 //            .call()
 //            .forEach { println(it.message()) }
 //
-//        T.confirm("Does that look like the correct commits have been merged to main?", abort = true)
-        return null    }
+//        t.confirm("Does that look like the correct commits have been merged to main?", abort = true)
+        return null
+    }
 }
 
 @Serializable
 data object TagMainAsRelease : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
         val root = config.pachliMainRoot
-        val git = ensureRepo(repo.gitUrl, root).also { it.ensureClean() }
+        val git = ensureRepo(t, repo.gitUrl, root).also { it.ensureClean(t) }
 
-        git.checkout().setName("main").info().call()
+        git.checkout().setName("main").info(t).call()
         val tag = spec.releaseTag()
-        git.tag().setCredentialsProvider(PasswordCredentialsProvider())
+        git.tag().setCredentialsProvider(PasswordCredentialsProvider(t))
             .setName(tag)
             .setMessage(tag)
             .setSigned(true)
-            .info()
+            .info(t)
             .call()
 
         return null
@@ -740,27 +742,26 @@ data object TagMainAsRelease : ReleaseStep() {
 
 @Serializable
 data object PushTaggedMain : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
         val root = config.pachliMainRoot
-        val git = ensureRepo(repo.gitUrl, root).also { it.ensureClean() }
+        val git = ensureRepo(t, repo.gitUrl, root).also { it.ensureClean(t) }
 
         git.push()
             .setCredentialsProvider(DelegatingCredentialsProvider(config.pachliMainRoot.toPath()))
             .setProgressMonitor(TextProgressMonitor())
             .setPushAll()
             .setPushTags()
-            .info()
+            .info(t)
             .call()
 
         return null
     }
 }
 
-
 @Serializable
 data object CreateGithubRelease : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val githubToken = System.getenv("GITHUB_TOKEN")
             ?: throw UsageError("GITHUB_TOKEN is null")
         val github = GitHubBuilder().withOAuthToken(githubToken).build()
@@ -771,7 +772,7 @@ data object CreateGithubRelease : ReleaseStep() {
         val changes = getChangelog(changeLogFile, thisVersion.versionName())
 
         val repo = github.getRepository(
-            "${config.repositoryMain.owner}/${config.repositoryMain.repo}"
+            "${config.repositoryMain.owner}/${config.repositoryMain.repo}",
         )
 
         val release = GHReleaseBuilder(repo, spec.releaseTag())
@@ -783,7 +784,7 @@ data object CreateGithubRelease : ReleaseStep() {
             .makeLatest(GHReleaseBuilder.MakeLatest.FALSE)
             .create()
 
-        T.success("Created Github release: ${release.htmlUrl}")
+        t.success("Created Github release: ${release.htmlUrl}")
 
         return null
     }
@@ -791,35 +792,35 @@ data object CreateGithubRelease : ReleaseStep() {
 
 @Serializable
 data object WaitForBitriseToBuild : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        T.info(
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        t.info(
             """
                 Wait for Bitrise to build and upload the APK to Google Play.
 
                 Check https://app.bitrise.io/app/a3e773c3c57a894c?workflow=workflow-release
-            """.trimIndent()
+            """.trimIndent(),
         )
 
-        while (!T.confirm("Has Bitrise uploaded the APK?")) { }
+        while (!t.confirm("Has Bitrise uploaded the APK?")) { }
         return null
     }
 }
 
 @Serializable
 data object MarkAsBetaOnPlay : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        T.info("Run the workflow https://github.com/pachli/pachli-android/actions/workflows/upload-blue-release-google-play.yml")
-        while (!T.confirm("Have you done all this?")) { }
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        t.info("Run the workflow https://github.com/pachli/pachli-android/actions/workflows/upload-blue-release-google-play.yml")
+        while (!t.confirm("Have you done all this?")) { }
         return null
     }
 }
 
 @Serializable
 data object DownloadApk : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
 
-        T.info(
+        t.info(
             """
 1. Open https://play.google.com/console/u/0/developers/8419715224772184120/app/4973838218515056581/bundle-explorer-selector
 2. Click the row for ${thisVersion.versionCode}
@@ -828,17 +829,17 @@ data object DownloadApk : ReleaseStep() {
 
 This should download ${thisVersion.versionCode}.apk
 
-            """.trimIndent()
+            """.trimIndent(),
         )
 
-        while (!T.confirm("Have you done all this?")) { }
+        while (!t.confirm("Have you done all this?")) { }
         return null
     }
 }
 
 @Serializable
 data object AttachApkToGithubRelease : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
         val githubToken = System.getenv("GITHUB_TOKEN")
             ?: throw UsageError("GITHUB_TOKEN is null")
@@ -847,14 +848,14 @@ data object AttachApkToGithubRelease : ReleaseStep() {
         // As a draft release getReleaseByTagName doesn't find it. So fetch the
         // most recent releases and search for it in those.
         val repo = github.getRepository(
-            "${config.repositoryMain.owner}/${config.repositoryMain.repo}"
+            "${config.repositoryMain.owner}/${config.repositoryMain.repo}",
         )
 
         val release = repo.listReleases().toList().find { it.tagName == thisVersion.versionTag() }
             ?: throw UsageError("Could not find Github release for tag ${spec.releaseTag()}")
 
         val apk = File("../../Downloads/${thisVersion.versionCode}.apk")
-        T.info("- Uploading ${apk.toPath()}")
+        t.info("- Uploading ${apk.toPath()}")
         release.uploadAsset(apk, "application/vnd.android.package-archive")
 
         return null
@@ -863,10 +864,10 @@ data object AttachApkToGithubRelease : ReleaseStep() {
 
 @Serializable
 data object PromoteRelease : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
 
-        T.info(
+        t.info(
             """
 1. Open the "Internal testing" release track https://play.google.com/console/u/0/developers/6635489183012320500/app/4974842442400419596/tracks/internal-testing
 2. Confirm the testing version is ${thisVersion.versionCode}
@@ -877,17 +878,17 @@ data object PromoteRelease : ReleaseStep() {
 7. Click "Save"
 8. Go to the publishing overview when prompted
 9. Send the change for review
-            """.trimIndent()
+            """.trimIndent(),
         )
 
-        while (!T.confirm("Have you done all this?")) { }
+        while (!t.confirm("Have you done all this?")) { }
         return null
     }
 }
 
 @Serializable
 data object FinalizeGithubRelease : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
         val githubToken = System.getenv("GITHUB_TOKEN")
             ?: throw UsageError("GITHUB_TOKEN is null")
@@ -896,7 +897,7 @@ data object FinalizeGithubRelease : ReleaseStep() {
         // As a draft release getReleaseByTagName doesn't find it. So fetch the
         // most recent releases and search for it in those.
         val repo = github.getRepository(
-            "${config.repositoryMain.owner}/${config.repositoryMain.repo}"
+            "${config.repositoryMain.owner}/${config.repositoryMain.repo}",
         )
 
         val release = repo.listReleases().toList().find { it.tagName == thisVersion.versionTag() }
@@ -913,9 +914,9 @@ data object FinalizeGithubRelease : ReleaseStep() {
             .prerelease(thisVersion !is PachliVersion.Release)
             .update()
 
-        T.success("Release has been undrafted")
+        t.success("Release has been undrafted")
         if (makeLatest == GHReleaseBuilder.MakeLatest.TRUE) {
-            T.success("Release has been marked as the latest")
+            t.success("Release has been marked as the latest")
         }
 
         return null
@@ -924,7 +925,7 @@ data object FinalizeGithubRelease : ReleaseStep() {
 
 @Serializable
 data object SyncFDroidRepository : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val api = GitLabApi("https://gitlab.com", System.getenv("GITLAB_TOKEN"))
         val forkedRepo = "nikclayton/fdroiddata"
 
@@ -941,10 +942,11 @@ data object SyncFDroidRepository : ReleaseStep() {
         val defaultBranch = defaultBranchRef.split("/").last()
 
         val git = ensureRepo(
+            t,
             config.repositoryFDroidFork.gitUrl,
-            config.fdroidForkRoot
+            config.fdroidForkRoot,
         )
-            .also { it.ensureClean() }
+            .also { it.ensureClean(t) }
 
         // Sync the fork with the parent
 
@@ -952,20 +954,20 @@ data object SyncFDroidRepository : ReleaseStep() {
         git.remoteAdd()
             .setName("upstream")
             .setUri(URIish(project.forkedFromProject.httpUrlToRepo))
-            .info()
+            .info(t)
             .call()
 
         // git checkout main
         git.checkout()
             .setName(defaultBranch)
-            .info()
+            .info(t)
             .call()
 
         // git fetch upstream
         git.fetch()
             .setRemote("upstream")
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
 
         // git pull upstream $defaultBranch
@@ -973,7 +975,7 @@ data object SyncFDroidRepository : ReleaseStep() {
             .setRemote("upstream")
             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
 
         // git push origin $defaultBranch
@@ -981,7 +983,7 @@ data object SyncFDroidRepository : ReleaseStep() {
             .setCredentialsProvider(DelegatingCredentialsProvider(config.fdroidForkRoot.toPath()))
             .setRemote("origin")
             .setProgressMonitor(TextProgressMonitor())
-            .info()
+            .info(t)
             .call()
 
         return null
@@ -990,9 +992,9 @@ data object SyncFDroidRepository : ReleaseStep() {
 
 @Serializable
 data object MakeFDroidReleaseBranch : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        val git = ensureRepo(config.repositoryFDroidFork.gitUrl, config.fdroidForkRoot)
-            .also { it.ensureClean() }
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val git = ensureRepo(t, config.repositoryFDroidFork.gitUrl, config.fdroidForkRoot)
+            .also { it.ensureClean(t) }
 
         val branch = spec.fdroidReleaseBranch()
 
@@ -1000,7 +1002,7 @@ data object MakeFDroidReleaseBranch : ReleaseStep() {
             git.branchCreate()
                 .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
                 .setName(branch)
-                .info()
+                .info(t)
                 .call()
         } catch (e: RefAlreadyExistsException) {
             throw BranchExists("Branch $branch already exists")
@@ -1008,7 +1010,7 @@ data object MakeFDroidReleaseBranch : ReleaseStep() {
 
         git.checkout()
             .setName(branch)
-            .info()
+            .info(t)
             .call()
 
         return null
@@ -1017,15 +1019,15 @@ data object MakeFDroidReleaseBranch : ReleaseStep() {
 
 @Serializable
 data object ModifyFDroidYaml : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val thisVersion = spec.thisVersion ?: throw UsageError("releaseSpec.thisVersion must be defined")
         val branch = spec.fdroidReleaseBranch()
-        val git = ensureRepo(config.repositoryFDroidFork.gitUrl, config.fdroidForkRoot)
-            .also { it.ensureClean() }
+        val git = ensureRepo(t, config.repositoryFDroidFork.gitUrl, config.fdroidForkRoot)
+            .also { it.ensureClean(t) }
 
         git.checkout()
             .setName(branch)
-            .info()
+            .info(t)
             .call()
 
         val metadataPath = "metadata/app.pachli.yml"
@@ -1053,7 +1055,7 @@ data object ModifyFDroidYaml : ReleaseStep() {
     subdir: app
     gradle:
       - blue
-"""
+""",
                 )
             }
             w.println(line)
@@ -1064,16 +1066,16 @@ data object ModifyFDroidYaml : ReleaseStep() {
         git.add()
             .setUpdate(false)
             .addFilepattern(metadataPath)
-            .info()
+            .info(t)
             .call()
 
         var changesAreOk = false
         while (!changesAreOk) {
             git.diff().setOutputStream(System.out).setCached(true).call()
-            changesAreOk = T.confirm("Do these changes look OK?")
+            changesAreOk = t.confirm("Do these changes look OK?")
             if (!changesAreOk) {
                 TermUi.editFile(metadataPath)
-                git.add().addFilepattern(metadataPath).info().call()
+                git.add().addFilepattern(metadataPath).info(t).call()
             }
         }
 
@@ -1081,15 +1083,15 @@ data object ModifyFDroidYaml : ReleaseStep() {
         git.commit()
             .setMessage(commitMsg)
             .setSign(null)
-            .setCredentialsProvider(PasswordCredentialsProvider())
-            .info()
+            .setCredentialsProvider(PasswordCredentialsProvider(t))
+            .info(t)
             .call()
 
         git.push()
             .setCredentialsProvider(DelegatingCredentialsProvider(config.fdroidForkRoot.toPath()))
             .setRemote("origin")
             .setRefSpecs(RefSpec("$branch:$branch"))
-            .info()
+            .info(t)
             .call()
 
         return null
@@ -1098,10 +1100,10 @@ data object ModifyFDroidYaml : ReleaseStep() {
 
 @Serializable
 data object CreateFDroidMergeRequest : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec? {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val branch = spec.fdroidReleaseBranch()
 
-        T.info(
+        t.info(
             """
                 This is done by hand at the moment, to complete the merge request template")
 
@@ -1110,10 +1112,10 @@ data object CreateFDroidMergeRequest : ReleaseStep() {
                 3. Tick the relevant boxes
                 4. Click "Create merge request"
 
-            """.trimIndent()
+            """.trimIndent(),
         )
 
-        while (!T.confirm("Have you done all this?")) { }
+        while (!t.confirm("Have you done all this?")) { }
 
         return null
     }
@@ -1121,17 +1123,17 @@ data object CreateFDroidMergeRequest : ReleaseStep() {
 
 @Serializable
 data object AnnounceTheBetaRelease : ReleaseStep() {
-    override fun run(config: Config, spec: ReleaseSpec): ReleaseSpec {
-        T.info("- Announce the beta release, and you're done.")
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec {
+        t.info("- Announce the beta release, and you're done.")
 
-        while (!T.confirm("Have you done all this?")) { }
+        while (!t.confirm("Have you done all this?")) { }
 
         // Done. This version can now be marked as the previous version
         val releaseSpec = ReleaseSpec.from(SPEC_FILE)
         return releaseSpec.copy(
             prevVersion = releaseSpec.thisVersion!!,
             thisVersion = null,
-            pullRequest = null
+            pullRequest = null,
         )
     }
 }

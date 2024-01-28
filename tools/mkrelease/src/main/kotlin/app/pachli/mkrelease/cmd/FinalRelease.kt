@@ -22,9 +22,9 @@ import app.pachli.mkrelease.Config
 import app.pachli.mkrelease.GlobalFlags
 import app.pachli.mkrelease.ReleaseSpec
 import app.pachli.mkrelease.SPEC_FILE
-import app.pachli.mkrelease.T
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.mordant.rendering.TextStyles
 
 class FinalRelease : CliktCommand(name = "final") {
@@ -60,7 +60,7 @@ class FinalRelease : CliktCommand(name = "final") {
             PromoteRelease,
             // Mark the release as non-draft
             // Mark the release as latest
-            FinalizeGithubRelease
+            FinalizeGithubRelease,
 
             // Update the download link on the home page
 
@@ -90,20 +90,20 @@ class FinalRelease : CliktCommand(name = "final") {
         for (step in steps.subList(si, steps.size)) {
             releaseSpec = releaseSpec.copy(nextStep = step)
             releaseSpec.save(SPEC_FILE)
-            T.println(stepStyle("-> ${step.desc()}"))
+            terminal.println(stepStyle("-> ${step.desc()}"))
             runCatching {
-                step.run(config, releaseSpec)
+                step.run(terminal, config, releaseSpec)
             }.onSuccess { spec ->
                 spec?.let { releaseSpec = it }
             }.onFailure { t ->
-                T.danger(t.message)
+                terminal.danger(t.message)
                 return
             }
         }
 
         releaseSpec.copy(
             nextStep = null,
-            thisVersion = null
+            thisVersion = null,
         ).save(SPEC_FILE)
     }
 }

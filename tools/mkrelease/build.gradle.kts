@@ -28,7 +28,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.21")
 
     // Mordant (Terminal UI)
-    implementation("com.github.ajalt.mordant:mordant:2.0.0-beta13")
+    implementation("com.github.ajalt.mordant:mordant:2.2.0")
 
     // JSON
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
@@ -40,7 +40,8 @@ dependencies {
     // Gradle API
     // https://docs.gradle.org/current/userguide/third_party_integration.html#embedding
     implementation("org.gradle:gradle-tooling-api:8.1.1")
-    implementation("com.android.tools.build:gradle:8.0.0")
+    // implementation("com.android.tools.build:gradle:8.0.0")
+    implementation(libs.android.gradlePlugin)
 
     // GitHub API
     implementation("org.kohsuke:github-api:1.316")
@@ -51,8 +52,8 @@ dependencies {
     implementation("org.gitlab4j:gitlab4j-api:5.2.0")
 
     // Logging
-    implementation("io.github.oshai:kotlin-logging-jvm:4.0.0-beta-28")
-    implementation("ch.qos.logback:logback-classic:1.3.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:6.0.3")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
 
     // Testing
     testImplementation(kotlin("test"))

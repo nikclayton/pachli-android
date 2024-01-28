@@ -22,9 +22,9 @@ import app.pachli.mkrelease.Config
 import app.pachli.mkrelease.GlobalFlags
 import app.pachli.mkrelease.ReleaseSpec
 import app.pachli.mkrelease.SPEC_FILE
-import app.pachli.mkrelease.T
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.mordant.rendering.TextStyles
 
@@ -64,7 +64,7 @@ class BetaRelease : CliktCommand(name = "beta") {
             MakeFDroidReleaseBranch,
             ModifyFDroidYaml,
             CreateFDroidMergeRequest,
-            AnnounceTheBetaRelease
+            AnnounceTheBetaRelease,
         )
 
         // TODO: Reimplement --just
@@ -76,20 +76,20 @@ class BetaRelease : CliktCommand(name = "beta") {
         for (step in steps.subList(si, steps.size)) {
             releaseSpec = releaseSpec.copy(nextStep = step)
             releaseSpec.save(SPEC_FILE)
-            T.println(stepStyle("-> ${step.desc()}"))
+            terminal.println(stepStyle("-> ${step.desc()}"))
             runCatching {
-                step.run(config, releaseSpec)
+                step.run(terminal, config, releaseSpec)
             }.onSuccess { spec ->
                 spec?.let { releaseSpec = it }
             }.onFailure { t ->
-                T.danger(t.message)
+                terminal.danger(t.message)
                 return
             }
         }
 
         releaseSpec.copy(
             nextStep = null,
-            thisVersion = null
+            thisVersion = null,
         ).save(SPEC_FILE)
         return
     }

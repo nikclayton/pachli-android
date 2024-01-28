@@ -22,8 +22,6 @@ import app.pachli.mkrelease.Config
 import app.pachli.mkrelease.GlobalFlags
 import app.pachli.mkrelease.ReleaseSpec
 import app.pachli.mkrelease.SPEC_FILE
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 
@@ -33,7 +31,7 @@ class State : CliktCommand(name = "state") {
 
     override fun run() {
         val log = globalFlags.log
-        (log.underlyingLogger as Logger).level = if (globalFlags.verbose) Level.INFO else Level.WARN
+//        (log.underlyingLogger as Logger).level = if (globalFlags.verbose) Level.INFO else Level.WARN
 
         val config = try {
             Config.from(CONFIG_FILE)
