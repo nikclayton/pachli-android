@@ -38,10 +38,10 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.doOnLayout
 import app.pachli.BuildConfig
 import app.pachli.R
-import timber.log.Timber
 import java.lang.Float.max
 import java.lang.Float.min
 import kotlin.math.abs
+import timber.log.Timber
 
 /**
  * Displays text to the user with optional [ClickableSpan]s. Extends the touchable area of the spans
@@ -213,9 +213,9 @@ class ClickableSpanTextView @JvmOverloads constructor(
                 val y = event.y
 
                 // If the user has clicked directly on a span then use it, ignoring any overlap
-                for (entry in spanRects) {
-                    if (!entry.key.contains(x, y)) continue
-                    clickedSpan = entry.value
+                for ((rect, span) in spanRects) {
+                    if (!rect.contains(x, y)) continue
+                    clickedSpan = span
                     Timber.v("span click: ${(clickedSpan as URLSpan).url}")
                     return super.onTouchEvent(event)
                 }
@@ -354,12 +354,12 @@ class ClickableSpanTextView @JvmOverloads constructor(
         // showSpanBoundaries is false.
         if (BuildConfig.DEBUG && showSpanBoundaries) {
             canvas.save()
-            for (entry in delegateRects) {
-                canvas.drawRect(entry.key, paddingDebugPaint)
+            for (rect in delegateRects.keys) {
+                canvas.drawRect(rect, paddingDebugPaint)
             }
 
-            for (entry in spanRects) {
-                canvas.drawRect(entry.key, spanDebugPaint)
+            for (rect in spanRects.keys) {
+                canvas.drawRect(rect, spanDebugPaint)
             }
             canvas.restore()
         }

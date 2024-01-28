@@ -22,12 +22,16 @@ import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import app.pachli.core.accounts.AccountManager
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.database.model.AccountEntity
-import app.pachli.core.network.ServerOperation
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
-import app.pachli.network.ServerCapabilitiesRepository
+import app.pachli.network.ServerRepository
 import app.pachli.settings.AccountPreferenceDataStore
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import io.github.z4kn4fein.semver.constraints.toConstraint
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,8 +39,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Repository for [StatusDisplayOptions], exposed through the [flow] property.
@@ -47,7 +49,7 @@ import javax.inject.Singleton
 @Singleton
 class StatusDisplayOptionsRepository @Inject constructor(
     private val sharedPreferencesRepository: SharedPreferencesRepository,
-    private val serverCapabilitiesRepository: ServerCapabilitiesRepository,
+    private val serverRepository: ServerRepository,
     private val accountManager: AccountManager,
     private val accountPreferenceDataStore: AccountPreferenceDataStore,
     @ApplicationScope private val externalScope: CoroutineScope,
@@ -125,7 +127,9 @@ class StatusDisplayOptionsRepository @Inject constructor(
                         PrefKeys.SHOW_STATS_INLINE -> prev.copy(
                             showStatsInline = sharedPreferencesRepository.getBoolean(key, default.showStatsInline),
                         )
-                        else -> { prev }
+                        else -> {
+                            prev
+                        }
                     }
                 }
             }
@@ -146,20 +150,25 @@ class StatusDisplayOptionsRepository @Inject constructor(
                         PrefKeys.MEDIA_PREVIEW_ENABLED -> prev.copy(mediaPreviewEnabled = value)
                         PrefKeys.ALWAYS_SHOW_SENSITIVE_MEDIA -> prev.copy(showSensitiveMedia = value)
                         PrefKeys.ALWAYS_OPEN_SPOILER -> prev.copy(openSpoiler = value)
-                        else -> { prev }
+                        else -> {
+                            prev
+                        }
                     }
                 }
             }
         }
 
         externalScope.launch {
-            serverCapabilitiesRepository.flow.collect { serverCapabilities ->
+            serverRepository.flow.collect { result ->
                 Timber.d("Updating because server capabilities changed")
-                _flow.update {
-                    it.copy(
-                        canTranslate = serverCapabilities.can(ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE, ">=1.0".toConstraint()),
-                    )
+                result.onSuccess { server ->
+                    _flow.update {
+                        it.copy(
+                            canTranslate = server?.can(ORG_JOINMASTODON_STATUSES_TRANSLATE, ">=1.0".toConstraint()) ?: false,
+                        )
+                    }
                 }
+                result.onFailure { _flow.update { it.copy(canTranslate = false) } }
             }
         }
     }

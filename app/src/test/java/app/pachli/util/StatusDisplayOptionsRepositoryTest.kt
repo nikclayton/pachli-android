@@ -21,31 +21,36 @@ import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import app.pachli.PachliApplication
-import app.pachli.components.compose.HiltTestApplication_Application
 import app.pachli.core.accounts.AccountManager
 import app.pachli.core.network.model.Account
+import app.pachli.core.network.model.nodeinfo.UnvalidatedJrd
+import app.pachli.core.network.model.nodeinfo.UnvalidatedNodeInfo
 import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.network.retrofit.NodeInfoApi
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.testing.rules.MainCoroutineRule
-import app.pachli.network.ServerCapabilitiesRepository
 import app.pachli.settings.AccountPreferenceDataStore
+import at.connyduck.calladapter.networkresult.NetworkResult
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.CustomTestApplication
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.time.Instant
+import java.util.Date
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.stub
 import org.robolectric.annotation.Config
-import java.time.Instant
-import java.util.Date
-import javax.inject.Inject
 
 open class PachliHiltApplication : PachliApplication()
 
@@ -70,19 +75,39 @@ class StatusDisplayOptionsRepositoryTest {
     lateinit var mastodonApi: MastodonApi
 
     @Inject
+    lateinit var nodeInfoApi: NodeInfoApi
+
+    @Inject
     lateinit var sharedPreferencesRepository: SharedPreferencesRepository
 
-    // Not injected as it expects an active account, so constructed by hand in setup()
-    private lateinit var accountPreferenceDataStore: AccountPreferenceDataStore
+    @Inject
+    lateinit var accountPreferenceDataStore: AccountPreferenceDataStore
 
-    // Not injected, as it depends on accountPreferenceDataStore
-    private lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
+    @Inject
+    lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
 
     private val defaultStatusDisplayOptions = StatusDisplayOptions()
 
     @Before
     fun setup() {
         hilt.inject()
+
+        reset(nodeInfoApi)
+        nodeInfoApi.stub {
+            onBlocking { nodeInfoJrd() } doReturn NetworkResult.success(
+                UnvalidatedJrd(
+                    listOf(
+                        UnvalidatedJrd.Link(
+                            "http://nodeinfo.diaspora.software/ns/schema/2.1",
+                            "https://example.com",
+                        ),
+                    ),
+                ),
+            )
+            onBlocking { nodeInfo(any()) } doReturn NetworkResult.success(
+                UnvalidatedNodeInfo(UnvalidatedNodeInfo.Software("mastodon", "4.2.0")),
+            )
+        }
 
         accountManager.addAccount(
             accessToken = "token",
@@ -101,25 +126,6 @@ class StatusDisplayOptionsRepositoryTest {
                 avatar = "",
                 header = "",
             ),
-        )
-
-        accountPreferenceDataStore = AccountPreferenceDataStore(
-            accountManager,
-            TestScope(),
-        )
-
-        val serverCapabilitiesRepository = ServerCapabilitiesRepository(
-            mastodonApi,
-            accountManager,
-            TestScope(),
-        )
-
-        statusDisplayOptionsRepository = StatusDisplayOptionsRepository(
-            sharedPreferencesRepository,
-            serverCapabilitiesRepository,
-            accountManager,
-            accountPreferenceDataStore,
-            TestScope(),
         )
     }
 

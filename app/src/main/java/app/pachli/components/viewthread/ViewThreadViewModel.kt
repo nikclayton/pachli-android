@@ -38,6 +38,7 @@ import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.TranslatedStatusEntity
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.network.model.Filter
+import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.network.FilterModel
@@ -49,6 +50,7 @@ import at.connyduck.calladapter.networkresult.getOrElse
 import at.connyduck.calladapter.networkresult.getOrThrow
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.BufferOverflow
@@ -59,7 +61,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class ViewThreadViewModel @Inject constructor(
@@ -235,7 +236,7 @@ class ViewThreadViewModel @Inject constructor(
                     detailedStatusPosition = 0,
                     revealButton = RevealButtonState.NO_BUTTON,
                 )
-            },)
+            })
         }
     }
 
@@ -289,12 +290,7 @@ class ViewThreadViewModel @Inject constructor(
         }
     }
 
-    fun voteInPoll(choices: List<Int>, status: StatusViewData): Job = viewModelScope.launch {
-        val poll = status.status.actionableStatus.poll ?: run {
-            Timber.w("No poll on status ${status.id}")
-            return@launch
-        }
-
+    fun voteInPoll(poll: Poll, choices: List<Int>, status: StatusViewData): Job = viewModelScope.launch {
         val votedPoll = poll.votedCopy(choices)
         updateStatus(status.id) { status ->
             status.copy(poll = votedPoll)
@@ -473,7 +469,7 @@ class ViewThreadViewModel @Inject constructor(
                 if (it is HttpException && it.code() == 403) return@fold
 
                 _errors.emit(it)
-            },)
+            })
         }
     }
 
@@ -643,5 +639,7 @@ sealed interface ThreadUiState {
 }
 
 enum class RevealButtonState {
-    NO_BUTTON, REVEAL, HIDE
+    NO_BUTTON,
+    REVEAL,
+    HIDE,
 }

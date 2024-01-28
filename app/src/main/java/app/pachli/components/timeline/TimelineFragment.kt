@@ -52,6 +52,7 @@ import app.pachli.components.timeline.viewmodel.UiSuccess
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
+import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.model.TimelineKind
 import app.pachli.databinding.FragmentTimelineBinding
@@ -82,6 +83,7 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
@@ -91,13 +93,12 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
 class TimelineFragment :
-    SFragment(),
+    SFragment<StatusViewData>(),
     OnRefreshListener,
-    StatusActionListener,
+    StatusActionListener<StatusViewData>,
     ReselectableFragment,
     RefreshableFragment,
     MenuProvider {
@@ -212,7 +213,10 @@ class TimelineFragment :
          */
         // TODO: Copied from NotificationsFragment
         val updateTimestampFlow = flow {
-            while (true) { delay(60.seconds); emit(Unit) }
+            while (true) {
+                delay(60.seconds)
+                emit(Unit)
+            }
         }.onEach {
             adapter.notifyItemRangeChanged(0, adapter.itemCount, listOf(StatusBaseViewHolder.Key.KEY_CREATED))
         }
@@ -243,7 +247,7 @@ class TimelineFragment :
                             (activity as? ActionButtonActivity)?.actionButton ?: binding.root,
                             message,
                             Snackbar.LENGTH_INDEFINITE,
-                        ).setTextMaxLines(5)
+                        )
                         error.action?.let { action ->
                             snackbar!!.setAction(R.string.action_retry) {
                                 viewModel.accept(action)
@@ -430,7 +434,6 @@ class TimelineFragment :
                                             message,
                                             Snackbar.LENGTH_INDEFINITE,
                                         )
-                                            .setTextMaxLines(5)
                                             .setAction(R.string.action_retry) { adapter.retry() }
                                         snackbar!!.show()
                                     } else {
@@ -567,86 +570,58 @@ class TimelineFragment :
         adapter.refresh()
     }
 
-    override fun onReply(position: Int) {
-        val status = adapter.peek(position) ?: return
-        super.reply(status.status)
+    override fun onReply(viewData: StatusViewData) {
+        super.reply(viewData.actionable)
     }
 
-    override fun onReblog(reblog: Boolean, position: Int) {
-        val statusViewData = adapter.peek(position) ?: return
-        viewModel.accept(StatusAction.Reblog(reblog, statusViewData))
+    override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
+        viewModel.accept(StatusAction.Reblog(reblog, viewData))
     }
 
-    override fun onFavourite(favourite: Boolean, position: Int) {
-        val statusViewData = adapter.peek(position) ?: return
-        viewModel.accept(StatusAction.Favourite(favourite, statusViewData))
+    override fun onFavourite(viewData: StatusViewData, favourite: Boolean) {
+        viewModel.accept(StatusAction.Favourite(favourite, viewData))
     }
 
-    override fun onBookmark(bookmark: Boolean, position: Int) {
-        val statusViewData = adapter.peek(position) ?: return
-        viewModel.accept(StatusAction.Bookmark(bookmark, statusViewData))
+    override fun onBookmark(viewData: StatusViewData, bookmark: Boolean) {
+        viewModel.accept(StatusAction.Bookmark(bookmark, viewData))
     }
 
-    override fun onVoteInPoll(position: Int, choices: List<Int>) {
-        val statusViewData = adapter.peek(position) ?: run {
-            Snackbar.make(
-                binding.root,
-                "null at adapter.peek($position)",
-                Snackbar.LENGTH_INDEFINITE,
-            ).show()
-            null
-        } ?: return
-        val poll = statusViewData.actionable.poll ?: run {
-            Snackbar.make(
-                binding.root,
-                "statusViewData had null poll",
-                Snackbar.LENGTH_INDEFINITE,
-            ).show()
-            null
-        } ?: return
-        viewModel.accept(StatusAction.VoteInPoll(poll, choices, statusViewData))
+    override fun onVoteInPoll(viewData: StatusViewData, poll: Poll, choices: List<Int>) {
+        viewModel.accept(StatusAction.VoteInPoll(poll, choices, viewData))
     }
 
-    override fun clearWarningAction(position: Int) {
-        val status = adapter.peek(position) ?: return
-        viewModel.clearWarning(status)
+    override fun clearWarningAction(viewData: StatusViewData) {
+        viewModel.clearWarning(viewData)
     }
 
-    override fun onMore(view: View, position: Int) {
-        val statusViewData = adapter.peek(position) ?: return
-        super.more(statusViewData, view, position)
+    override fun onMore(view: View, viewData: StatusViewData) {
+        super.more(view, viewData)
     }
 
-    override fun onOpenReblog(position: Int) {
-        val status = adapter.peek(position) ?: return
-        super.openReblog(status.status)
+    override fun onOpenReblog(status: Status) {
+        super.openReblog(status)
     }
 
-    override fun onExpandedChange(expanded: Boolean, position: Int) {
-        val status = adapter.peek(position) ?: return
-        viewModel.changeExpanded(expanded, status)
+    override fun onExpandedChange(viewData: StatusViewData, expanded: Boolean) {
+        viewModel.changeExpanded(expanded, viewData)
     }
 
-    override fun onContentHiddenChange(isShowing: Boolean, position: Int) {
-        val status = adapter.peek(position) ?: return
-        viewModel.changeContentShowing(isShowing, status)
+    override fun onContentHiddenChange(viewData: StatusViewData, isShowing: Boolean) {
+        viewModel.changeContentShowing(isShowing, viewData)
     }
 
-    override fun onShowReblogs(position: Int) {
-        val statusId = adapter.peek(position)?.id ?: return
+    override fun onShowReblogs(statusId: String) {
         val intent = AccountListActivityIntent(requireContext(), AccountListActivityIntent.Kind.REBLOGGED, statusId)
         (activity as BaseActivity).startActivityWithSlideInAnimation(intent)
     }
 
-    override fun onShowFavs(position: Int) {
-        val statusId = adapter.peek(position)?.id ?: return
+    override fun onShowFavs(statusId: String) {
         val intent = AccountListActivityIntent(requireContext(), AccountListActivityIntent.Kind.FAVOURITED, statusId)
         (activity as BaseActivity).startActivityWithSlideInAnimation(intent)
     }
 
-    override fun onContentCollapsedChange(isCollapsed: Boolean, position: Int) {
-        val status = adapter.peek(position) ?: return
-        viewModel.changeContentCollapsed(isCollapsed, status)
+    override fun onContentCollapsedChange(viewData: StatusViewData, isCollapsed: Boolean) {
+        viewModel.changeContentCollapsed(isCollapsed, viewData)
     }
 
     // Can only translate the home timeline at the moment
@@ -660,26 +635,23 @@ class TimelineFragment :
         viewModel.accept(InfallibleUiAction.TranslateUndo(statusViewData))
     }
 
-    override fun onViewMedia(position: Int, attachmentIndex: Int, view: View?) {
-        val statusViewData = adapter.peek(position) ?: return
-
+    override fun onViewMedia(viewData: StatusViewData, attachmentIndex: Int, view: View?) {
         // Pass the translated media descriptions through (if appropriate)
-        val actionable = if (statusViewData.translationState == TranslationState.SHOW_TRANSLATION) {
-            statusViewData.actionable.copy(
-                attachments = statusViewData.translation?.attachments?.zip(statusViewData.actionable.attachments) { t, a ->
+        val actionable = if (viewData.translationState == TranslationState.SHOW_TRANSLATION) {
+            viewData.actionable.copy(
+                attachments = viewData.translation?.attachments?.zip(viewData.actionable.attachments) { t, a ->
                     a.copy(description = t.description)
-                } ?: statusViewData.actionable.attachments,
+                } ?: viewData.actionable.attachments,
             )
         } else {
-            statusViewData.actionable
+            viewData.actionable
         }
 
         super.viewMedia(attachmentIndex, AttachmentViewData.list(actionable), view)
     }
 
-    override fun onViewThread(position: Int) {
-        val status = adapter.peek(position) ?: return
-        super.viewThread(status.actionable.id, status.actionable.url)
+    override fun onViewThread(status: Status) {
+        super.viewThread(status.id, status.url)
     }
 
     override fun onViewTag(tag: String) {
@@ -733,9 +705,8 @@ class TimelineFragment :
         }
     }
 
-    public override fun removeItem(position: Int) {
-        val status = adapter.peek(position) ?: return
-        viewModel.removeStatusWithId(status.id)
+    public override fun removeItem(viewData: StatusViewData) {
+        viewModel.removeStatusWithId(viewData.id)
     }
 
     private fun actionButtonPresent(): Boolean {

@@ -35,8 +35,8 @@ android {
 
     defaultConfig {
         applicationId = "app.pachli"
-        versionCode = 9
-        versionName = "2.1.0"
+        versionCode = 10
+        versionName = "2.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -184,7 +184,6 @@ dependencies {
     googleImplementation(libs.app.update)
     googleImplementation(libs.app.update.ktx)
 
-    implementation(libs.kotlin.result)
     implementation(libs.semver)
 
     debugImplementation(libs.leakcanary)

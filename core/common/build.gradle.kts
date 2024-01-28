@@ -28,3 +28,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 }
+
+dependencies {
+    api(libs.kotlin.result)
+    api(libs.kotlin.result.coroutines)
+}

@@ -26,11 +26,12 @@ import app.pachli.components.timeline.viewmodel.TimelineViewModel
 import app.pachli.core.accounts.AccountManager
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.TimelineKind
+import app.pachli.core.network.model.nodeinfo.UnvalidatedJrd
+import app.pachli.core.network.model.nodeinfo.UnvalidatedNodeInfo
 import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.network.retrofit.NodeInfoApi
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.testing.rules.MainCoroutineRule
-import app.pachli.network.ServerCapabilitiesRepository
-import app.pachli.settings.AccountPreferenceDataStore
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.StatusDisplayOptionsRepository
 import at.connyduck.calladapter.networkresult.NetworkResult
@@ -38,12 +39,15 @@ import com.google.gson.Gson
 import dagger.hilt.android.testing.CustomTestApplication
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.test.TestScope
+import java.time.Instant
+import java.util.Date
+import javax.inject.Inject
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.reset
@@ -51,9 +55,6 @@ import org.mockito.kotlin.stub
 import org.robolectric.annotation.Config
 import retrofit2.HttpException
 import retrofit2.Response
-import java.time.Instant
-import java.util.Date
-import javax.inject.Inject
 
 open class PachliHiltApplication : PachliApplication()
 
@@ -77,6 +78,9 @@ abstract class CachedTimelineViewModelTestBase {
     lateinit var mastodonApi: MastodonApi
 
     @Inject
+    lateinit var nodeInfoApi: NodeInfoApi
+
+    @Inject
     lateinit var sharedPreferencesRepository: SharedPreferencesRepository
 
     @Inject
@@ -85,9 +89,10 @@ abstract class CachedTimelineViewModelTestBase {
     @Inject
     lateinit var cachedTimelineRepository: CachedTimelineRepository
 
-    private lateinit var accountPreferenceDataStore: AccountPreferenceDataStore
+    @Inject
+    lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
+
     protected lateinit var timelineCases: TimelineCases
-    private lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
     protected lateinit var viewModel: TimelineViewModel
 
     private val eventHub = EventHub()
@@ -106,6 +111,23 @@ abstract class CachedTimelineViewModelTestBase {
         mastodonApi.stub {
             onBlocking { getCustomEmojis() } doReturn NetworkResult.failure(Exception())
             onBlocking { getFilters() } doReturn NetworkResult.success(emptyList())
+        }
+
+        reset(nodeInfoApi)
+        nodeInfoApi.stub {
+            onBlocking { nodeInfoJrd() } doReturn NetworkResult.success(
+                UnvalidatedJrd(
+                    listOf(
+                        UnvalidatedJrd.Link(
+                            "http://nodeinfo.diaspora.software/ns/schema/2.1",
+                            "https://example.com",
+                        ),
+                    ),
+                ),
+            )
+            onBlocking { nodeInfo(any()) } doReturn NetworkResult.success(
+                UnvalidatedNodeInfo(UnvalidatedNodeInfo.Software("mastodon", "4.2.0")),
+            )
         }
 
         accountManager.addAccount(
@@ -127,26 +149,7 @@ abstract class CachedTimelineViewModelTestBase {
             ),
         )
 
-        accountPreferenceDataStore = AccountPreferenceDataStore(
-            accountManager,
-            TestScope(),
-        )
-
         timelineCases = mock()
-
-        val serverCapabilitiesRepository = ServerCapabilitiesRepository(
-            mastodonApi,
-            accountManager,
-            TestScope(),
-        )
-
-        statusDisplayOptionsRepository = StatusDisplayOptionsRepository(
-            sharedPreferencesRepository,
-            serverCapabilitiesRepository,
-            accountManager,
-            accountPreferenceDataStore,
-            TestScope(),
-        )
 
         viewModel = CachedTimelineViewModel(
             SavedStateHandle(mapOf(TimelineViewModel.TIMELINE_KIND_TAG to TimelineKind.Home)),

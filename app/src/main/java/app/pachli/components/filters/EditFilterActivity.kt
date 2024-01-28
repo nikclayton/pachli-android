@@ -27,10 +27,10 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import java.util.Date
 import javax.inject.Inject
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 /**
  * Edit a single server-side filter.
@@ -156,8 +156,8 @@ class EditFilterActivity : BaseActivity() {
         }
         lifecycleScope.launch {
             viewModel.contexts.collect { contexts ->
-                for (entry in contextSwitches) {
-                    entry.key.isChecked = contexts.contains(entry.value)
+                for ((key, value) in contextSwitches) {
+                    key.isChecked = contexts.contains(value)
                 }
             }
         }
@@ -302,7 +302,11 @@ class EditFilterActivity : BaseActivity() {
         // but create/edit take a number of seconds (relative to the time the operation is posted)
         fun getSecondsForDurationIndex(index: Int, context: Context?, default: Date? = null): Int? {
             return when (index) {
-                -1 -> if (default == null) { default } else { ((default.time - System.currentTimeMillis()) / 1000).toInt() }
+                -1 -> if (default == null) {
+                    default
+                } else {
+                    ((default.time - System.currentTimeMillis()) / 1000).toInt()
+                }
                 0 -> null
                 else -> context?.resources?.getIntArray(R.array.filter_duration_values)?.get(index)
             }

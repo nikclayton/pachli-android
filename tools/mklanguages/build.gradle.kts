@@ -21,13 +21,13 @@ application {
 
 dependencies {
     // ICU
-    implementation("com.ibm.icu:icu4j:74.1")
+    implementation("com.ibm.icu:icu4j:74.2")
 
     // Parsing
     implementation("com.github.h0tk3y.betterParse:better-parse:0.4.4")
 
     // Logging
-    implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:6.0.1")
     implementation("ch.qos.logback:logback-classic:1.4.11")
 
     // Testing

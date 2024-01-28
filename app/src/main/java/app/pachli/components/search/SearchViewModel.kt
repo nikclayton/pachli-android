@@ -25,6 +25,7 @@ import app.pachli.components.search.adapter.SearchPagingSourceFactory
 import app.pachli.core.accounts.AccountManager
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.network.model.DeletedStatus
+import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.usecase.TimelineCases
@@ -33,11 +34,11 @@ import at.connyduck.calladapter.networkresult.NetworkResult
 import at.connyduck.calladapter.networkresult.fold
 import at.connyduck.calladapter.networkresult.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -127,7 +128,7 @@ class SearchViewModel @Inject constructor(
                 )
             }, { t ->
                 Timber.d("Failed to reblog status ${statusViewData.id}", t)
-            },)
+            })
         }
     }
 
@@ -139,8 +140,8 @@ class SearchViewModel @Inject constructor(
         updateStatusViewData(statusViewData.copy(isCollapsed = collapsed))
     }
 
-    fun voteInPoll(statusViewData: StatusViewData, choices: List<Int>) {
-        val votedPoll = statusViewData.status.actionableStatus.poll!!.votedCopy(choices)
+    fun voteInPoll(statusViewData: StatusViewData, poll: Poll, choices: List<Int>) {
+        val votedPoll = poll.votedCopy(choices)
         updateStatus(statusViewData.status.copy(poll = votedPoll))
         viewModelScope.launch {
             timelineCases.voteInPoll(statusViewData.id, votedPoll.id, choices)
