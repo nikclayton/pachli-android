@@ -329,10 +329,10 @@ data object UpdateFilesForRelease : ReleaseStep() {
         // Add entry to CHANGELOG.md
         // No good third-party libraries for parsing Markdown to an AST **and then manipulating
         // that tree**, so add the new block by hand
-        val ChangelogFile = File(config.pachliForkRoot, "CHANGELOG.md")
+        val changeLogFile = File(config.pachliForkRoot, "CHANGELOG.md")
         val tmpFile = createTempFile().toFile()
         val w = tmpFile.printWriter()
-        ChangelogFile.useLines { lines ->
+        changeLogFile.useLines { lines ->
             var done = false
             for (line in lines) {
                 if (done) {
@@ -385,20 +385,20 @@ ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
         w.close()
         Files.move(
             tmpFile.toPath(),
-            ChangelogFile.toPath(),
+            changeLogFile.toPath(),
             StandardCopyOption.REPLACE_EXISTING,
         )
 
         t.info("- Edit CHANGELOG.md for this release")
         t.muted("  To see what's changed between this release and the last,")
         t.muted("  https://github.com/pachli/pachli-android/compare/${spec.prevVersion.versionTag()}...main")
-        TermUi.editFile(ChangelogFile.toString())
+        TermUi.editFile(changeLogFile.toString())
 
         // TODO: Check the "ENTER NEW LOG HERE" string has been removed
 
         // Pull out the new lines from the changelog
         val fastlaneFile = spec.fastlaneFile(config.pachliForkRoot)
-        createFastlaneFromChangelog(t, ChangelogFile, fastlaneFile, spec.thisVersion.versionName())
+        createFastlaneFromChangelog(t, changeLogFile, fastlaneFile, spec.thisVersion.versionName())
 
         git.add()
             .setUpdate(false)
@@ -422,8 +422,8 @@ ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
                 )
                 when (r) {
                     "c" -> {
-                        TermUi.editFile(ChangelogFile.toString())
-                        createFastlaneFromChangelog(t, ChangelogFile, fastlaneFile, spec.thisVersion.versionName())
+                        TermUi.editFile(changeLogFile.toString())
+                        createFastlaneFromChangelog(t, changeLogFile, fastlaneFile, spec.thisVersion.versionName())
                     }
                     "f" -> TermUi.editFile(fastlaneFile.toString())
                 }
