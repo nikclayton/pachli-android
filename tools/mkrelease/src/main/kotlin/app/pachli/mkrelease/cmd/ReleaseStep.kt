@@ -821,12 +821,9 @@ data object DownloadApk : ReleaseStep() {
 
         t.info(
             """
-1. Open https://play.google.com/console/u/0/developers/8419715224772184120/app/4973838218515056581/bundle-explorer-selector
-2. Click the row for ${thisVersion.versionCode}
-3. Click the 'Downloads' tab
-4. Download the entry 'Signed, universal APK
-
-This should download ${thisVersion.versionCode}.apk
+1. Open the action for the most recent "Upload blueRelease to Google Play"
+2. Download "app-release.apk" (which will download a .zip file)
+3. Extract the contents of the .zip file to the Downloads directory
 
             """.trimIndent(),
         )
@@ -839,7 +836,22 @@ This should download ${thisVersion.versionCode}.apk
 @Serializable
 data object AttachApkToGithubRelease : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        t.info(config)
+        t.info(spec)
+
         val thisVersion = spec.thisVersion ?: throw UsageError("spec.thisVersion must be defined")
+
+        // Equivalent to "git rev-parse --short HEAD"
+        val abbreviatedSha = run {
+            val repo = config.repositoryMain
+            val root = config.pachliMainRoot
+            val git = ensureRepo(t, repo.gitUrl, root).also { it.ensureClean(t) }
+            git.repository.exactRef("refs/heads/main").objectId.abbreviate(8).name()
+        }
+
+        // e.g., "Pachli_2.2.0_11_741bf56f_blueGithub_release-signed.apk"
+        val apkFilename = "Pachli_${thisVersion.versionName()}_${thisVersion.versionCode}_${abbreviatedSha}_blueGithub_release-signed.apk"
+
         val githubToken = System.getenv("GITHUB_TOKEN")
             ?: throw UsageError("GITHUB_TOKEN is null")
         val github = GitHubBuilder().withOAuthToken(githubToken).build()
@@ -853,7 +865,7 @@ data object AttachApkToGithubRelease : ReleaseStep() {
         val release = repo.listReleases().toList().find { it.tagName == thisVersion.versionTag() }
             ?: throw UsageError("Could not find Github release for tag ${spec.releaseTag()}")
 
-        val apk = File("../../Downloads/${thisVersion.versionCode}.apk")
+        val apk = File("../../Downloads/$apkFilename")
         t.info("- Uploading ${apk.toPath()}")
         release.uploadAsset(apk, "application/vnd.android.package-archive")
 
