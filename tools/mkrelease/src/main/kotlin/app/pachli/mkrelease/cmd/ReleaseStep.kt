@@ -99,8 +99,7 @@ data object PreparePachliForkRepository : ReleaseStep() {
         val repo = config.repositoryFork
         val root = config.pachliForkRoot
 
-        val git = ensureRepo(t, repo.gitUrl, root)
-            .also { it.ensureClean(t) }
+        val git = ensureRepo(t, repo.gitUrl, root).also { it.ensureClean(t) }
 
         // git remote add upstream https://...
         git.remoteAdd()
