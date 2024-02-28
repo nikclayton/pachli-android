@@ -29,21 +29,23 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager.VERTICAL
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
 import app.pachli.core.accounts.AccountManager
+import app.pachli.core.activity.RefreshableFragment
+import app.pachli.core.activity.openLink
+import app.pachli.core.common.extensions.hide
+import app.pachli.core.common.extensions.show
+import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.ViewMediaActivityIntent
 import app.pachli.core.network.model.Attachment
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.databinding.FragmentTimelineBinding
-import app.pachli.interfaces.RefreshableFragment
-import app.pachli.util.hide
-import app.pachli.util.openLink
-import app.pachli.util.show
-import app.pachli.util.viewBinding
 import com.google.android.material.color.MaterialColors
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
@@ -92,12 +94,11 @@ class AccountMediaFragment :
             onAttachmentClickListener = ::onAttachmentClick,
         )
 
-        val columnCount = view.context.resources.getInteger(R.integer.profile_media_column_count)
-        val imageSpacing = view.context.resources.getDimensionPixelSize(R.dimen.profile_media_spacing)
-
-        binding.recyclerView.addItemDecoration(GridSpacingItemDecoration(columnCount, imageSpacing, 0))
-
-        binding.recyclerView.layoutManager = GridLayoutManager(view.context, columnCount)
+        val columnCount = view.context.resources.getInteger(DR.integer.profile_media_column_count)
+        val layoutManager = StaggeredGridLayoutManager(columnCount, VERTICAL)
+        layoutManager.gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
 
         binding.swipeRefreshLayout.isEnabled = false

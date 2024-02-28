@@ -1,7 +1,7 @@
 package app.pachli.components.viewthread.edits
 
 import android.content.Context
-import android.graphics.Typeface.DEFAULT_BOLD
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.text.Editable
@@ -11,6 +11,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.CharacterStyle
+import android.text.style.MetricAffectingSpan
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -20,19 +21,20 @@ import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.PollAdapter
 import app.pachli.adapter.PollAdapter.DisplayMode
+import app.pachli.core.activity.decodeBlurHash
+import app.pachli.core.activity.emojify
+import app.pachli.core.common.extensions.hide
+import app.pachli.core.common.extensions.show
+import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.util.AbsoluteTimeFormatter
+import app.pachli.core.designsystem.R as DR
 import app.pachli.core.network.model.StatusEdit
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.databinding.ItemStatusEditBinding
 import app.pachli.interfaces.LinkListener
 import app.pachli.util.BindingHolder
 import app.pachli.util.aspectRatios
-import app.pachli.util.decodeBlurHash
-import app.pachli.util.emojify
-import app.pachli.util.hide
 import app.pachli.util.setClickableText
-import app.pachli.util.show
-import app.pachli.util.visible
 import app.pachli.viewdata.PollOptionViewData
 import com.bumptech.glide.Glide
 import com.google.android.material.color.MaterialColors
@@ -65,9 +67,9 @@ class ViewEditsAdapter(
         val typedValue = TypedValue()
         val context = binding.root.context
         val displayMetrics = context.resources.displayMetrics
-        context.theme.resolveAttribute(R.attr.status_text_large, typedValue, true)
+        context.theme.resolveAttribute(DR.attr.status_text_large, typedValue, true)
         largeTextSizePx = typedValue.getDimension(displayMetrics)
-        context.theme.resolveAttribute(R.attr.status_text_medium, typedValue, true)
+        context.theme.resolveAttribute(DR.attr.status_text_medium, typedValue, true)
         mediumTextSizePx = typedValue.getDimension(displayMetrics)
 
         return BindingHolder(binding)
@@ -286,7 +288,7 @@ class PachliTagHandler(val context: Context) : Html.TagHandler {
         private var bgColor: Int
 
         init {
-            bgColor = context.getColor(R.color.view_edits_background_delete)
+            bgColor = context.getColor(DR.color.view_edits_background_delete)
         }
 
         override fun updateDrawState(tp: TextPaint) {
@@ -295,17 +297,28 @@ class PachliTagHandler(val context: Context) : Html.TagHandler {
         }
     }
 
-    /** Span that signifies inserted text */
-    class InsertedTextSpan(context: Context) : CharacterStyle() {
+    /**
+     *  Span that signifies inserted text.
+     *
+     *  Derives from [MetricAffectingSpan] as making the font bold can change
+     *  its metrics.
+     */
+    class InsertedTextSpan(context: Context) : MetricAffectingSpan() {
         private var bgColor: Int
 
         init {
-            bgColor = context.getColor(R.color.view_edits_background_insert)
+            bgColor = context.getColor(DR.color.view_edits_background_insert)
         }
 
         override fun updateDrawState(tp: TextPaint) {
+            updateMeasureState(tp)
             tp.bgColor = bgColor
-            tp.typeface = DEFAULT_BOLD
+        }
+
+        override fun updateMeasureState(tp: TextPaint) {
+            // Try and create a bold version of the active font to preserve
+            // the user's custom font selection.
+            tp.typeface = Typeface.create(tp.typeface, Typeface.BOLD)
         }
     }
 

@@ -3,12 +3,7 @@
     <string name="error_generic">Une erreur s’est produite.</string>
     <string name="error_network">Une erreur réseau s’est produite ! Veuillez vérifier votre connexion puis réessayez !</string>
     <string name="error_empty">Ce champ ne peut pas être vide.</string>
-    <string name="error_invalid_domain">Le domaine saisi est invalide</string>
-    <string name="error_failed_app_registration">Échec d’authentification auprès de l’instance. Si cela continue à se produire, essayez Se connecter avec le navigateur depuis le menu.</string>
     <string name="error_no_web_browser_found">Impossible de trouver un navigateur web à utiliser.</string>
-    <string name="error_authorization_unknown">Une erreur d’autorisation inconnue s’est produite. Si cela continue à se produire, essayez Se connecter avec le navigateur depuis le menu.</string>
-    <string name="error_authorization_denied">Authentification refusée. Si vous êtes sur·e d\'avoir entré les bons identifiants, essayez Se connecter avec le navigateur depuis le menu.</string>
-    <string name="error_retrieving_oauth_token">Impossible de récupérer le jeton d’authentification. Si cela continue à se produire, essayez Se connecter avec le navigateur depuis le menu.</string>
     <string name="error_compose_character_limit">Votre message est trop long !</string>
     <string name="error_media_upload_type">Ce type de fichier ne peut pas être téléversé.</string>
     <string name="error_media_upload_opening">Le fichier ne peut pas être ouvert.</string>
@@ -35,7 +30,6 @@
     <string name="title_follow_requests">Demandes d’abonnement</string>
     <string name="title_edit_profile">Modifier votre profil</string>
     <string name="title_drafts">Brouillons</string>
-    <string name="title_licenses">Licences</string>
     <string name="post_username_format">\@%s</string>
     <string name="post_boosted_format">%s a partagé</string>
     <string name="post_sensitive_media_title">Contenu sensible</string>
@@ -60,7 +54,6 @@
     <string name="action_unfavourite">Supprimer le favori</string>
     <string name="action_more">Plus</string>
     <string name="action_compose">Écrire</string>
-    <string name="action_login">Se connecter avec Pachli</string>
     <string name="action_logout">Déconnexion</string>
     <string name="action_logout_confirm">Êtes-vous certain·e· de vouloir déconnecter le compte %1$s ?</string>
     <string name="action_follow">Suivre</string>
@@ -74,7 +67,6 @@
     <string name="action_send">POUET</string>
     <string name="action_send_public">POUET !</string>
     <string name="action_retry">Réessayer</string>
-    <string name="action_close">Fermer</string>
     <string name="action_view_profile">Profil</string>
     <string name="action_view_preferences">Préférences</string>
     <string name="action_view_account_preferences">Préférences de compte</string>
@@ -116,7 +108,6 @@
     <string name="action_open_media_n">Ouvrir le média #%d</string>
     <string name="download_image">Téléchargement de %1$s</string>
     <string name="action_copy_link">Copier le lien</string>
-    <string name="action_open_as">Ouvrir comme %s</string>
     <string name="action_share_as">Partager comme …</string>
     <string name="download_media">Télécharger le média</string>
     <string name="downloading_media">Téléchargement du média</string>
@@ -128,7 +119,6 @@
     <string name="confirmation_unmuted">Le compte n’est plus masqué</string>
     <string name="post_sent">Envoyé !</string>
     <string name="post_sent_long">Réponse envoyée avec succès.</string>
-    <string name="hint_domain">Quelle instance ?</string>
     <string name="hint_compose">Quoi de neuf ?</string>
     <string name="hint_content_warning">Contenu sensible</string>
     <string name="hint_display_name">Nom public</string>
@@ -138,17 +128,6 @@
     <string name="label_quick_reply">Répondre…</string>
     <string name="label_avatar">Image de profil</string>
     <string name="label_header">Image d’en-tête</string>
-    <string name="link_whats_an_instance">Qu’est-ce qu’une instance ?</string>
-    <string name="login_connection">Connexion en cours…</string>
-    <string name="dialog_whats_an_instance">Indiquer ici l’adresse ou le domaine d’une instance,
-        comme mastodon.social, icosahedron.website, social.tchncs.de,
-        <a href="https://instances.social">et bien d’autres encore</a> (en anglais) !
-        \n\nSi vous ne disposez d’aucun compte, vous pouvez renseigner le nom de l’instance que vous souhaitez rejoindre
-        et y créer un compte.\n\nUne instance est l’endroit où votre compte est
-        hébergé, mais vous pouvez facilement suivre des personnes d’autres instances et communiquer avec elles
-        comme si vous étiez sur le même site.
-        \n\nPour plus d’informations, consultez <a href="https://joinmastodon.org">joinmastodon.org</a>.
-    </string>
     <string name="dialog_title_finishing_media_upload">Mise en ligne des médias</string>
     <string name="dialog_message_uploading_media">Téléversement en cours…</string>
     <string name="dialog_download_image">Télécharger</string>
@@ -224,24 +203,13 @@
         <item quantity="other">%d nouvelles interactions</item>
     </plurals>
     <string name="description_account_locked">Compte verrouillé</string>
-    <string name="about_title_activity">À propos</string>
     <string name="about_pachli_version">Pachli %s</string>
-    <string name="about_pachli_license">Pachli est une application libre et open source.
-        Elle est publiée sous licence publique générale GNU version 3.
-        Vous pouvez consulter la licence ici : https://www.gnu.org/licenses/gpl-3.0.fr.html</string>
     <!-- note to translators:
          * you should think of “free” as in “free speech,” not as in “free beer”.
            We sometimes call it “libre software,” borrowing the French or Spanish word for “free” as in freedom,
            to show we do not mean the software is gratis. Source: https://www.gnu.org/philosophy/free-sw.html
          * the url can be changed to link to the localized version of the license.
     -->
-    <string name="about_project_site">      Site du projet :\n
-      https://pachli.app
-    </string>
-    <string name="about_bug_feature_request_site">      Rapports d’anomalies &amp; demandes de fonctionnalités :\n
-      https://github.com/pachli/pachli-android/issues
-    </string>
-    <string name="about_pachli_account">Profil de Pachli</string>
     <string name="post_share_content">Partager le contenu du message</string>
     <string name="post_share_link">Partager le lien du message</string>
     <string name="post_media_images">Images</string>
@@ -303,7 +271,6 @@
     <string name="emoji_style">Style d’émojis</string>
     <string name="system_default">Par défaut du système</string>
     <string name="download_fonts">Vous devez commencer par télécharger ces jeux d’émojis</string>
-    <string name="performing_lookup_title">Recherche en cours…</string>
     <string name="expand_collapse_all_posts">Déplier/replier tout les messages</string>
     <string name="action_open_post">Ouvrir le message</string>
     <string name="restart_required">Un redémarrage de l’application est nécessaire</string>
@@ -314,11 +281,9 @@
     <string name="caption_blobmoji">Un jeu d’émojis basé sur les émojis « blob »</string>
     <string name="caption_twemoji">Le jeu d’émojis standard de Mastodon</string>
     <string name="download_failed">Échec du téléchargement</string>
-    <string name="profile_badge_bot_text">Robot</string>
     <string name="account_moved_description">%1$s a déménagé vers :</string>
     <string name="reblog_private">Partager à l’audience originale</string>
     <string name="unreblog_private">Annuler le partage</string>
-    <string name="license_description">Pachli contient du code et des ressources issus des projets open source suivants :</string>
     <string name="profile_metadata_label">Métadonnées du profil</string>
     <string name="profile_metadata_add">Ajouter des données</string>
     <string name="profile_metadata_label_label">Étiquette</string>
@@ -436,8 +401,6 @@
     <string name="action_access_scheduled_posts">Messages programmés</string>
     <string name="action_schedule_post">Planifier le message</string>
     <string name="action_reset_schedule">Réinitialiser</string>
-    <string name="post_lookup_error_format">Erreur lors de la recherche du post %s</string>
-    <string name="about_powered_by_pachli">Propulsé par Pachli</string>
     <string name="title_bookmarks">Signets</string>
     <string name="action_bookmark">Marquer comme signet</string>
     <string name="action_view_bookmarks">Signets</string>
@@ -535,13 +498,11 @@
     <string name="pref_title_notification_filter_updates">un message avec lequel j’ai interagi est modifié</string>
     <string name="notification_update_name">Messages modifiés</string>
     <string name="notification_update_description">Notifications quand un message avec lequel vous avez interagi est modifié</string>
-    <string name="title_login">Se connecter</string>
     <string name="account_date_joined">Ici depuis %1$s</string>
     <string name="action_details">Détails</string>
     <string name="saving_draft">Sauvegarde du brouillon …</string>
     <string name="status_count_one_plus">&gt;1</string>
     <string name="dialog_push_notification_migration_other_accounts">Pachli peut maintenant recevoir les notifications instantanées de ce compte. Cependant, d\'autres de vos comptes n\'ont pas encore accès aux notifications instantanées. Basculez sur chacun de vos comptes et reconnectez les afin de recevoir les notifications avec UnifiedPush.</string>
-    <string name="error_could_not_load_login_page">La page de connexion ne peut être chargée.</string>
     <string name="action_edit_image">Retoucher l’image</string>
     <string name="action_dismiss">Fermer</string>
     <string name="title_migration_relogin">Se reconnecter pour recevoir les notifications instantanées</string>
@@ -556,7 +517,6 @@
     <string name="duration_no_change">(Aucune modification)</string>
     <string name="url_domain_notifier">\u0020(🔗 %s)</string>
     <string name="action_add_reaction">ajouter une réaction</string>
-    <string name="instance_rule_title">%s règles</string>
     <string name="a11y_label_loading_thread">Chargement du fil</string>
     <string name="error_following_hashtags_unsupported">Cette instance ne prend pas en charge le suivi des hashtags.</string>
     <string name="error_muting_hashtag_format">Une erreur est survenue en masquant #%s</string>
@@ -590,7 +550,6 @@
     <string name="notification_report_name">Signalements</string>
     <string name="set_focus_description">Appuyez ou faites glissez le cercle pour déplacer le point focal, qui sera toujours visible sur les vignettes.</string>
     <string name="notification_unknown_name">Inconnu</string>
-    <string name="action_browser_login">Se connecter avec le navigateur</string>
     <string name="send_account_link_to">Partager le lien du compte avec…</string>
     <string name="account_username_copied">Nom de compte copié</string>
     <string name="action_discard">Abandonner les modifications</string>
@@ -608,8 +567,6 @@
     <string name="title_public_trending_hashtags">Hashtags tendance</string>
     <string name="send_account_username_to">Partager le nom du compte avec…</string>
     <string name="status_created_at_now">maintenant</string>
-    <string name="error_loading_account_details">Les détails du compte n\'ont pas pu être chargés</string>
-    <string name="instance_rule_info">En vous connectant vous acceptez de vous tenir aux règles de %s.</string>
     <string name="action_unfollow_hashtag_format">Arrêter de suivre #%s \?</string>
     <string name="failed_to_pin">Échec de l\'épinglage</string>
     <string name="status_edit_info">Modification de %1$s</string>
@@ -670,4 +627,45 @@
     <string name="filter_keyword_addition_title">Ajouter un mot-clé</string>
     <string name="filter_edit_keyword_title">Modifier mot-clé</string>
     <string name="filter_description_format">%s : %s</string>
+    <string name="action_translate_undo">Annuler la traduction</string>
+    <string name="error_media_upload_sending_fmt">Le téléversement a échoué : %s</string>
+    <string name="title_public_trending_statuses">Publications en tendance</string>
+    <string name="title_tab_public_trending_hashtags">Hashtags</string>
+    <string name="action_translate">Traduire</string>
+    <string name="error_generic_fmt">Une erreur s\'est produite : %s</string>
+    <string name="error_network_fmt">Une erreur réseau s\'est produite : %s</string>
+    <string name="error_404_not_found">Votre serveur ne prend pas en charge cette fonctionnalité</string>
+    <string name="title_public_trending">Tendances</string>
+    <string name="title_public_trending_links">Liens en tendance</string>
+    <string name="title_tab_public_trending_links">Liens</string>
+    <string name="title_tab_public_trending_statuses">Publications</string>
+    <string name="pref_ui_text_size">Taille du texte de IU</string>
+    <string name="dialog_delete_filter_text">Supprimer le filtre « %1$s » ?</string>
+    <string name="dialog_delete_filter_positive_action">Supprimer</string>
+    <string name="pref_title_update_settings">Mises à jour logicielles</string>
+    <string name="pref_title_update_notification_frequency">M\'informer des nouvelles versions de Pachli</string>
+    <string name="pref_update_notification_frequency_never">Jamais</string>
+    <string name="pref_update_notification_frequency_always">Toujours</string>
+    <string name="update_dialog_title">Une mise à jour est disponible</string>
+    <string name="update_dialog_neutral">Ne plus me rappeller pour cette version</string>
+    <string name="translating">Traduction …</string>
+    <string name="translation_provider_fmt">%1$s</string>
+    <string name="janky_animation_title">Vous aurez besoin de redémarrer votre appareil</string>
+    <string name="confirmation_hashtag_muted">#%s caché</string>
+    <string name="label_image">Image</string>
+    <string name="pref_summary_timeline_filters">Votre serveur ne supporte pas les filtres</string>
+    <string name="compose_delete_draft">Supprimer le brouillon ?</string>
+    <string name="list_exclusive_label">Masquer du fil d\'actualité principal</string>
+    <string name="announcement_date_updated">(Mis à jour : %1$s)</string>
+    <string name="load_newest_notifications">Charger les nouvelles notifications</string>
+    <string name="ui_error_translate_status">Traduction échouée : %s</string>
+    <string name="load_newest_statuses">Charger les publications les plus récentes</string>
+    <string name="error_media_playback">La lecture a échoué : %s</string>
+    <string name="dialog_save_profile_changes_message">Voulez-vous sauvegarder les changements apportés à votre profil ?</string>
+    <string name="reaction_name_and_count">%1$s %2$d</string>
+    <string name="pref_update_notification_frequency_once_per_version">Une fois par version</string>
+    <string name="notification_listenable_worker_name">Activité en arrière-plan</string>
+    <string name="notification_notification_worker">Récupération des notifications …</string>
+    <string name="notification_prune_cache">Maintenance du cache …</string>
+    <string name="announcement_date">%1$s %2$s</string>
 </resources>

@@ -3,12 +3,7 @@
     <string name="error_generic">Ha ocurrido un error.</string>
     <string name="error_network">Ha ocurrido un error de red. Por favor, comprueba tu conexión e inténtalo de nuevo.</string>
     <string name="error_empty">Este campo no puede estar vacío.</string>
-    <string name="error_invalid_domain">Nombre de dominio incorrecto</string>
-    <string name="error_failed_app_registration">Fallo de autenticación con esta instancia. Si esto persiste, prueba en el menú Iniciar sesión con el navegador.</string>
     <string name="error_no_web_browser_found">No se ha encontrado ningún navegador web.</string>
-    <string name="error_authorization_unknown">Ocurrió un error de autorización no identificado. Si esto persiste, prueba en el menú Iniciar sesión con el navegador.</string>
-    <string name="error_authorization_denied">La autorización falló. Si estás seguro de que has suministrado las credenciales correctas, prueba en el menú Iniciar sesión con el navegador.</string>
-    <string name="error_retrieving_oauth_token">Fallo al obtener identificador de login. Si esto persiste, prueba en el menú Iniciar sesión con el navegador.</string>
     <string name="error_compose_character_limit">¡La publicación es demasiado larga!</string>
     <string name="error_media_upload_type">No se admite este tipo de archivo.</string>
     <string name="error_media_upload_opening">No pudo abrirse el fichero.</string>
@@ -35,7 +30,6 @@
     <string name="title_follow_requests">Solicitudes</string>
     <string name="title_edit_profile">Editar tu perfil</string>
     <string name="title_drafts">Borradores</string>
-    <string name="title_licenses">Licencias</string>
     <string name="post_username_format">\@%s</string>
     <string name="post_boosted_format">%s compartió</string>
     <string name="post_sensitive_media_title">Contenido sensible</string>
@@ -58,7 +52,6 @@
     <string name="action_favourite">Favorito</string>
     <string name="action_more">Más</string>
     <string name="action_compose">Redactar</string>
-    <string name="action_login">Iniciar sesión con Pachli</string>
     <string name="action_logout">Cerrar sesión</string>
     <string name="action_logout_confirm">¿Seguro que quiere cerrar la sesión de %1$s? Esto eliminará todos los datos locales de la cuenta, incluyendo borradores y preferencias.</string>
     <string name="action_follow">Seguir</string>
@@ -72,7 +65,6 @@
     <string name="action_send">TOOT</string>
     <string name="action_send_public">¡Publicar!</string>
     <string name="action_retry">Reintentar</string>
-    <string name="action_close">Cerrar</string>
     <string name="action_view_profile">Perfil</string>
     <string name="action_view_preferences">Ajustes</string>
     <string name="action_view_account_preferences">Preferencias de cuenta</string>
@@ -104,7 +96,6 @@
     <string name="action_add_tab">Añadir pestaña</string>
     <string name="download_image">Descargando %1$s</string>
     <string name="action_copy_link">Copiar el enlace</string>
-    <string name="action_open_as">Abrir como %s</string>
     <string name="action_share_as">Compartir como…</string>
     <string name="send_post_link_to">Compartir URL…</string>
     <string name="send_post_content_to">Compartir contenido…</string>
@@ -114,7 +105,6 @@
     <string name="confirmation_unmuted">El usuario ya no está silenciado</string>
     <string name="post_sent">¡Enviado!</string>
     <string name="post_sent_long">Respuesta enviada correctamente.</string>
-    <string name="hint_domain">¿Qué instancia\?</string>
     <string name="hint_compose">¿En qué estás pensando?</string>
     <string name="hint_content_warning">Aviso de contenido</string>
     <string name="hint_display_name">Nombre</string>
@@ -124,17 +114,6 @@
     <string name="label_quick_reply">Respuesta…</string>
     <string name="label_avatar">Avatar</string>
     <string name="label_header">Cabecera</string>
-    <string name="link_whats_an_instance">¿Qué es una instancia?</string>
-    <string name="login_connection">Conectando…</string>
-    <string name="dialog_whats_an_instance">Introduzca aquí dirección o dominio de cualquier instancia,
-        como mastodon.social, icosahedron.website, social.tchncs.de y
-        <a href="https://instances.social">más!</a>
-        \n\nSi todavia no tiene una cuenta, puede indicar el nombre de la instancia a la que quiere
-        unirse y crear una cuenta allí.\n\nUna instancia es el sitio único donde su cuenta
-        está alojada, pero puede comunicarse y seguir usuarios de otras instancias como si
-        estuvieran en la misma.
-        \n\nPuede consultar más información en <a href="https://joinmastodon.org">joinmastodon.org</a>.
-    </string>
     <string name="dialog_title_finishing_media_upload">Terminando de subir multimedia</string>
     <string name="dialog_message_uploading_media">Subiendo…</string>
     <string name="dialog_download_image">Descargar</string>
@@ -207,22 +186,13 @@
         <item quantity="other">%d nuevas interacciones</item>
     </plurals>
     <string name="description_account_locked">Cuenta protegida</string>
-    <string name="about_title_activity">Acerca de</string>
     <string name="about_pachli_version">Pachli %s</string>
-    <string name="about_pachli_license">Pachli es un software libre y de código abierto.
-        Está licenciado bajo la licencia \"GNU General Public License Version 3\".
-        Puedes leer sobre la misma en: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
     <!-- note to translators:
          * you should think of “free” as in “free speech,” not as in “free beer”.
            We sometimes call it “libre software,” borrowing the French or Spanish word for “free” as in freedom,
            to show we do not mean the software is gratis. Source: https://www.gnu.org/philosophy/free-sw.html
          * the url can be changed to link to the localized version of the license.
     -->
-    <string name="about_project_site">Sitio del proyecto: https://pachli.app</string>
-    <string name="about_bug_feature_request_site">        Reporte de errores y peticiones de características:\n
-        https://github.com/pachli/pachli-android/issues
-    </string>
-    <string name="about_pachli_account">Perfil de Pachli</string>
     <string name="post_share_content">Compartir contenido</string>
     <string name="post_share_link">Compartir enlace</string>
     <string name="post_media_images">Imágenes</string>
@@ -269,7 +239,6 @@
     <string name="emoji_style">Estilo de los emojis</string>
     <string name="system_default">Sistema</string>
     <string name="download_fonts">Tendrás que descargarlos primero</string>
-    <string name="performing_lookup_title">Buscando…</string>
     <string name="expand_collapse_all_posts">Expandir/ocultar todos los estados</string>
     <string name="action_open_post">Abrir</string>
     <string name="restart_required">Reinicio requerido</string>
@@ -280,11 +249,9 @@
     <string name="caption_blobmoji">Los emojis de Android 4.4 a 7.1</string>
     <string name="caption_twemoji">Pack estándar de Emojis de Mastodon</string>
     <string name="download_failed">Descarga fallida</string>
-    <string name="profile_badge_bot_text">Bot</string>
     <string name="account_moved_description">%1$s se trasladó a:</string>
     <string name="reblog_private">Volver a compartir</string>
     <string name="unreblog_private">Dejar de compartir</string>
-    <string name="license_description">Pachli contiene código y recursos de los siguientes proyectos:</string>
     <string name="profile_metadata_label">Información adicional</string>
     <string name="profile_metadata_add">añadir campo</string>
     <string name="profile_metadata_label_label">Etiqueta</string>
@@ -438,8 +405,6 @@
     <string name="action_access_scheduled_posts">Estados programados</string>
     <string name="action_schedule_post">Programar estado</string>
     <string name="action_reset_schedule">Reiniciar</string>
-    <string name="post_lookup_error_format">Error al buscar el post %s</string>
-    <string name="about_powered_by_pachli">Potenciado por Pachli</string>
     <string name="title_bookmarks">Marcadores</string>
     <string name="action_bookmark">Marcador</string>
     <string name="action_view_bookmarks">Marcadores</string>
@@ -526,14 +491,11 @@
     <string name="pref_title_notification_filter_sign_ups">alguien se registró</string>
     <string name="error_following_hashtag_format">Error al seguir #%s</string>
     <string name="error_unfollowing_hashtag_format">Error dejando de seguir #%s</string>
-    <string name="title_login">Ingreso</string>
     <string name="title_migration_relogin">Reingresa para activar notificaciones push</string>
     <string name="notification_sign_up_format">%s se registró</string>
     <string name="notification_update_format">%s editó su publicación</string>
     <string name="action_dismiss">Descartar</string>
     <string name="action_details">Detalles</string>
-    <string name="error_loading_account_details">Falló cargar los detalles de la cuenta</string>
-    <string name="error_could_not_load_login_page">Falló al cargar la página de ingreso.</string>
     <string name="delete_scheduled_post_warning">¿Eliminar publicación programada\?</string>
     <string name="set_focus_description">Toca o arrastra el círculo para centrar el foco de la imagen, que será visible en las miniaturas.</string>
     <string name="compose_save_draft_loses_media">¿Guardar este borrador\? (Los adjuntos se subirán de nuevo cuando vuelvas a él.)</string>
@@ -562,8 +524,6 @@
     <string name="pachli_compose_post_quicksetting_label">Escribir publicación</string>
     <string name="saving_draft">Guardando borrador…</string>
     <string name="dialog_push_notification_migration_other_accounts">Has vuelto a iniciar sesión en esta cuenta para dar permiso de notificaciones push a Pachli. Sin embargo, aún hay otras cuentas que no tienen este permiso. Cambia a estas cuentas y vuelve a iniciar sesión, una a una, para activar el soporte de notificaciones de UnifiedPush.</string>
-    <string name="instance_rule_info">Al iniciar sesión aceptas las normas de %s.</string>
-    <string name="instance_rule_title">Normas de %s</string>
     <string name="notification_sign_up_name">Creación de cuentas</string>
     <string name="action_edit_image">Editar imagen</string>
     <string name="failed_to_add_to_list">Falló añadir la cuenta a la lista</string>
@@ -599,7 +559,6 @@
     <string name="title_edits">Ediciones</string>
     <string name="action_post_failed">La subida falló</string>
     <string name="action_post_failed_do_nothing">Descartar</string>
-    <string name="action_browser_login">Iniciar sesión con el navegador</string>
     <string name="a11y_label_loading_thread">Cargando hilo</string>
     <string name="mute_notifications_switch">Silenciar notificaciones</string>
     <string name="status_edit_info">%1$s ha editado</string>
@@ -697,7 +656,6 @@
     <string name="title_public_trending_statuses">Publicaciones en tendencia</string>
     <string name="announcement_date">%1$s %2$s</string>
     <string name="load_newest_statuses">Carga publicaciones más nuevas</string>
-    <string name="about_device_info_title">Tu dispositivo</string>
     <string name="error_network_fmt">Ha ocurrido un error de red: %s</string>
     <string name="dialog_save_profile_changes_message">¿Quieres guardar tus cambios de perfil?</string>
     <string name="error_generic_fmt">Ha ocurrido un error: %s</string>
@@ -712,9 +670,7 @@
     <string name="pref_title_show_self_boosts">Mostrar auto-impulsos</string>
     <string name="announcement_date_updated">(Actualizado: %1$s)</string>
     <string name="title_tab_public_trending_statuses">Publicaciones</string>
-    <string name="about_copied">Informaciones de versión y dispositivo copiadas</string>
     <string name="pref_update_notification_frequency_once_per_version">Una vez por versión</string>
-    <string name="about_privacy_policy">Política de privacidad</string>
     <string name="error_404_not_found">Su servidor no soporta esta función</string>
     <string name="pref_title_font_family">Familia de fuente</string>
     <string name="notification_listenable_worker_description">Notificaciones cuando Pachli está trabajando en el fondo</string>
@@ -723,16 +679,17 @@
     <string name="error_missing_edits">Tu servidor sabe que esta publicación fue editada, pero no tiene una copia de las ediciones, así que no pueden ser asomados a ti.
 \n
 \nEsto es <a href="https://github.com/mastodon/mastodon/issues/25398">problema de Mastodon #25398</a>.</string>
-    <string name="about_account_info">\@%s@%s
-\nVersión: %s</string>
-    <string name="about_copy">Copiar las informaciones de versión y dispositivo</string>
     <string name="update_dialog_title">Una actualización está disponible</string>
-    <string name="about_device_info">%s %s
-\nVersión de Android: %s
-\nSDK nivel: %d</string>
     <string name="title_tab_public_trending_hashtags">Etiquetas</string>
-    <string name="about_account_info_title">Tu cuenta</string>
     <string name="label_image">Imagen</string>
     <string name="action_translate_undo">Deshace traducción</string>
     <string name="notification_prune_cache">Mantenimiento de caché…</string>
+    <string name="pref_summary_timeline_filters">Tu servidor no soporta los filtros</string>
+    <string name="server_repository_error_unsupported_schema">/.well-known/nodeinfo no contiene esquemas comprensibles</string>
+    <string name="server_repository_error_get_node_info">fallo al obtener nodeinfo %1$s: %2$s</string>
+    <string name="server_repository_error_validate_node_info">fallo al validar nodeinfo %1$s: %2$s</string>
+    <string name="server_repository_error_get_instance_info">fallo al obtener /api/v1/instance: %1$s</string>
+    <string name="server_repository_error">No se pudo obtener la info del servidor %1$s: %2$s</string>
+    <string name="server_repository_error_get_well_known_node_info">fallo al obtener /.well-known/nodeinfo: %1$s</string>
+    <string name="server_repository_error_capabilities">fallo al analizar las capacidades del servidor: %1$s</string>
 </resources>

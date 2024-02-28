@@ -22,14 +22,14 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.pachli.PachliApplication
 import app.pachli.R
-import app.pachli.components.instanceinfo.InstanceInfoRepository
 import app.pachli.core.accounts.AccountManager
+import app.pachli.core.data.repository.InstanceInfoRepository
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.InstanceConfiguration
 import app.pachli.core.network.model.InstanceV1
-import app.pachli.core.network.model.StatusConfiguration
+import app.pachli.core.network.model.SearchResult
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.testing.rules.lazyActivityScenarioRule
 import at.connyduck.calladapter.networkresult.NetworkResult
@@ -47,6 +47,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.reset
@@ -96,6 +98,9 @@ class ComposeActivityTest {
                     }
                 }
             }
+            onBlocking { searchSync(any(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()) } doReturn NetworkResult.success(
+                SearchResult(emptyList(), emptyList(), emptyList()),
+            )
         }
 
         accountManager.addAccount(
@@ -600,29 +605,47 @@ class ComposeActivityTest {
         activity.findViewById<EditText>(R.id.composeEditField).setText(text ?: "Some text")
     }
 
-    private fun getInstanceWithCustomConfiguration(maximumLegacyTootCharacters: Int? = null, configuration: InstanceConfiguration? = null): InstanceV1 {
-        return InstanceV1(
+    private fun getInstanceWithCustomConfiguration(
+        maximumLegacyTootCharacters: Int? = null,
+        configuration: InstanceConfiguration? = null,
+    ): InstanceV1 {
+        var result = InstanceV1(
             uri = "https://example.token",
             version = "2.6.3",
-            maxTootChars = maximumLegacyTootCharacters,
-            pollConfiguration = null,
-            configuration = configuration,
-            maxMediaAttachments = null,
-            pleroma = null,
-            uploadLimit = null,
-            rules = emptyList(),
         )
+
+        maximumLegacyTootCharacters?.let {
+            result = result.copy(maxTootChars = it)
+        }
+        configuration?.let {
+            result = result.copy(configuration = it)
+        }
+
+        return result
     }
 
-    private fun getCustomInstanceConfiguration(maximumStatusCharacters: Int? = null, charactersReservedPerUrl: Int? = null): InstanceConfiguration {
-        return InstanceConfiguration(
-            statuses = StatusConfiguration(
-                maxCharacters = maximumStatusCharacters,
-                maxMediaAttachments = null,
-                charactersReservedPerUrl = charactersReservedPerUrl,
-            ),
-            mediaAttachments = null,
-            polls = null,
-        )
+    private fun getCustomInstanceConfiguration(
+        maximumStatusCharacters: Int? = null,
+        charactersReservedPerUrl: Int? = null,
+    ): InstanceConfiguration {
+        var result = InstanceConfiguration()
+
+        maximumStatusCharacters?.let {
+            result = result.copy(
+                statuses = result.statuses.copy(
+                    maxCharacters = it,
+                ),
+            )
+        }
+
+        charactersReservedPerUrl?.let {
+            result = result.copy(
+                statuses = result.statuses.copy(
+                    charactersReservedPerUrl = it,
+                ),
+            )
+        }
+
+        return result
     }
 }

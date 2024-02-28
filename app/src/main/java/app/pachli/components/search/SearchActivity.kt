@@ -26,13 +26,13 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuProvider
-import app.pachli.BottomSheetActivity
 import app.pachli.R
 import app.pachli.components.search.adapter.SearchPagerAdapter
+import app.pachli.core.activity.BottomSheetActivity
+import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.preferences.PrefKeys
+import app.pachli.core.ui.reduceSwipeSensitivity
 import app.pachli.databinding.ActivitySearchBinding
-import app.pachli.util.reduceSwipeSensitivity
-import app.pachli.util.viewBinding
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -75,6 +75,7 @@ class SearchActivity : BottomSheetActivity(), MenuProvider, SearchView.OnQueryTe
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
         menuInflater.inflate(R.menu.search_toolbar, menu)
         val searchViewMenuItem = menu.findItem(R.id.action_search)
         searchViewMenuItem.expandActionView()
@@ -83,6 +84,7 @@ class SearchActivity : BottomSheetActivity(), MenuProvider, SearchView.OnQueryTe
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        super.onMenuItemSelected(menuItem)
         return false
     }
 

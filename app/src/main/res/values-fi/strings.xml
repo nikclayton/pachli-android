@@ -5,10 +5,8 @@
     <string name="app_theme_system">Seuraa laitteen teemaa</string>
     <string name="dialog_unfollow_warning">Lopeta tilin seuraaminen\?</string>
     <string name="dialog_delete_post_warning">Poista tuuttaus\?</string>
-    <string name="link_whats_an_instance">Mikä on instanssi\?</string>
     <string name="action_copy_link">Kopioi linkki</string>
     <string name="action_open_in_web">Avaa selaimessa</string>
-    <string name="action_login">Kirjaudu Mastodonilla</string>
     <string name="title_edit_profile">Muokkaa profiilia</string>
     <string name="draft_deleted">Luonnos poistettu</string>
     <string name="poll_new_choice_hint">Vaihtoehto %d</string>
@@ -32,7 +30,6 @@
     <string name="lock_account_label">Lukitse tili</string>
     <string name="add_account_name">Lisää tili</string>
     <string name="follows_you">Seuraa sinua</string>
-    <string name="about_pachli_account">Pachlin profiili</string>
     <string name="about_pachli_version">Pachli %s</string>
     <string name="description_account_locked">Lukittu tili</string>
     <string name="notification_subscription_name">Uudet tuuttaukset</string>
@@ -45,7 +42,6 @@
     <string name="search_no_results">Ei tuloksia</string>
     <string name="hint_content_warning">Sisältövaroitus</string>
     <string name="hint_compose">Mitä tapahtuu\?</string>
-    <string name="hint_domain">Mikä instanssi\?</string>
     <string name="downloading_media">Ladataan mediaa</string>
     <string name="download_media">Lataa media</string>
     <string name="action_open_faved_by">Näytä suosikit</string>
@@ -85,7 +81,6 @@
     <string name="description_visibility_public">Julkinen</string>
     <string name="pin_action">Kiinnitä</string>
     <string name="unpin_action">Poista kiinnitys</string>
-    <string name="profile_badge_bot_text">Botti</string>
     <string name="action_remove">Poista</string>
     <string name="title_lists">Listat</string>
     <string name="action_lists">Listat</string>
@@ -94,7 +89,6 @@
     <string name="post_media_audio">Ääni</string>
     <string name="post_media_video">Video</string>
     <string name="post_media_images">Kuvat</string>
-    <string name="about_title_activity">Tietoja</string>
     <string name="pref_title_proxy_settings">Välityspalvelin</string>
     <string name="post_privacy_followers_only">Vain seuraajat</string>
     <string name="post_privacy_public">Julkinen</string>
@@ -138,7 +132,6 @@
     <string name="action_view_favourites">Suosikit</string>
     <string name="action_view_preferences">Asetukset</string>
     <string name="action_view_profile">Profiili</string>
-    <string name="action_close">Sulje</string>
     <string name="action_retry">Yritä uudelleen</string>
     <string name="action_send">TUUT</string>
     <string name="action_delete">Poista</string>
@@ -153,7 +146,6 @@
     <string name="title_scheduled_posts">Ajastetut tuuttaukset</string>
     <string name="action_reply">Vastaa</string>
     <string name="post_username_format">\@%s</string>
-    <string name="title_licenses">Lisenssit</string>
     <string name="title_drafts">Luonnokset</string>
     <string name="title_favourites">Suosikit</string>
     <string name="title_bookmarks">Kirjanmerkit</string>
@@ -185,12 +177,10 @@
     <string name="error_media_upload_sending">Lähettäminen epäonnistui.</string>
     <string name="report_username_format">Ilmianna @%s</string>
     <string name="report_comment_hint">Lisähuomautuksia\?</string>
-    <string name="error_loading_account_details">Tilitietojen lataaminen epäonnistui</string>
     <string name="error_media_upload_permission">Tiedostojen lähettäminen vaatii lukuoikeuden.</string>
     <string name="action_set_caption">Aseta kuvaus</string>
     <string name="action_bookmark">Kirjanmerkki</string>
     <string name="action_unmute_domain">Poista mykistys verkkonimeltä %s</string>
-    <string name="action_open_as">Avaa tilinä %s</string>
     <string name="action_more">Enemmän</string>
     <string name="notification_mention_format">%s on maininnut sinut</string>
     <string name="error_media_upload_opening">Tiedoston lataaminen epäonnistui.</string>
@@ -211,7 +201,7 @@
     <string name="action_show_reblogs">Näytä jaetut julkaisut</string>
     <string name="notification_summary_large">%1$s, %2$s, %3$s ja %4$d muuta</string>
     <plurals name="hint_describe_for_visually_impaired">
-        <item quantity="one">Kuvaa sisältö näkövammaisille (enintään %d merkkiä)</item>
+        <item quantity="one">Kuvaa sisältö näkövammaisille (enintään %d merkki)</item>
         <item quantity="other">Kuvaa sisältö näkövammaisille (enintään %d merkkiä)</item>
     </plurals>
     <string name="edit_hashtag_hint">Aihetunniste ilman #-merkkiä</string>
@@ -233,7 +223,6 @@
     <string name="action_favourite">Lisää suosikiksi</string>
     <string name="error_media_download_permission">Tiedostojen tallentamiseen vaaditaan kirjoitusoikeus.</string>
     <string name="notification_summary_small">%1$s ja %2$s</string>
-    <string name="error_invalid_domain">Syöttämäsi verkkonimi on virheellinen</string>
     <string name="action_unmute_desc">Poista mykistys tililtä %s</string>
     <string name="action_compose">Kirjoita</string>
     <string name="hint_search_people_list">Hae seuraamiasi henkilöitä</string>
@@ -241,12 +230,10 @@
     <string name="notification_sign_up_format">%s rekisteröityi</string>
     <string name="notification_sign_up_name">Rekisteröitymiset</string>
     <string name="notification_sign_up_description">Ilmoitukset uusista käyttäkistä</string>
-    <string name="title_login">Sisäänkirjautuminen</string>
     <string name="action_unbookmark">Poista kirjanmerkki</string>
     <string name="duration_90_days">90 päivää</string>
     <string name="duration_180_days">180 päivää</string>
     <string name="duration_365_days">365 päivää</string>
-    <string name="error_could_not_load_login_page">Sisäänkirjautumissivun lataaminen epäonnistui.</string>
     <string name="action_reblog">Jaa</string>
     <string name="action_toggle_visibility">Julkaisun näkyvyys</string>
     <string name="title_posts_with_replies">Vastauksetkin</string>
@@ -279,7 +266,6 @@
     <string name="confirmation_reported">Lähetetty!</string>
     <string name="post_sent">Lähetetty!</string>
     <string name="post_sent_long">Vastaus lähetetty onnistuneesti.</string>
-    <string name="login_connection">Yhdistetään…</string>
     <string name="dialog_mute_warning">Hiljennä @%s\?</string>
     <string name="dialog_mute_hide_notifications">Piilota ilmoitukset</string>
     <string name="pref_title_appearance_settings">Ulkoasu</string>
@@ -301,7 +287,6 @@
     <string name="description_post_cw">Sisältövaroitus: %s</string>
     <string name="pref_title_http_proxy_server">HTTP-välityspalvelin</string>
     <string name="restart">Käynnistä uudelleen</string>
-    <string name="error_failed_app_registration">Tunnistautuminen valitsemasi instanssin kanssa epäonnistui.</string>
     <string name="dialog_block_warning">Estä @%s\?</string>
     <string name="action_post_failed_do_nothing">Hylkää</string>
     <string name="abbreviated_seconds_ago">%ds</string>
@@ -314,13 +299,11 @@
     <string name="title_public_trending_links">Nousussa olevat linkit</string>
     <string name="dialog_message_cancel_follow_request">Perutaanko seuraamispyyntö?</string>
     <string name="title_tab_public_trending_links">Linkit</string>
-    <string name="error_authorization_denied">Kirjautumista ei hyväksytty. Jos olet varma, että annoit oikeat tiedot, valitse valikosta Kirjaudu selaimella.</string>
     <string name="hint_media_description_missing">Mediatiedostolla pitäisi olla kuvaus.</string>
     <string name="title_public_trending_hashtags">Nousussa olevat aihetunnisteet</string>
     <string name="visibility_private">Vain seurajille: Näytä vain seuraajille</string>
     <string name="hint_display_name">Näyttönimi</string>
     <string name="confirmation_hashtag_unfollowed">#%s seuraaminen lopetettu</string>
-    <string name="error_authorization_unknown">Tapahtui tuntematon kirjautumisvirhe. Jos tämä jatkuu, valitse valikosta Kirjaudu selaimella.</string>
     <string name="error_unmuting_hashtag_format">Virhe tilin #%s mykistystä poistettaessa</string>
     <string name="visibility_unlisted">Listaamaton: Älä näytä julkisilla aikajanoilla</string>
     <string name="dialog_follow_hashtag_hint">#aihetunniste</string>
@@ -341,13 +324,6 @@
     <string name="action_dismiss">Hylkää</string>
     <string name="compose_active_account_description">Julkaistaan käyttäjänä %1$s</string>
     <string name="dialog_redraft_post_warning">Julkaisu poistetaan ja kirjoitetaan uudestaan?</string>
-    <string name="dialog_whats_an_instance">Tähän voi kirjoittaa minkä tahansa instanssin osoitteen, esimerkiksi mastodon.social, icosahedron.website, social.tchncs.de, ja <a href="https://instances.social">enemmän!</a>
-\n
-\nEllei sinulla vielä ole tiliä, voit kirjoittaa haluamasi instanssin nimen ja luoda tilin sinne.
-\n
-\nInstanssi on paikka, jossa tilisi sijaitsee, mutta voit helposti olla yhteydessä ja seurata ihmisiä toisilla instansseilla, aivan kuin olisitte samalla sivustolla.
-\n
-\nLisää tietoa täällä: <a href="https://joinmastodon.org">joinmastodon.org</a> </string>
     <string name="error_following_hashtags_unsupported">Tämä instanssi ei tue aihetunnisteita.</string>
     <string name="error_network_fmt">Tapahtui verkkovirhe: %s</string>
     <string name="error_generic_fmt">Tapahtui virhe: %s</string>
@@ -363,7 +339,6 @@
     <string name="pref_title_show_self_boosts_description">Joku tehostaa omaa julkaisuaan</string>
     <string name="visibility_public">Julkinen: Julkaise julkisille aikajanoille</string>
     <string name="hint_description">Kuvaus</string>
-    <string name="action_browser_login">Kirjaudu selaimella</string>
     <string name="notification_report_format">Uusi raportti %s</string>
     <string name="error_rename_list">Listaa ei voitu päivittää</string>
     <string name="send_post_content_to">Jaa julkaisu…</string>
@@ -376,7 +351,6 @@
     <string name="title_tab_public_trending_statuses">Julkaisut</string>
     <string name="action_share_account_link">Jaa linkki tiliin</string>
     <string name="error_create_list">Listaa ei voitu luoda</string>
-    <string name="error_retrieving_oauth_token">Kirjautumispolettia ei saatu. Jos tämä jatkuu, valitse valikosta Kirjaudu selaimella.</string>
     <string name="notification_summary_report_format">%s · %d julkaisua liitteenä</string>
     <string name="send_account_link_to">Jaa tilin URL…</string>
     <string name="error_404_not_found">Palvelimesi ei tue tätä ominaisuutta</string>
@@ -410,7 +384,6 @@
     <string name="profile_metadata_add">lisää dataa</string>
     <string name="pref_title_notification_filter_subscriptions">seuraamani tili on tehnyt uuden julkaisun</string>
     <string name="pref_title_custom_tabs">Käytä Chromen sisäänrakennettuja välilehtiä</string>
-    <string name="about_pachli_license">Pachli on vapaa avoimen lähdekoodin ohjelmisto. Se on lisensoitu GNU General Public License Version 3 -lisenssillä. Voit katsoa lisenssin täältä: https://www.gnu.org/lisenssit/gpl-3.0.en.html</string>
     <string name="pref_summary_http_proxy_missing">&lt;ei asetettu&gt;</string>
     <string name="pref_show_self_username_disambiguate">Kun kirjauduttu useammalla tilille</string>
     <string name="notification_boost_description">Ilmoitukset julkaisujesi tehostuksista</string>
@@ -427,7 +400,6 @@
     <string name="pref_title_notification_filter_poll">päättyneet äänestykset</string>
     <string name="abbreviated_in_seconds">%ds</string>
     <string name="failed_to_unpin">Irrottaminen epäonnistui</string>
-    <string name="about_powered_by_pachli">Toimii Pachlilla</string>
     <string name="compose_unsaved_changes">Sinulla on tallentamattomia muutoksia.</string>
     <string name="state_follow_requested">Seuraamista pyydetty</string>
     <string name="compose_delete_draft">Poista luonnos?</string>
@@ -438,13 +410,10 @@
     <string name="send_post_notification_channel_name">Julkaisuja lähetetään</string>
     <string name="abbreviated_in_minutes">%dkk</string>
     <string name="notification_report_description">Ilmoitukset moderointiraporteista</string>
-    <string name="about_device_info_title">Laitteesi</string>
     <string name="status_count_one_plus">1+</string>
     <string name="pref_title_http_proxy_port_message">Portin arvon tulee olla välillä %d – %d</string>
     <string name="visibility_direct">Suoraan: Vain mainitut käyttäjät</string>
-    <string name="pref_publishing">Julkaistaan (synkronoitu palvelimen kanssa)</string>
-    <string name="about_bug_feature_request_site">Virheilmoitukset ja pyynnöt uusista toiminnoista:
-\nhttps://github.com/pachli/pachli-android/issues</string>
+    <string name="pref_publishing">Julkaiseminen (synkronoitu palvelimen kanssa)</string>
     <string name="pref_title_notification_alert_vibrate">Ilmoita värähtelyllä</string>
     <string name="pref_default_post_privacy">Julkaisun oletusnäkyvyys</string>
     <string name="notification_unknown_name">Tuntematon</string>
@@ -458,11 +427,9 @@
     <string name="abbreviated_in_years">%dv</string>
     <string name="pref_default_post_language">Julkaisun oletuskieli</string>
     <string name="pref_title_notification_alerts">Hälytykset</string>
-    <string name="about_project_site">Projektin verkkosivut: https:/pachli.app</string>
     <string name="abbreviated_in_hours">%dt</string>
     <string name="notification_report_name">Raportit</string>
     <string name="abbreviated_in_days">%dp</string>
-    <string name="about_privacy_policy">Yksityisyyden suoja</string>
     <string name="post_media_image">Kuva</string>
     <string name="pref_title_font_family">Kirjasinperhe</string>
     <string name="notification_mention_descriptions">Ilmoitukset uusista maininnoista</string>
@@ -477,18 +444,12 @@
     <string name="pref_title_gradient_for_media">Näytä piilotetun median liukuva taustaväri</string>
     <string name="pref_title_notification_alert_sound">Ilmoita äänellä</string>
     <string name="pref_title_notification_filter_reports">uusi raportti</string>
-    <string name="about_account_info">\@%s@%s
-\nVersio: %s</string>
     <string name="pref_summary_http_proxy_disabled">Pois käytöstä</string>
     <string name="pref_title_http_proxy_enable">Ota käyttöön HTTP-välityspalvelin</string>
     <string name="pref_title_bot_overlay">Näytä bottisymboli</string>
     <string name="pref_title_notification_alert_light">Ilmoita valolla</string>
     <string name="failed_to_pin">Kiinnittäminen epäonnistui</string>
     <string name="notification_follow_description">Ilmoitukset uusista seuraajista</string>
-    <string name="about_device_info">%s %s
-\nAndroidversio: %s
-\nSDK-taso: %d</string>
-    <string name="about_account_info_title">Tilisi</string>
     <string name="pref_main_nav_position_option_top">Yläreuna</string>
     <string name="notification_prune_cache">Välimuistin ylläpito…</string>
     <string name="pref_ui_text_size">Käyttöliittymän tekstikoko</string>
@@ -520,7 +481,6 @@
     <string name="report_category_other">Muu</string>
     <string name="error_media_playback">Toisto epäonnistui: %s</string>
     <string name="drafts_failed_loading_reply">Vastaustietojn lataaminen epäonnistui</string>
-    <string name="instance_rule_title">Palvelimen %s säännöt</string>
     <string name="warning_scheduling_interval">Lyhin ajastusväli Mastodonissa on 5 minuuttia.</string>
     <string name="dialog_push_notification_migration_other_accounts">Olet kirjautunut uudelleen nykyiseen tiliisi myöntääksesi Pachlille tilausluvan. Sinulla on kuitenkin muitakin tilejä, joita ei ole siirretty tällä tavalla. Vaihda niihin ja kirjaudu uudelleen yksi kerrallaan, jotta UnifiedPush-ilmoitusten tuki voidaan ottaa käyttöön.</string>
     <string name="mute_notifications_switch">Hiljennä ilmoitukset</string>
@@ -552,15 +512,12 @@
     <string name="report_category_violation">Sääntörikkomus</string>
     <string name="label_filter_keywords">Avainsanat tai jonot jotka suodatetaan</string>
     <string name="drafts_post_reply_removed">Julkaisu, johon olit kirjoittanut vastausluonnoksen, on poistettu</string>
-    <string name="acra_dialog_text">Pyydämme anteeksi. Paina OK jos haluat lähettää kehittäjille yksityiskohtaiset tiedot</string>
     <string name="limit_notifications">Rajoita aikajanan ilmoituksia</string>
     <string name="account_date_joined">Liittyi %1$s</string>
     <string name="ui_error_unknown">tuntematon syy</string>
     <string name="ui_error_filter_v1_load">Suodattimien lataaminen epäonnistui: %s</string>
     <string name="janky_animation_title">Saatat joutua käynnistämään laitteesi uudelleen</string>
     <string name="announcement_date_updated">(Päivitetty: %1$s)</string>
-    <string name="about_copied">Tiedot versiosta ja laitteesta kopioitu</string>
-    <string name="instance_rule_info">Kirjautumalla sisään hyväksyt palvelimen %s säännöt.</string>
     <string name="tips_push_notification_migration">Kirjaudu uudelleen kaikille tileille push-ilmoitusten ottamiseksi käyttöön.</string>
     <string name="pref_update_notification_frequency_once_per_version">Kerran jokaisesta versiosta</string>
     <string name="filter_description_hide">Piilota täysin</string>
@@ -580,7 +537,6 @@
     <string name="delete_scheduled_post_warning">Poistetaanko tämä ajastettu julkaisu?</string>
     <string name="drafts_post_failed_to_send">Julkaisun lähettäminen epäonnistui!</string>
     <string name="label_filter_context">Suodattimen kontekstit</string>
-    <string name="about_copy">Kopio tiedot versiosta ja laitteesta</string>
     <string name="pref_title_confirm_reblogs">Pyydä vahvistus ennen tehostamista</string>
     <string name="account_note_hint">Yksityinen muistiinpano tästä tilistä</string>
     <string name="dialog_push_notification_migration">Push-ilmoitusten käyttämiseksi UnifiedPushin kautta Pachli tarvitsee luvan tilata Mastodon-palvelimellesi ilmoitukset. Tämä edellyttää Pachlille myönnettyjen OAuthin laajuuksien muuttamista. Uudelleenkirjautumisvaihtoehdon käyttäminen täällä tai tilin asetuksissa tallentaa kaikki paikalliset luonnokset ja välimuistin.</string>
@@ -601,7 +557,6 @@
     <string name="action_add">Lisää</string>
     <string name="load_newest_notifications">Lataa uusimmat ilmoitukset</string>
     <string name="pref_title_show_cards_in_timelines">Näytä linkkien esikatselut aikajanoissa</string>
-    <string name="acra_dialog_title">%1$s kaatui</string>
     <string name="pref_title_enable_swipe_for_tabs">Vaihda välilehteä pyyhkäisemällä</string>
     <string name="report_remote_instance">Lähetä edelleen %s</string>
     <string name="poll_info_time_absolute">päättyy %s</string>
@@ -609,9 +564,8 @@
     <string name="duration_30_days">30 päivää</string>
     <string name="reblog_private">Tehosta alkuperäiselle yleisölle</string>
     <string name="compose_preview_image_description">Toiminnot kuvalle %s</string>
-    <string name="post_lookup_error_format">Julkaisun %s haku epäonnistui</string>
     <string name="caption_twemoji">Mastodonin oletusemojit</string>
-    <string name="poll_info_format"> <!-- 15 ääntä • 1 tunti jäljellä --> %1$s• %2$s</string>
+    <string name="poll_info_format"> \u0020<!-- 15 ääntä • 1 tunti jäljellä --> %1$s• %2$s</string>
     <string name="action_compose_shortcut">Kirjoita</string>
     <string name="unreblog_private">Peru tehostus</string>
     <string name="description_post_reblogged">Tehostettu</string>
@@ -679,21 +633,11 @@
 \nJos haluat tutkia muita tilejä, voit löytää niitä toisesta aikajanasta, esimerkiksi oman instanssisi paikallisesta aikajanasta [iconics gmd_group]. Voit myös etsiä niitä nimeltä [iconics gmd_search]; etsi esimerkiksi sanalla ”Pachli” löytääksesi Mastodon-tilimme.</string>
     <string name="notifications_clear">Poista ilmoitukset</string>
     <string name="hint_list_name">Listan nimi</string>
-    <string name="acra_email_body">Nämä tiedot lähetetään kehittäjille.
-\n
-\nTarkista, että tiedot eivät sisällä mitään, mitä et halua jakaa, ja kerro, mitä teit, kun ohjelma kaatui.
-\n
-\n------
-\nKirjoita kuvaus tähän:
-\n
-\n------
-\n</string>
     <string name="expand_collapse_all_posts">Avaa/Sulje kaikki julkasut</string>
     <string name="select_list_title">Valitse lista</string>
     <string name="duration_indefinite">Loputon</string>
     <string name="caption_systememoji">Laitteesi oletusemojit</string>
     <string name="list_exclusive_label">Piilota kotiaikajanalta</string>
-    <string name="performing_lookup_title">Etsitään…</string>
     <string name="failed_search">Haku epäonnistui</string>
     <string name="error_list_load">Listojen lataaminen epäonnistui</string>
     <string name="report_sent_success">Raportti käyttäjästä @%s lähetetty</string>
@@ -702,7 +646,6 @@
         <item quantity="one">%s henkilö</item>
         <item quantity="other">%s henkilöä</item>
     </plurals>
-    <string name="license_description">Pachlissa on koodia ja osioita näistä vapaan lähdekoodin projekteista:</string>
     <string name="select_list_empty">Sinulla ei vielä ole listoja</string>
     <plurals name="poll_timespan_days">
         <item quantity="one">%d päivä jäljellä</item>
@@ -723,4 +666,15 @@
     <string name="description_poll">Kysely jossa vaihtoehdot: %1$s, %2$s, %3$s, %4$s, %5$s</string>
     <string name="duration_no_change">(Ei muutosta)</string>
     <string name="description_post_media">Media: %s</string>
+    <string name="pref_summary_timeline_filters">Palvelimesi ei tue suodattimia</string>
+    <string name="server_repository_error_unsupported_schema">/.well-known/nodeinfo ei sisältänyt ymmärrettäviä kaavoja</string>
+    <string name="server_repository_error_get_node_info">solmun tietojen haku osoitteesta %1$s epäonnistui: %2$s</string>
+    <string name="server_repository_error_get_instance_info">haku /api/v1/instance epäonnistui: %1$s</string>
+    <string name="server_repository_error_capabilities">palvelimen tietojen jäsentely epäonnistui: %1$s</string>
+    <string name="server_repository_error">Palvelintietoja ei voitu hakea osoitteelle %1$s:%2$s</string>
+    <string name="server_repository_error_get_well_known_node_info">haku /.well-known/nodeinfo epäonnistui: %1$s</string>
+    <string name="server_repository_error_validate_node_info">solmun %1$s tietojen validointi epäonnistui: %2$s</string>
+    <string name="pref_title_update_check_now">Etsi päivitystä nyt</string>
+    <string name="pref_update_next_scheduled_check">Seuraava ajoitettu tarkistus: %1$s</string>
+    <string name="pref_update_check_no_updates">Ei päivityksiä tarjolla</string>
 </resources>

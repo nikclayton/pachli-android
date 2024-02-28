@@ -25,6 +25,9 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import app.pachli.components.notifications.createWorkerNotificationChannel
+import app.pachli.core.activity.LogEntryTree
+import app.pachli.core.activity.TreeRing
+import app.pachli.core.activity.initCrashReporter
 import app.pachli.core.preferences.AppTheme
 import app.pachli.core.preferences.NEW_INSTALL_SCHEMA_VERSION
 import app.pachli.core.preferences.PrefKeys
@@ -33,6 +36,7 @@ import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.util.LocaleManager
 import app.pachli.util.setAppNightMode
 import app.pachli.worker.PruneCacheWorker
+import app.pachli.worker.PruneLogEntryEntityWorker
 import app.pachli.worker.WorkerFactory
 import autodispose2.AutoDisposePlugins
 import dagger.hilt.android.HiltAndroidApp
@@ -57,6 +61,9 @@ class PachliApplication : Application() {
     @Inject
     lateinit var sharedPreferencesRepository: SharedPreferencesRepository
 
+    @Inject
+    lateinit var logEntryTree: LogEntryTree
+
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
 
@@ -80,7 +87,11 @@ class PachliApplication : Application() {
 
         AutoDisposePlugins.setHideProxies(false) // a small performance optimization
 
-        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
+        when {
+            BuildConfig.DEBUG -> Timber.plant(Timber.DebugTree())
+            BuildConfig.FLAVOR_color == "orange" -> Timber.plant(TreeRing)
+        }
+        Timber.plant(logEntryTree)
 
         // Migrate shared preference keys and defaults from version to version.
         val oldVersion = sharedPreferencesRepository.getInt(PrefKeys.SCHEMA_VERSION, NEW_INSTALL_SCHEMA_VERSION)
@@ -112,19 +123,30 @@ class PachliApplication : Application() {
                 .build(),
         )
 
+        val workManager = WorkManager.getInstance(this)
         // Prune the database every ~ 12 hours when the device is idle.
         val pruneCacheWorker = PeriodicWorkRequestBuilder<PruneCacheWorker>(12, TimeUnit.HOURS)
             .setConstraints(Constraints.Builder().setRequiresDeviceIdle(true).build())
             .build()
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+        workManager.enqueueUniquePeriodicWork(
             PruneCacheWorker.PERIODIC_WORK_TAG,
             ExistingPeriodicWorkPolicy.KEEP,
             pruneCacheWorker,
         )
+
+        // Delete old logs every ~ 12 hours when the device is idle.
+        val pruneLogEntryEntityWorker = PeriodicWorkRequestBuilder<PruneLogEntryEntityWorker>(12, TimeUnit.HOURS)
+            .setConstraints(Constraints.Builder().setRequiresDeviceIdle(true).build())
+            .build()
+        workManager.enqueueUniquePeriodicWork(
+            PruneLogEntryEntityWorker.PERIODIC_WORK_TAG,
+            ExistingPeriodicWorkPolicy.KEEP,
+            pruneLogEntryEntityWorker,
+        )
     }
 
     private fun upgradeSharedPreferences(oldVersion: Int, newVersion: Int) {
-        Timber.d("Upgrading shared preferences: $oldVersion -> $newVersion")
+        Timber.d("Upgrading shared preferences: %d -> %d", oldVersion, newVersion)
         val editor = sharedPreferencesRepository.edit()
 
         if (oldVersion != NEW_INSTALL_SCHEMA_VERSION) {

@@ -69,7 +69,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-bn-rBD/strings.xml"
-            line="55"
+            line="52"
             column="5"/>
     </issue>
 
@@ -80,7 +80,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-bg/strings.xml"
-            line="131"
+            line="128"
             column="5"/>
     </issue>
 
@@ -91,7 +91,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="155"
+            line="137"
             column="5"/>
     </issue>
 
@@ -102,7 +102,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ta/strings.xml"
-            line="173"
+            line="158"
             column="5"/>
     </issue>
 
@@ -113,7 +113,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ga/strings.xml"
-            line="188"
+            line="172"
             column="5"/>
     </issue>
 
@@ -124,7 +124,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-bg/strings.xml"
-            line="190"
+            line="179"
             column="5"/>
     </issue>
 
@@ -135,7 +135,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-sl/strings.xml"
-            line="205"
+            line="186"
             column="5"/>
     </issue>
 
@@ -146,7 +146,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-cs/strings.xml"
-            line="221"
+            line="200"
             column="5"/>
     </issue>
 
@@ -157,7 +157,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-bn-rIN/strings.xml"
-            line="226"
+            line="207"
             column="5"/>
     </issue>
 
@@ -168,7 +168,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-eu/strings.xml"
-            line="236"
+            line="208"
             column="5"/>
     </issue>
 
@@ -179,7 +179,29 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-sl/strings.xml"
-            line="257"
+            line="231"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;ca&quot; (Catalan) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;hint_describe_for_visually_impaired&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ca/strings.xml"
+            line="253"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;cs&quot; (Czech) the following quantity should also be defined: `many` (e.g. &quot;10.0 dne&quot;)"
+        errorLine1="    &lt;plurals name=&quot;hint_describe_for_visually_impaired&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-cs/strings.xml"
+            line="254"
             column="5"/>
     </issue>
 
@@ -190,29 +212,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-bn-rIN/strings.xml"
-            line="285"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;ca&quot; (Catalan) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;hint_describe_for_visually_impaired&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ca/strings.xml"
-            line="286"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;cs&quot; (Czech) the following quantity should also be defined: `many` (e.g. &quot;10.0 dne&quot;)"
-        errorLine1="    &lt;plurals name=&quot;hint_describe_for_visually_impaired&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-cs/strings.xml"
-            line="286"
+            line="259"
             column="5"/>
     </issue>
 
@@ -223,18 +223,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="302"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;ru&quot; (Russian) the following quantities should also be defined: `few` (e.g. &quot;из 2 книг за 2 дня&quot;), `many` (e.g. &quot;из 5 книг за 5 дней&quot;), `one` (e.g. &quot;из 1 книги за 1 день&quot;)"
-        errorLine1="    &lt;plurals name=&quot;hint_describe_for_visually_impaired&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ru/strings.xml"
-            line="306"
+            line="282"
             column="5"/>
     </issue>
 
@@ -245,7 +234,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ga/strings.xml"
-            line="314"
+            line="286"
             column="5"/>
     </issue>
 
@@ -256,7 +245,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="329"
+            line="293"
             column="5"/>
     </issue>
 
@@ -267,7 +256,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="333"
+            line="297"
             column="5"/>
     </issue>
 
@@ -278,7 +267,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-cs/strings.xml"
-            line="333"
+            line="298"
             column="5"/>
     </issue>
 
@@ -289,7 +278,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-cs/strings.xml"
-            line="338"
+            line="303"
             column="5"/>
     </issue>
 
@@ -300,7 +289,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="359"
+            line="323"
             column="5"/>
     </issue>
 
@@ -311,7 +300,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-cs/strings.xml"
-            line="369"
+            line="334"
             column="5"/>
     </issue>
 
@@ -322,7 +311,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-cs/strings.xml"
-            line="383"
+            line="348"
             column="5"/>
     </issue>
 
@@ -333,7 +322,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-cs/strings.xml"
-            line="388"
+            line="353"
             column="5"/>
     </issue>
 
@@ -344,7 +333,18 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-cs/strings.xml"
-            line="393"
+            line="358"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;ca&quot; (Catalan) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;poll_info_people&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ca/strings.xml"
+            line="392"
             column="5"/>
     </issue>
 
@@ -355,18 +355,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-bg/strings.xml"
-            line="430"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;ca&quot; (Catalan) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;poll_info_people&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ca/strings.xml"
-            line="430"
+            line="394"
             column="5"/>
     </issue>
 
@@ -377,7 +366,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="458"
+            line="420"
             column="5"/>
     </issue>
 
@@ -388,7 +377,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="462"
+            line="424"
             column="5"/>
     </issue>
 
@@ -399,7 +388,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="466"
+            line="428"
             column="5"/>
     </issue>
 
@@ -410,7 +399,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="470"
+            line="432"
             column="5"/>
     </issue>
 
@@ -421,7 +410,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-cs/strings.xml"
-            line="480"
+            line="440"
             column="5"/>
     </issue>
 
@@ -432,7 +421,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-cs/strings.xml"
-            line="485"
+            line="445"
             column="5"/>
     </issue>
 
@@ -443,7 +432,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="487"
+            line="449"
             column="5"/>
     </issue>
 
@@ -454,7 +443,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-cs/strings.xml"
-            line="490"
+            line="450"
             column="5"/>
     </issue>
 
@@ -465,7 +454,7 @@
         errorLine2="                                                                               ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="15"
+            line="10"
             column="80"/>
     </issue>
 
@@ -476,7 +465,7 @@
         errorLine2="                                                                                  ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="16"
+            line="11"
             column="83"/>
     </issue>
 
@@ -487,7 +476,7 @@
         errorLine2="                                           ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="42"
+            line="36"
             column="44"/>
     </issue>
 
@@ -498,7 +487,7 @@
         errorLine2="                                                 ^">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="49"
+            line="43"
             column="50"/>
     </issue>
 
@@ -509,7 +498,7 @@
         errorLine2="                                             ^">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="49"
+            line="43"
             column="46"/>
     </issue>
 
@@ -520,7 +509,7 @@
         errorLine2="                                     ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="85"
+            line="77"
             column="38"/>
     </issue>
 
@@ -531,7 +520,7 @@
         errorLine2="                                             ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="87"
+            line="79"
             column="46"/>
     </issue>
 
@@ -542,7 +531,7 @@
         errorLine2="                                           ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="93"
+            line="85"
             column="44"/>
     </issue>
 
@@ -553,7 +542,7 @@
         errorLine2="                                            ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="116"
+            line="108"
             column="45"/>
     </issue>
 
@@ -564,7 +553,7 @@
         errorLine2="                                           ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="121"
+            line="112"
             column="44"/>
     </issue>
 
@@ -575,7 +564,7 @@
         errorLine2="                                                ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="122"
+            line="113"
             column="49"/>
     </issue>
 
@@ -586,7 +575,7 @@
         errorLine2="                                     ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="125"
+            line="116"
             column="38"/>
     </issue>
 
@@ -597,7 +586,7 @@
         errorLine2="                                                                     ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="150"
+            line="131"
             column="70"/>
     </issue>
 
@@ -608,7 +597,7 @@
         errorLine2="                                                                             ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="183"
+            line="164"
             column="78"/>
     </issue>
 
@@ -619,7 +608,7 @@
         errorLine2="                                                                ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="189"
+            line="170"
             column="65"/>
     </issue>
 
@@ -630,7 +619,7 @@
         errorLine2="                               ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="229"
+            line="206"
             column="32"/>
     </issue>
 
@@ -641,7 +630,7 @@
         errorLine2="                                          ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="317"
+            line="288"
             column="43"/>
     </issue>
 
@@ -652,7 +641,7 @@
         errorLine2="                                                                                     ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="450"
+            line="419"
             column="86"/>
     </issue>
 
@@ -663,7 +652,7 @@
         errorLine2="                                                                                                                                                                                                                                                                                                     ^">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="568"
+            line="533"
             column="294"/>
     </issue>
 
@@ -674,7 +663,7 @@
         errorLine2="                                                  ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="591"
+            line="555"
             column="51"/>
     </issue>
 
@@ -685,7 +674,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
-            line="193"
+            line="175"
             column="9"/>
     </issue>
 
@@ -696,7 +685,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
-            line="230"
+            line="206"
             column="9"/>
     </issue>
 
@@ -707,7 +696,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="107"
+            line="98"
             column="5"/>
     </issue>
 
@@ -718,7 +707,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="313"
+            line="288"
             column="5"/>
     </issue>
 
@@ -729,7 +718,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="362"
+            line="337"
             column="5"/>
     </issue>
 
@@ -740,7 +729,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="512"
+            line="471"
             column="5"/>
     </issue>
 
@@ -751,7 +740,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="698"
+            line="654"
             column="5"/>
     </issue>
 
@@ -872,7 +861,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="492"
+            line="493"
             column="9"/>
     </issue>
 
@@ -927,7 +916,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/accountlist/adapter/MutesAdapter.kt"
-            line="108"
+            line="109"
             column="9"/>
     </issue>
 
@@ -949,7 +938,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/adapter/TabAdapter.kt"
-            line="54"
+            line="55"
             column="9"/>
     </issue>
 
@@ -960,19 +949,8 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/adapter/TabAdapter.kt"
-            line="157"
+            line="158"
             column="13"/>
-    </issue>
-
-    <issue
-        id="VectorPath"
-        message="Very long vector path (802 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
-        errorLine1="        android:pathData=&quot;m12,3.1674a1.6059,1.6059 0,0 1,1.6059 1.6059c0,0.5942 -0.3212,1.1161 -0.803,1.3891v1.0198h0.803a5.6207,5.6207 0,0 1,5.6207 5.6207h0.803a0.803,0.803 0,0 1,0.803 0.803v2.4089a0.803,0.803 0,0 1,-0.803 0.803h-0.803v0.803a1.6059,1.6059 0,0 1,-1.6059 1.6059H6.3793A1.6059,1.6059 0,0 1,4.7733 17.6207V16.8178H3.9704A0.803,0.803 0,0 1,3.1674 16.0148V13.6059A0.803,0.803 0,0 1,3.9704 12.803H4.7733a5.6207,5.6207 0,0 1,5.6207 -5.6207h0.803V6.1625C10.7153,5.8894 10.3941,5.3675 10.3941,4.7733A1.6059,1.6059 0,0 1,12 3.1674M8.3867,12A2.0074,2.0074 0,0 0,6.3793 14.0074,2.0074 2.0074,0 0,0 8.3867,16.0148 2.0074,2.0074 0,0 0,10.3941 14.0074,2.0074 2.0074,0 0,0 8.3867,12m7.2267,0a2.0074,2.0074 0,0 0,-2.0074 2.0074,2.0074 2.0074,0 0,0 2.0074,2.0074 2.0074,2.0074 0,0 0,2.0074 -2.0074A2.0074,2.0074 0,0 0,15.6133 12Z&quot; />"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/bot_badge.xml"
-            line="12"
-            column="27"/>
     </issue>
 
     <issue
@@ -1340,133 +1318,12 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.color.md_theme_light_shadow` appears to be unused"
-        errorLine1="    &lt;color name=&quot;md_theme_light_shadow&quot;>#000000&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="31"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.md_theme_light_surfaceTint` appears to be unused"
-        errorLine1="    &lt;color name=&quot;md_theme_light_surfaceTint&quot;>#006686&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="32"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.md_theme_light_outlineVariant` appears to be unused"
-        errorLine1="    &lt;color name=&quot;md_theme_light_outlineVariant&quot;>#C0C7CD&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="33"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.md_theme_light_scrim` appears to be unused"
-        errorLine1="    &lt;color name=&quot;md_theme_light_scrim&quot;>#000000&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="34"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.md_theme_dark_shadow` appears to be unused"
-        errorLine1="    &lt;color name=&quot;md_theme_dark_shadow&quot;>#000000&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="61"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.md_theme_dark_surfaceTint` appears to be unused"
-        errorLine1="    &lt;color name=&quot;md_theme_dark_surfaceTint&quot;>#6FD2FF&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="62"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.md_theme_dark_outlineVariant` appears to be unused"
-        errorLine1="    &lt;color name=&quot;md_theme_dark_outlineVariant&quot;>#40484C&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="63"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.md_theme_dark_scrim` appears to be unused"
-        errorLine1="    &lt;color name=&quot;md_theme_dark_scrim&quot;>#000000&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="64"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.icon_background` appears to be unused"
-        errorLine1="    &lt;color name=&quot;icon_background&quot;>#09497b&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="105"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.icon_highlight` appears to be unused"
-        errorLine1="    &lt;color name=&quot;icon_highlight&quot;>#39acff&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="106"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.dimen.status_detail_media_preview_height` appears to be unused"
-        errorLine1="    &lt;dimen name=&quot;status_detail_media_preview_height&quot;>130dp&lt;/dimen>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/dimens.xml"
-            line="8"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.array.app_theme_values` appears to be unused"
         errorLine1="    &lt;string-array name=&quot;app_theme_values&quot;>"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="53"
+            line="47"
             column="19"/>
     </issue>
 
@@ -1477,7 +1334,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="294"
+            line="278"
             column="19"/>
     </issue>
 
@@ -1488,7 +1345,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="299"
+            line="283"
             column="19"/>
     </issue>
 
@@ -1604,34 +1461,12 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.drawable.materialdrawer_shape_large` appears to be unused"
-        errorLine1="&lt;shape xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/materialdrawer_shape_large.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.materialdrawer_shape_small` appears to be unused"
-        errorLine1="&lt;shape xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/materialdrawer_shape_small.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.string.error_no_web_browser_found` appears to be unused"
         errorLine1="    &lt;string name=&quot;error_no_web_browser_found&quot;>Couldn\&apos;t find a web browser to use.&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="25"
+            line="23"
             column="13"/>
     </issue>
 
@@ -1642,7 +1477,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="35"
+            line="28"
             column="13"/>
     </issue>
 
@@ -1653,7 +1488,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="45"
+            line="38"
             column="13"/>
     </issue>
 
@@ -1664,7 +1499,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="90"
+            line="81"
             column="13"/>
     </issue>
 
@@ -1675,7 +1510,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="97"
+            line="88"
             column="13"/>
     </issue>
 
@@ -1686,7 +1521,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="109"
+            line="100"
             column="13"/>
     </issue>
 
@@ -1697,7 +1532,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="117"
+            line="108"
             column="13"/>
     </issue>
 
@@ -1708,7 +1543,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="157"
+            line="145"
             column="13"/>
     </issue>
 
@@ -1719,7 +1554,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="217"
+            line="204"
             column="13"/>
     </issue>
 
@@ -1730,7 +1565,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="250"
+            line="225"
             column="13"/>
     </issue>
 
@@ -1741,7 +1576,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="251"
+            line="226"
             column="13"/>
     </issue>
 
@@ -1752,7 +1587,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="274"
+            line="249"
             column="13"/>
     </issue>
 
@@ -1763,7 +1598,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="303"
+            line="278"
             column="13"/>
     </issue>
 
@@ -1774,7 +1609,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="373"
+            line="347"
             column="13"/>
     </issue>
 
@@ -1785,7 +1620,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="425"
+            line="387"
             column="13"/>
     </issue>
 
@@ -1796,7 +1631,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="472"
+            line="434"
             column="13"/>
     </issue>
 
@@ -1807,7 +1642,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="476"
+            line="437"
             column="13"/>
     </issue>
 
@@ -1818,7 +1653,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="477"
+            line="438"
             column="13"/>
     </issue>
 
@@ -1829,7 +1664,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="478"
+            line="439"
             column="13"/>
     </issue>
 
@@ -1840,7 +1675,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="479"
+            line="440"
             column="13"/>
     </issue>
 
@@ -1851,7 +1686,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="480"
+            line="441"
             column="13"/>
     </issue>
 
@@ -1862,7 +1697,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="481"
+            line="442"
             column="13"/>
     </issue>
 
@@ -1873,7 +1708,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="482"
+            line="443"
             column="13"/>
     </issue>
 
@@ -1884,7 +1719,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="483"
+            line="444"
             column="13"/>
     </issue>
 
@@ -1895,7 +1730,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="484"
+            line="445"
             column="13"/>
     </issue>
 
@@ -1906,7 +1741,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="550"
+            line="509"
             column="13"/>
     </issue>
 
@@ -1917,7 +1752,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="551"
+            line="510"
             column="13"/>
     </issue>
 
@@ -1928,7 +1763,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="564"
+            line="523"
             column="13"/>
     </issue>
 
@@ -1939,7 +1774,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="565"
+            line="524"
             column="13"/>
     </issue>
 
@@ -1950,7 +1785,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="566"
+            line="525"
             column="13"/>
     </issue>
 
@@ -1961,7 +1796,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="568"
+            line="527"
             column="13"/>
     </issue>
 
@@ -1972,7 +1807,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="608"
+            line="567"
             column="13"/>
     </issue>
 
@@ -1983,7 +1818,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="651"
+            line="609"
             column="13"/>
     </issue>
 
@@ -1994,7 +1829,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="657"
+            line="615"
             column="13"/>
     </issue>
 
@@ -2005,7 +1840,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="689"
+            line="645"
             column="13"/>
     </issue>
 
@@ -2016,1757 +1851,8 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="717"
+            line="673"
             column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.AppButton_TextButton_Icon` appears to be unused"
-        errorLine1="    &lt;style name=&quot;AppButton.TextButton.Icon&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/styles.xml"
-            line="131"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.BezelImageView` appears to be unused"
-        errorLine1="    &lt;style name=&quot;BezelImageView&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/styles.xml"
-            line="175"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setClickableTextWithoutUnderlines` of class `AboutActivityKt` requires synthetic accessor"
-        errorLine1="        binding.aboutLicenseInfoTextView.setClickableTextWithoutUnderlines(R.string.about_pachli_license)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AboutActivity.kt"
-            line="75"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setClickableTextWithoutUnderlines` of class `AboutActivityKt` requires synthetic accessor"
-        errorLine1="        binding.aboutWebsiteInfoTextView.setClickableTextWithoutUnderlines(R.string.about_project_site)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AboutActivity.kt"
-            line="76"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setClickableTextWithoutUnderlines` of class `AboutActivityKt` requires synthetic accessor"
-        errorLine1="        binding.aboutBugsFeaturesInfoTextView.setClickableTextWithoutUnderlines(R.string.about_bug_feature_request_site)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AboutActivity.kt"
-            line="77"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `AccountActivity` requires synthetic accessor"
-        errorLine1="                            binding.accountFloatingActionButton.show()"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="380"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `AccountActivity` requires synthetic accessor"
-        errorLine1="                            binding.accountFloatingActionButton.hide()"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="383"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `AccountActivity` requires synthetic accessor"
-        errorLine1="                    binding.accountAvatarImageView.scaleX = scaledAvatarSize"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="389"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `AccountActivity` requires synthetic accessor"
-        errorLine1="                    binding.accountAvatarImageView.scaleY = scaledAvatarSize"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="390"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `AccountActivity` requires synthetic accessor"
-        errorLine1="                    binding.accountAvatarImageView.visible(scaledAvatarSize > 0)"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="392"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `AccountActivity` requires synthetic accessor"
-        errorLine1="                    binding.swipeRefreshLayout.isEnabled = verticalOffset == 0"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="402"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `fetchAccounts` of class `AccountListFragment` requires synthetic accessor"
-        errorLine1="                fetchAccounts(bottomId)"
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/accountlist/AccountListFragment.kt"
-            line="145"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `showErrorSnackbar` of class `AccountPreferencesFragment` requires synthetic accessor"
-        errorLine1="                            showErrorSnackbar(visibility, sensitive)"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/preference/AccountPreferencesFragment.kt"
-            line="326"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `showErrorSnackbar` of class `AccountPreferencesFragment` requires synthetic accessor"
-        errorLine1="                        showErrorSnackbar(visibility, sensitive)"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/preference/AccountPreferencesFragment.kt"
-            line="332"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="                    viewModel.search(query.orEmpty())"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="118"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="                        viewModel.search(&quot;&quot;)"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="125"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `onRemoveFromList` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="                onRemoveFromList(getItem(holder.bindingAdapterPosition).id)"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="186"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getAnimateEmojis` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="            holder.binding.displayNameTextView.text = account.name.emojify(account.emojis, holder.binding.displayNameTextView, animateEmojis)"
-        errorLine2="                                                                                                                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="196"
-            column="128"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getAnimateEmojis` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="            holder.binding.displayNameTextView.text = account.name.emojify(account.emojis, holder.binding.displayNameTextView, animateEmojis)"
-        errorLine2="                                                                                                                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="196"
-            column="128"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getAnimateAvatar` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="            loadAvatar(account.avatar, holder.binding.avatar, radius, animateAvatar)"
-        errorLine2="                                                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="198"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getRadius` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="            loadAvatar(account.avatar, holder.binding.avatar, radius, animateAvatar)"
-        errorLine2="                                                              ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="198"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `onRemoveFromList` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="                    onRemoveFromList(account.id)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="225"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `onAddToList` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="                    onAddToList(account)"
-        errorLine2="                    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="227"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getAnimateEmojis` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="            holder.binding.displayNameTextView.text = account.name.emojify(account.emojis, holder.binding.displayNameTextView, animateEmojis)"
-        errorLine2="                                                                                                                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="237"
-            column="128"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getAnimateEmojis` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="            holder.binding.displayNameTextView.text = account.name.emojify(account.emojis, holder.binding.displayNameTextView, animateEmojis)"
-        errorLine2="                                                                                                                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="237"
-            column="128"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getAnimateAvatar` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="            loadAvatar(account.avatar, holder.binding.avatar, radius, animateAvatar)"
-        errorLine2="                                                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="239"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getRadius` of class `AccountsInListFragment` requires synthetic accessor"
-        errorLine1="            loadAvatar(account.avatar, holder.binding.avatar, radius, animateAvatar)"
-        errorLine2="                                                              ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/AccountsInListFragment.kt"
-            line="239"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `textStyle` of class `Companion` requires synthetic accessor"
-        errorLine1="            textStyle(sharedPreferencesRepository.getString(PrefKeys.STATUS_TEXT_SIZE, &quot;medium&quot;)!!)"
-        errorLine2="            ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/BaseActivity.kt"
-            line="103"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `handleCloseButton` of class `ComposeActivity` requires synthetic accessor"
-        errorLine1="                    handleCloseButton()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/ComposeActivity.kt"
-            line="559"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `ComposeActivity` requires synthetic accessor"
-        errorLine1="                viewModel.postLanguage = (parent.adapter.getItem(position) as Locale).modernLanguageCode"
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/ComposeActivity.kt"
-            line="568"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `ComposeActivity` requires synthetic accessor"
-        errorLine1="                viewModel.postLanguage = (parent.adapter.getItem(position) as Locale).modernLanguageCode"
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/ComposeActivity.kt"
-            line="568"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `formatUsername` of class `Companion` requires synthetic accessor"
-        errorLine1="                    is AutocompleteResult.AccountResult -> formatUsername(resultValue)"
-        errorLine2="                                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/ComposeAutoCompleteAdapter.kt"
-            line="61"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `formatHashtag` of class `Companion` requires synthetic accessor"
-        errorLine1="                    is AutocompleteResult.HashtagResult -> formatHashtag(resultValue)"
-        errorLine2="                                                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/ComposeAutoCompleteAdapter.kt"
-            line="62"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `formatEmoji` of class `Companion` requires synthetic accessor"
-        errorLine1="                    is AutocompleteResult.EmojiResult -> formatEmoji(resultValue)"
-        errorLine2="                                                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/ComposeAutoCompleteAdapter.kt"
-            line="63"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `formatHashtag` of class `Companion` requires synthetic accessor"
-        errorLine1="                binding.root.text = formatHashtag(result)"
-        errorLine2="                                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/ComposeAutoCompleteAdapter.kt"
-            line="123"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `formatHashtag` of class `Companion` requires synthetic accessor"
-        errorLine1="                binding.root.text = formatHashtag(result)"
-        errorLine2="                                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/ComposeAutoCompleteAdapter.kt"
-            line="123"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `ConversationsFragment` requires synthetic accessor"
-        errorLine1="                            binding.recyclerView.post {"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/conversation/ConversationsFragment.kt"
-            line="154"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `ConversationsFragment` requires synthetic accessor"
-        errorLine1="                                    binding.recyclerView.scrollBy("
-        errorLine2="                                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/conversation/ConversationsFragment.kt"
-            line="156"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `EditFilterActivity` requires synthetic accessor"
-        errorLine1="                viewModel.setDuration("
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/filters/EditFilterActivity.kt"
-            line="119"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `EditFilterActivity` requires synthetic accessor"
-        errorLine1="                viewModel.setDuration("
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/filters/EditFilterActivity.kt"
-            line="119"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `EditFilterActivity` requires synthetic accessor"
-        errorLine1="                viewModel.setDuration(0)"
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/filters/EditFilterActivity.kt"
-            line="129"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `EditFilterActivity` requires synthetic accessor"
-        errorLine1="                viewModel.setDuration(0)"
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/filters/EditFilterActivity.kt"
-            line="129"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `FollowedTagsActivity` requires synthetic accessor"
-        errorLine1="                        binding.fab.visible(dy == 0)"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/followedtags/FollowedTagsActivity.kt"
-            line="90"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `follow` of class `FollowedTagsActivity` requires synthetic accessor"
-        errorLine1="                    (requireActivity() as FollowedTagsActivity).follow("
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/followedtags/FollowedTagsActivity.kt"
-            line="194"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `fetchInstances` of class `InstanceListFragment` requires synthetic accessor"
-        errorLine1="                    fetchInstances(bottomId)"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/instancemute/fragment/InstanceListFragment.kt"
-            line="58"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getContext` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                            context.getString(R.string.action_open_media_n, i + 1),"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="76"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getLinks` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                if (getLinks(status).any()) info.addAction(linksAction)"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="82"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getHashtags` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                if (getHashtags(status).any()) info.addAction(hashtagsAction)"
-        errorLine2="                    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="87"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `interrupt` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    interrupt()"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="107"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `interrupt` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    interrupt()"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="117"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `interrupt` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    interrupt()"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="121"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `interrupt` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    interrupt()"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="125"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `interrupt` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    interrupt()"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="129"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `interrupt` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    interrupt()"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="133"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `forceFocus` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    forceFocus(host)"
-        errorLine2="                    ~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="144"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `interrupt` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    interrupt()"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="148"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `interrupt` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    interrupt()"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="154"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `interrupt` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    interrupt()"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="158"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `interrupt` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                    interrupt()"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="162"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getLinks` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="            val links = getLinks(status).toList()"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="175"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `forceFocus` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                .let { forceFocus(it.listView) }"
-        errorLine2="                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="187"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `forceFocus` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                .let { forceFocus(it.listView) }"
-        errorLine2="                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="206"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getHashtags` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="            val tags = getHashtags(status).map { it.subSequence(1, it.length) }.toList()"
-        errorLine2="                       ~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="211"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `forceFocus` of class `ListStatusAccessibilityDelegate` requires synthetic accessor"
-        errorLine1="                .let { forceFocus(it.listView) }"
-        errorLine2="                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/util/ListStatusAccessibilityDelegate.kt"
-            line="224"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `onListSelected` of class `ListsActivity` requires synthetic accessor"
-        errorLine1="                    onListSelected(list.id, list.title)"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/ListsActivity.kt"
-            line="267"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `onMore` of class `ListsActivity` requires synthetic accessor"
-        errorLine1="                    onMore(getItem(bindingAdapterPosition), v)"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/app/pachli/ListsActivity.kt"
-            line="269"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `ListsForAccountFragment` requires synthetic accessor"
-        errorLine1="                    viewModel.addAccountToList(item.list.id)"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/account/list/ListsForAccountFragment.kt"
-            line="174"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `ListsForAccountFragment` requires synthetic accessor"
-        errorLine1="                    viewModel.removeAccountFromList(item.list.id)"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/account/list/ListsForAccountFragment.kt"
-            line="180"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `canonicalizeDomain` of class `Companion` requires synthetic accessor"
-        errorLine1="        val domain = canonicalizeDomain(binding.domainEditText.text.toString())"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/login/LoginActivity.kt"
-            line="161"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `LoginWebViewActivity` requires synthetic accessor"
-        errorLine1="                binding.loginProgress.hide()"
-        errorLine2="                ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/login/LoginWebViewActivity.kt"
-            line="144"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `LoginWebViewActivity` requires synthetic accessor"
-        errorLine1="                binding.loginProgress.hide()"
-        errorLine2="                ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/login/LoginWebViewActivity.kt"
-            line="144"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `sendResult` of class `LoginWebViewActivity` requires synthetic accessor"
-        errorLine1="                sendResult(LoginResult.Err(getString(R.string.error_could_not_load_login_page)))"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/login/LoginWebViewActivity.kt"
-            line="153"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `sendResult` of class `LoginWebViewActivity` requires synthetic accessor"
-        errorLine1="                sendResult(LoginResult.Err(getString(R.string.error_could_not_load_login_page)))"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/login/LoginWebViewActivity.kt"
-            line="153"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `sendResult` of class `LoginWebViewActivity` requires synthetic accessor"
-        errorLine1="                        sendResult(LoginResult.Err(error))"
-        errorLine2="                        ~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/login/LoginWebViewActivity.kt"
-            line="174"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `sendResult` of class `LoginWebViewActivity` requires synthetic accessor"
-        errorLine1="                        sendResult(LoginResult.Err(error))"
-        errorLine2="                        ~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/login/LoginWebViewActivity.kt"
-            line="174"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `sendResult` of class `LoginWebViewActivity` requires synthetic accessor"
-        errorLine1="                        sendResult(LoginResult.Ok(code))"
-        errorLine2="                        ~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/login/LoginWebViewActivity.kt"
-            line="177"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `sendResult` of class `LoginWebViewActivity` requires synthetic accessor"
-        errorLine1="                        sendResult(LoginResult.Ok(code))"
-        errorLine2="                        ~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/login/LoginWebViewActivity.kt"
-            line="177"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `forwardToComposeActivity` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                                    forwardToComposeActivity(intent)"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="252"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `changeAccount` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                                    changeAccount(requestedId, intent)"
-        errorLine2="                                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="256"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                        binding.mainDrawerLayout.isOpen -> {"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="360"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                            binding.mainDrawerLayout.close()"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="361"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                        binding.viewPager.currentItem != 0 -> {"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="363"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                            binding.viewPager.currentItem = 0"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="364"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `primaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                primaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="619"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="622"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `primaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                primaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="627"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="631"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `primaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                primaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="636"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="639"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `primaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                primaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="644"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="647"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `primaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                primaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="652"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="655"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `primaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                primaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="659"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="662"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `primaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                primaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="667"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="670"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `primaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                primaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="674"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="678"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `secondaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                secondaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="687"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="690"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `secondaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                secondaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="695"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="698"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `secondaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                secondaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="703"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="706"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `secondaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                secondaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="711"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = ::logout"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="714"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `primaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    primaryDrawerItem {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="721"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                        onClick = {"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="724"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `primaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                primaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="733"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="736"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `secondaryDrawerItem` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                secondaryDrawerItem {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="749"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setOnClick` of class `MainActivityKt` requires synthetic accessor"
-        errorLine1="                    onClick = {"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="753"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                binding.mainToolbar.title = tab.contentDescription"
-        errorLine2="                ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="878"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `refreshComposeButtonState` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                refreshComposeButtonState(tabAdapter, tab.position)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="880"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `refreshComposeButtonState` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                refreshComposeButtonState(tabAdapter, tab.position)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="891"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `onMediaClick` of class `MediaPreviewAdapter` requires synthetic accessor"
-        errorLine1="                onMediaClick(bindingAdapterPosition, progressImageView)"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/MediaPreviewAdapter.kt"
-            line="139"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureToAspect` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                totalHeight += getChildAt(0).measureToAspect(width, aspect)"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="52"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureToAspect` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    totalHeight += getChildAt(0).measureToAspect(width, aspect1.coerceAtLeast(1.8))"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="61"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureToAspect` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    totalHeight += getChildAt(1).measureToAspect(width, aspect2.coerceAtLeast(1.8))"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="63"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `rowHeight` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    val height = rowHeight(halfWidth, aspect1, aspect2)"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="67"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureExactly` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    getChildAt(0).measureExactly(halfWidth, height)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="69"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureExactly` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    getChildAt(1).measureExactly(halfWidth, height)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="70"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureToAspect` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    totalHeight += getChildAt(0).measureToAspect(width, aspect1.coerceAtLeast(1.8))"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="82"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `rowHeight` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    val bottomHeight = rowHeight(halfWidth, aspect2, aspect3)"
-        errorLine2="                                       ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="84"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureExactly` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    getChildAt(1).measureExactly(halfWidth, bottomHeight)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="86"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureExactly` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    getChildAt(2).measureExactly(halfWidth, bottomHeight)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="87"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureToAspect` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    val colHeight = getChildAt(0).measureToAspect(halfWidth, aspect1)"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="93"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureExactly` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    getChildAt(1).measureExactly(halfWidth, halfHeight)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="96"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureExactly` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                    getChildAt(2).measureExactly(halfWidth, halfHeight)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="97"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `rowHeight` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                val topHeight = rowHeight(halfWidth, aspect1, aspect2)"
-        errorLine2="                                ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="105"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureExactly` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                getChildAt(0).measureExactly(halfWidth, topHeight)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="107"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureExactly` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                getChildAt(1).measureExactly(halfWidth, topHeight)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="108"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `rowHeight` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                val bottomHeight = rowHeight(halfWidth, aspect3, aspect4)"
-        errorLine2="                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="110"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureExactly` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                getChildAt(2).measureExactly(halfWidth, bottomHeight)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="112"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `measureExactly` of class `MediaPreviewLayoutKt` requires synthetic accessor"
-        errorLine1="                getChildAt(3).measureExactly(halfWidth, bottomHeight)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/view/MediaPreviewLayout.kt"
-            line="113"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `NotificationsFragment` requires synthetic accessor"
-        errorLine1="                    actionButton?.visible(viewModel.uiState.value.showFabWhileScrolling || dy == 0)"
-        errorLine2="                                          ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/notifications/NotificationsFragment.kt"
-            line="161"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `accountIsInMentions` of class `Companion` requires synthetic accessor"
-        errorLine1="        val mutable = statusIsByCurrentUser || accountIsInMentions(activeAccount, status.mentions)"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/fragment/SFragment.kt"
-            line="235"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getContentWarningDescription` of class `Companion` requires synthetic accessor"
-        errorLine1="            getContentWarningDescription(context, viewData),"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.kt"
-            line="800"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getReblogDescription` of class `Companion` requires synthetic accessor"
-        errorLine1="            getReblogDescription(context, viewData),"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.kt"
-            line="804"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getMediaDescription` of class `Companion` requires synthetic accessor"
-        errorLine1="            getMediaDescription(context, viewData),"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/StatusBaseViewHolder.kt"
-            line="809"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `viewdata` of class `StatusViewHolder` requires synthetic accessor"
-        errorLine1="            viewdata()?.let { viewdata ->"
-        errorLine2="            ~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/report/adapter/StatusViewHolder.kt"
-            line="60"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `viewdata` of class `StatusViewHolder` requires synthetic accessor"
-        errorLine1="            viewdata()?.id?.let { id ->"
-        errorLine2="            ~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/report/adapter/StatusViewHolder.kt"
-            line="66"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `toggleFab` of class `TabPreferenceActivity` requires synthetic accessor"
-        errorLine1="            toggleFab(false)"
-        errorLine2="            ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/TabPreferenceActivity.kt"
-            line="96"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `saveTabs` of class `TabPreferenceActivity` requires synthetic accessor"
-        errorLine1="                    saveTabs()"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/TabPreferenceActivity.kt"
-            line="145"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getSelectedItemElevation` of class `TabPreferenceActivity` requires synthetic accessor"
-        errorLine1="                        viewHolder?.itemView?.elevation = selectedItemElevation"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/TabPreferenceActivity.kt"
-            line="155"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getSelectedItemElevation` of class `TabPreferenceActivity` requires synthetic accessor"
-        errorLine1="                        viewHolder?.itemView?.elevation = selectedItemElevation"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/TabPreferenceActivity.kt"
-            line="155"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getViewModel` of class `TimelineFragment` requires synthetic accessor"
-        errorLine1="                        actionButton?.visible(viewModel.uiState.value.showFabWhileScrolling || dy == 0)"
-        errorLine2="                                              ~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/timeline/TimelineFragment.kt"
-            line="196"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `ViewImageFragment` requires synthetic accessor"
-        errorLine1="                        binding.captionSheet.visible(isDescriptionVisible)"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/fragment/ViewImageFragment.kt"
-            line="218"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `ViewImageFragment` requires synthetic accessor"
-        errorLine1="            if (!isCacheRequest) binding.progressBar.hide()"
-        errorLine2="                                 ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/fragment/ViewImageFragment.kt"
-            line="306"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `ViewImageFragment` requires synthetic accessor"
-        errorLine1="            binding.progressBar.hide() // Always hide the progress bar on success"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/fragment/ViewImageFragment.kt"
-            line="319"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `ViewImageFragment` requires synthetic accessor"
-        errorLine1="                binding.photoView.post {"
-        errorLine2="                ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/fragment/ViewImageFragment.kt"
-            line="326"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `ViewMediaActivity` requires synthetic accessor"
-        errorLine1="                    binding.toolbar.title = getPageTitle(position)"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/ViewMediaActivity.kt"
-            line="127"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getPageTitle` of class `ViewMediaActivity` requires synthetic accessor"
-        errorLine1="                    binding.toolbar.title = getPageTitle(position)"
-        errorLine2="                                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/ViewMediaActivity.kt"
-            line="127"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getPageTitle` of class `ViewMediaActivity` requires synthetic accessor"
-        errorLine1="                    binding.toolbar.title = getPageTitle(position)"
-        errorLine2="                                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/ViewMediaActivity.kt"
-            line="127"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `ViewMediaActivity` requires synthetic accessor"
-        errorLine1="                    adapter.onTransitionEnd(binding.viewPager.currentItem)"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/ViewMediaActivity.kt"
-            line="157"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `ViewMediaActivity` requires synthetic accessor"
-        errorLine1="                        binding.toolbar.visibility = visibility"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/ViewMediaActivity.kt"
-            line="202"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `getBinding` of class `ViewVideoFragment` requires synthetic accessor"
-        errorLine1="            val contentFrame = binding.videoView.findViewById&lt;AspectRatioFrameLayout>(androidx.media3.ui.R.id.exo_content_frame)"
-        errorLine2="                               ~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/fragment/ViewVideoFragment.kt"
-            line="153"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `hideToolbarAfterDelay` of class `ViewVideoFragment` requires synthetic accessor"
-        errorLine1="                    hideToolbarAfterDelay()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/fragment/ViewVideoFragment.kt"
-            line="233"
-            column="21"/>
     </issue>
 
     <issue
@@ -3787,18 +1873,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-gl/strings.xml"
-            line="225"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;caption_blobmoji&quot;>Blob emotikoni so znani od Android 4.4-7.1&lt;/string>"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sl/strings.xml"
-            line="284"
+            line="215"
             column="37"/>
     </issue>
 
@@ -3809,7 +1884,18 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="285"
+            line="254"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;caption_blobmoji&quot;>Blob emotikoni so znani od Android 4.4-7.1&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="257"
             column="37"/>
     </issue>
 
@@ -3820,7 +1906,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ga/strings.xml"
-            line="339"
+            line="310"
             column="37"/>
     </issue>
 
@@ -3831,19 +1917,8 @@
         errorLine2="                               ~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="140"
+            line="131"
             column="32"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;login_connection&quot;>연결 중...&lt;/string>"
-        errorLine2="                                    ~~~~~~~">
-        <location
-            file="src/main/res/values-ko/strings.xml"
-            line="146"
-            column="37"/>
     </issue>
 
     <issue
@@ -3853,7 +1928,7 @@
         errorLine2="                                                  ~~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="155"
+            line="137"
             column="51"/>
     </issue>
 
@@ -3864,7 +1939,7 @@
         errorLine2="                                                     ~~~~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="365"
+            line="337"
             column="54"/>
     </issue>
 
@@ -3988,50 +2063,6 @@
     <issue
         id="SelectableText"
         message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
-        errorLine1="        &lt;TextView"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_login_webview.xml"
-            line="37"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="SelectableText"
-        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
-        errorLine1="        &lt;TextView"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/card_license.xml"
-            line="15"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="SelectableText"
-        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
-        errorLine1="        &lt;TextView"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/card_license.xml"
-            line="22"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="SelectableText"
-        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
-        errorLine1="        &lt;TextView"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/card_license.xml"
-            line="28"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="SelectableText"
-        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
         errorLine1="    &lt;TextView android:id=&quot;@+id/warning&quot;"
         errorLine2="     ~~~~~~~~">
         <location
@@ -4114,28 +2145,6 @@
         <location
             file="src/main/res/layout/item_add_or_remove_from_list.xml"
             line="12"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="SelectableText"
-        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
-        errorLine1="    &lt;TextView"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_autocomplete_account.xml"
-            line="33"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="SelectableText"
-        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
-        errorLine1="    &lt;TextView"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_autocomplete_account.xml"
-            line="50"
             column="6"/>
     </issue>
 
@@ -4971,7 +2980,7 @@
         errorLine2="            ^">
         <location
             file="src/main/java/app/pachli/adapter/TabAdapter.kt"
-            line="91"
+            line="92"
             column="13"/>
     </issue>
 
@@ -4982,7 +2991,7 @@
         errorLine2="                                                 ^">
         <location
             file="src/main/java/app/pachli/adapter/TabAdapter.kt"
-            line="91"
+            line="92"
             column="50"/>
     </issue>
 
@@ -5116,6 +3125,17 @@
             file="src/main/res/layout/view_compose_schedule.xml"
             line="38"
             column="9"/>
+    </issue>
+
+    <issue
+        id="NullSafeMutableLiveData"
+        message="Expected non-nullable value"
+        errorLine1="            emojisMutable.postValue(instanceInfoRepo.getEmojis())"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/app/pachli/components/announcements/AnnouncementsViewModel.kt"
+            line="54"
+            column="37"/>
     </issue>
 
 </issues>

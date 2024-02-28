@@ -9,12 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.components.instancemute.adapter.DomainMutesAdapter
 import app.pachli.components.instancemute.interfaces.InstanceActionListener
+import app.pachli.core.common.extensions.hide
+import app.pachli.core.common.extensions.show
+import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.network.model.HttpHeaderLink
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.databinding.FragmentInstanceListBinding
-import app.pachli.util.hide
-import app.pachli.util.show
-import app.pachli.util.viewBinding
 import app.pachli.view.EndlessOnScrollListener
 import at.connyduck.calladapter.networkresult.fold
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -70,7 +70,7 @@ class InstanceListFragment :
                 api.blockDomain(instance).fold({
                     adapter.addItem(instance)
                 }, { e ->
-                    Timber.e("Error muting domain $instance", e)
+                    Timber.e(e, "Error muting domain %s", instance)
                 })
             } else {
                 api.unblockDomain(instance).fold({
@@ -81,7 +81,7 @@ class InstanceListFragment :
                         }
                         .show()
                 }, { e ->
-                    Timber.e("Error unmuting domain $instance", e)
+                    Timber.e(e, "Error unmuting domain %s", instance)
                 })
             }
         }
@@ -136,7 +136,7 @@ class InstanceListFragment :
     private fun onFetchInstancesFailure(throwable: Throwable) {
         fetching = false
         binding.instanceProgressBar.hide()
-        Timber.e("Fetch failure", throwable)
+        Timber.e(throwable, "Fetch failure")
 
         if (adapter.itemCount == 0) {
             binding.messageView.show()

@@ -9,7 +9,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
         google()
         mavenCentral()
@@ -41,13 +41,20 @@ rootProject.name = "pachli-android"
 
 include(":app")
 include(":core:accounts")
+include(":core:activity")
 include(":core:common")
+include(":core:data")
 include(":core:database")
+include(":core:designsystem")
 include(":core:preferences")
 include(":core:navigation")
 include(":core:network")
 include(":core:testing")
+include(":core:ui")
+include(":feature:about")
+include(":feature:login")
 include(":tools:mklanguages")
 include(":tools:mkrelease")
 include(":tools:mkserverversions")
+include(":tools:mvstring")
 include(":checks")

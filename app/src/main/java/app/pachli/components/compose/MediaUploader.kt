@@ -29,8 +29,8 @@ import androidx.core.net.toUri
 import app.pachli.BuildConfig
 import app.pachli.R
 import app.pachli.components.compose.ComposeActivity.QueuedMedia
-import app.pachli.components.instanceinfo.InstanceInfo
 import app.pachli.core.common.string.randomAlphanumericString
+import app.pachli.core.data.model.InstanceInfo
 import app.pachli.core.mastodon.model.MediaUploadApi
 import app.pachli.network.ProgressRequestBody
 import app.pachli.util.MEDIA_SIZE_UNKNOWN
@@ -93,7 +93,7 @@ fun createNewImageFile(context: Context, suffix: String = ".jpg"): File {
 
 data class PreparedMedia(val type: QueuedMedia.Type, val uri: Uri, val size: Long)
 
-class FileSizeException(val allowedSizeInBytes: Int) : Exception()
+class FileSizeException(val allowedSizeInBytes: Long) : Exception()
 class MediaTypeException : Exception()
 class CouldNotOpenFileException : Exception()
 class UploadServerError(val errorMessage: String) : Exception()
@@ -189,7 +189,7 @@ class MediaUploader @Inject constructor(
                 ContentResolver.SCHEME_FILE -> {
                     val path = uri.path
                     if (path == null) {
-                        Timber.w("empty uri path $uri")
+                        Timber.w("empty uri path %s", uri)
                         throw CouldNotOpenFileException()
                     }
                     val inputFile = File(path)
@@ -209,7 +209,7 @@ class MediaUploader @Inject constructor(
                     }
                 }
                 else -> {
-                    Timber.w("Unknown uri scheme $uri")
+                    Timber.w("Unknown uri scheme %s", uri)
                     throw CouldNotOpenFileException()
                 }
             }

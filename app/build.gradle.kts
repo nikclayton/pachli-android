@@ -21,9 +21,6 @@ plugins {
     alias(libs.plugins.pachli.android.application)
     alias(libs.plugins.pachli.android.hilt)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.aboutlibraries)
-
-    id("app.pachli.plugins.markdown2resource")
 }
 
 apply(from = "gitTools.gradle")
@@ -35,8 +32,8 @@ android {
 
     defaultConfig {
         applicationId = "app.pachli"
-        versionCode = 10
-        versionName = "2.1.1"
+        versionCode = 11
+        versionName = "2.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -54,6 +51,10 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+    }
+
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
     }
 
     packaging {
@@ -76,10 +77,6 @@ android {
     }
 
     testOptions {
-        unitTests {
-            isReturnDefaultValues = true
-            isIncludeAndroidResources = true
-        }
         unitTests.all {
             it.systemProperty("robolectric.logging.enabled", "true")
             it.systemProperty("robolectric.lazyload", "ON")
@@ -98,9 +95,11 @@ android {
             // Set the "orange" release versionCode to the number of commits on the
             // branch, to ensure the versionCode updates on every release. Include the
             // SHA of the current commit to help with troubleshooting bug reports
+            if (flavorName.startsWith("orange")) {
+                versionNameOverride = "$versionName+${getGitSha()}"
+            }
             if (buildType.name == "release" && flavorName.startsWith("orange")) {
                 versionCodeOverride = getGitRevCount()
-                versionNameOverride = "$versionName+${getGitSha()}"
             }
             outputFileName = "Pachli_${versionName}_${versionCode}_${getGitSha()}_${flavorName}_${buildType.name}.apk"
         }
@@ -116,28 +115,26 @@ configurations {
     }
 }
 
-aboutLibraries {
-    configPath = "licenses"
-    includePlatform = false
-    duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
-    prettyPrint = true
-}
-
-markdown2resource {
-    files.add(layout.projectDirectory.file("../PRIVACY.md"))
-}
-
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
     // CachedTimelineRemoteMediator needs the @Transaction annotation from Room
     compileOnly(libs.bundles.room)
     testCompileOnly(libs.bundles.room)
 
     implementation(projects.core.accounts)
+    implementation(projects.core.activity)
     implementation(projects.core.common)
+    implementation(projects.core.data)
     implementation(projects.core.database)
+    implementation(projects.core.designsystem)
     implementation(projects.core.navigation)
     implementation(projects.core.network)
     implementation(projects.core.preferences)
+    implementation(projects.core.ui)
+
+    implementation(projects.feature.about)
+    implementation(projects.feature.login)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.rx3)
@@ -146,10 +143,11 @@ dependencies {
 
     implementation(libs.android.material)
 
-    implementation(libs.gson)
+    implementation(libs.moshi)
+    implementation(libs.moshi.adapters)
+    ksp(libs.moshi.codegen)
 
     implementation(libs.bundles.retrofit)
-    implementation(libs.networkresult.calladapter)
 
     implementation(libs.bundles.okhttp)
 
@@ -178,7 +176,6 @@ dependencies {
 
     implementation(libs.bundles.xmldiff)
 
-    implementation(libs.bundles.aboutlibraries)
     implementation(libs.timber)
 
     googleImplementation(libs.app.update)
@@ -187,8 +184,6 @@ dependencies {
     implementation(libs.semver)
 
     debugImplementation(libs.leakcanary)
-
-    orangeImplementation(libs.bundles.acra)
 
     testImplementation(projects.core.testing)
     testImplementation(libs.androidx.test.junit)

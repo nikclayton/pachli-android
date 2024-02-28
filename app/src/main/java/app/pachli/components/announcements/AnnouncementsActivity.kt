@@ -25,20 +25,20 @@ import android.widget.PopupWindow
 import androidx.activity.viewModels
 import androidx.core.view.MenuProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import app.pachli.BottomSheetActivity
 import app.pachli.R
 import app.pachli.adapter.EmojiAdapter
 import app.pachli.adapter.OnEmojiSelectedListener
+import app.pachli.core.activity.BottomSheetActivity
+import app.pachli.core.common.extensions.hide
+import app.pachli.core.common.extensions.show
+import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.navigation.StatusListActivityIntent
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.databinding.ActivityAnnouncementsBinding
 import app.pachli.util.Error
 import app.pachli.util.Loading
 import app.pachli.util.Success
-import app.pachli.util.hide
-import app.pachli.util.show
 import app.pachli.util.unsafeLazy
-import app.pachli.util.viewBinding
 import app.pachli.view.EmojiPicker
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -139,6 +139,7 @@ class AnnouncementsActivity :
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
         menuInflater.inflate(R.menu.activity_announcements, menu)
         menu.findItem(R.id.action_search)?.apply {
             icon = IconicsDrawable(this@AnnouncementsActivity, GoogleMaterial.Icon.gmd_search).apply {
@@ -149,6 +150,7 @@ class AnnouncementsActivity :
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        super.onMenuItemSelected(menuItem)
         return when (menuItem.itemId) {
             R.id.action_refresh -> {
                 binding.swipeRefreshLayout.isRefreshing = true

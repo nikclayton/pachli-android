@@ -30,6 +30,7 @@ import app.pachli.core.navigation.StatusListActivityIntent.Companion.list
 import app.pachli.core.network.model.Attachment
 import app.pachli.core.network.model.Filter
 import app.pachli.core.network.model.NewPoll
+import app.pachli.core.network.model.Notification
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.model.TimelineKind
 import com.gaelmarhic.quadrant.QuadrantConstants
@@ -42,7 +43,7 @@ import kotlinx.parcelize.Parcelize
  */
 class AccountActivityIntent(context: Context, accountId: String) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.ACCOUNT_ACTIVITY}")
+        setClassName(context, QuadrantConstants.ACCOUNT_ACTIVITY)
         putExtra(EXTRA_KEY_ACCOUNT_ID, accountId)
     }
 
@@ -86,7 +87,7 @@ class AccountListActivityIntent(context: Context, kind: Kind, id: String? = null
     }
 
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.ACCOUNT_LIST_ACTIVITY}")
+        setClassName(context, QuadrantConstants.ACCOUNT_LIST_ACTIVITY)
         putExtra(EXTRA_KIND, kind)
         putExtra(EXTRA_ID, id)
     }
@@ -147,7 +148,7 @@ class ComposeActivityIntent(context: Context) : Intent() {
             /** Editing a status started as an existing draft */
             EDIT_DRAFT,
 
-            /** Editing an an existing scheduled status */
+            /** Editing an existing scheduled status */
             EDIT_SCHEDULED,
         }
 
@@ -165,7 +166,7 @@ class ComposeActivityIntent(context: Context) : Intent() {
     }
 
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.COMPOSE_ACTIVITY}")
+        setClassName(context, QuadrantConstants.COMPOSE_ACTIVITY)
     }
 
     /**
@@ -192,7 +193,7 @@ class ComposeActivityIntent(context: Context) : Intent() {
  */
 class EditFilterActivityIntent(context: Context, filter: Filter? = null) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.EDIT_FILTER_ACTIVITY}")
+        setClassName(context, QuadrantConstants.EDIT_FILTER_ACTIVITY)
         filter?.let {
             putExtra(EXTRA_FILTER_TO_EDIT, it)
         }
@@ -209,7 +210,7 @@ class EditFilterActivityIntent(context: Context, filter: Filter? = null) : Inten
 /**
  * @param context
  * @param loginMode See [LoginMode]
- * @see [app.pachli.components.login.LoginActivity]
+ * @see [app.pachli.feature.login.LoginActivity]
  */
 class LoginActivityIntent(context: Context, loginMode: LoginMode = LoginMode.DEFAULT) : Intent() {
     /** How to log in */
@@ -224,7 +225,7 @@ class LoginActivityIntent(context: Context, loginMode: LoginMode = LoginMode.DEF
     }
 
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.LOGIN_ACTIVITY}")
+        setClassName(context, QuadrantConstants.LOGIN_ACTIVITY)
         putExtra(EXTRA_LOGIN_MODE, loginMode)
     }
 
@@ -233,6 +234,93 @@ class LoginActivityIntent(context: Context, loginMode: LoginMode = LoginMode.DEF
 
         /** @return the `loginMode` passed to this intent */
         fun getLoginMode(intent: Intent) = intent.getSerializableExtra(EXTRA_LOGIN_MODE)!! as LoginMode
+    }
+}
+
+class MainActivityIntent(context: Context) : Intent() {
+    init {
+        setClassName(context, QuadrantConstants.MAIN_ACTIVITY)
+    }
+
+    companion object {
+        private const val EXTRA_PACHLI_ACCOUNT_ID = "pachliAccountId"
+        private const val EXTRA_NOTIFICATION_TYPE = "notificationType"
+        private const val EXTRA_COMPOSE_OPTIONS = "composeOptions"
+        private const val EXTRA_NOTIFICATION_TAG = "notificationTag"
+        private const val EXTRA_NOTIFICATION_ID = "notificationId"
+        private const val EXTRA_REDIRECT_URL = "redirectUrl"
+        private const val EXTRA_OPEN_DRAFTS = "openDrafts"
+
+        fun hasComposeOptions(intent: Intent) = intent.hasExtra(EXTRA_COMPOSE_OPTIONS)
+        fun hasNotificationType(intent: Intent) = intent.hasExtra(EXTRA_NOTIFICATION_TYPE)
+
+        fun getPachliAccountId(intent: Intent) = intent.getLongExtra(EXTRA_PACHLI_ACCOUNT_ID, -1)
+        fun getNotificationType(intent: Intent) = intent.getSerializableExtra(EXTRA_NOTIFICATION_TYPE) as Notification.Type
+        fun getNotificationTag(intent: Intent) = intent.getStringExtra(EXTRA_NOTIFICATION_TAG)
+        fun getNotificationId(intent: Intent) = intent.getIntExtra(EXTRA_NOTIFICATION_ID, -1)
+        fun getRedirectUrl(intent: Intent) = intent.getStringExtra(EXTRA_REDIRECT_URL)
+        fun getOpenDrafts(intent: Intent) = intent.getBooleanExtra(EXTRA_OPEN_DRAFTS, false)
+
+        fun setPachliAccountId(intent: Intent, pachliAccountId: Long) {
+            intent.putExtra(EXTRA_PACHLI_ACCOUNT_ID, pachliAccountId)
+        }
+
+        /**
+         * Switches the active account to the provided accountId and then stays on MainActivity
+         */
+        private fun switchAccount(context: Context, pachliAccountId: Long) = MainActivityIntent(context).apply {
+            putExtra(EXTRA_PACHLI_ACCOUNT_ID, pachliAccountId)
+        }
+
+        /**
+         * Switches the active account to the accountId and takes the user to the correct place according to the notification they clicked
+         */
+        fun openNotification(
+            context: Context,
+            pachliAccountId: Long,
+            type: Notification.Type,
+        ) = switchAccount(context, pachliAccountId).apply {
+            putExtra(EXTRA_NOTIFICATION_TYPE, type)
+        }
+
+        /**
+         * Switches the active account to the accountId and then opens ComposeActivity with the provided options
+         * @param pachliAccountId the id of the Pachli account to open the screen with. Set to -1 for current account.
+         * @param notificationId optional id of the notification that should be cancelled when this intent is opened
+         * @param notificationTag optional tag of the notification that should be cancelled when this intent is opened
+         */
+        fun openCompose(
+            context: Context,
+            options: ComposeActivityIntent.ComposeOptions,
+            pachliAccountId: Long = -1,
+            notificationTag: String? = null,
+            notificationId: Int = -1,
+        ) = switchAccount(context, pachliAccountId).apply {
+            action = ACTION_SEND
+            putExtra(EXTRA_COMPOSE_OPTIONS, options)
+            putExtra(EXTRA_NOTIFICATION_TAG, notificationTag)
+            putExtra(EXTRA_NOTIFICATION_ID, notificationId)
+            flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        /**
+         * switches the active account to the accountId and then tries to resolve and show the provided url
+         */
+        fun redirect(
+            context: Context,
+            pachliAccountId: Long,
+            url: String,
+        ) = switchAccount(context, pachliAccountId).apply {
+            putExtra(EXTRA_REDIRECT_URL, url)
+            flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        /**
+         * switches the active account to the provided accountId and then opens drafts
+         */
+        fun openDrafts(context: Context, pachliAccountId: Long) = switchAccount(context, pachliAccountId).apply {
+            putExtra(EXTRA_OPEN_DRAFTS, true)
+        }
     }
 }
 
@@ -254,7 +342,7 @@ class PreferencesActivityIntent(context: Context, screen: PreferenceScreen) : In
         NOTIFICATION,
     }
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.PREFERENCES_ACTIVITY}")
+        setClassName(context, QuadrantConstants.PREFERENCES_ACTIVITY)
         putExtra(EXTRA_PREFERENCE_SCREEN, screen)
     }
 
@@ -275,7 +363,7 @@ class PreferencesActivityIntent(context: Context, screen: PreferenceScreen) : In
  */
 class ReportActivityIntent(context: Context, accountId: String, userName: String, statusId: String? = null) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.REPORT_ACTIVITY}")
+        setClassName(context, QuadrantConstants.REPORT_ACTIVITY)
         putExtra(EXTRA_ACCOUNT_ID, accountId)
         putExtra(EXTRA_ACCOUNT_USERNAME, userName)
         putExtra(EXTRA_STATUS_ID, statusId)
@@ -302,7 +390,7 @@ class ReportActivityIntent(context: Context, accountId: String, userName: String
  */
 class StatusListActivityIntent private constructor(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.STATUS_LIST_ACTIVITY}")
+        setClassName(context, QuadrantConstants.STATUS_LIST_ACTIVITY)
     }
 
     companion object {
@@ -354,7 +442,7 @@ class StatusListActivityIntent private constructor(context: Context) : Intent() 
 
 class ViewMediaActivityIntent private constructor(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.VIEW_MEDIA_ACTIVITY}")
+        setClassName(context, QuadrantConstants.VIEW_MEDIA_ACTIVITY)
     }
 
     /**
@@ -385,7 +473,7 @@ class ViewMediaActivityIntent private constructor(context: Context) : Intent() {
         private const val EXTRA_SINGLE_IMAGE_URL = "singleImage"
 
         /** @return the list of [AttachmentViewData] passed in this intent, or null */
-        fun getAttachments(intent: Intent): ArrayList<AttachmentViewData>? = IntentCompat.getParcelableArrayListExtra(intent, EXTRA_ATTACHMENTS, AttachmentViewData::class.java)
+        fun getAttachments(intent: Intent): List<AttachmentViewData>? = IntentCompat.getParcelableArrayListExtra(intent, EXTRA_ATTACHMENTS, AttachmentViewData::class.java)
 
         /** @return the index of the attachment to show, or 0 */
         fun getAttachmentIndex(intent: Intent) = intent.getIntExtra(EXTRA_ATTACHMENT_INDEX, 0)
@@ -403,7 +491,7 @@ class ViewMediaActivityIntent private constructor(context: Context) : Intent() {
  */
 class ViewThreadActivityIntent(context: Context, statusId: String, statusUrl: String? = null) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.VIEW_THREAD_ACTIVITY}")
+        setClassName(context, QuadrantConstants.VIEW_THREAD_ACTIVITY)
         putExtra(EXTRA_STATUS_ID, statusId)
         putExtra(EXTRA_STATUS_URL, statusUrl)
     }
@@ -422,96 +510,78 @@ class ViewThreadActivityIntent(context: Context, statusId: String, statusUrl: St
 
 class AboutActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.ABOUT_ACTIVITY}")
+        setClassName(context, QuadrantConstants.ABOUT_ACTIVITY)
     }
 }
 
 class AnnouncementsActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.ANNOUNCEMENTS_ACTIVITY}")
+        setClassName(context, QuadrantConstants.ANNOUNCEMENTS_ACTIVITY)
     }
 }
 
 class DraftsActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.DRAFTS_ACTIVITY}")
+        setClassName(context, QuadrantConstants.DRAFTS_ACTIVITY)
     }
 }
 
 class EditProfileActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.EDIT_PROFILE_ACTIVITY}")
+        setClassName(context, QuadrantConstants.EDIT_PROFILE_ACTIVITY)
     }
 }
 
 class FiltersActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.FILTERS_ACTIVITY}")
+        setClassName(context, QuadrantConstants.FILTERS_ACTIVITY)
     }
 }
 
 class FollowedTagsActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.FOLLOWED_TAGS_ACTIVITY}")
+        setClassName(context, QuadrantConstants.FOLLOWED_TAGS_ACTIVITY)
     }
 }
 
 class InstanceListActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.INSTANCE_LIST_ACTIVITY}")
-    }
-}
-
-class LicenseActivityIntent(context: Context) : Intent() {
-    init {
-        setClassName(context, "app.pachli${QuadrantConstants.LICENSE_ACTIVITY}")
+        setClassName(context, QuadrantConstants.INSTANCE_LIST_ACTIVITY)
     }
 }
 
 class ListActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.LISTS_ACTIVITY}")
+        setClassName(context, QuadrantConstants.LISTS_ACTIVITY)
     }
 }
 
 class LoginWebViewActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.LOGIN_WEB_VIEW_ACTIVITY}")
-    }
-}
-
-class MainActivityIntent(context: Context) : Intent() {
-    init {
-        setClassName(context, "app.pachli${QuadrantConstants.MAIN_ACTIVITY}")
-    }
-}
-
-class PrivacyPolicyActivityIntent(context: Context) : Intent() {
-    init {
-        setClassName(context, "app.pachli${QuadrantConstants.PRIVACY_POLICY_ACTIVITY}")
+        setClassName(context, QuadrantConstants.LOGIN_WEB_VIEW_ACTIVITY)
     }
 }
 
 class ScheduledStatusActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.SCHEDULED_STATUS_ACTIVITY}")
+        setClassName(context, QuadrantConstants.SCHEDULED_STATUS_ACTIVITY)
     }
 }
 
 class SearchActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.SEARCH_ACTIVITY}")
+        setClassName(context, QuadrantConstants.SEARCH_ACTIVITY)
     }
 }
 
 class TabPreferenceActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.TAB_PREFERENCE_ACTIVITY}")
+        setClassName(context, QuadrantConstants.TAB_PREFERENCE_ACTIVITY)
     }
 }
 
 class TrendingActivityIntent(context: Context) : Intent() {
     init {
-        setClassName(context, "app.pachli${QuadrantConstants.TRENDING_ACTIVITY}")
+        setClassName(context, QuadrantConstants.TRENDING_ACTIVITY)
     }
 }

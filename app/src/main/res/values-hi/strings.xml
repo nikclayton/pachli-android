@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="action_login">हिंदी</string>
     <string name="title_favourites">पसंदीदा</string>
     <string name="title_drafts">प्रारूप</string>
     <string name="action_logout">लॉग आउट</string>
@@ -8,7 +7,6 @@
     <string name="action_view_account_preferences">खाता प्राथमिकताएं</string>
     <string name="action_edit_profile">प्रोफाइल एडिट करें</string>
     <string name="action_search">खोज</string>
-    <string name="about_title_activity">के बारे में</string>
     <string name="title_posts_with_replies">उत्तरों के साथ</string>
     <string name="title_followers">अनुगामी</string>
     <string name="action_reply">उत्तर दें</string>
@@ -25,7 +23,6 @@
     <string name="action_send">टूट करें</string>
     <string name="action_send_public">टूट!</string>
     <string name="action_retry">पुनः प्रयास करें</string>
-    <string name="action_close">बंद करें</string>
     <string name="action_view_profile">प्रोफाइल</string>
     <string name="description_visibility_private">अनुगामी</string>
     <string name="error_media_upload_sending">अपलोड विफल रहा।</string>
@@ -35,11 +32,7 @@
     <string name="error_media_upload_type">उस प्रकार की फ़ाइल अपलोड नहीं की जा सकती।</string>
     <string name="error_generic">एक त्रुटि हुई।</string>
     <string name="action_reset_schedule">रीसेट</string>
-    <string name="error_retrieving_oauth_token">लॉगिन टोकन प्राप्त करने में विफल।</string>
-    <string name="error_authorization_denied">प्राधिकरण करने के से इनकार कर दिया।</string>
-    <string name="error_authorization_unknown">एक अज्ञात प्राधिकरण त्रुटि हुई।</string>
     <string name="error_no_web_browser_found">उपयोग करने के लिए वेब ब्राउज़र नहीं मिला।</string>
-    <string name="error_invalid_domain">अमान्य डोमेन दर्ज किया गया</string>
     <string name="error_empty">यह खाली नहीं हो सकता।</string>
     <string name="error_network">नेटवर्क त्रुटि हुई! कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें!</string>
     <string name="title_lists">सूचियाँ</string>
@@ -60,15 +53,7 @@
     <string name="title_posts_pinned">पिन की गई</string>
     <string name="title_posts">पोस्ट</string>
     <string name="title_home">घर</string>
-    <string name="license_description">टस्की में निम्नलिखित ओपन सोर्स परियोजनाओं से कोड और संपत्ति हैं:</string>
     <string name="restart_emoji">इन परिवर्तनों को लागू करने के लिए आपको टस्की को पुनः आरंभ करना होगा</string>
-    <string name="about_pachli_account">टस्की की प्रोफाइल</string>
-    <string name="about_bug_feature_request_site">बग रिपोर्ट और सुविधा अनुरोध:
-\n https://github.com/pachli/pachli-android/issues</string>
-    <string name="about_project_site">परियोजना की वेबसाइट:
-\n https://pachli.app</string>
-    <string name="about_pachli_license">टस्की स्वतंत्र और ओपन-सोर्स सॉफ्टवेयर है। यह GNU जनरल पब्लिक लाइसेंस संस्करण 3 के तहत लाइसेंस प्राप्त है। आप लाइसेंस यहां देख सकते हैं: https://www.gnu.org/licenses/gpl-3.0.en.html</string>
-    <string name="about_powered_by_pachli">टस्की द्वारा संचालित</string>
     <string name="about_pachli_version">टस्की %s</string>
     <string name="description_account_locked">बंद खाता</string>
     <string name="notification_summary_small">%1$s तथा %2$s</string>
@@ -119,7 +104,6 @@
     <string name="mute_domain_warning_dialog_ok">संपूर्ण डोमेन छिपाएं</string>
     <string name="dialog_download_image">डाउनलोड</string>
     <string name="dialog_message_uploading_media">अपलोड हो रहा है…</string>
-    <string name="login_connection">कनेक्ट कर रहे…</string>
     <string name="label_header">हैडर</string>
     <string name="label_avatar">अवतार</string>
     <string name="label_quick_reply">जवाब दें…</string>
@@ -183,7 +167,6 @@
     <string name="post_media_hidden_title">मीडिया छिपा हुआ</string>
     <string name="post_sensitive_media_title">संवेदनशील विषय वस्तु</string>
     <string name="post_username_format">\@%s</string>
-    <string name="title_licenses">लाइसेंस</string>
     <string name="title_view_thread">टूट</string>
     <string name="title_scheduled_posts">अनुसूचित टूट</string>
     <string name="title_domain_mutes">छिपे हुए डोमेन</string>
@@ -234,7 +217,6 @@
     <string name="profile_metadata_label">प्रोफ़ाइल मेटाडेटा</string>
     <string name="download_failed">डाउनलोड विफल</string>
     <string name="action_open_post">टूट खोलें</string>
-    <string name="performing_lookup_title">देखने की क्रिया जारी…</string>
     <string name="system_default">सिस्टम डिफ़ॉल्ट</string>
     <string name="emoji_style">इमोजी का अंदाज</string>
     <string name="send_post_notification_cancel_title">भेजना रद्द हो गया</string>
@@ -251,7 +233,6 @@
     <string name="pref_title_show_cards_in_timelines">टाइमलाइन में लिंक प्रीव्यू दिखाएं</string>
     <string name="warning_scheduling_interval">मास्टोडन का न्यूनतम शेड्यूलिंग अंतराल 5 मिनट है।</string>
     <string name="no_drafts">आपके पास कोई ड्राफ्ट नहीं है।</string>
-    <string name="post_lookup_error_format">%s पोस्ट खोजने में त्रुटि</string>
     <string name="pref_title_enable_swipe_for_tabs">टैब के बीच स्विच करने के लिए स्वाइप जेस्चर को सक्षम करें</string>
     <string name="failed_search">खोज करने में विफल</string>
     <string name="report_description_remote_instance">खाता किसी अन्य सर्वर से है। रिपोर्ट की अनाम प्रति वहां भी भेजें\?</string>
@@ -286,7 +267,6 @@
     <string name="profile_metadata_content_label">विषय वस्तु</string>
     <string name="profile_metadata_label_label">लेबल</string>
     <string name="account_moved_description">%1$s यहां चले गए हैं:</string>
-    <string name="profile_badge_bot_text">बोट</string>
     <string name="caption_notoemoji">गूगल का इमोजी सेट</string>
     <string name="caption_twemoji">मास्टोडन का मानक इमोजी सेट</string>
     <string name="caption_systememoji">आपके डिवाइस का डिफ़ॉल्ट इमोजी सेट</string>
@@ -356,7 +336,6 @@
     <string name="send_post_content_to">टूट को साझा करें …</string>
     <string name="send_post_link_to">टूट यूआरएल को साझा करें …</string>
     <string name="action_share_as">साझा करें …</string>
-    <string name="action_open_as">%s के रूप में खोलें</string>
     <string name="download_image">%1$s डाउनलोड हो रहा है</string>
     <string name="action_links">लिंक</string>
     <string name="action_unmute_desc">अनम्यूट %s</string>
@@ -391,10 +370,7 @@
         <item quantity="other">%d सेकेंड शेष</item>
     </plurals>
     <string name="error_compose_character_limit">पोस्ट बहुत लंबा है!</string>
-    <string name="error_failed_app_registration">उस सर्वर से प्रमाणित करने में विफल।</string>
     <string name="error_multimedia_size_limit">वीडियो और ऑडियो फ़ाइलों का आकार %s एमबी से अधिक नहीं हो सकता है।</string>
     <string name="error_image_edit_failed">फोटो संपादित नहीं किया जा सका।</string>
     <string name="error_media_upload_image_or_video">फोटो और वीडियो दोनों को एक ही पोस्ट से अटैच नहीं किया जा सकता है।</string>
-    <string name="error_loading_account_details">खाता विवरण लोड करने में विफल रहा</string>
-    <string name="error_could_not_load_login_page">लॉगिन पेज लोड नहीं किया जा सका।</string>
 </resources>

@@ -3,12 +3,7 @@
     <string name="error_generic">Произошла ошибка.</string>
     <string name="error_network">Произошла ошибка сети! Пожалуйста, проверьте интернет-соединение и попробуйте снова!</string>
     <string name="error_empty">Не может быть пустым.</string>
-    <string name="error_invalid_domain">Некорректный домен</string>
-    <string name="error_failed_app_registration">Ошибка аутентификации на этом узле. Если это повторится, попробуйте Вход через Браузер в меню.</string>
     <string name="error_no_web_browser_found">Не удается найти веб-браузер.</string>
-    <string name="error_authorization_unknown">Произошла ошибка неопознанной авторизации. Если это повторится, попробуйте Вход через Браузер в меню.</string>
-    <string name="error_authorization_denied">Авторизация была отклонена.</string>
-    <string name="error_retrieving_oauth_token">Не удалось получить токен авторизации.</string>
     <string name="error_compose_character_limit">Статус слишком длинный!</string>
     <string name="error_media_upload_type">Данный тип файла не может быть загружен.</string>
     <string name="error_media_upload_opening">Файл не может быть открыт.</string>
@@ -35,7 +30,6 @@
     <string name="title_follow_requests">Запросы на подписку</string>
     <string name="title_edit_profile">Редактировать профиль</string>
     <string name="title_drafts">Черновики</string>
-    <string name="title_licenses">Лицензии</string>
     <string name="post_username_format">\@%s</string>
     <string name="post_boosted_format">%s продвинул(а)</string>
     <string name="post_sensitive_media_title">Чувствительный контент</string>
@@ -60,7 +54,6 @@
     <string name="action_unfavourite">Убрать из избранного</string>
     <string name="action_more">Больше</string>
     <string name="action_compose">Сочинить</string>
-    <string name="action_login">Войти</string>
     <string name="action_logout">Выйти</string>
     <string name="action_logout_confirm">Вы действительно хотите выйти из учётной записи %1$s?</string>
     <string name="action_follow">Подписаться</string>
@@ -75,7 +68,6 @@
     <string name="action_send">ТРУБИТЬ</string>
     <string name="action_send_public">ТРУБИТЬ!</string>
     <string name="action_retry">Повторить</string>
-    <string name="action_close">Закрыть</string>
     <string name="action_view_profile">Профиль</string>
     <string name="action_view_preferences">Предпочтения</string>
     <string name="action_view_account_preferences">Предпочтения учетной записи</string>
@@ -117,7 +109,6 @@
     <string name="action_open_media_n">Открыть медиафайл #%d</string>
     <string name="download_image">Загрузка %1$s</string>
     <string name="action_copy_link">Копировать ссылку</string>
-    <string name="action_open_as">Открыть как %s</string>
     <string name="action_share_as">Поделиться как…</string>
     <string name="download_media">Скачать медиафайл</string>
     <string name="downloading_media">Скачивание медиафайла</string>
@@ -129,7 +120,6 @@
     <string name="confirmation_unmuted">Пользователь включен</string>
     <string name="post_sent">Отправлено!</string>
     <string name="post_sent_long">Ответ успешно отправлен.</string>
-    <string name="hint_domain">Какой узел?</string>
     <string name="hint_compose">Что тут происходит\?</string>
     <string name="hint_content_warning">Предупреждение о содержании</string>
     <string name="hint_display_name">Отображаемое имя</string>
@@ -139,15 +129,6 @@
     <string name="label_quick_reply">Ответ…</string>
     <string name="label_avatar">Аватар</string>
     <string name="label_header">Заголовок</string>
-    <string name="link_whats_an_instance">Что такое узел?</string>
-    <string name="login_connection">Соединение…</string>
-    <string name="dialog_whats_an_instance">Здесь можно ввести адрес или домен любого узла, например, mastodon.social, icosahedron.website, social.tchncs.de и <a href="https://instances.social/">других</a>!
-\n
-\nЕсли у вас ещё нет аккаунта, введите адрес узла, на котором хотите зарегистрироваться, и создайте аккаунт.
-\n
-\n Узел — это то место, где размещён ваш аккаунт, но вы можете взаимодействовать с пользователями других узлов, как будто вы находитесь на одном сайте.
-\n
-\n Чтобы получить больше информации посетите <a href="https://joinmastodon.org">joinmastodon.org</a>. </string>
     <string name="dialog_title_finishing_media_upload">Завершается загрузка медиаконтента</string>
     <string name="dialog_message_uploading_media">Загружается…</string>
     <string name="dialog_download_image">Скачать</string>
@@ -227,16 +208,8 @@
         <item quantity="other">Новых событий: %d</item>
     </plurals>
     <string name="description_account_locked">Закрытый аккаунт</string>
-    <string name="about_title_activity">О приложении</string>
     <string name="about_pachli_version">Pachli %s</string>
-    <string name="about_pachli_license">Pachli — это свободное приложение с открытым исходным кодом. Выпускается по лицензии GNU General Public License Version 3. Вы можете прочитать текст лицензии здесь: https://www.gnu.org/licenses/gpl-3.0.ru.html</string>
     <!-- note to translators: the url can be changed to link to the localized version of the license -->
-    <string name="about_project_site">
-           Веб-сайт проекта:\n
-           https://pachli.app</string>
-    <string name="about_bug_feature_request_site">Отчеты об ошибках и ваши пожелания:
-\n https://github.com/pachli/pachli-android/issues</string>
-    <string name="about_pachli_account">Профиль Pachli</string>
     <string name="post_share_content">Поделиться содержанием гудка</string>
     <string name="post_share_link">Поделиться ссылкой на гудок</string>
     <string name="post_media_images">Изображения</string>
@@ -303,9 +276,6 @@
     <string name="action_add_to_list">Добавить аккаунт в список</string>
     <string name="action_remove_from_list">Удалить аккаунт из списка</string>
     <string name="compose_active_account_description">Отправка от имени %1$s</string>
-    <plurals name="hint_describe_for_visually_impaired">
-        <item quantity="other">Описание для слабовидящих\n(не более %d символов)</item>
-    </plurals>
     <string name="action_set_caption">Добавить примечание</string>
     <string name="action_remove">Удалить</string>
     <string name="lock_account_label">Закрыть аккаунт</string>
@@ -321,7 +291,6 @@
     <string name="emoji_style">Стиль эмодзи</string>
     <string name="system_default">Системный</string>
     <string name="download_fonts">Сперва эти наборы эмодзи нужно скачать</string>
-    <string name="performing_lookup_title">Производится поиск…</string>
     <string name="expand_collapse_all_posts">Раскрыть/свернуть все статусы</string>
     <string name="action_open_post">Открыть гудок</string>
     <string name="restart_required">Необходимо перезапустить приложение</string>
@@ -332,11 +301,9 @@
     <string name="caption_blobmoji" tools:ignore="TypographyDashes">Набор эмодзи Blob из Android 4.4-7.1</string>
     <string name="caption_twemoji">Стандартный набор эмодзи в Mastodon</string>
     <string name="download_failed">Загрузка не удалась</string>
-    <string name="profile_badge_bot_text">Бот</string>
     <string name="account_moved_description">%1$s переехал(а) на:</string>
     <string name="reblog_private">Продвинуть для исходной аудитории</string>
     <string name="unreblog_private">Убрать продвижение</string>
-    <string name="license_description">Pachli содержит код и ассеты из следующих приложений с открытым исходным кодом:</string>
     <string name="profile_metadata_label">Метаданные профиля</string>
     <string name="profile_metadata_add">добавить данные</string>
     <string name="profile_metadata_label_label">Заголовок</string>
@@ -447,11 +414,9 @@
     <string name="title_bookmarks">Закладки</string>
     <string name="action_bookmark">Добавить в закладки</string>
     <string name="action_view_bookmarks">Закладки</string>
-    <string name="about_powered_by_pachli">Работает на Pachli</string>
     <string name="description_post_bookmarked">Добавлено в закладки</string>
     <string name="select_list_title">Выбрать список</string>
     <string name="list">Список</string>
-    <string name="post_lookup_error_format">Ошибка поиска поста %s</string>
     <string name="no_drafts">У вас нет черновиков.</string>
     <string name="no_scheduled_posts">У вас нет запланированный статусов.</string>
     <string name="warning_scheduling_interval">Минимальный интервал планирования в Mastodon составляет 5 минут.</string>
@@ -529,6 +494,4 @@
     <string name="title_edits">Правки</string>
     <string name="status_edit_info">%1$s отредактировали</string>
     <string name="status_created_info">%1$s создали</string>
-    <string name="title_login">Войти</string>
-    <string name="action_browser_login">Вход через Браузер</string>
 </resources>

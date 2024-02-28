@@ -24,9 +24,6 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
-import app.pachli.BaseActivity
-import app.pachli.BottomSheetActivity
-import app.pachli.PostLookupFallbackBehavior
 import app.pachli.R
 import app.pachli.components.accountlist.adapter.AccountAdapter
 import app.pachli.components.accountlist.adapter.BlocksAdapter
@@ -35,6 +32,12 @@ import app.pachli.components.accountlist.adapter.FollowRequestsAdapter
 import app.pachli.components.accountlist.adapter.FollowRequestsHeaderAdapter
 import app.pachli.components.accountlist.adapter.MutesAdapter
 import app.pachli.core.accounts.AccountManager
+import app.pachli.core.activity.BaseActivity
+import app.pachli.core.activity.BottomSheetActivity
+import app.pachli.core.activity.PostLookupFallbackBehavior
+import app.pachli.core.common.extensions.hide
+import app.pachli.core.common.extensions.show
+import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.AccountListActivityIntent.Kind
 import app.pachli.core.navigation.AccountListActivityIntent.Kind.BLOCKS
@@ -55,9 +58,6 @@ import app.pachli.databinding.FragmentAccountListBinding
 import app.pachli.interfaces.AccountActionListener
 import app.pachli.interfaces.AppBarLayoutHost
 import app.pachli.interfaces.LinkListener
-import app.pachli.util.hide
-import app.pachli.util.show
-import app.pachli.util.viewBinding
 import app.pachli.view.EndlessOnScrollListener
 import at.connyduck.calladapter.networkresult.fold
 import com.google.android.material.color.MaterialColors
@@ -215,7 +215,7 @@ class AccountListFragment :
         } else {
             "unmute"
         }
-        Timber.e("Failed to $verb account id $accountId")
+        Timber.e("Failed to %s account id %s", verb, accountId)
     }
 
     override fun onBlock(block: Boolean, id: String, position: Int) {
@@ -255,7 +255,7 @@ class AccountListFragment :
         } else {
             "unblock"
         }
-        Timber.e("Failed to $verb account accountId $accountId: $throwable")
+        Timber.e(throwable, "Failed to %s account accountId %s", verb, accountId)
     }
 
     override fun onRespondToFollowRequest(
@@ -278,7 +278,7 @@ class AccountListFragment :
                     } else {
                         "reject"
                     }
-                    Timber.e("Failed to $verb account id $accountId.", throwable)
+                    Timber.e(throwable, "Failed to %s accountId %s", verb, accountId)
                 },
             )
         }
@@ -390,7 +390,7 @@ class AccountListFragment :
         lifecycleScope.launch {
             api.relationships(ids)
                 .fold(::onFetchRelationshipsSuccess) { throwable ->
-                    Timber.e("Fetch failure for relationships of accounts: $ids", throwable)
+                    Timber.e(throwable, "Fetch failure for relationships of accounts: %s", ids)
                 }
         }
     }
@@ -405,7 +405,7 @@ class AccountListFragment :
     private fun onFetchAccountsFailure(throwable: Throwable) {
         fetching = false
         binding.swipeRefreshLayout.isRefreshing = false
-        Timber.e("Fetch failure", throwable)
+        Timber.e(throwable, "Fetch failure")
 
         if (adapter.itemCount == 0) {
             binding.messageView.show()

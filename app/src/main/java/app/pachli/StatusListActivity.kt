@@ -25,6 +25,8 @@ import androidx.lifecycle.lifecycleScope
 import app.pachli.appstore.EventHub
 import app.pachli.appstore.FilterChangedEvent
 import app.pachli.components.timeline.TimelineFragment
+import app.pachli.core.activity.BottomSheetActivity
+import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.StatusListActivityIntent
@@ -38,7 +40,6 @@ import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.AppBarLayoutHost
 import app.pachli.network.ServerRepository
 import app.pachli.util.unsafeLazy
-import app.pachli.util.viewBinding
 import at.connyduck.calladapter.networkresult.fold
 import com.github.michaelbull.result.getOrElse
 import com.google.android.material.appbar.AppBarLayout
@@ -166,7 +167,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButton
                         updateMuteTagMenuItems()
                     },
                     {
-                        Timber.w("Failed to query tag #$tag", it)
+                        Timber.w(it, "Failed to query tag #%s", tag)
                     },
                 )
             }
@@ -186,7 +187,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButton
                     },
                     {
                         Snackbar.make(binding.root, getString(R.string.error_following_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
-                        Timber.e("Failed to follow #$tag", it)
+                        Timber.e(it, "Failed to follow #%s", tag)
                     },
                 )
             }
@@ -206,7 +207,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButton
                     },
                     {
                         Snackbar.make(binding.root, getString(R.string.error_unfollowing_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
-                        Timber.e("Failed to unfollow #$tag", it)
+                        Timber.e(it, "Failed to unfollow #%s", tag)
                     },
                 )
             }
@@ -258,11 +259,11 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButton
                                 updateTagMuteState(mutedFilterV1 != null)
                             },
                             { throwable ->
-                                Timber.e("Error getting filters: $throwable")
+                                Timber.e(throwable, "Error getting filters")
                             },
                         )
                     } else {
-                        Timber.e("Error getting filters: $throwable")
+                        Timber.e(throwable, "Error getting filters")
                     }
                 },
             )
@@ -299,7 +300,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButton
                         Snackbar.make(binding.root, getString(R.string.confirmation_hashtag_muted, hashtag), Snackbar.LENGTH_SHORT).show()
                     } else {
                         Snackbar.make(binding.root, getString(R.string.error_muting_hashtag_format, hashtag), Snackbar.LENGTH_SHORT).show()
-                        Timber.e("Failed to mute $tagWithHash")
+                        Timber.e("Failed to mute %s", tagWithHash)
                     }
                 },
                 { throwable ->
@@ -319,12 +320,12 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButton
                             },
                             { throwable ->
                                 Snackbar.make(binding.root, getString(R.string.error_muting_hashtag_format, hashtag), Snackbar.LENGTH_SHORT).show()
-                                Timber.e("Failed to mute $tagWithHash", throwable)
+                                Timber.e(throwable, "Failed to mute %s", tagWithHash)
                             },
                         )
                     } else {
                         Snackbar.make(binding.root, getString(R.string.error_muting_hashtag_format, hashtag), Snackbar.LENGTH_SHORT).show()
-                        Timber.e("Failed to mute $tagWithHash", throwable)
+                        Timber.e(throwable, "Failed to mute %s", tagWithHash)
                     }
                 },
             )
@@ -378,7 +379,7 @@ class StatusListActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButton
                 },
                 { throwable ->
                     Snackbar.make(binding.root, getString(R.string.error_unmuting_hashtag_format, hashtag), Snackbar.LENGTH_SHORT).show()
-                    Timber.e("Failed to unmute $tagWithHash", throwable)
+                    Timber.e(throwable, "Failed to unmute %s", tagWithHash)
                 },
             )
         }

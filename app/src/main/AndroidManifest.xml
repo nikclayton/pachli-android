@@ -40,7 +40,7 @@
 
         </activity>
         <activity
-            android:name=".components.login.LoginActivity"
+            android:name=".feature.login.LoginActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>
@@ -54,7 +54,7 @@
                     android:scheme="@string/oauth_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name=".components.login.LoginWebViewActivity" />
+        <activity android:name=".feature.login.LoginWebViewActivity" />
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"
@@ -126,7 +126,7 @@
         <activity android:name=".components.preference.PreferencesActivity" />
         <activity android:name=".StatusListActivity" />
         <activity android:name=".components.accountlist.AccountListActivity" />
-        <activity android:name=".AboutActivity" />
+        <activity android:name=".feature.about.AboutActivity" />
         <activity android:name=".TabPreferenceActivity" />
         <activity
             android:name="com.canhub.cropper.CropImageActivity"
@@ -144,8 +144,6 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity android:name=".ListsActivity" />
-        <activity android:name=".LicenseActivity" />
-        <activity android:name=".PrivacyPolicyActivity" />
         <activity android:name=".components.filters.FiltersActivity" />
         <activity android:name=".components.trending.TrendingActivity" />
         <activity android:name=".components.followedtags.FollowedTagsActivity" />

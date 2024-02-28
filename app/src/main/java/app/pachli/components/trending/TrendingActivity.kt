@@ -17,7 +17,6 @@
 
 package app.pachli.components.trending
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -27,14 +26,14 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import app.pachli.BottomSheetActivity
 import app.pachli.R
 import app.pachli.components.timeline.TimelineFragment
+import app.pachli.core.activity.BottomSheetActivity
+import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.network.model.TimelineKind
+import app.pachli.core.ui.reduceSwipeSensitivity
 import app.pachli.databinding.ActivityTrendingBinding
 import app.pachli.interfaces.AppBarLayoutHost
-import app.pachli.util.reduceSwipeSensitivity
-import app.pachli.util.viewBinding
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -69,7 +68,6 @@ class TrendingActivity : BottomSheetActivity(), AppBarLayoutHost, MenuProvider {
         onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {
-                @SuppressLint("SyntheticAccessor")
                 override fun handleOnBackPressed() {
                     if (binding.pager.currentItem != 0) binding.pager.currentItem = 0 else finish()
                 }
@@ -78,10 +76,12 @@ class TrendingActivity : BottomSheetActivity(), AppBarLayoutHost, MenuProvider {
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
         menuInflater.inflate(R.menu.activity_trending, menu)
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        super.onMenuItemSelected(menuItem)
         return super.onOptionsItemSelected(menuItem)
     }
 }

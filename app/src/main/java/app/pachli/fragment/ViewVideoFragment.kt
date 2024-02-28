@@ -49,11 +49,11 @@ import androidx.media3.ui.AspectRatioFrameLayout
 import app.pachli.BuildConfig
 import app.pachli.R
 import app.pachli.ViewMediaActivity
+import app.pachli.core.common.extensions.hide
+import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.common.extensions.visible
 import app.pachli.core.network.model.Attachment
 import app.pachli.databinding.FragmentViewVideoBinding
-import app.pachli.util.hide
-import app.pachli.util.viewBinding
-import app.pachli.util.visible
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -211,7 +211,7 @@ class ViewVideoFragment : ViewMediaFragment() {
         }
 
         mediaPlayerListener = object : Player.Listener {
-            @SuppressLint("ClickableViewAccessibility", "SyntheticAccessor")
+            @SuppressLint("ClickableViewAccessibility")
             @OptIn(UnstableApi::class)
             override fun onPlaybackStateChanged(playbackState: Int) {
                 when (playbackState) {
@@ -228,6 +228,8 @@ class ViewVideoFragment : ViewMediaFragment() {
             }
 
             override fun onIsPlayingChanged(isPlaying: Boolean) {
+                binding.videoView.keepScreenOn = isPlaying
+
                 if (isAudio) return
                 if (isPlaying) {
                     hideToolbarAfterDelay()
@@ -236,7 +238,6 @@ class ViewVideoFragment : ViewMediaFragment() {
                 }
             }
 
-            @SuppressLint("SyntheticAccessor")
             override fun onPlayerError(error: PlaybackException) {
                 binding.progressBar.hide()
                 val message = getString(
@@ -335,7 +336,6 @@ class ViewVideoFragment : ViewMediaFragment() {
             mediaAttachment.previewUrl?.let { url ->
                 Glide.with(this).load(url).into(
                     object : CustomTarget<Drawable>() {
-                        @SuppressLint("SyntheticAccessor")
                         override fun onResourceReady(
                             resource: Drawable,
                             transition: Transition<in Drawable>?,
@@ -344,7 +344,6 @@ class ViewVideoFragment : ViewMediaFragment() {
                             binding.videoView.defaultArtwork = resource
                         }
 
-                        @SuppressLint("SyntheticAccessor")
                         override fun onLoadCleared(placeholder: Drawable?) {
                             view ?: return
                             binding.videoView.defaultArtwork = null
@@ -406,7 +405,6 @@ class ViewVideoFragment : ViewMediaFragment() {
         binding.mediaDescription.animate().alpha(alpha)
             .setListener(
                 object : AnimatorListenerAdapter() {
-                    @SuppressLint("SyntheticAccessor")
                     override fun onAnimationEnd(animation: Animator) {
                         view ?: return
                         binding.mediaDescription.visible(isDescriptionVisible)

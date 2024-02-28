@@ -3,12 +3,7 @@
     <string name="error_generic">وقع هناك خطأ.</string>
     <string name="error_network">حدث خطأ في الشبكة! يرجى التحقق من اتصالك ثم أعد المحاولة!</string>
     <string name="error_empty">لا يجب أن يترك هذا الحقل فارغا.</string>
-    <string name="error_invalid_domain">اسم النطاق الذي قمتَ بإدخاله غير صالح</string>
-    <string name="error_failed_app_registration">أخففت المصادقة مع مثيل الخادم هذا.</string>
     <string name="error_no_web_browser_found">تعذر العثور على متصفح ويب صالح للإستعمال.</string>
-    <string name="error_authorization_unknown">لقد وقع هناك خطأ مجهول في التصريح.</string>
-    <string name="error_authorization_denied">تم رفض التصريح.</string>
-    <string name="error_retrieving_oauth_token">فشل الحصول على رمز الولوج.</string>
     <string name="error_compose_character_limit">إنّ المنشور طويل جدا!</string>
     <string name="error_media_upload_type">لا يمكن تحميل هذا النوع من الملفات.</string>
     <string name="error_media_upload_opening">تعذر فتح ذاك الملف.</string>
@@ -35,7 +30,6 @@
     <string name="title_follow_requests">طلبات المتابعة</string>
     <string name="title_edit_profile">عدل ملفك التعريفي</string>
     <string name="title_drafts">المسودات</string>
-    <string name="title_licenses">الرّخص</string>
     <string name="post_username_format">\@%s</string>
     <string name="post_boosted_format">شاركه %s</string>
     <string name="post_sensitive_media_title">محتوى حساس</string>
@@ -60,7 +54,6 @@
     <string name="action_unfavourite">إزالة المفضلة</string>
     <string name="action_more">المزيد</string>
     <string name="action_compose">حرر</string>
-    <string name="action_login">الولوج باستخدام Pachli</string>
     <string name="action_logout">خروج</string>
     <string name="action_logout_confirm">متأكد مِن أنك تود الخروج من الحساب %1$s؟</string>
     <string name="action_follow">إتبع</string>
@@ -74,7 +67,6 @@
     <string name="action_send">بَوّق</string>
     <string name="action_send_public">بوّق!</string>
     <string name="action_retry">أعد المحاولة</string>
-    <string name="action_close">إغلاق</string>
     <string name="action_view_profile">الملف التعريفي</string>
     <string name="action_view_preferences">التفضيلات</string>
     <string name="action_view_account_preferences">اعدادات الحساب</string>
@@ -114,7 +106,6 @@
     <string name="title_links_dialog">الروابط</string>
     <string name="download_image">تنزيل %1$s</string>
     <string name="action_copy_link">إنسخ الرابط</string>
-    <string name="action_open_as">إفتحه كـ %s</string>
     <string name="action_share_as">شاركه كـ…</string>
     <string name="send_post_link_to">شارك رابط التبويق مع…</string>
     <string name="send_post_content_to">شارك التبويق على…</string>
@@ -124,7 +115,6 @@
     <string name="confirmation_unmuted">لم يعد الحساب مكتومًا</string>
     <string name="post_sent">تم إرساله!</string>
     <string name="post_sent_long">تم إرسال الرد بنجاح.</string>
-    <string name="hint_domain">أي مثيل خادم؟</string>
     <string name="hint_compose">ما الجديد؟</string>
     <string name="hint_content_warning">تحذير عن المحتوى</string>
     <string name="hint_display_name">الإسم العلني</string>
@@ -134,15 +124,6 @@
     <string name="label_quick_reply">رد…</string>
     <string name="label_avatar">صورة الملف التعريفي</string>
     <string name="label_header">صورة رأس الصفحة</string>
-    <string name="link_whats_an_instance">ماذا نعني بمثيل الخادم؟</string>
-    <string name="login_connection">الإتصال جارٍ…</string>
-    <string name="dialog_whats_an_instance">بإمكانك إدخال عنوان أي مثيل خادوم ماستدون هنا. على سبيل المثال mastodon.social أو icosahedron.website أو social.tchncs.de أوالإطلاع على <a href="https://instances.social">لاكتشاف المزيد !</a>
-\n
-\n إن كنت لا تملك حسابا بإمكانك إدخال اسم مثيل خادوم تريد الانضمام إليه قصد إنشاء حسابك عليه.
-\n
-\n نعني بمثيل الخادوم المكان الذي استُضِيف فيه حسابك و يمكنك التواصل مع أصدقائك و متابعيك و كأنكم على موقع واحد و ذلك حتى و إن كانت حساباتهم مُستضافة على مثيلات خوادم أخرى.
-\n
-\n للمزيد مِن التفاصيل إطّلع على <a href="https://joinmastodon.org">joinmastodon.org</a>. </string>
     <string name="dialog_title_finishing_media_upload">تتمة رفع الوسائط</string>
     <string name="dialog_message_uploading_media">الإرسال جارٍ…</string>
     <string name="dialog_download_image">تنزيل</string>
@@ -221,20 +202,13 @@
         <item quantity="other">%d تفاعلات جديدة</item>
     </plurals>
     <string name="description_account_locked">حساب مقفل</string>
-    <string name="about_title_activity">عن التطبيق</string>
     <string name="about_pachli_version">توسكي %s</string>
-    <string name="about_pachli_license">Tuksy برنامج حر و مفتوح المصدر.         مطور تحت رخصة GNU General Public License Version 3.         يمكنكم الإطلاع على الرخصة على : https://www.gnu.org/licenses/gpl-3.0.en.html</string>
     <!-- note to translators:
          * you should think of “free” as in “free speech,” not as in “free beer”.
            We sometimes call it “libre software,” borrowing the French or Spanish word for “free” as in freedom,
            to show we do not mean the software is gratis. Source: https://www.gnu.org/philosophy/free-sw.html
          * the url can be changed to link to the localized version of the license.
     -->
-    <string name="about_project_site">موقع المشروع :\n
-                   https://pachli.app</string>
-    <string name="about_bug_feature_request_site">تقارير الأخطاء و طلبات التحسينات على  :\n
-                   https://github.com/pachli/pachli-android/issues</string>
-    <string name="about_pachli_account">الملف الشخصي لتوسكي</string>
     <string name="post_share_content">شارك محتوى التبويق</string>
     <string name="post_share_link">شارك الرابط إلى التبويق</string>
     <string name="post_media_images">صور</string>
@@ -305,7 +279,6 @@
     <string name="emoji_style">نوع الإيموجي</string>
     <string name="system_default">الإفتراضي في النظام</string>
     <string name="download_fonts">يجب عليك أولا تنزيل حزمة الإيموجي هذه</string>
-    <string name="performing_lookup_title">البحث جارٍ …</string>
     <string name="expand_collapse_all_posts">توسيع/طي كافة المنشورات</string>
     <string name="action_open_post">افتح التبويق</string>
     <string name="restart_required">مطلوب إعادة تشغيل التطبيق</string>
@@ -316,11 +289,9 @@
     <string name="caption_blobmoji">إيموجيات الفقاقيع المعروفة على أندرويد 4.4–7.1</string>
     <string name="caption_twemoji">مجموعة الإيموجي الخاصة بماستدون</string>
     <string name="download_failed">فشلت عملية التنزيل</string>
-    <string name="profile_badge_bot_text">روبوت</string>
     <string name="account_moved_description">إنتقَلَ %1$s إلى :</string>
     <string name="reblog_private">المشاركة إلى الجمهور الأصلي</string>
     <string name="unreblog_private">إلغاء المشاركة</string>
-    <string name="license_description">يحتوي توسكي على شيفرة وأوصول صادرة مِن المشاريع المفتوحة التالية :</string>
     <string name="profile_metadata_label">البيانات الوصفية للملف الشخصي</string>
     <string name="profile_metadata_add">إضافة بيانات</string>
     <string name="profile_metadata_label_label">الوسم</string>
@@ -466,11 +437,9 @@
     <string name="action_access_scheduled_posts">المنشورات المُبَرمَجة</string>
     <string name="action_schedule_post">برمجة تبويق</string>
     <string name="action_reset_schedule">صفّر</string>
-    <string name="post_lookup_error_format">خطأ أثناء البحث عن منشور %s</string>
     <string name="title_bookmarks">الفواصل المرجعية</string>
     <string name="action_bookmark">أضفه إلى الفواصل المرجعية</string>
     <string name="action_view_bookmarks">الفواصل المرجعية</string>
-    <string name="about_powered_by_pachli">مدعوم بِـ Pachli</string>
     <string name="description_post_bookmarked">أضيف إلى الفواصل المرجعية</string>
     <string name="select_list_title">اختر قائمة</string>
     <string name="list">القائمة</string>
@@ -541,7 +510,6 @@
     <string name="duration_365_days">365 يومًا</string>
     <string name="pachli_compose_post_quicksetting_label">تحرير منشور</string>
     <string name="notification_sign_up_name">حسابات جديدة</string>
-    <string name="title_login">تسجيل الدخول</string>
     <string name="notification_sign_up_format">قام %s بإنشاء حساب</string>
     <string name="pref_title_notification_filter_sign_ups">أحدهم أنشأ حسابا جديدا</string>
     <string name="notification_update_name">منشورات تم تعديلها</string>
@@ -590,7 +558,6 @@
     </plurals>
     <string name="saving_draft">جار حفظ المسودة …</string>
     <string name="dialog_push_notification_migration_other_accounts">لقد قمت بإعادة تسجيل الدخول إلى حسابك الجاري لمنح إذن الاشعارات لـ Pachli. ومع ذلك، لا يزال لديك حسابات أخرى لم يتم ترحيلها بهذه الطريقة. قم بالتبديل إليهم وإعادة تسجيل الدخول واحدًا تلو الآخر لتمكين دعم إشعارات UnifiedPush.</string>
-    <string name="instance_rule_title">%s شروط</string>
     <string name="language_display_name_format">%s (%s)</string>
     <string name="pref_default_post_language">لغة النشر الافتراضية</string>
     <string name="status_count_one_plus">1+</string>
@@ -609,7 +576,6 @@
     <string name="notification_header_report_format">%s أبلغ عن %s</string>
     <string name="notification_summary_report_format">%s · %d منشورات ملحقة</string>
     <string name="failed_to_pin">فشل التثبيت</string>
-    <string name="instance_rule_info">بتسجيل الدخول، أنت توافق على %s.</string>
     <string name="description_post_language">لغة المنشور</string>
     <string name="delete_scheduled_post_warning">هل تريد حذف هذا المنشور المُبَرمَج؟</string>
     <string name="tips_push_notification_migration">أعد تسجيل الدخول إلى جميع الحسابات لتمكين دعم الإشعارات.</string>
@@ -639,13 +605,10 @@
     <string name="action_dismiss">تجاهل</string>
     <string name="action_details">تفاصيل</string>
     <string name="pref_title_notification_filter_updates">المنشور الذي تفاعلت معه تم تعديله</string>
-    <string name="error_loading_account_details">فشلت عملية تحميل تفاصيل الحساب</string>
-    <string name="error_could_not_load_login_page">فشل الوصول الى صفحة تسجيل الدخول.</string>
     <string name="action_post_failed">فشل التحميل</string>
     <string name="action_post_failed_show_drafts">إظهار المسودات</string>
     <string name="action_post_failed_do_nothing">تخطي</string>
     <string name="pref_summary_http_proxy_disabled">مُعطَّل</string>
-    <string name="action_browser_login">الولوج باستخدام متصفح</string>
     <string name="title_public_trending_hashtags">الوسوم المتداولة</string>
     <string name="accessibility_talking_about_tag">هناك %1$d أشخاص يتحدثون عن الوسم %2$s</string>
     <string name="total_usage">الاستخدام الإجمالي</string>
@@ -676,7 +639,6 @@
     <string name="title_public_trending_statuses">المنشورات الشائعة</string>
     <string name="announcement_date">%1$s %2$s</string>
     <string name="select_list_manage">إدارة القوائم</string>
-    <string name="about_device_info_title">جهازك</string>
     <string name="error_network_fmt">وقع خطأ في الشبكة: %s</string>
     <string name="dialog_save_profile_changes_message">أتريد حفظ التغييرات التي طرأت على ملفك الشخصي؟</string>
     <string name="error_generic_fmt">وقع خطأ: %s</string>
@@ -692,11 +654,9 @@
     <string name="hint_description">الوصف</string>
     <string name="janky_animation_title">قد تحتاج إلى إعادة تشغيل جهازك</string>
     <string name="title_tab_public_trending_statuses">المنشورات</string>
-    <string name="about_copied">تم نسخ معلومات الإصدار والجهاز</string>
     <string name="pref_update_notification_frequency_once_per_version">مرة واحدة كل نسخة</string>
     <string name="filter_description_hide">إخفاء تماما</string>
     <string name="filter_description_format">%s: %s</string>
-    <string name="about_privacy_policy">سياسة الخصوصية</string>
     <string name="post_media_image">صورة</string>
     <string name="error_404_not_found">خادمك لا يدعم هذه الميزة</string>
     <string name="filter_action_hide">إخفاء</string>
@@ -709,15 +669,20 @@
     <string name="action_translate">ترجمة</string>
     <string name="select_list_empty">ليس لديك قوائم بعد</string>
     <string name="pref_title_account_filter_keywords">الملفات التعريفية</string>
-    <string name="about_copy">نسخ معلومات الإصدار والجهاز</string>
     <string name="update_dialog_title">تحديث جديد متوفر</string>
     <string name="title_tab_public_trending_hashtags">الوسوم</string>
     <string name="filter_edit_keyword_title">تعديل الكلمة المفتاحية</string>
     <string name="filter_description_warn">إخفاء خلف تحذير</string>
-    <string name="about_account_info_title">حسابك</string>
     <string name="label_image">صورة</string>
     <string name="action_translate_undo">إلغاء الترجمة</string>
     <string name="notification_prune_cache">صيانة ذاكرة التخزين المؤقتة…</string>
     <string name="pref_ui_text_size">حجم نص واجهة المستخدم</string>
-    <string name="acra_dialog_title">لقد تحطّم %1$s</string>
+    <string name="load_newest_notifications">تحميل أحدث الإشعارات</string>
+    <string name="label_filter_context">السياقات التي تم تصفيتها</string>
+    <string name="dialog_follow_hashtag_hint">#وسم</string>
+    <string name="pref_title_show_self_boosts">إظهار المعاد نشرها ذاتيا</string>
+    <string name="confirmation_hashtag_muted">#%s مخفي</string>
+    <string name="pref_summary_timeline_filters">خادمك الخاص لا يدعم عوامل التصفية</string>
+    <string name="load_newest_statuses">تحميل أحدث المنشورات</string>
+    <string name="announcement_date_updated">(تم تحديثه: %1$s)</string>
 </resources>
