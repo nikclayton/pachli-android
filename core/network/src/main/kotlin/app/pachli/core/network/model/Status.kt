@@ -89,22 +89,12 @@ data class Status(
         DIRECT,
         ;
 
-        fun serverString(): String {
-            return when (this) {
-                PUBLIC -> "public"
-                UNLISTED -> "unlisted"
-                PRIVATE -> "private"
-                DIRECT -> "direct"
-                UNKNOWN -> "unknown"
-            }
-        }
-
         companion object {
             @JvmStatic
             fun getOrUnknown(index: Int) = Enum.getOrNull<Visibility>(index) ?: UNKNOWN
 
-            @JvmStatic
-            fun byString(s: String): Visibility {
+//            @JvmStatic
+            fun from(s: String): Visibility {
                 return when (s) {
                     "public" -> PUBLIC
                     "unlisted" -> UNLISTED

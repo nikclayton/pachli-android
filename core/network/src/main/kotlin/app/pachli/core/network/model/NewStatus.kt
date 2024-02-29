@@ -26,7 +26,7 @@ data class NewStatus(
     val status: String,
     @Json(name = "spoiler_text") val warningText: String,
     @Json(name = "in_reply_to_id") val inReplyToId: String?,
-    val visibility: String,
+    val visibility: Status.Visibility,
     val sensitive: Boolean,
     @Json(name = "media_ids") val mediaIds: List<String>?,
     @Json(name = "media_attributes") val mediaAttributes: List<MediaAttribute>?,

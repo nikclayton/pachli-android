@@ -372,7 +372,7 @@ class SendStatusService : Service() {
             content = status.text,
             contentWarning = status.warningText,
             sensitive = status.sensitive,
-            visibility = Status.Visibility.byString(status.visibility),
+            visibility = status.visibility,
             mediaUris = status.media.map { it.uri },
             mediaDescriptions = status.media.map { it.description },
             mediaFocus = status.media.map { it.focus },
@@ -473,7 +473,7 @@ class SendStatusService : Service() {
 data class StatusToSend(
     val text: String,
     val warningText: String,
-    val visibility: String,
+    val visibility: Status.Visibility,
     val sensitive: Boolean,
     val media: List<MediaToSend>,
     val scheduledAt: String?,
