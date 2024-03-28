@@ -16,8 +16,8 @@
  */
 
 plugins {
-    id("com.google.devtools.ksp")
-    id("com.apollographql.apollo3") version "3.8.2"
+    alias(libs.plugins.google.ksp)
+    alias(libs.plugins.apollographql)
 }
 
 application {
@@ -26,11 +26,11 @@ application {
 
 dependencies {
     // GraphQL client
-    implementation("com.apollographql.apollo3:apollo-runtime:3.8.2")
+    implementation(libs.apollo.runtime)
 
     // Logging
-    implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
-    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("io.github.oshai:kotlin-logging-jvm:6.0.3")
+    implementation("ch.qos.logback:logback-classic:1.5.3")
 
     // Moshi
     implementation(libs.moshi)

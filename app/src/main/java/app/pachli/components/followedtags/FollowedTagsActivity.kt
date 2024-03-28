@@ -19,6 +19,7 @@ import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.extensions.visible
+import app.pachli.core.navigation.StatusListActivityIntent
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.databinding.ActivityFollowedTagsBinding
@@ -170,7 +171,11 @@ class FollowedTagsActivity :
         }
     }
 
-    override fun search(token: String): List<ComposeAutoCompleteAdapter.AutocompleteResult> {
+    override fun onViewTag(tag: String) {
+        startActivityWithSlideInAnimation(StatusListActivityIntent.hashtag(this, tag))
+    }
+
+    override suspend fun search(token: String): List<ComposeAutoCompleteAdapter.AutocompleteResult> {
         return viewModel.searchAutocompleteSuggestions(token)
     }
 

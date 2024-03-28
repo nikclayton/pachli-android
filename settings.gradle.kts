@@ -1,6 +1,12 @@
 pluginManagement {
     repositories {
-        google()
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
         gradlePluginPortal()
     }
 
@@ -11,7 +17,13 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
-        google()
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
         mavenCentral()
         maven("https://jitpack.io")
         maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
@@ -52,6 +64,7 @@ include(":core:network")
 include(":core:testing")
 include(":core:ui")
 include(":feature:about")
+include(":feature:lists")
 include(":feature:login")
 include(":tools:mklanguages")
 include(":tools:mkrelease")

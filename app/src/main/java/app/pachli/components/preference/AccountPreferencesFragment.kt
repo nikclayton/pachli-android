@@ -27,6 +27,7 @@ import app.pachli.appstore.EventHub
 import app.pachli.components.notifications.currentAccountNeedsMigration
 import app.pachli.core.accounts.AccountManager
 import app.pachli.core.activity.BaseActivity
+import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.FiltersActivityIntent
@@ -53,8 +54,8 @@ import app.pachli.settings.switchPreference
 import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
 import app.pachli.util.getPachliDisplayName
+import app.pachli.util.iconRes
 import app.pachli.util.makeIcon
-import app.pachli.util.unsafeLazy
 import com.github.michaelbull.result.getOrElse
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsDrawable
@@ -207,9 +208,9 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                     setSummaryProvider { entry }
                     val visibility = accountManager.activeAccount?.defaultPostPrivacy ?: Status.Visibility.PUBLIC
                     value = visibility.serverString()
-                    setIcon(getIconForVisibility(visibility))
+                    visibility.iconRes()?.let { setIcon(it) }
                     setOnPreferenceChangeListener { _, newValue ->
-                        setIcon(getIconForVisibility(Status.Visibility.byString(newValue as String)))
+                        Status.Visibility.byString(newValue as String).iconRes()?.let { setIcon(it) }
                         syncWithServer(visibility = newValue)
                         true
                     }
@@ -339,19 +340,8 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
     private fun showErrorSnackbar(visibility: String?, sensitive: Boolean?) {
         view?.let { view ->
             Snackbar.make(view, R.string.pref_failed_to_sync, Snackbar.LENGTH_LONG)
-                .setAction(R.string.action_retry) { syncWithServer(visibility, sensitive) }
+                .setAction(app.pachli.core.ui.R.string.action_retry) { syncWithServer(visibility, sensitive) }
                 .show()
-        }
-    }
-
-    @DrawableRes
-    private fun getIconForVisibility(visibility: Status.Visibility): Int {
-        return when (visibility) {
-            Status.Visibility.PRIVATE -> R.drawable.ic_lock_outline_24dp
-
-            Status.Visibility.UNLISTED -> R.drawable.ic_lock_open_24dp
-
-            else -> R.drawable.ic_public_24dp
         }
     }
 

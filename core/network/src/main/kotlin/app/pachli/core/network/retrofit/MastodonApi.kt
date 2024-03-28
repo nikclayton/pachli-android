@@ -25,6 +25,7 @@ import app.pachli.core.network.model.Conversation
 import app.pachli.core.network.model.DeletedStatus
 import app.pachli.core.network.model.Emoji
 import app.pachli.core.network.model.Filter
+import app.pachli.core.network.model.FilterContext
 import app.pachli.core.network.model.FilterKeyword
 import app.pachli.core.network.model.FilterV1
 import app.pachli.core.network.model.HashTag
@@ -48,6 +49,8 @@ import app.pachli.core.network.model.TimelineAccount
 import app.pachli.core.network.model.Translation
 import app.pachli.core.network.model.TrendingTag
 import app.pachli.core.network.model.TrendsLink
+import app.pachli.core.network.model.UserListRepliesPolicy
+import app.pachli.core.network.retrofit.apiresult.ApiResult
 import at.connyduck.calladapter.networkresult.NetworkResult
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -360,15 +363,7 @@ interface MastodonApi {
         @Query("resolve") resolve: Boolean? = null,
         @Query("limit") limit: Int? = null,
         @Query("following") following: Boolean? = null,
-    ): NetworkResult<List<TimelineAccount>>
-
-    @GET("api/v1/accounts/search")
-    fun searchAccountsSync(
-        @Query("q") query: String,
-        @Query("resolve") resolve: Boolean? = null,
-        @Query("limit") limit: Int? = null,
-        @Query("following") following: Boolean? = null,
-    ): NetworkResult<List<TimelineAccount>>
+    ): ApiResult<List<TimelineAccount>>
 
     @GET("api/v1/accounts/{id}")
     suspend fun account(
@@ -551,19 +546,20 @@ interface MastodonApi {
     ): NetworkResult<Unit>
 
     @GET("/api/v1/lists")
-    suspend fun getLists(): NetworkResult<List<MastoList>>
+    suspend fun getLists(): ApiResult<List<MastoList>>
 
     @GET("/api/v1/accounts/{id}/lists")
     suspend fun getListsIncludesAccount(
         @Path("id") accountId: String,
-    ): NetworkResult<List<MastoList>>
+    ): ApiResult<List<MastoList>>
 
     @FormUrlEncoded
     @POST("api/v1/lists")
     suspend fun createList(
         @Field("title") title: String,
         @Field("exclusive") exclusive: Boolean?,
-    ): NetworkResult<MastoList>
+        @Field("replies_policy") repliesPolicy: UserListRepliesPolicy = UserListRepliesPolicy.LIST,
+    ): ApiResult<MastoList>
 
     @FormUrlEncoded
     @PUT("api/v1/lists/{listId}")
@@ -571,18 +567,19 @@ interface MastodonApi {
         @Path("listId") listId: String,
         @Field("title") title: String,
         @Field("exclusive") exclusive: Boolean?,
-    ): NetworkResult<MastoList>
+        @Field("replies_policy") repliesPolicy: UserListRepliesPolicy = UserListRepliesPolicy.LIST,
+    ): ApiResult<MastoList>
 
     @DELETE("api/v1/lists/{listId}")
     suspend fun deleteList(
         @Path("listId") listId: String,
-    ): NetworkResult<Unit>
+    ): ApiResult<Unit>
 
     @GET("api/v1/lists/{listId}/accounts")
     suspend fun getAccountsInList(
         @Path("listId") listId: String,
         @Query("limit") limit: Int,
-    ): NetworkResult<List<TimelineAccount>>
+    ): ApiResult<List<TimelineAccount>>
 
     @FormUrlEncoded
     // @DELETE doesn't support fields
@@ -590,14 +587,14 @@ interface MastodonApi {
     suspend fun deleteAccountFromList(
         @Path("listId") listId: String,
         @Field("account_ids[]") accountIds: List<String>,
-    ): NetworkResult<Unit>
+    ): ApiResult<Unit>
 
     @FormUrlEncoded
     @POST("api/v1/lists/{listId}/accounts")
     suspend fun addAccountToList(
         @Path("listId") listId: String,
         @Field("account_ids[]") accountIds: List<String>,
-    ): NetworkResult<Unit>
+    ): ApiResult<Unit>
 
     @GET("/api/v1/conversations")
     suspend fun getConversations(
@@ -614,7 +611,7 @@ interface MastodonApi {
     @POST("api/v1/filters")
     suspend fun createFilterV1(
         @Field("phrase") phrase: String,
-        @Field("context[]") context: List<String>,
+        @Field("context[]") context: List<FilterContext>,
         @Field("irreversible") irreversible: Boolean?,
         @Field("whole_word") wholeWord: Boolean?,
         @Field("expires_in") expiresInSeconds: Int?,
@@ -625,7 +622,7 @@ interface MastodonApi {
     suspend fun updateFilterV1(
         @Path("id") id: String,
         @Field("phrase") phrase: String,
-        @Field("context[]") context: List<String>,
+        @Field("context[]") context: List<FilterContext>,
         @Field("irreversible") irreversible: Boolean?,
         @Field("whole_word") wholeWord: Boolean?,
         @Field("expires_in") expiresInSeconds: Int?,
@@ -640,8 +637,8 @@ interface MastodonApi {
     @POST("api/v2/filters")
     suspend fun createFilter(
         @Field("title") title: String,
-        @Field("context[]") context: List<String>,
-        @Field("filter_action") filterAction: String,
+        @Field("context[]") context: List<FilterContext>,
+        @Field("filter_action") filterAction: Filter.Action,
         @Field("expires_in") expiresInSeconds: Int?,
     ): NetworkResult<Filter>
 
@@ -650,8 +647,8 @@ interface MastodonApi {
     suspend fun updateFilter(
         @Path("id") id: String,
         @Field("title") title: String? = null,
-        @Field("context[]") context: List<String>? = null,
-        @Field("filter_action") filterAction: String? = null,
+        @Field("context[]") context: List<FilterContext>? = null,
+        @Field("filter_action") filterAction: Filter.Action? = null,
         @Field("expires_in") expiresInSeconds: Int? = null,
     ): NetworkResult<Filter>
 
@@ -722,16 +719,6 @@ interface MastodonApi {
     @GET("api/v2/search")
     suspend fun search(
         @Query("q") query: String?,
-        @Query("type") type: String? = null,
-        @Query("resolve") resolve: Boolean? = null,
-        @Query("limit") limit: Int? = null,
-        @Query("offset") offset: Int? = null,
-        @Query("following") following: Boolean? = null,
-    ): NetworkResult<SearchResult>
-
-    @GET("api/v2/search")
-    fun searchSync(
-        @Query("q") query: String,
         @Query("type") type: String? = null,
         @Query("resolve") resolve: Boolean? = null,
         @Query("limit") limit: Int? = null,

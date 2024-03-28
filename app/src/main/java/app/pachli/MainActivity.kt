@@ -70,11 +70,16 @@ import app.pachli.core.activity.AccountSelectionListener
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.PostLookupFallbackBehavior
 import app.pachli.core.activity.emojify
+import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.common.util.unsafeLazy
+import app.pachli.core.data.repository.Lists
+import app.pachli.core.data.repository.ListsRepository
+import app.pachli.core.data.repository.ListsRepository.Companion.compareByListTitle
 import app.pachli.core.database.model.AccountEntity
-import app.pachli.core.database.model.TabKind
+import app.pachli.core.database.model.TabData
 import app.pachli.core.designsystem.EmbeddedFontFamily
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.AboutActivityIntent
@@ -84,10 +89,12 @@ import app.pachli.core.navigation.AnnouncementsActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.DraftsActivityIntent
 import app.pachli.core.navigation.EditProfileActivityIntent
+import app.pachli.core.navigation.FollowedTagsActivityIntent
 import app.pachli.core.navigation.ListActivityIntent
 import app.pachli.core.navigation.LoginActivityIntent
 import app.pachli.core.navigation.LoginActivityIntent.LoginMode
 import app.pachli.core.navigation.MainActivityIntent
+import app.pachli.core.navigation.NotificationsActivityIntent
 import app.pachli.core.navigation.PreferencesActivityIntent
 import app.pachli.core.navigation.PreferencesActivityIntent.PreferenceScreen
 import app.pachli.core.navigation.ScheduledStatusActivityIntent
@@ -97,8 +104,8 @@ import app.pachli.core.navigation.TrendingActivityIntent
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Notification
 import app.pachli.core.preferences.PrefKeys
-import app.pachli.core.ui.await
-import app.pachli.core.ui.reduceSwipeSensitivity
+import app.pachli.core.ui.extensions.await
+import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.databinding.ActivityMainBinding
 import app.pachli.db.DraftsAlert
 import app.pachli.interfaces.ActionButtonActivity
@@ -108,9 +115,7 @@ import app.pachli.pager.MainPagerAdapter
 import app.pachli.updatecheck.UpdateCheck
 import app.pachli.usecase.DeveloperToolsUseCase
 import app.pachli.usecase.LogoutUsecase
-import app.pachli.util.deleteStaleCachedMedia
 import app.pachli.util.getDimension
-import app.pachli.util.unsafeLazy
 import app.pachli.util.updateShortcut
 import at.connyduck.calladapter.networkresult.fold
 import com.bumptech.glide.Glide
@@ -119,7 +124,11 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.FixedSizeDrawable
 import com.bumptech.glide.request.transition.Transition
+import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.android.material.tabs.TabLayoutMediator
@@ -137,6 +146,7 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
+import com.mikepenz.materialdrawer.model.SectionDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IProfile
 import com.mikepenz.materialdrawer.model.interfaces.Typefaceable
 import com.mikepenz.materialdrawer.model.interfaces.descriptionRes
@@ -153,13 +163,17 @@ import com.mikepenz.materialdrawer.util.updateBadge
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
 import dagger.hilt.android.AndroidEntryPoint
 import de.c1710.filemojicompat_ui.helpers.EMOJI_PREFERENCE
-import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
+    @Inject
+    @ApplicationScope
+    lateinit var externalScope: CoroutineScope
+
     @Inject
     lateinit var eventHub: EventHub
 
@@ -174,6 +188,8 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
 
     @Inject
     lateinit var updateCheck: UpdateCheck
+
+    @Inject lateinit var listsRepository: ListsRepository
 
     @Inject
     lateinit var developerToolsUseCase: DeveloperToolsUseCase
@@ -346,9 +362,24 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
             }
         }
 
-        Schedulers.io().scheduleDirect {
-            // Flush old media that was cached for sharing
-            deleteStaleCachedMedia(applicationContext.getExternalFilesDir("Pachli"))
+        lifecycleScope.launch {
+            listsRepository.lists.collect { result ->
+                result.onSuccess { lists ->
+                    // Update the list of lists in the main drawer
+                    refreshMainDrawerItems(addSearchButton = hideTopToolbar)
+
+                    // Any lists in tabs might have changed titles, update those
+                    if (lists is Lists.Loaded && tabAdapter.tabs.any { it.tabData is TabData.UserList }) {
+                        setupTabs(false)
+                    }
+                }
+
+                result.onFailure {
+                    Snackbar.make(binding.root, R.string.error_list_load, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(app.pachli.core.ui.R.string.action_retry) { listsRepository.refresh() }
+                        .show()
+                }
+            }
         }
 
         selectedEmojiPack = sharedPreferencesRepository.getString(EMOJI_PREFERENCE, "")
@@ -565,15 +596,45 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     }
 
     private fun refreshMainDrawerItems(addSearchButton: Boolean) {
+        val (listsDrawerItems, listsSectionTitle) = listsRepository.lists.value.getOrElse { null }?.let { result ->
+            when (result) {
+                Lists.Loading -> Pair(emptyList(), R.string.title_lists_loading)
+                is Lists.Loaded -> Pair(
+                    result.lists.sortedWith(compareByListTitle)
+                        .map { list ->
+                            primaryDrawerItem {
+                                nameText = list.title
+                                iconicsIcon = GoogleMaterial.Icon.gmd_list
+                                onClick = {
+                                    startActivityWithSlideInAnimation(
+                                        StatusListActivityIntent.list(this@MainActivity, list.id, list.title),
+                                    )
+                                }
+                            }
+                        },
+                    app.pachli.feature.lists.R.string.title_lists,
+                )
+            }
+        } ?: Pair(emptyList(), R.string.title_lists_failed)
+
         binding.mainDrawer.apply {
             itemAdapter.clear()
             tintStatusBar = true
             addItems(
                 primaryDrawerItem {
-                    nameRes = R.string.action_edit_profile
-                    iconicsIcon = GoogleMaterial.Icon.gmd_person
+                    nameRes = R.string.title_notifications
+                    iconicsIcon = GoogleMaterial.Icon.gmd_notifications
                     onClick = {
-                        val intent = EditProfileActivityIntent(context)
+                        startActivityWithSlideInAnimation(
+                            NotificationsActivityIntent(context),
+                        )
+                    }
+                },
+                primaryDrawerItem {
+                    nameRes = R.string.action_view_bookmarks
+                    iconicsIcon = GoogleMaterial.Icon.gmd_bookmark
+                    onClick = {
+                        val intent = StatusListActivityIntent.bookmarks(context)
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
@@ -587,11 +648,17 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     }
                 },
                 primaryDrawerItem {
-                    nameRes = R.string.action_view_bookmarks
-                    iconicsIcon = GoogleMaterial.Icon.gmd_bookmark
+                    nameRes = R.string.title_public_trending
+                    iconicsIcon = GoogleMaterial.Icon.gmd_trending_up
                     onClick = {
-                        val intent = StatusListActivityIntent.bookmarks(context)
-                        startActivityWithSlideInAnimation(intent)
+                        startActivityWithSlideInAnimation(TrendingActivityIntent(context))
+                    }
+                },
+                primaryDrawerItem {
+                    nameRes = R.string.title_followed_hashtags
+                    iconRes = R.drawable.ic_hashtag
+                    onClick = {
+                        startActivityWithSlideInAnimation(FollowedTagsActivityIntent(context))
                     }
                 },
                 primaryDrawerItem {
@@ -602,13 +669,18 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
+                SectionDrawerItem().apply {
+                    nameRes = listsSectionTitle
+                },
+                *listsDrawerItems.toTypedArray(),
                 primaryDrawerItem {
-                    nameRes = R.string.action_lists
-                    iconicsIcon = GoogleMaterial.Icon.gmd_list
+                    nameRes = R.string.manage_lists
+                    iconicsIcon = GoogleMaterial.Icon.gmd_settings
                     onClick = {
                         startActivityWithSlideInAnimation(ListActivityIntent(context))
                     }
                 },
+                DividerDrawerItem(),
                 primaryDrawerItem {
                     nameRes = R.string.action_access_drafts
                     iconRes = R.drawable.ic_notebook
@@ -653,6 +725,14 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                         startActivityWithSlideInAnimation(intent)
                     }
                 },
+                primaryDrawerItem {
+                    nameRes = R.string.action_edit_profile
+                    iconicsIcon = GoogleMaterial.Icon.gmd_person
+                    onClick = {
+                        val intent = EditProfileActivityIntent(context)
+                        startActivityWithSlideInAnimation(intent)
+                    }
+                },
                 secondaryDrawerItem {
                     nameRes = app.pachli.feature.about.R.string.about_title_activity
                     iconicsIcon = GoogleMaterial.Icon.gmd_info
@@ -680,17 +760,6 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     },
                 )
             }
-
-            binding.mainDrawer.addItemsAtPosition(
-                5,
-                primaryDrawerItem {
-                    nameRes = R.string.title_public_trending
-                    iconicsIcon = GoogleMaterial.Icon.gmd_trending_up
-                    onClick = {
-                        startActivityWithSlideInAnimation(TrendingActivityIntent(context))
-                    }
-                },
-            )
         }
 
         if (BuildConfig.DEBUG) {
@@ -799,8 +868,8 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         tabLayoutMediator = TabLayoutMediator(activeTabLayout, binding.viewPager, true) {
                 tab: TabLayout.Tab, position: Int ->
             tab.icon = AppCompatResources.getDrawable(this@MainActivity, tabs[position].icon)
-            tab.contentDescription = when (tabs[position].kind) {
-                TabKind.LIST -> tabs[position].arguments[1]
+            tab.contentDescription = when (tabs[position].tabData) {
+                is TabData.UserList -> tabs[position].title(this@MainActivity)
                 else -> getString(tabs[position].text)
             }
         }.also { it.attach() }
@@ -808,11 +877,20 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         // Selected tab is either
         // - Notification tab (if appropriate)
         // - The previously selected tab (if it hasn't been removed)
+        //   - Tabs containing lists are compared by list ID, in case the list was renamed
         // - Left-most tab
         val position = if (selectNotificationTab) {
-            tabs.indexOfFirst { it.kind == TabKind.NOTIFICATIONS }
+            tabs.indexOfFirst { it.tabData is TabData.Notifications }
         } else {
-            previousTab?.let { tabs.indexOfFirst { it == previousTab } }
+            previousTab?.let {
+                tabs.indexOfFirst {
+                    if (it.tabData is TabData.UserList && previousTab.tabData is TabData.UserList) {
+                        it.tabData.listId == previousTab.tabData.listId
+                    } else {
+                        it == previousTab
+                    }
+                }
+            }
         }.takeIf { it != -1 } ?: 0
         binding.viewPager.setCurrentItem(position, false)
 
@@ -974,7 +1052,10 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         }
 
         updateProfiles()
-        updateShortcut(applicationContext, accountManager.activeAccount!!)
+
+        externalScope.launch {
+            updateShortcut(applicationContext, accountManager.activeAccount!!)
+        }
     }
 
     @SuppressLint("CheckResult")

@@ -44,6 +44,7 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.StatusListActivityIntent
+import app.pachli.core.ui.BackgroundMessage
 import app.pachli.databinding.FragmentTrendingTagsBinding
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.AppBarLayoutHost
@@ -199,11 +200,7 @@ class TrendingTagsFragment :
         if (viewData.isEmpty()) {
             binding.recyclerView.hide()
             binding.messageView.show()
-            binding.messageView.setup(
-                R.drawable.elephant_friend_empty,
-                R.string.message_empty,
-                null,
-            )
+            binding.messageView.setup(BackgroundMessage.Empty())
         } else {
             binding.recyclerView.show()
             binding.messageView.hide()
@@ -233,10 +230,7 @@ class TrendingTagsFragment :
         binding.progressBar.hide()
 
         binding.swipeRefreshLayout.isRefreshing = false
-        binding.messageView.setup(
-            R.drawable.errorphant_offline,
-            R.string.error_network,
-        ) { refreshContent() }
+        binding.messageView.setup(BackgroundMessage.Network()) { refreshContent() }
     }
 
     private fun otherError() {
@@ -245,10 +239,7 @@ class TrendingTagsFragment :
         binding.progressBar.hide()
 
         binding.swipeRefreshLayout.isRefreshing = false
-        binding.messageView.setup(
-            R.drawable.errorphant_error,
-            R.string.error_generic,
-        ) { refreshContent() }
+        binding.messageView.setup(BackgroundMessage.GenericError()) { refreshContent() }
     }
 
     private fun actionButtonPresent(): Boolean {

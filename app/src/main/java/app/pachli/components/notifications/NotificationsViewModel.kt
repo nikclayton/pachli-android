@@ -32,9 +32,9 @@ import app.pachli.appstore.MuteConversationEvent
 import app.pachli.appstore.MuteEvent
 import app.pachli.components.timeline.FilterKind
 import app.pachli.components.timeline.FiltersRepository
-import app.pachli.components.timeline.util.ifExpected
 import app.pachli.core.accounts.AccountManager
 import app.pachli.core.network.model.Filter
+import app.pachli.core.network.model.FilterContext
 import app.pachli.core.network.model.Notification
 import app.pachli.core.network.model.Poll
 import app.pachli.core.preferences.PrefKeys
@@ -408,7 +408,7 @@ class NotificationsViewModel @Inject constructor(
                             }
                         }
                     } catch (e: Exception) {
-                        ifExpected(e) { _uiErrorChannel.send(UiError.make(e, it)) }
+                        _uiErrorChannel.send(UiError.make(e, it))
                     }
                 }
         }
@@ -427,7 +427,7 @@ class NotificationsViewModel @Inject constructor(
                         }
                         uiSuccess.emit(NotificationActionSuccess.from(action))
                     } catch (e: Exception) {
-                        ifExpected(e) { _uiErrorChannel.send(UiError.make(e, action)) }
+                        _uiErrorChannel.send(UiError.make(e, action))
                     }
                 }
         }
@@ -472,7 +472,7 @@ class NotificationsViewModel @Inject constructor(
         viewModelScope.launch {
             eventHub.events
                 .filterIsInstance<FilterChangedEvent>()
-                .filter { it.filterKind == Filter.Kind.NOTIFICATIONS }
+                .filter { it.filterContext == FilterContext.NOTIFICATIONS }
                 .map {
                     getFilters()
                     repository.invalidate()
@@ -538,8 +538,8 @@ class NotificationsViewModel @Inject constructor(
     private fun getFilters() = viewModelScope.launch {
         try {
             filterModel = when (val filters = filtersRepository.getFilters()) {
-                is FilterKind.V1 -> FilterModel(Filter.Kind.NOTIFICATIONS, filters.filters)
-                is FilterKind.V2 -> FilterModel(Filter.Kind.NOTIFICATIONS)
+                is FilterKind.V1 -> FilterModel(FilterContext.NOTIFICATIONS, filters.filters)
+                is FilterKind.V2 -> FilterModel(FilterContext.NOTIFICATIONS)
             }
         } catch (throwable: Throwable) {
             _uiErrorChannel.send(UiError.GetFilters(throwable))

@@ -99,6 +99,8 @@ import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
 import app.pachli.util.getMediaSize
 import app.pachli.util.highlightSpans
+import app.pachli.util.iconRes
+import app.pachli.util.makeIcon
 import app.pachli.util.modernLanguageCode
 import app.pachli.util.setDrawableTint
 import com.canhub.cropper.CropImage
@@ -108,8 +110,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
-import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
@@ -515,24 +517,13 @@ class ComposeActivity :
             displayTransientMessage(R.string.hint_media_description_missing)
         }
 
-        val textColor = MaterialColors.getColor(binding.root, android.R.attr.textColorTertiary)
-
-        val cameraIcon = IconicsDrawable(this, GoogleMaterial.Icon.gmd_camera_alt).apply {
-            colorInt = textColor
-            sizeDp = 18
-        }
+        val cameraIcon = makeIcon(this, GoogleMaterial.Icon.gmd_camera_alt, IconicsSize.dp(18))
         binding.actionPhotoTake.setCompoundDrawablesRelativeWithIntrinsicBounds(cameraIcon, null, null, null)
 
-        val imageIcon = IconicsDrawable(this, GoogleMaterial.Icon.gmd_image).apply {
-            colorInt = textColor
-            sizeDp = 18
-        }
+        val imageIcon = makeIcon(this, GoogleMaterial.Icon.gmd_image, IconicsSize.dp(18))
         binding.actionPhotoPick.setCompoundDrawablesRelativeWithIntrinsicBounds(imageIcon, null, null, null)
 
-        val pollIcon = IconicsDrawable(this, GoogleMaterial.Icon.gmd_poll).apply {
-            colorInt = textColor
-            sizeDp = 18
-        }
+        val pollIcon = makeIcon(this, GoogleMaterial.Icon.gmd_poll, IconicsSize.dp(18))
         binding.addPollTextActionTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(pollIcon, null, null, null)
 
         binding.actionPhotoTake.visible(Intent(MediaStore.ACTION_IMAGE_CAPTURE).resolveActivity(packageManager) != null)
@@ -585,7 +576,7 @@ class ComposeActivity :
             title = null
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
-            setHomeAsUpIndicator(R.drawable.ic_close_24dp)
+            setHomeAsUpIndicator(app.pachli.core.ui.R.drawable.ic_close_24dp)
         }
     }
 
@@ -754,15 +745,9 @@ class ComposeActivity :
 
     private fun setStatusVisibility(visibility: Status.Visibility) {
         binding.composeOptionsBottomSheet.setStatusVisibility(visibility)
-        binding.composeTootButton.setStatusVisibility(visibility)
+        binding.composeTootButton.setStatusVisibility(binding.composeTootButton, visibility)
 
-        val iconRes = when (visibility) {
-            Status.Visibility.PUBLIC -> R.drawable.ic_public_24dp
-            Status.Visibility.PRIVATE -> R.drawable.ic_lock_outline_24dp
-            Status.Visibility.DIRECT -> R.drawable.ic_email_24dp
-            Status.Visibility.UNLISTED -> R.drawable.ic_lock_open_24dp
-            else -> R.drawable.ic_lock_open_24dp
-        }
+        val iconRes = visibility.iconRes() ?: R.drawable.ic_lock_open_24dp
         binding.composeToggleVisibilityButton.setImageResource(iconRes)
         if (viewModel.editing) {
             // Can't update visibility on published status
@@ -997,7 +982,7 @@ class ComposeActivity :
                     R.string.error_media_upload_permission,
                     Snackbar.LENGTH_SHORT,
                 ).apply {
-                    setAction(R.string.action_retry) { onMediaPick() }
+                    setAction(app.pachli.core.ui.R.string.action_retry) { onMediaPick() }
                     // necessary so snackbar is shown over everything
                     view.elevation = resources.getDimension(DR.dimen.compose_activity_snackbar_elevation)
                     show()
@@ -1257,7 +1242,7 @@ class ComposeActivity :
         }
     }
 
-    override fun search(token: String): List<ComposeAutoCompleteAdapter.AutocompleteResult> {
+    override suspend fun search(token: String): List<ComposeAutoCompleteAdapter.AutocompleteResult> {
         return viewModel.searchAutocompleteSuggestions(token)
     }
 

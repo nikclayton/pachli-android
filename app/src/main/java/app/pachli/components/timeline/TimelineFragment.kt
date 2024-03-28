@@ -41,6 +41,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
 import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.components.timeline.util.isExpected
 import app.pachli.components.timeline.viewmodel.CachedTimelineViewModel
 import app.pachli.components.timeline.viewmodel.InfallibleUiAction
 import app.pachli.components.timeline.viewmodel.NetworkTimelineViewModel
@@ -60,6 +61,8 @@ import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.model.TimelineKind
+import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.extensions.getErrorString
 import app.pachli.databinding.FragmentTimelineBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
@@ -70,8 +73,6 @@ import app.pachli.util.ListStatusAccessibilityDelegate
 import app.pachli.util.PresentationState
 import app.pachli.util.UserRefreshState
 import app.pachli.util.asRefreshState
-import app.pachli.util.getDrawableRes
-import app.pachli.util.getErrorString
 import app.pachli.util.withPresentationState
 import app.pachli.viewdata.StatusViewData
 import at.connyduck.sparkbutton.helpers.Utils
@@ -249,7 +250,7 @@ class TimelineFragment :
                             Snackbar.LENGTH_INDEFINITE,
                         )
                         error.action?.let { action ->
-                            snackbar!!.setAction(R.string.action_retry) {
+                            snackbar!!.setAction(app.pachli.core.ui.R.string.action_retry) {
                                 viewModel.accept(action)
                             }
                         }
@@ -422,26 +423,41 @@ class TimelineFragment :
                                         ?: (loadState.source.refresh as? LoadState.Error)?.error
                                         ?: IllegalStateException("unknown error")
 
+                                    // TODO: This error message should be specific about the operation
+                                    // At the moment it's just e.g., "An error occurred: HTTP 503"
+                                    // and a "Retry" button, so the user has no idea what's going
+                                    // to be retried.
                                     val message = error.getErrorString(requireContext())
 
                                     // Show errors as a snackbar if there is existing content to show
                                     // (either cached, or in the adapter), or as a full screen error
                                     // otherwise.
+                                    //
+                                    // Expected errors can be retried, unexpected ones cannot
                                     if (adapter.itemCount > 0) {
                                         snackbar = Snackbar.make(
                                             (activity as ActionButtonActivity).actionButton
                                                 ?: binding.root,
                                             message,
                                             Snackbar.LENGTH_INDEFINITE,
-                                        )
-                                            .setAction(R.string.action_retry) { adapter.retry() }
+                                        ).apply {
+                                            if (error.isExpected()) {
+                                                setAction(app.pachli.core.ui.R.string.action_retry) { adapter.retry() }
+                                            }
+                                        }
+
                                         snackbar!!.show()
                                     } else {
-                                        val drawableRes = error.getDrawableRes()
-                                        binding.statusView.setup(drawableRes, message) {
-                                            snackbar?.dismiss()
-                                            adapter.retry()
+                                        val callback: ((v: View) -> Unit)? = if (error.isExpected()) {
+                                            {
+                                                snackbar?.dismiss()
+                                                adapter.retry()
+                                            }
+                                        } else {
+                                            null
                                         }
+
+                                        binding.statusView.setup(error, callback)
                                         binding.statusView.show()
                                         binding.recyclerView.hide()
                                     }
@@ -449,10 +465,7 @@ class TimelineFragment :
 
                                 PresentationState.PRESENTED -> {
                                     if (adapter.itemCount == 0) {
-                                        binding.statusView.setup(
-                                            R.drawable.elephant_friend_empty,
-                                            R.string.message_empty,
-                                        )
+                                        binding.statusView.setup(BackgroundMessage.Empty())
                                         if (timelineKind == TimelineKind.Home) {
                                             binding.statusView.showHelp(R.string.help_empty_home)
                                         }

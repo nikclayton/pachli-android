@@ -56,6 +56,7 @@ import app.pachli.core.network.model.Filter
 import app.pachli.core.network.model.Notification
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
+import app.pachli.core.ui.BackgroundMessage
 import app.pachli.databinding.FragmentTimelineNotificationsBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.AccountActionListener
@@ -229,7 +230,7 @@ class NotificationsFragment :
                             Snackbar.LENGTH_INDEFINITE,
                         )
                         error.action?.let { action ->
-                            snackbar.setAction(R.string.action_retry) {
+                            snackbar.setAction(app.pachli.core.ui.R.string.action_retry) {
                                 viewModel.accept(action)
                             }
                         }
@@ -420,10 +421,7 @@ class NotificationsFragment :
                         binding.statusView.hide()
                         if (loadState.refresh is LoadState.NotLoading) {
                             if (adapter.itemCount == 0) {
-                                binding.statusView.setup(
-                                    R.drawable.elephant_friend_empty,
-                                    R.string.message_empty,
-                                )
+                                binding.statusView.setup(BackgroundMessage.Empty())
                                 binding.recyclerView.hide()
                                 binding.statusView.show()
                             } else {
@@ -729,4 +727,5 @@ fun Notification.Type.uiString(): Int = when (this) {
     Notification.Type.SIGN_UP -> R.string.notification_sign_up_name
     Notification.Type.UPDATE -> R.string.notification_update_name
     Notification.Type.REPORT -> R.string.notification_report_name
+    Notification.Type.SEVERED_RELATIONSHIPS -> R.string.notification_severed_relationships_name
 }
