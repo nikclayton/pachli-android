@@ -14,7 +14,7 @@ data class Filter(
     val id: String,
     val title: String,
     @Json(name = "context") val contexts: List<FilterContext>,
-    @Json(name = "expires_at") val expiresAt: Date?,
+    @Json(name = "expires_at") val expiresAt: Date? = null,
     @Json(name = "filter_action") val action: Action,
     // This should not normally be empty. However, Mastodon does not include
     // this in a status' `filtered.filter` property (it's not null or empty,

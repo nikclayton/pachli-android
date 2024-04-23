@@ -86,19 +86,19 @@ data class Thumbnail(
      * A hash computed by the BlurHash algorithm, for generating colorful preview thumbnails
      * when media has not been downloaded yet.
      */
-    val blurhash: String?,
+    val blurhash: String? = null,
 
     /** Links to scaled resolution images, for high DPI screens. */
-    val versions: ThumbnailVersions?,
+    val versions: ThumbnailVersions? = null,
 )
 
 @JsonClass(generateAdapter = true)
 data class ThumbnailVersions(
     /** The URL for the thumbnail image at 1x resolution. */
-    @Json(name = "@1x") val oneX: String?,
+    @Json(name = "@1x") val oneX: String? = null,
 
     /** The URL for the thumbnail image at 2x resolution. */
-    @Json(name = "@2x") val twoX: String?,
+    @Json(name = "@2x") val twoX: String? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -212,7 +212,7 @@ data class Registrations(
     @Json(name = "approval_required") val approvalRequired: Boolean,
 
     /** A custom message to be shown when registrations are closed. */
-    val message: String?,
+    val message: String? = null,
 )
 
 @JsonClass(generateAdapter = true)

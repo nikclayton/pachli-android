@@ -31,7 +31,7 @@ data class Account(
      */
     @Json(name = "acct") val username: String,
     // should never be null per API definition, but some servers break the contract
-    @Json(name = "display_name") val displayName: String?,
+    @Json(name = "display_name") val displayName: String? = null,
     // should never be null per API definition, but some servers break the contract
     @Json(name = "created_at") val createdAt: Date?,
     val note: String,
@@ -46,11 +46,11 @@ data class Account(
     val source: AccountSource? = null,
     val bot: Boolean = false,
     // nullable for backward compatibility
-    val emojis: List<Emoji>? = emptyList(),
+    val emojis: List<Emoji>? = null,
     // nullable for backward compatibility
-    val fields: List<Field>? = emptyList(),
+    val fields: List<Field>? = null,
     val moved: Account? = null,
-    val roles: List<Role>? = emptyList(),
+    val roles: List<Role>? = null,
 ) {
 
     val name: String
@@ -65,18 +65,18 @@ data class Account(
 
 @JsonClass(generateAdapter = true)
 data class AccountSource(
-    val privacy: Status.Visibility?,
-    val sensitive: Boolean?,
-    val note: String?,
-    val fields: List<StringField>?,
-    val language: String?,
+    val privacy: Status.Visibility = Status.Visibility.PUBLIC,
+    val sensitive: Boolean? = null,
+    val note: String? = null,
+    val fields: List<StringField> = emptyList(),
+    val language: String? = null,
 )
 
 @JsonClass(generateAdapter = true)
 data class Field(
     val name: String,
     val value: String,
-    @Json(name = "verified_at") val verifiedAt: Date?,
+    @Json(name = "verified_at") val verifiedAt: Date? = null,
 )
 
 @JsonClass(generateAdapter = true)

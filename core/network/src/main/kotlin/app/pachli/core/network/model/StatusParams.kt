@@ -26,5 +26,5 @@ data class StatusParams(
     val sensitive: Boolean,
     val visibility: Status.Visibility,
     @Json(name = "spoiler_text") val spoilerText: String,
-    @Json(name = "in_reply_to_id") val inReplyToId: String?,
+    @Json(name = "in_reply_to_id") val inReplyToId: String? = null,
 )

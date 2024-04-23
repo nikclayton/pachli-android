@@ -31,34 +31,34 @@ import java.util.Date
 data class Status(
     val id: String,
     // not present if it's reblog
-    val url: String?,
+    val url: String? = null,
     val account: TimelineAccount,
-    @Json(name = "in_reply_to_id") val inReplyToId: String?,
-    @Json(name = "in_reply_to_account_id") val inReplyToAccountId: String?,
-    val reblog: Status?,
+    @Json(name = "in_reply_to_id") val inReplyToId: String? = null,
+    @Json(name = "in_reply_to_account_id") val inReplyToAccountId: String? = null,
+    val reblog: Status? = null,
     val content: String,
     @Json(name = "created_at") val createdAt: Date,
-    @Json(name = "edited_at") val editedAt: Date?,
+    @Json(name = "edited_at") val editedAt: Date? = null,
     val emojis: List<Emoji>,
     @Json(name = "reblogs_count") val reblogsCount: Int,
     @Json(name = "favourites_count") val favouritesCount: Int,
     @Json(name = "replies_count") val repliesCount: Int,
-    val reblogged: Boolean,
-    val favourited: Boolean,
-    val bookmarked: Boolean,
+    val reblogged: Boolean = false,
+    val favourited: Boolean = false,
+    val bookmarked: Boolean = false,
     val sensitive: Boolean,
     @Json(name = "spoiler_text") val spoilerText: String,
     val visibility: Visibility,
     @Json(name = "media_attachments") val attachments: List<Attachment>,
     val mentions: List<Mention>,
-    val tags: List<HashTag>?,
-    val application: Application?,
-    val pinned: Boolean?,
-    val muted: Boolean?,
-    val poll: Poll?,
-    val card: Card?,
-    val language: String?,
-    val filtered: List<FilterResult>?,
+    val tags: List<HashTag>? = null,
+    val application: Application? = null,
+    val pinned: Boolean = false,
+    val muted: Boolean = false,
+    val poll: Poll? = null,
+    val card: Card? = null,
+    val language: String? = null,
+    val filtered: List<FilterResult>? = null,
 ) {
 
     val actionableId: String
@@ -169,7 +169,7 @@ data class Status(
     @JsonClass(generateAdapter = true)
     data class Application(
         val name: String,
-        val website: String?,
+        val website: String? = null,
     )
 
     companion object {

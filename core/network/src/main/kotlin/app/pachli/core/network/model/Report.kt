@@ -25,7 +25,7 @@ import java.util.Date
 data class Report(
     val id: String,
     val category: String,
-    @Json(name = "status_ids") val statusIds: List<String>?,
+    @Json(name = "status_ids") val statusIds: List<String>? = null,
     @Json(name = "created_at") val createdAt: Date,
     @Json(name = "target_account") val targetAccount: TimelineAccount,
 )

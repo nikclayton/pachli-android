@@ -864,9 +864,9 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(i
         ) {
             cardView.visibility = View.VISIBLE
             cardView.bind(card, viewData.actionable.sensitive, statusDisplayOptions) { target ->
-                if (card.kind == PreviewCardKind.PHOTO && card.embedUrl.isNotEmpty() && target == PreviewCardView.Target.IMAGE) {
+                if (card.kind == PreviewCardKind.PHOTO && !card.embedUrl.isNullOrEmpty() && target == PreviewCardView.Target.IMAGE) {
                     context.startActivity(
-                        ViewMediaActivityIntent(context, card.embedUrl),
+                        ViewMediaActivityIntent(context, card.embedUrl!!),
                     )
                 } else {
                     listener.onViewUrl(card.url)

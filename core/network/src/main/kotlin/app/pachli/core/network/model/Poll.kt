@@ -8,16 +8,16 @@ import java.util.Date
 @JsonClass(generateAdapter = true)
 data class Poll(
     val id: String,
-    @Json(name = "expires_at") val expiresAt: Date?,
+    @Json(name = "expires_at") val expiresAt: Date? = null,
     val expired: Boolean,
     val multiple: Boolean,
     @Json(name = "votes_count") val votesCount: Int,
-    @Json(name = "voters_count") val votersCount: Int?,
-    val options: List<PollOption>,
+    @Json(name = "voters_count") val votersCount: Int? = null,
+    val options: List<PollOption> = emptyList(),
     // Friendica can incorrectly return null for `voted`. Default to false.
     // https://github.com/friendica/friendica/issues/13922
     @BooleanIfNull(false) val voted: Boolean,
-    @Json(name = "own_votes") val ownVotes: List<Int>?,
+    @Json(name = "own_votes") val ownVotes: List<Int>? = null,
 ) {
 
     fun votedCopy(choices: List<Int>): Poll {

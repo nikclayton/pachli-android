@@ -49,7 +49,7 @@ data class TranslatedStatusEntity(
      * The translated spoiler text of the status (text), if it exists, equivalent to
      * [app.pachli.core.network.model.Status.spoilerText]
      */
-    val spoilerText: String,
+    val spoilerText: String?,
 
     // Not documented, see https://github.com/mastodon/documentation/issues/1248
     /**

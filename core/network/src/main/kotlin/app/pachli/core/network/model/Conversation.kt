@@ -24,6 +24,6 @@ data class Conversation(
     val id: String,
     val accounts: List<TimelineAccount>,
     // should never be null, but apparently its possible https://github.com/tuskyapp/Tusky/issues/1038
-    @Json(name = "last_status") val lastStatus: Status?,
+    @Json(name = "last_status") val lastStatus: Status? = null,
     val unread: Boolean,
 )

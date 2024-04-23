@@ -37,11 +37,11 @@ data class Translation(
      * The translated spoiler text of the status (text), if it exists, equivalent to
      * [Status.spoilerText]
      */
-    @Json(name = "spoiler_text") val spoilerText: String,
+    @Json(name = "spoiler_text") val spoilerText: String? = null,
 
     // Not documented, see https://github.com/mastodon/documentation/issues/1248
     /** The translated poll (if it exists) */
-    val poll: TranslatedPoll?,
+    val poll: TranslatedPoll? = null,
 
     // Not documented, see https://github.com/mastodon/documentation/issues/1248
     /**

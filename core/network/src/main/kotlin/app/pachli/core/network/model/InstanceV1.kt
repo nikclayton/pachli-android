@@ -50,8 +50,7 @@ data class InstanceV1(
         if (other !is InstanceV1) {
             return false
         }
-        val instanceV1 = other as InstanceV1?
-        return instanceV1?.uri.equals(uri)
+        return other.uri == uri
     }
 }
 
@@ -90,19 +89,19 @@ data class MediaAttachmentConfiguration(
 
 @JsonClass(generateAdapter = true)
 data class PleromaConfiguration(
-    val metadata: PleromaMetadata?,
+    val metadata: PleromaMetadata = PleromaMetadata(),
 )
 
 @JsonClass(generateAdapter = true)
 data class PleromaMetadata(
-    @Json(name = "fields_limits") val fieldLimits: PleromaFieldLimits,
+    @Json(name = "fields_limits") val fieldLimits: PleromaFieldLimits = PleromaFieldLimits(),
 )
 
 @JsonClass(generateAdapter = true)
 data class PleromaFieldLimits(
-    @Json(name = "max_fields") val maxFields: Int?,
-    @Json(name = "name_length") val nameLength: Int?,
-    @Json(name = "value_length") val valueLength: Int?,
+    @Json(name = "max_fields") val maxFields: Int? = null,
+    @Json(name = "name_length") val nameLength: Int? = null,
+    @Json(name = "value_length") val valueLength: Int? = null,
 )
 
 @JsonClass(generateAdapter = true)

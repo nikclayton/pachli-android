@@ -42,7 +42,7 @@ data class Relationship(
     val subscribing: Boolean? = null,
     @Json(name = "domain_blocking") val blockingDomain: Boolean,
     // nullable for backward compatibility / feature detection
-    val note: String?,
+    val note: String? = null,
     // since 3.3.0rc
-    val notifying: Boolean?,
+    val notifying: Boolean? = null,
 )

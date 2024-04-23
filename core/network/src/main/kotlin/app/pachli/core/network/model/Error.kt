@@ -25,5 +25,5 @@ import com.squareup.moshi.JsonClass
 data class Error(
     val error: String,
     @Json(name = "error_description")
-    val errorDescription: String?,
+    val errorDescription: String? = null,
 )

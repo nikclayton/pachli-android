@@ -25,14 +25,14 @@ import kotlinx.parcelize.Parcelize
 data class NewStatus(
     val status: String,
     @Json(name = "spoiler_text") val warningText: String,
-    @Json(name = "in_reply_to_id") val inReplyToId: String?,
+    @Json(name = "in_reply_to_id") val inReplyToId: String? = null,
     val visibility: String,
     val sensitive: Boolean,
-    @Json(name = "media_ids") val mediaIds: List<String>?,
-    @Json(name = "media_attributes") val mediaAttributes: List<MediaAttribute>?,
-    @Json(name = "scheduled_at") val scheduledAt: String?,
-    val poll: NewPoll?,
-    val language: String?,
+    @Json(name = "media_ids") val mediaIds: List<String>? = null,
+    @Json(name = "media_attributes") val mediaAttributes: List<MediaAttribute>? = null,
+    @Json(name = "scheduled_at") val scheduledAt: String? = null,
+    val poll: NewPoll? = null,
+    val language: String? = null,
 )
 
 @Parcelize
@@ -49,7 +49,7 @@ data class NewPoll(
 @JsonClass(generateAdapter = true)
 data class MediaAttribute(
     val id: String,
-    val description: String?,
-    val focus: String?,
-    val thumbnail: String?,
+    val description: String? = null,
+    val focus: String? = null,
+    val thumbnail: String? = null,
 ) : Parcelable

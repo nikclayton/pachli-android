@@ -31,13 +31,13 @@ data class TimelineAccount(
     @Json(name = "acct") val username: String,
     // should never be null per Api definition, but some servers break the contract
     @Deprecated("prefer the `name` property, which is not-null and not-empty")
-    @Json(name = "display_name") val displayName: String?,
+    @Json(name = "display_name") val displayName: String? = null,
     val url: String,
     val avatar: String,
     val note: String,
     val bot: Boolean = false,
     // nullable for backward compatibility
-    val emojis: List<Emoji>? = emptyList(),
+    val emojis: List<Emoji>? = null,
 ) {
 
     @Suppress("DEPRECATION")

@@ -25,7 +25,7 @@ data class FilterV1(
     val id: String,
     val phrase: String,
     @Json(name = "context") val contexts: List<FilterContext>,
-    @Json(name = "expires_at") val expiresAt: Date?,
+    @Json(name = "expires_at") val expiresAt: Date? = null,
     val irreversible: Boolean,
     @Json(name = "whole_word") val wholeWord: Boolean,
 ) {
@@ -37,8 +37,7 @@ data class FilterV1(
         if (other !is FilterV1) {
             return false
         }
-        val filter = other as FilterV1?
-        return filter?.id.equals(id)
+        return other.id == id
     }
 
     fun toFilter(): Filter {
