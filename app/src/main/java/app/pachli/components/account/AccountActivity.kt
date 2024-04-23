@@ -599,7 +599,7 @@ class AccountActivity :
      */
     private fun updateRemoteAccount() {
         loadedAccount?.let { account ->
-            if (account.isRemote()) {
+            if (account.isRemote) {
                 binding.accountRemoveView.show()
                 binding.accountRemoveView.setOnClickListener {
                     openLink(account.url)
@@ -1047,7 +1047,7 @@ class AccountActivity :
     }
 
     private fun getFullUsername(account: Account): String {
-        return if (account.isRemote()) {
+        return if (account.isRemote) {
             "@" + account.username
         } else {
             val localUsername = account.localUsername

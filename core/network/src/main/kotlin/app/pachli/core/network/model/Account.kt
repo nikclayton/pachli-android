@@ -60,7 +60,8 @@ data class Account(
             displayName
         }
 
-    fun isRemote(): Boolean = this.username != this.localUsername
+    val isRemote: Boolean
+        get() = username != localUsername
 }
 
 @JsonClass(generateAdapter = true)
