@@ -769,7 +769,7 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(i
                 actionable.account.id,
                 statusDisplayOptions,
             )
-            setRebloggingEnabled(actionable.rebloggingAllowed(), actionable.visibility)
+            setRebloggingEnabled(actionable.rebloggingAllowed, actionable.visibility)
             setSpoilerAndContent(viewData, statusDisplayOptions, listener)
             setDescriptionForStatus(viewData, statusDisplayOptions)
 

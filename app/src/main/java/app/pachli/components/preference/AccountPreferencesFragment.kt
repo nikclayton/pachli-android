@@ -209,7 +209,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                     key = PrefKeys.DEFAULT_POST_PRIVACY
                     setSummaryProvider { entry }
                     val visibility = accountManager.activeAccount?.defaultPostPrivacy ?: Status.Visibility.PUBLIC
-                    value = visibility.serverString()
+                    value = visibility.serverString
                     visibility.iconRes()?.let { setIcon(it) }
                     setOnPreferenceChangeListener { _, newValue ->
                         Status.Visibility.byString(newValue as String).iconRes()?.let { setIcon(it) }

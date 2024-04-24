@@ -89,15 +89,14 @@ data class Status(
         DIRECT,
         ;
 
-        fun serverString(): String {
-            return when (this) {
+        val serverString: String
+            get() = when (this) {
                 PUBLIC -> "public"
                 UNLISTED -> "unlisted"
                 PRIVATE -> "private"
                 DIRECT -> "direct"
                 UNKNOWN -> "unknown"
             }
-        }
 
         companion object {
             @JvmStatic
@@ -117,9 +116,8 @@ data class Status(
         }
     }
 
-    fun rebloggingAllowed(): Boolean {
-        return (visibility != Visibility.DIRECT && visibility != Visibility.UNKNOWN)
-    }
+    val rebloggingAllowed: Boolean
+        get() = (visibility != Visibility.DIRECT && visibility != Visibility.UNKNOWN)
 
     fun isPinned(): Boolean {
         return pinned ?: false
