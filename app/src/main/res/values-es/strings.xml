@@ -17,9 +17,9 @@
     <string name="title_direct_messages">Mensajes directos</string>
     <string name="title_tab_preferences">Pestañas</string>
     <string name="title_view_thread">Hilo</string>
-    <string name="title_posts">Estados</string>
+    <string name="title_posts">Publicaciones</string>
     <string name="title_posts_with_replies">Con respuestas</string>
-    <string name="title_posts_pinned">Fijado</string>
+    <string name="title_posts_pinned">Fijadas</string>
     <string name="title_follows">Siguiendo</string>
     <string name="title_followers">Seguidores</string>
     <string name="title_favourites">Favoritos</string>
@@ -299,7 +299,7 @@
         <item quantity="many">%d segundos restantes</item>
         <item quantity="other">%d segundos restantes</item>
     </plurals>
-    <string name="poll_info_format"> <!-- 15 votos • queda 1 hora --> %1$s • %2$s</string>
+    <string name="poll_info_format"><!-- 15 votos • queda 1 hora -->%1$s • %2$s</string>
     <plurals name="poll_info_votes">
         <item quantity="one">%s voto</item>
         <item quantity="many">%s votos</item>
@@ -378,7 +378,7 @@
     <string name="edit_poll">Editar</string>
     <string name="title_scheduled_posts">Publicaciones programadas</string>
     <string name="action_edit">Editar</string>
-    <string name="action_access_scheduled_posts">Estados programados</string>
+    <string name="action_access_scheduled_posts">Publicaciones programadas</string>
     <string name="action_schedule_post">Programar estado</string>
     <string name="action_reset_schedule">Reiniciar</string>
     <string name="title_bookmarks">Marcadores</string>
@@ -388,7 +388,7 @@
     <string name="select_list_title">Seleccionar lista</string>
     <string name="list">Lista</string>
     <string name="no_drafts">No tienes ningún borrador.</string>
-    <string name="no_scheduled_posts">No tienes ningún estado programado.</string>
+    <string name="no_scheduled_posts">No tienes ninguna publicación programada.</string>
     <string name="warning_scheduling_interval">Mastodon tiene un intervalo de programación mínimo de 5 minutos.</string>
     <string name="notification_follow_request_name">Solicitudes</string>
     <string name="dialog_block_warning">Bloquear @%s\?</string>
@@ -450,7 +450,7 @@
     <string name="post_media_audio">Audio</string>
     <string name="limit_notifications">Limitar cronología de notificaciones</string>
     <string name="action_unbookmark">Quitar marcador</string>
-    <string name="follow_requests_info">Aunque su cuenta no está bloqueada, el personal de %1$s pensó que podría querer revisar las solicitudes de seguimiento de estas cuentas manualmente.</string>
+    <string name="follow_requests_info">Aunque tu cuenta no está bloqueada, el personal de %1$s pensó que podrías querer revisar las solicitudes de seguimiento de estas cuentas manualmente.</string>
     <string name="action_subscribe_account">Suscribir</string>
     <string name="dialog_delete_conversation_warning">¿Eliminar esta conversación\?</string>
     <string name="pref_title_animate_custom_emojis">Animar emojis personalizados</string>
@@ -526,7 +526,7 @@
     <string name="pref_title_notification_filter_reports">Hay una nueva denuncia</string>
     <string name="action_discard">Descartar cambios</string>
     <string name="action_continue_edit">Continuar editando</string>
-    <string name="compose_unsaved_changes">Tienes cambios sin guardar.</string>
+    <string name="unsaved_changes">Tienes cambios sin guardar.</string>
     <string name="title_edits">Ediciones</string>
     <string name="action_post_failed">La subida falló</string>
     <string name="action_post_failed_do_nothing">Descartar</string>
@@ -570,10 +570,10 @@
     <string name="help_empty_home">Esta es tu <b> cronología de inicio</b>. Muestra las publicaciones recientes de las cuentas que sigues.
 \n
 \nPara encontrar cuentas, puedes mirar en alguna de las otras cronologías. Por ejemplo, la cronología local de tu instancia [iconics gmd_group]. O puedes buscarlas por nombre [iconics gmd_search]; por ejemplo, busca Pachli para encontrar nuestra cuenta de Mastodon.</string>
-    <string name="ui_error_bookmark">Fallo al añadir a marcadores: %s</string>
+    <string name="ui_error_bookmark_fmt">Fallo al añadir a marcadores: %1$s</string>
     <string name="select_list_manage">Gestionar listas</string>
     <string name="error_list_load">Error al cargar listas</string>
-    <string name="ui_error_favourite">Fallo al favoritear publicación: %s</string>
+    <string name="ui_error_favourite_fmt">Fallo al favoritear publicación: %1$s</string>
     <string name="ui_error_clear_notifications">Fallo al limpiar notificaciones: %s</string>
     <string name="ui_error_accept_follow_request">Fallo al aceptar solicitud de seguimiento: %s</string>
     <string name="ui_error_reject_follow_request">Fallo al rechazar la solicitud de seguimiento: %s</string>
@@ -582,8 +582,8 @@
     <string name="hint_filter_title">Mi filtro</string>
     <string name="filter_edit_keyword_title">Editar palabra</string>
     <string name="filter_description_format">%s: %s</string>
-    <string name="ui_error_reblog">Falló al impulsar publicación: %s</string>
-    <string name="ui_error_vote">Fallo al votar en la encuesta: %s</string>
+    <string name="ui_error_reblog_fmt">Falló al impulsar publicación: %1$s</string>
+    <string name="ui_error_vote_fmt">Fallo al votar en la encuesta: %1$s</string>
     <string name="label_filter_title">Título</string>
     <string name="filter_action_warn">Aviso</string>
     <string name="filter_description_hide">Ocultar completamente</string>
@@ -599,7 +599,7 @@
     <string name="notification_notification_worker">Obteniendo notificaciones…</string>
     <string name="load_newest_notifications">Cargar nuevas notificaciones</string>
     <string name="compose_delete_draft">¿Eliminar borrador\?</string>
-    <string name="ui_error_translate_status">La traducción falló: %s</string>
+    <string name="ui_error_translate_status_fmt">La traducción falló: %1$s</string>
     <string name="update_dialog_negative">Nunca me recuerdas</string>
     <string name="translating">Traduciendo…</string>
     <string name="dialog_delete_filter_positive_action">Borrar</string>
@@ -620,7 +620,7 @@
 \n
 \nSólo tienes que hacer esto una vez.
 \n
-\nEsto un error de Android, no hay nada que Pachli pueda hacer.</string>
+\nEsto es un error de Android, no hay nada que Pachli pueda hacer.</string>
     <string name="translation_provider_fmt">%1$s</string>
     <string name="pref_title_update_settings">Actualizaciones de programa</string>
     <string name="title_public_trending_statuses">Publicaciones en tendencia</string>
@@ -631,9 +631,9 @@
     <string name="error_media_upload_sending_fmt">La carga falló: %s</string>
     <string name="pref_update_notification_frequency_never">Nunca</string>
     <string name="pref_title_show_self_boosts_description">Alguien impulsa su propia publicación</string>
-    <string name="ui_error_filter_v1_load">La carga de filtros falló: %s</string>
+    <string name="ui_error_filter_v1_load_fmt">La carga de filtros falló: %1$s</string>
     <string name="confirmation_hashtag_muted">#%s oculto(s)</string>
-    <string name="janky_animation_title">Es posible que necesite reiniciar su dispositivo</string>
+    <string name="janky_animation_title">Puede que tengas que reiniciar tu dispositivo</string>
     <string name="confirmation_hashtag_unmuted">#%s visible</string>
     <string name="pref_title_show_self_boosts">Mostrar auto-impulsos</string>
     <string name="announcement_date_updated">(Actualizado: %1$s)</string>
@@ -663,4 +663,27 @@
     <string name="pref_update_check_no_updates">No hay actualizaciones disponibles</string>
     <string name="pref_update_next_scheduled_check">Próxima comprobación: %1$s</string>
     <string name="action_reject">Rechazar</string>
+    <string name="action_add_to_tab">Añadir a pestaña</string>
+    <string name="action_add_to_tab_success">Se ha añadido \'%1$s\' a pestañas</string>
+    <string name="action_remove_tab">Quitar pestaña</string>
+    <string name="action_manage_tabs">Gestionar pestañas</string>
+    <string name="notification_severed_relationships_domain_block_body">Un moderador suspendió el dominio</string>
+    <string name="notification_severed_relationships_user_domain_block_body">Bloqueaste el dominio</string>
+    <string name="notification_severed_relationships_account_suspension_body">Un moderador suspendió la cuenta</string>
+    <string name="notification_severed_relationships_unknown_body">Motivo desconocido</string>
+    <string name="notification_severed_relationships_format">Se rompió la relación con <b>%1$s</b></string>
+    <plurals name="notification_severed_relationships_summary_report_fmt">
+        <item quantity="one">Se rompió %1$d relación</item>
+        <item quantity="many">Se rompieron %1$d relaciones</item>
+        <item quantity="other">Se rompieron %1$d relaciones</item>
+    </plurals>
+    <string name="notification_severed_relationships_name">Relaciones rotas</string>
+    <string name="notification_severed_relationships_description">Notificaciones de relaciones rotas</string>
+    <string name="poll_show_votes">Mostrar votos</string>
+    <string name="manage_lists">Gestionar listas</string>
+    <string name="title_lists_loading">Listas - cargando…</string>
+    <string name="title_lists_failed">Listas - falló en cargar</string>
+    <string name="error_filter_missing_keyword">Por lo menos se necesita una palabra clave o frase</string>
+    <string name="error_filter_missing_context">Por lo menos se necesita un contexto para el filtro</string>
+    <string name="error_filter_missing_title">Se necesita el título</string>
 </resources>

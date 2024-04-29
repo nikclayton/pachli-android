@@ -31,18 +31,17 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    id("com.gradle.enterprise") version "3.16.2"
+    id("com.gradle.develocity") version "3.17.2"
 }
 
-val isCiBuild = !System.getenv("CI").isNullOrBlank()
-
-gradleEnterprise {
+develocity {
     buildScan {
-        termsOfServiceUrl = "https://gradle.com/terms-of-service"
-        termsOfServiceAgree = "yes"
-        isUploadInBackground = !isCiBuild
+        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
+        termsOfUseAgree = "yes"
+        val isCiBuild = providers.environmentVariable("CI").isPresent
+        uploadInBackground = !isCiBuild
         tag(if (isCiBuild) "CI" else "Local")
-        publishAlwaysIf(isCiBuild)
+        publishing.onlyIf { isCiBuild }
     }
 }
 
@@ -58,14 +57,17 @@ include(":core:common")
 include(":core:data")
 include(":core:database")
 include(":core:designsystem")
+include(":core:model")
 include(":core:preferences")
 include(":core:navigation")
 include(":core:network")
+include(":core:network-test")
 include(":core:testing")
 include(":core:ui")
 include(":feature:about")
 include(":feature:lists")
 include(":feature:login")
+include(":tools")
 include(":tools:mklanguages")
 include(":tools:mkrelease")
 include(":tools:mkserverversions")

@@ -26,8 +26,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.accessibility.AccessibilityManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
@@ -50,12 +52,14 @@ import app.pachli.core.activity.openLink
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.common.extensions.visible
+import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.navigation.AttachmentViewData.Companion.list
+import app.pachli.core.network.extensions.getServerErrorMessage
 import app.pachli.core.network.model.Filter
 import app.pachli.core.network.model.Notification
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
+import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.databinding.FragmentTimelineNotificationsBinding
 import app.pachli.fragment.SFragment
@@ -66,19 +70,19 @@ import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.ListStatusAccessibilityDelegate
 import app.pachli.util.UserRefreshState
 import app.pachli.util.asRefreshState
+import app.pachli.util.makeIcon
 import app.pachli.viewdata.NotificationViewData
 import at.connyduck.sparkbutton.helpers.Utils
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
-import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
-import com.mikepenz.iconics.utils.colorInt
-import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
@@ -103,6 +107,8 @@ class NotificationsFragment :
     private lateinit var adapter: NotificationsPagingAdapter
 
     private lateinit var layoutManager: LinearLayoutManager
+
+    private var talkBackWasEnabled = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -147,36 +153,46 @@ class NotificationsFragment :
         binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.setAccessibilityDelegateCompat(
             ListStatusAccessibilityDelegate(binding.recyclerView, this) { pos: Int ->
-                adapter.snapshot().getOrNull(pos)
+                if (pos in 0 until adapter.itemCount) {
+                    adapter.peek(pos)
+                } else {
+                    null
+                }
             },
         )
         binding.recyclerView.addItemDecoration(
             MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
         )
 
-        binding.recyclerView.addOnScrollListener(
-            object : RecyclerView.OnScrollListener() {
-                val actionButton = (activity as? ActionButtonActivity)?.actionButton
+        val saveIdListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState != SCROLL_STATE_IDLE) return
 
-                override fun onScrolled(view: RecyclerView, dx: Int, dy: Int) {
-                    actionButton?.visible(viewModel.uiState.value.showFabWhileScrolling || dy == 0)
-                }
-
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    newState != SCROLL_STATE_IDLE && return
-
-                    actionButton?.show()
-
-                    // Save the ID of the first notification visible in the list, so the user's
-                    // reading position is always restorable.
-                    layoutManager.findFirstVisibleItemPosition().takeIf { it != NO_POSITION }?.let { position ->
-                        adapter.snapshot().getOrNull(position)?.id?.let { id ->
-                            viewModel.accept(InfallibleUiAction.SaveVisibleId(visibleId = id))
-                        }
+                // Save the ID of the first notification visible in the list, so the user's
+                // reading position is always restorable.
+                layoutManager.findFirstVisibleItemPosition().takeIf { it != NO_POSITION }?.let { position ->
+                    adapter.snapshot().getOrNull(position)?.id?.let { id ->
+                        viewModel.accept(InfallibleUiAction.SaveVisibleId(visibleId = id))
                     }
                 }
-            },
-        )
+            }
+        }
+        binding.recyclerView.addOnScrollListener(saveIdListener)
+
+        (activity as? ActionButtonActivity)?.actionButton?.let { actionButton ->
+            actionButton.show()
+
+            val actionButtonScrollListener = ActionButtonScrollListener(actionButton)
+            binding.recyclerView.addOnScrollListener(actionButtonScrollListener)
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    viewModel.uiState.distinctUntilChangedBy { it.showFabWhileScrolling }.collect {
+                        actionButtonScrollListener.showActionButtonWhileScrolling = it.showFabWhileScrolling
+                    }
+                }
+            }
+        }
 
         binding.recyclerView.adapter = adapter.withLoadStateHeaderAndFooter(
             header = TimelineLoadStateAdapter { adapter.retry() },
@@ -219,8 +235,10 @@ class NotificationsFragment :
                     viewModel.uiError.collect { error ->
                         val message = getString(
                             error.message,
-                            error.throwable.localizedMessage
-                                ?: getString(R.string.ui_error_unknown),
+                            (
+                                error.throwable.getServerErrorMessage() ?: error.throwable.localizedMessage
+                                    ?: getString(R.string.ui_error_unknown)
+                                ).unicodeWrap(),
                         )
                         Timber.d(error.throwable, message)
                         val snackbar = Snackbar.make(
@@ -441,18 +459,11 @@ class NotificationsFragment :
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.fragment_notifications, menu)
-        val iconColor = MaterialColors.getColor(binding.root, android.R.attr.textColorPrimary)
         menu.findItem(R.id.action_refresh)?.apply {
-            icon = IconicsDrawable(requireContext(), GoogleMaterial.Icon.gmd_refresh).apply {
-                sizeDp = 20
-                colorInt = iconColor
-            }
+            icon = makeIcon(requireContext(), GoogleMaterial.Icon.gmd_refresh, IconicsSize.dp(20))
         }
         menu.findItem(R.id.action_edit_notification_filter)?.apply {
-            icon = IconicsDrawable(requireContext(), GoogleMaterial.Icon.gmd_tune).apply {
-                sizeDp = 20
-                colorInt = iconColor
-            }
+            icon = makeIcon(requireContext(), GoogleMaterial.Icon.gmd_tune, IconicsSize.dp(20))
         }
     }
 
@@ -499,6 +510,14 @@ class NotificationsFragment :
 
     override fun onResume() {
         super.onResume()
+
+        val a11yManager = ContextCompat.getSystemService(requireContext(), AccessibilityManager::class.java)
+        val wasEnabled = talkBackWasEnabled
+        talkBackWasEnabled = a11yManager?.isEnabled == true
+        if (talkBackWasEnabled && !wasEnabled) {
+            adapter.notifyItemRangeChanged(0, adapter.itemCount)
+        }
+
         clearNotificationsForAccount(requireContext(), viewModel.account)
     }
 

@@ -53,6 +53,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
+import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.MarginPageTransformer
 import app.pachli.appstore.AnnouncementReadEvent
@@ -70,6 +71,9 @@ import app.pachli.core.activity.AccountSelectionListener
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.PostLookupFallbackBehavior
 import app.pachli.core.activity.emojify
+import app.pachli.core.activity.extensions.TransitionKind
+import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
+import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
@@ -79,9 +83,9 @@ import app.pachli.core.data.repository.Lists
 import app.pachli.core.data.repository.ListsRepository
 import app.pachli.core.data.repository.ListsRepository.Companion.compareByListTitle
 import app.pachli.core.database.model.AccountEntity
-import app.pachli.core.database.model.TabData
 import app.pachli.core.designsystem.EmbeddedFontFamily
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.AboutActivityIntent
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.AccountListActivityIntent
@@ -94,12 +98,12 @@ import app.pachli.core.navigation.ListActivityIntent
 import app.pachli.core.navigation.LoginActivityIntent
 import app.pachli.core.navigation.LoginActivityIntent.LoginMode
 import app.pachli.core.navigation.MainActivityIntent
-import app.pachli.core.navigation.NotificationsActivityIntent
 import app.pachli.core.navigation.PreferencesActivityIntent
 import app.pachli.core.navigation.PreferencesActivityIntent.PreferenceScreen
 import app.pachli.core.navigation.ScheduledStatusActivityIntent
 import app.pachli.core.navigation.SearchActivityIntent
-import app.pachli.core.navigation.StatusListActivityIntent
+import app.pachli.core.navigation.TabPreferenceActivityIntent
+import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.TrendingActivityIntent
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Notification
@@ -109,13 +113,13 @@ import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.databinding.ActivityMainBinding
 import app.pachli.db.DraftsAlert
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.FabFragment
 import app.pachli.interfaces.ReselectableFragment
 import app.pachli.pager.MainPagerAdapter
 import app.pachli.updatecheck.UpdateCheck
 import app.pachli.usecase.DeveloperToolsUseCase
 import app.pachli.usecase.LogoutUsecase
 import app.pachli.util.getDimension
+import app.pachli.util.makeIcon
 import app.pachli.util.updateShortcut
 import at.connyduck.calladapter.networkresult.fold
 import com.bumptech.glide.Glide
@@ -132,10 +136,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.android.material.tabs.TabLayoutMediator
-import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
-import com.mikepenz.iconics.utils.colorInt
-import com.mikepenz.iconics.utils.sizeDp
 import com.mikepenz.materialdrawer.holder.BadgeStyle
 import com.mikepenz.materialdrawer.holder.ColorHolder
 import com.mikepenz.materialdrawer.holder.StringHolder
@@ -164,7 +166,9 @@ import com.mikepenz.materialdrawer.widget.AccountHeaderView
 import dagger.hilt.android.AndroidEntryPoint
 import de.c1710.filemojicompat_ui.helpers.EMOJI_PREFERENCE
 import javax.inject.Inject
+import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -214,6 +218,15 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
 
     /** Adapter for the different timeline tabs */
     private lateinit var tabAdapter: MainPagerAdapter
+
+    private val onBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            when {
+                binding.mainDrawerLayout.isOpen -> binding.mainDrawerLayout.close()
+                binding.viewPager.currentItem != 0 -> binding.viewPager.currentItem = 0
+            }
+        }
+    }
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -284,7 +297,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                 // otherwise show notification tab
                 if (MainActivityIntent.getNotificationType(intent) == Notification.Type.FOLLOW_REQUEST) {
                     val intent = AccountListActivityIntent(this, AccountListActivityIntent.Kind.FOLLOW_REQUESTS)
-                    startActivityWithSlideInAnimation(intent)
+                    startActivityWithDefaultTransition(intent)
                 } else {
                     showNotificationTab = true
                 }
@@ -294,11 +307,6 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         setContentView(binding.root)
 
         glide = Glide.with(this)
-
-        binding.composeButton.setOnClickListener {
-            val composeIntent = ComposeActivityIntent(applicationContext)
-            startActivity(composeIntent)
-        }
 
         // Determine which of the three toolbars should be the supportActionBar (which hosts
         // the options menu).
@@ -369,7 +377,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     refreshMainDrawerItems(addSearchButton = hideTopToolbar)
 
                     // Any lists in tabs might have changed titles, update those
-                    if (lists is Lists.Loaded && tabAdapter.tabs.any { it.tabData is TabData.UserList }) {
+                    if (lists is Lists.Loaded && tabAdapter.tabs.any { it.timeline is Timeline.UserList }) {
                         setupTabs(false)
                     }
                 }
@@ -384,24 +392,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
 
         selectedEmojiPack = sharedPreferencesRepository.getString(EMOJI_PREFERENCE, "")
 
-        onBackPressedDispatcher.addCallback(
-            this,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    when {
-                        binding.mainDrawerLayout.isOpen -> {
-                            binding.mainDrawerLayout.close()
-                        }
-                        binding.viewPager.currentItem != 0 -> {
-                            binding.viewPager.currentItem = 0
-                        }
-                        else -> {
-                            finish()
-                        }
-                    }
-                }
-            },
-        )
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
         if (Build.VERSION.SDK_INT >= TIRAMISU && ActivityCompat.checkSelfPermission(this, POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(POST_NOTIFICATIONS), 1)
@@ -413,17 +404,17 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         super.onCreateMenu(menu, menuInflater)
+
         menuInflater.inflate(R.menu.activity_main, menu)
         menu.findItem(R.id.action_search)?.apply {
-            icon = IconicsDrawable(this@MainActivity, GoogleMaterial.Icon.gmd_search).apply {
-                sizeDp = 20
-                colorInt = MaterialColors.getColor(binding.mainToolbar, android.R.attr.textColorPrimary)
-            }
+            icon = makeIcon(this@MainActivity, GoogleMaterial.Icon.gmd_search, IconicsSize.dp(20))
         }
     }
 
     override fun onPrepareMenu(menu: Menu) {
         super<BottomSheetActivity>.onPrepareMenu(menu)
+
+        menu.findItem(R.id.action_remove_tab).isVisible = tabAdapter.tabs[binding.viewPager.currentItem].timeline != Timeline.Home
 
         // If the main toolbar is hidden then there's no space in the top/bottomNav to show
         // the menu items as icons, so forceably disable them
@@ -435,6 +426,21 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         return when (menuItem.itemId) {
             R.id.action_search -> {
                 startActivity(SearchActivityIntent(this@MainActivity))
+                true
+            }
+            R.id.action_remove_tab -> {
+                val timeline = tabAdapter.tabs[binding.viewPager.currentItem].timeline
+                accountManager.activeAccount?.let {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        it.tabPreferences = it.tabPreferences.filterNot { it == timeline }
+                        accountManager.saveAccount(it)
+                        eventHub.dispatch(MainTabsChangedEvent(it.tabPreferences))
+                    }
+                }
+                true
+            }
+            R.id.action_tab_preferences -> {
+                startActivity(TabPreferenceActivityIntent(this))
                 true
             }
             else -> super.onOptionsItemSelected(menuItem)
@@ -490,7 +496,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                 return true
             }
             KeyEvent.KEYCODE_SEARCH -> {
-                startActivityWithSlideInAnimation(SearchActivityIntent(this))
+                startActivityWithDefaultTransition(SearchActivityIntent(this))
                 return true
             }
         }
@@ -593,6 +599,20 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
             refreshMainDrawerItems(addSearchButton)
             setSavedInstance(savedInstanceState)
         }
+
+        binding.mainDrawerLayout.addDrawerListener(object : DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) { }
+
+            override fun onDrawerOpened(drawerView: View) {
+                onBackPressedCallback.isEnabled = true
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                onBackPressedCallback.isEnabled = binding.tabLayout.selectedTabPosition > 0
+            }
+
+            override fun onDrawerStateChanged(newState: Int) { }
+        })
     }
 
     private fun refreshMainDrawerItems(addSearchButton: Boolean) {
@@ -606,8 +626,8 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                                 nameText = list.title
                                 iconicsIcon = GoogleMaterial.Icon.gmd_list
                                 onClick = {
-                                    startActivityWithSlideInAnimation(
-                                        StatusListActivityIntent.list(this@MainActivity, list.id, list.title),
+                                    startActivityWithDefaultTransition(
+                                        TimelineActivityIntent.list(this@MainActivity, list.id, list.title),
                                     )
                                 }
                             }
@@ -625,8 +645,35 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.title_notifications
                     iconicsIcon = GoogleMaterial.Icon.gmd_notifications
                     onClick = {
-                        startActivityWithSlideInAnimation(
-                            NotificationsActivityIntent(context),
+                        startActivityWithDefaultTransition(
+                            TimelineActivityIntent.notifications(context),
+                        )
+                    }
+                },
+                primaryDrawerItem {
+                    nameRes = R.string.title_public_local
+                    iconRes = R.drawable.ic_local_24dp
+                    onClick = {
+                        startActivityWithDefaultTransition(
+                            TimelineActivityIntent.publicLocal(context),
+                        )
+                    }
+                },
+                primaryDrawerItem {
+                    nameRes = R.string.title_public_federated
+                    iconRes = R.drawable.ic_public_24dp
+                    onClick = {
+                        startActivityWithDefaultTransition(
+                            TimelineActivityIntent.publicFederated(context),
+                        )
+                    }
+                },
+                primaryDrawerItem {
+                    nameRes = R.string.title_direct_messages
+                    iconRes = R.drawable.ic_reblog_direct_24dp
+                    onClick = {
+                        startActivityWithDefaultTransition(
+                            TimelineActivityIntent.conversations(context),
                         )
                     }
                 },
@@ -634,8 +681,8 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.action_view_bookmarks
                     iconicsIcon = GoogleMaterial.Icon.gmd_bookmark
                     onClick = {
-                        val intent = StatusListActivityIntent.bookmarks(context)
-                        startActivityWithSlideInAnimation(intent)
+                        val intent = TimelineActivityIntent.bookmarks(context)
+                        startActivityWithDefaultTransition(intent)
                     }
                 },
                 primaryDrawerItem {
@@ -643,22 +690,22 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     isSelectable = false
                     iconicsIcon = GoogleMaterial.Icon.gmd_star
                     onClick = {
-                        val intent = StatusListActivityIntent.favourites(context)
-                        startActivityWithSlideInAnimation(intent)
+                        val intent = TimelineActivityIntent.favourites(context)
+                        startActivityWithDefaultTransition(intent)
                     }
                 },
                 primaryDrawerItem {
                     nameRes = R.string.title_public_trending
                     iconicsIcon = GoogleMaterial.Icon.gmd_trending_up
                     onClick = {
-                        startActivityWithSlideInAnimation(TrendingActivityIntent(context))
+                        startActivityWithDefaultTransition(TrendingActivityIntent(context))
                     }
                 },
                 primaryDrawerItem {
                     nameRes = R.string.title_followed_hashtags
                     iconRes = R.drawable.ic_hashtag
                     onClick = {
-                        startActivityWithSlideInAnimation(FollowedTagsActivityIntent(context))
+                        startActivityWithDefaultTransition(FollowedTagsActivityIntent(context))
                     }
                 },
                 primaryDrawerItem {
@@ -666,7 +713,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     iconicsIcon = GoogleMaterial.Icon.gmd_person_add
                     onClick = {
                         val intent = AccountListActivityIntent(context, AccountListActivityIntent.Kind.FOLLOW_REQUESTS)
-                        startActivityWithSlideInAnimation(intent)
+                        startActivityWithDefaultTransition(intent)
                     }
                 },
                 SectionDrawerItem().apply {
@@ -677,7 +724,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.manage_lists
                     iconicsIcon = GoogleMaterial.Icon.gmd_settings
                     onClick = {
-                        startActivityWithSlideInAnimation(ListActivityIntent(context))
+                        startActivityWithDefaultTransition(ListActivityIntent(context))
                     }
                 },
                 DividerDrawerItem(),
@@ -686,14 +733,14 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     iconRes = R.drawable.ic_notebook
                     onClick = {
                         val intent = DraftsActivityIntent(context)
-                        startActivityWithSlideInAnimation(intent)
+                        startActivityWithDefaultTransition(intent)
                     }
                 },
                 primaryDrawerItem {
                     nameRes = R.string.action_access_scheduled_posts
                     iconRes = R.drawable.ic_access_time
                     onClick = {
-                        startActivityWithSlideInAnimation(ScheduledStatusActivityIntent(context))
+                        startActivityWithDefaultTransition(ScheduledStatusActivityIntent(context))
                     }
                 },
                 primaryDrawerItem {
@@ -701,7 +748,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     nameRes = R.string.title_announcements
                     iconRes = R.drawable.ic_bullhorn_24dp
                     onClick = {
-                        startActivityWithSlideInAnimation(AnnouncementsActivityIntent(context))
+                        startActivityWithDefaultTransition(AnnouncementsActivityIntent(context))
                     }
                     badgeStyle = BadgeStyle().apply {
                         textColor = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorOnPrimary))
@@ -714,7 +761,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     iconRes = R.drawable.ic_account_settings
                     onClick = {
                         val intent = PreferencesActivityIntent(context, PreferenceScreen.ACCOUNT)
-                        startActivityWithSlideInAnimation(intent)
+                        startActivityWithDefaultTransition(intent)
                     }
                 },
                 secondaryDrawerItem {
@@ -722,7 +769,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     iconicsIcon = GoogleMaterial.Icon.gmd_settings
                     onClick = {
                         val intent = PreferencesActivityIntent(context, PreferenceScreen.GENERAL)
-                        startActivityWithSlideInAnimation(intent)
+                        startActivityWithDefaultTransition(intent)
                     }
                 },
                 primaryDrawerItem {
@@ -730,7 +777,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     iconicsIcon = GoogleMaterial.Icon.gmd_person
                     onClick = {
                         val intent = EditProfileActivityIntent(context)
-                        startActivityWithSlideInAnimation(intent)
+                        startActivityWithDefaultTransition(intent)
                     }
                 },
                 secondaryDrawerItem {
@@ -738,7 +785,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     iconicsIcon = GoogleMaterial.Icon.gmd_info
                     onClick = {
                         val intent = AboutActivityIntent(context)
-                        startActivityWithSlideInAnimation(intent)
+                        startActivityWithDefaultTransition(intent)
                     }
                 },
                 secondaryDrawerItem {
@@ -755,7 +802,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                         nameRes = R.string.action_search
                         iconicsIcon = GoogleMaterial.Icon.gmd_search
                         onClick = {
-                            startActivityWithSlideInAnimation(SearchActivityIntent(context))
+                            startActivityWithDefaultTransition(SearchActivityIntent(context))
                         }
                     },
                 )
@@ -855,7 +902,8 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         }
 
         // Save the previous tab so it can be restored later
-        val previousTab = tabAdapter.tabs.getOrNull(binding.viewPager.currentItem)
+        val previousTabIndex = binding.viewPager.currentItem
+        val previousTab = tabAdapter.tabs.getOrNull(previousTabIndex)
 
         val tabs = accountManager.activeAccount!!.tabPreferences.map { TabViewData.from(it) }
 
@@ -868,30 +916,29 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         tabLayoutMediator = TabLayoutMediator(activeTabLayout, binding.viewPager, true) {
                 tab: TabLayout.Tab, position: Int ->
             tab.icon = AppCompatResources.getDrawable(this@MainActivity, tabs[position].icon)
-            tab.contentDescription = when (tabs[position].tabData) {
-                is TabData.UserList -> tabs[position].title(this@MainActivity)
-                else -> getString(tabs[position].text)
-            }
+            tab.contentDescription = tabs[position].title(this@MainActivity)
         }.also { it.attach() }
 
         // Selected tab is either
         // - Notification tab (if appropriate)
         // - The previously selected tab (if it hasn't been removed)
         //   - Tabs containing lists are compared by list ID, in case the list was renamed
+        // - The tab to the left of the previous selected tab (if the previously selected tab
+        //   was removed)
         // - Left-most tab
         val position = if (selectNotificationTab) {
-            tabs.indexOfFirst { it.tabData is TabData.Notifications }
+            tabs.indexOfFirst { it.timeline is Timeline.Notifications }
         } else {
             previousTab?.let {
                 tabs.indexOfFirst {
-                    if (it.tabData is TabData.UserList && previousTab.tabData is TabData.UserList) {
-                        it.tabData.listId == previousTab.tabData.listId
+                    if (it.timeline is Timeline.UserList && previousTab.timeline is Timeline.UserList) {
+                        it.timeline.listId == previousTab.timeline.listId
                     } else {
                         it == previousTab
                     }
                 }
             }
-        }.takeIf { it != -1 } ?: 0
+        }.takeIf { it != -1 } ?: max(previousTabIndex - 1, 0)
         binding.viewPager.setCurrentItem(position, false)
 
         val pageMargin = resources.getDimensionPixelSize(DR.dimen.tab_page_margin)
@@ -906,20 +953,20 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
 
         onTabSelectedListener = object : OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
-                binding.mainToolbar.title = tab.contentDescription
+                onBackPressedCallback.isEnabled = tab.position > 0 || binding.mainDrawerLayout.isOpen
 
-                refreshComposeButtonState(tabAdapter, tab.position)
+                supportActionBar?.title = tabs[tab.position].title(this@MainActivity)
+
+                refreshComposeButtonState(tabs[tab.position])
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {}
 
             override fun onTabReselected(tab: TabLayout.Tab) {
                 val fragment = tabAdapter.getFragment(tab.position)
-                if (fragment is ReselectableFragment) {
-                    (fragment as ReselectableFragment).onReselect()
-                }
+                (fragment as? ReselectableFragment)?.onReselect()
 
-                refreshComposeButtonState(tabAdapter, tab.position)
+                refreshComposeButtonState(tabs[tab.position])
             }
         }.also {
             activeTabLayout.addOnTabSelectedListener(it)
@@ -930,21 +977,18 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
             (tabAdapter.getFragment(activeTabLayout.selectedTabPosition) as? ReselectableFragment)?.onReselect()
         }
 
+        refreshComposeButtonState(tabs[position])
+
         updateProfiles()
     }
 
-    private fun refreshComposeButtonState(adapter: MainPagerAdapter, tabPosition: Int) {
-        adapter.getFragment(tabPosition)?.also { fragment ->
-            if (fragment is FabFragment) {
-                if (fragment.isFabVisible()) {
-                    binding.composeButton.show()
-                } else {
-                    binding.composeButton.hide()
-                }
-            } else {
-                binding.composeButton.show()
+    private fun refreshComposeButtonState(tabViewData: TabViewData) {
+        tabViewData.composeIntent?.let { intent ->
+            binding.composeButton.setOnClickListener {
+                startActivity(intent(applicationContext))
             }
-        }
+            binding.composeButton.show()
+        } ?: binding.composeButton.hide()
     }
 
     private fun handleProfileClick(profile: IProfile, current: Boolean) {
@@ -953,12 +997,12 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         // open profile when active image was clicked
         if (current && activeAccount != null) {
             val intent = AccountActivityIntent(this, activeAccount.accountId)
-            startActivityWithSlideInAnimation(intent)
+            startActivityWithDefaultTransition(intent)
             return
         }
         // open LoginActivity to add new account
         if (profile.identifier == DRAWER_ITEM_ADD_ACCOUNT) {
-            startActivityWithSlideInAnimation(
+            startActivityWithDefaultTransition(
                 LoginActivityIntent(this, LoginMode.ADDITIONAL_LOGIN),
             )
             return
@@ -978,12 +1022,8 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
             intent.action = forward.action
             intent.putExtras(forward)
         }
-        startActivity(intent)
-        finishWithoutSlideOutAnimation()
-        overridePendingTransition(
-            DR.anim.explode,
-            DR.anim.explode,
-        )
+        startActivityWithTransition(intent, TransitionKind.EXPLODE)
+        finish()
     }
 
     private fun logout() {
@@ -1006,7 +1046,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                             LoginActivityIntent(this@MainActivity, LoginMode.DEFAULT)
                         }
                         startActivity(intent)
-                        finishWithoutSlideOutAnimation()
+                        finish()
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)

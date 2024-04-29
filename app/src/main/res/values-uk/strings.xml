@@ -227,7 +227,7 @@
         <item quantity="many">%s голосів</item>
         <item quantity="other">%s голосів</item>
     </plurals>
-    <string name="poll_info_format"> <!-- 15 голосів • 1 година залишилась --> %1$s • %2$s</string>
+    <string name="poll_info_format"><!-- 15 голосів • 1 година залишилась -->%1$s • %2$s</string>
     <string name="description_post_media_no_description_placeholder">Без опису</string>
     <string name="description_post_cw">Попередження про вміст: %s</string>
     <string name="description_post_media">Медіа: %s</string>
@@ -530,7 +530,7 @@
     <string name="error_status_source_load">Не вдалося завантажити джерело стану з сервера.</string>
     <string name="post_media_alt">ALT</string>
     <string name="action_discard">Відкинути зміни</string>
-    <string name="compose_unsaved_changes">У вас є незбережені зміни.</string>
+    <string name="unsaved_changes">У вас є незбережені зміни.</string>
     <string name="action_continue_edit">Продовжити редагування</string>
     <string name="mute_notifications_switch">Беззвучні сповіщення</string>
     <string name="title_edits">Редагування</string>
@@ -565,11 +565,11 @@
     <string name="notification_unknown_name">Невідомо</string>
     <string name="socket_timeout_exception">Надто тривала спроба з\'єднання з вашим сервером</string>
     <string name="ui_error_unknown">невідома причина</string>
-    <string name="ui_error_bookmark">Не вдалося додати допис до закладок: %s</string>
+    <string name="ui_error_bookmark_fmt">Не вдалося додати допис до закладок: %1$s</string>
     <string name="ui_error_clear_notifications">Не вдалося очистити сповіщення: %s</string>
-    <string name="ui_error_favourite">Не вдалося вподобати допис: %s</string>
-    <string name="ui_error_reblog">Не вдалося поширити допис: %s</string>
-    <string name="ui_error_vote">Не вдалося проголосувати: %s</string>
+    <string name="ui_error_favourite_fmt">Не вдалося вподобати допис: %1$s</string>
+    <string name="ui_error_reblog_fmt">Не вдалося поширити допис: %1$s</string>
+    <string name="ui_error_vote_fmt">Не вдалося проголосувати: %1$s</string>
     <string name="ui_error_accept_follow_request">Не вдалося погодити запит на стеження: %s</string>
     <string name="ui_error_reject_follow_request">Не вдалося відхилити запит на стеження: %s</string>
     <string name="ui_success_accepted_follow_request">Запит на стеження погоджено</string>

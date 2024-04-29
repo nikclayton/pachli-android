@@ -21,33 +21,53 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.lifecycle.lifecycleScope
 import app.pachli.R
-import app.pachli.components.timeline.TimelineFragment
+import app.pachli.TabViewData
+import app.pachli.appstore.EventHub
+import app.pachli.appstore.MainTabsChangedEvent
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.network.model.TimelineKind
+import app.pachli.core.model.Timeline
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.databinding.ActivityTrendingBinding
 import app.pachli.interfaces.AppBarLayoutHost
+import app.pachli.interfaces.ReselectableFragment
+import app.pachli.pager.MainPagerAdapter
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TrendingActivity : BottomSheetActivity(), AppBarLayoutHost, MenuProvider {
+    @Inject
+    lateinit var eventHub: EventHub
+
     private val binding: ActivityTrendingBinding by viewBinding(ActivityTrendingBinding::inflate)
 
     override val appBarLayout: AppBarLayout
         get() = binding.appBar
 
+    private lateinit var adapter: MainPagerAdapter
+
+    private val onBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            binding.pager.currentItem = 0
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        addMenuProvider(this)
 
         setSupportActionBar(binding.toolbar)
 
@@ -57,22 +77,41 @@ class TrendingActivity : BottomSheetActivity(), AppBarLayoutHost, MenuProvider {
             setDisplayShowHomeEnabled(true)
         }
 
-        val adapter = TrendingFragmentAdapter(this)
+        adapter = MainPagerAdapter(
+            listOf(
+                TabViewData.from(Timeline.TrendingHashtags),
+                TabViewData.from(Timeline.TrendingLinks),
+                TabViewData.from(Timeline.TrendingStatuses),
+            ),
+            this,
+        )
+
         binding.pager.adapter = adapter
         binding.pager.reduceSwipeSensitivity()
 
         TabLayoutMediator(binding.tabLayout, binding.pager) { tab, position ->
-            tab.text = adapter.title(position)
+            // Use a shorter tab label, as "Trending" is already in the toolbar
+            tab.text = when (position) {
+                0 -> getString(R.string.title_tab_public_trending_hashtags)
+                1 -> getString(R.string.title_tab_public_trending_links)
+                2 -> getString(R.string.title_tab_public_trending_statuses)
+                else -> throw IllegalStateException()
+            }
         }.attach()
 
-        onBackPressedDispatcher.addCallback(
-            this,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (binding.pager.currentItem != 0) binding.pager.currentItem = 0 else finish()
-                }
-            },
-        )
+        binding.tabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                onBackPressedCallback.isEnabled = tab.position > 0
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+
+            override fun onTabReselected(tab: TabLayout.Tab) {
+                (adapter.getFragment(tab.position) as? ReselectableFragment)?.onReselect()
+            }
+        })
+
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -80,30 +119,29 @@ class TrendingActivity : BottomSheetActivity(), AppBarLayoutHost, MenuProvider {
         menuInflater.inflate(R.menu.activity_trending, menu)
     }
 
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        super.onMenuItemSelected(menuItem)
-        return super.onOptionsItemSelected(menuItem)
-    }
-}
-
-class TrendingFragmentAdapter(val activity: FragmentActivity) : FragmentStateAdapter(activity) {
-    override fun getItemCount() = 3
-
-    override fun createFragment(position: Int): Fragment {
-        return when (position) {
-            0 -> TrendingTagsFragment.newInstance()
-            1 -> TrendingLinksFragment.newInstance()
-            2 -> TimelineFragment.newInstance(TimelineKind.TrendingStatuses)
-            else -> throw IllegalStateException()
-        }
+    override fun onPrepareMenu(menu: Menu) {
+        val timeline = adapter.tabs[binding.pager.currentItem].timeline
+        // Check if this timeline is in a tab; if not, enable the add_to_tab menu item
+        val currentTabs = accountManager.activeAccount?.tabPreferences.orEmpty()
+        val hideMenu = currentTabs.contains(timeline)
+        menu.findItem(R.id.action_add_to_tab)?.setVisible(!hideMenu)
     }
 
-    fun title(position: Int): CharSequence {
-        return when (position) {
-            0 -> activity.getString(R.string.title_tab_public_trending_hashtags)
-            1 -> activity.getString(R.string.title_tab_public_trending_links)
-            2 -> activity.getString(R.string.title_tab_public_trending_statuses)
-            else -> throw IllegalStateException()
+    override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
+        R.id.action_add_to_tab -> {
+            val tabViewData = adapter.tabs[binding.pager.currentItem]
+            val timeline = tabViewData.timeline
+            accountManager.activeAccount?.let {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    it.tabPreferences += timeline
+                    accountManager.saveAccount(it)
+                    eventHub.dispatch(MainTabsChangedEvent(it.tabPreferences))
+                }
+            }
+            Toast.makeText(this, getString(R.string.action_add_to_tab_success, tabViewData.title(this)), Toast.LENGTH_LONG).show()
+            menuItem.setVisible(false)
+            true
         }
+        else -> super.onMenuItemSelected(menuItem)
     }
 }

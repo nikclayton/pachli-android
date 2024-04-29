@@ -30,6 +30,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -37,7 +38,7 @@ import app.pachli.adapter.AccountFieldEditAdapter
 import app.pachli.core.activity.BaseActivity
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.data.repository.InstanceInfoRepository
+import app.pachli.core.data.model.InstanceInfo.Companion.DEFAULT_MAX_ACCOUNT_FIELDS
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.ui.extensions.await
 import app.pachli.databinding.ActivityEditProfileBinding
@@ -59,6 +60,7 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -75,9 +77,11 @@ class EditProfileActivity : BaseActivity() {
 
     private val binding by viewBinding(ActivityEditProfileBinding::inflate)
 
-    private val accountFieldEditAdapter = AccountFieldEditAdapter()
+    private val accountFieldEditAdapter: AccountFieldEditAdapter = AccountFieldEditAdapter {
+        viewModel.onChange(currentProfileData)
+    }
 
-    private var maxAccountFields = InstanceInfoRepository.DEFAULT_MAX_ACCOUNT_FIELDS
+    private var maxAccountFields = DEFAULT_MAX_ACCOUNT_FIELDS
 
     private enum class PickType {
         AVATAR,
@@ -107,6 +111,12 @@ class EditProfileActivity : BaseActivity() {
             locked = binding.lockedCheckBox.isChecked,
             fields = accountFieldEditAdapter.getFieldData(),
         )
+
+    private val onBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            showUnsavedChangesDialog()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -216,19 +226,19 @@ class EditProfileActivity : BaseActivity() {
             }
         }
 
-        val onBackCallback = object : OnBackPressedCallback(enabled = true) {
-            override fun handleOnBackPressed() = checkForUnsavedChanges()
+        lifecycleScope.launch {
+            viewModel.isDirty.collectLatest { onBackPressedCallback.isEnabled = it }
         }
 
-        onBackPressedDispatcher.addCallback(this, onBackCallback)
-    }
-
-    fun checkForUnsavedChanges() {
-        if (viewModel.hasUnsavedChanges(currentProfileData)) {
-            showUnsavedChangesDialog()
-        } else {
-            finish()
+        binding.displayNameEditText.doAfterTextChanged {
+            viewModel.onChange(currentProfileData)
         }
+
+        binding.lockedCheckBox.setOnCheckedChangeListener { _, _ ->
+            viewModel.onChange(currentProfileData)
+        }
+
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override fun onStop() {

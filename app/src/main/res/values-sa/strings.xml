@@ -363,7 +363,7 @@
         <item quantity="one">%s मतम्</item>
         <item quantity="other">%s मते</item>
     </plurals>
-    <string name="poll_info_format"> <!-- 15 मतानि • 1 शेषघटिकाः --> %1$s • %2$s</string>
+    <string name="poll_info_format"><!-- 15 मतानि • 1 शेषघटिकाः -->%1$s • %2$s</string>
     <string name="compose_preview_image_description">चित्राणां कृते प्रवृत्तिः %s</string>
     <string name="notification_clear_text">किं नूनमेव सर्वाः सूचनाः स्थायित्वेन मार्जनीयाः \?</string>
     <string name="compose_shortcut_short_label">लिख्यताम्</string>
@@ -481,7 +481,7 @@
     <string name="dialog_follow_hashtag_title">व्यक्तित्वविवरणलेखा अनुसरतु</string>
     <string name="limit_notifications">कालानुक्रमपङ्क्त्याः सूचनाः परिमिताः कुरुताम्</string>
     <string name="notification_report_description">परिमितावेदनानि प्रति ज्ञापनसूचनाः</string>
-    <string name="compose_unsaved_changes">भवतः अरक्षितानि परिवर्तनानि सन्ति।</string>
+    <string name="unsaved_changes">भवतः अरक्षितानि परिवर्तनानि सन्ति।</string>
     <string name="pref_title_notification_filter_reports">नूतनम् आवेदनमस्ति</string>
     <string name="pref_title_wellbeing_mode">सुस्थितिः</string>
     <string name="delete_scheduled_post_warning">इदं कालबद्धदौत्यं विनश्येत् किम् \?</string>

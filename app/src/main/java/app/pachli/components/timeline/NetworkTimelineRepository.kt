@@ -27,8 +27,8 @@ import app.pachli.components.timeline.viewmodel.NetworkTimelinePagingSource
 import app.pachli.components.timeline.viewmodel.NetworkTimelineRemoteMediator
 import app.pachli.components.timeline.viewmodel.PageCache
 import app.pachli.core.accounts.AccountManager
+import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Status
-import app.pachli.core.network.model.TimelineKind
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.util.getDomain
 import javax.inject.Inject
@@ -81,7 +81,7 @@ class NetworkTimelineRepository @Inject constructor(
     @OptIn(ExperimentalPagingApi::class)
     fun getStatusStream(
         viewModelScope: CoroutineScope,
-        kind: TimelineKind,
+        kind: Timeline,
         pageSize: Int = PAGE_SIZE,
         initialKey: String? = null,
     ): Flow<PagingData<Status>> {
@@ -132,7 +132,7 @@ class NetworkTimelineRepository @Inject constructor(
 
     fun removeStatusWithId(statusId: String) {
         synchronized(pageCache) {
-            pageCache.floorEntry(statusId)?.value?.data?.removeAll { status ->
+            pageCache.getPageById(statusId)?.data?.removeAll { status ->
                 status.id == statusId || status.reblog?.id == statusId
             }
         }
@@ -141,7 +141,7 @@ class NetworkTimelineRepository @Inject constructor(
 
     fun updateStatusById(statusId: String, updater: (Status) -> Status) {
         synchronized(pageCache) {
-            pageCache.floorEntry(statusId)?.value?.let { page ->
+            pageCache.getPageById(statusId)?.let { page ->
                 val index = page.data.indexOfFirst { it.id == statusId }
                 if (index != -1) {
                     page.data[index] = updater(page.data[index])
@@ -153,7 +153,7 @@ class NetworkTimelineRepository @Inject constructor(
 
     fun updateActionableStatusById(statusId: String, updater: (Status) -> Status) {
         synchronized(pageCache) {
-            pageCache.floorEntry(statusId)?.value?.let { page ->
+            pageCache.getPageById(statusId)?.let { page ->
                 val index = page.data.indexOfFirst { it.id == statusId }
                 if (index != -1) {
                     val status = page.data[index]

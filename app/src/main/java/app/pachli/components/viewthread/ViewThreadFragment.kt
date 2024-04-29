@@ -33,14 +33,16 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
 import app.pachli.components.viewthread.edits.ViewEditsFragment
-import app.pachli.core.activity.BaseActivity
+import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.activity.openLink
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData.Companion.list
+import app.pachli.core.network.extensions.getServerErrorMessage
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.databinding.FragmentViewThreadBinding
@@ -209,7 +211,10 @@ class ViewThreadFragment :
         lifecycleScope.launch {
             viewModel.errors.collect { throwable ->
                 Timber.w(throwable, "failed to load status context")
-                val msg = view.context.getString(app.pachli.core.ui.R.string.error_generic_fmt, throwable)
+                val msg = view.context.getString(
+                    app.pachli.core.ui.R.string.error_generic_fmt,
+                    throwable.getServerErrorMessage().unicodeWrap(),
+                )
                 Snackbar.make(binding.root, msg, Snackbar.LENGTH_INDEFINITE)
                     .setAction(app.pachli.core.ui.R.string.action_retry) {
                         viewModel.retry(thisThreadsStatusId)
@@ -332,12 +337,12 @@ class ViewThreadFragment :
 
     override fun onShowReblogs(statusId: String) {
         val intent = AccountListActivityIntent(requireContext(), AccountListActivityIntent.Kind.REBLOGGED, statusId)
-        (requireActivity() as BaseActivity).startActivityWithSlideInAnimation(intent)
+        activity?.startActivityWithDefaultTransition(intent)
     }
 
     override fun onShowFavs(statusId: String) {
         val intent = AccountListActivityIntent(requireContext(), AccountListActivityIntent.Kind.FAVOURITED, statusId)
-        (requireActivity() as BaseActivity).startActivityWithSlideInAnimation(intent)
+        activity?.startActivityWithDefaultTransition(intent)
     }
 
     override fun onContentCollapsedChange(viewData: StatusViewData, isCollapsed: Boolean) {
@@ -369,7 +374,12 @@ class ViewThreadFragment :
         val viewEditsFragment = ViewEditsFragment.newInstance(statusId)
 
         parentFragmentManager.commit {
-            setCustomAnimations(DR.anim.slide_from_right, DR.anim.slide_to_left, DR.anim.slide_from_left, DR.anim.slide_to_right)
+            setCustomAnimations(
+                DR.anim.activity_open_enter,
+                DR.anim.activity_open_exit,
+                DR.anim.activity_close_enter,
+                DR.anim.activity_close_exit,
+            )
             replace(R.id.fragment_container, viewEditsFragment, "ViewEditsFragment_$id")
             addToBackStack(null)
         }

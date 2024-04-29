@@ -376,7 +376,7 @@
     <string name="pref_title_notification_filter_poll">päättyneet äänestykset</string>
     <string name="abbreviated_in_seconds">%ds</string>
     <string name="failed_to_unpin">Irrottaminen epäonnistui</string>
-    <string name="compose_unsaved_changes">Sinulla on tallentamattomia muutoksia.</string>
+    <string name="unsaved_changes">Sinulla on tallentamattomia muutoksia.</string>
     <string name="state_follow_requested">Seuraamista pyydetty</string>
     <string name="compose_delete_draft">Poista luonnos?</string>
     <string name="notification_notification_worker">Ilmoituksia haetaan…</string>
@@ -429,17 +429,17 @@
     <string name="pref_main_nav_position_option_top">Yläreuna</string>
     <string name="notification_prune_cache">Välimuistin ylläpito…</string>
     <string name="pref_ui_text_size">Käyttöliittymän tekstikoko</string>
-    <string name="ui_error_translate_status">Kääntäminen epäonnistui: %s</string>
+    <string name="ui_error_translate_status_fmt">Kääntäminen epäonnistui: %1$s</string>
     <string name="update_dialog_negative">Älä muistuta koskaan</string>
     <string name="translating">Käännetään…</string>
     <string name="dialog_delete_filter_positive_action">Poista</string>
-    <string name="ui_error_reblog">Julkaisun tehostaminen epäonnistui: %s</string>
+    <string name="ui_error_reblog_fmt">Julkaisun tehostaminen epäonnistui: %1$s</string>
     <string name="review_notifications">Katso ilmoitukset</string>
     <string name="action_subscribe_account">Tilaa</string>
     <string name="pref_title_update_notification_frequency">Ilmoita Pachlin uusista versioista</string>
     <string name="filter_action_warn">Varoita</string>
     <string name="action_unfollow_hashtag_format">Lopeta tilin #%s seuraamninen?</string>
-    <string name="ui_error_vote">Äänestäminen epäonnistui: %s</string>
+    <string name="ui_error_vote_fmt">Äänestäminen epäonnistui: %1$s</string>
     <string name="update_dialog_neutral">Älä muistuta enää tästä versiosta</string>
     <string name="ui_error_reject_follow_request">Seuraajapyynnön hylkääminen epäonnistui: %s</string>
     <string name="ui_error_clear_notifications">Ilmoitusten nollaaminen epäonnistui: %s</string>
@@ -467,9 +467,9 @@
     <string name="socket_timeout_exception">Yhteydenotto palvelimeen kesti liian kauan</string>
     <string name="load_newest_statuses">Lataa uusimmat julkaisut</string>
     <string name="dialog_save_profile_changes_message">Haluatko tallentaa profiilisi muutokset?</string>
-    <string name="ui_error_favourite">Julkaisun tykkääminen epäonnistui: %s</string>
+    <string name="ui_error_favourite_fmt">Julkaisun tykkääminen epäonnistui: %1$s</string>
     <string name="pachli_compose_post_quicksetting_label">Kirjoita julkaisu</string>
-    <string name="ui_error_bookmark">Kirjamerkin liittäminen julkaisuun epäonnistui: %s</string>
+    <string name="ui_error_bookmark_fmt">Kirjamerkin liittäminen julkaisuun epäonnistui: %1$s</string>
     <string name="no_scheduled_posts">Sinulla ei ole ajastettuja julkaisuja.</string>
     <string name="report_category_spam">Roskapostia</string>
     <string name="total_usage">Kokonaiskäyttö</string>
@@ -488,7 +488,7 @@
     <string name="limit_notifications">Rajoita aikajanan ilmoituksia</string>
     <string name="account_date_joined">Liittyi %1$s</string>
     <string name="ui_error_unknown">tuntematon syy</string>
-    <string name="ui_error_filter_v1_load">Suodattimien lataaminen epäonnistui: %s</string>
+    <string name="ui_error_filter_v1_load_fmt">Suodattimien lataaminen epäonnistui: %1$s</string>
     <string name="janky_animation_title">Saatat joutua käynnistämään laitteesi uudelleen</string>
     <string name="announcement_date_updated">(Päivitetty: %1$s)</string>
     <string name="tips_push_notification_migration">Kirjaudu uudelleen kaikille tileille push-ilmoitusten ottamiseksi käyttöön.</string>
@@ -537,7 +537,7 @@
     <string name="duration_30_days">30 päivää</string>
     <string name="reblog_private">Tehosta alkuperäiselle yleisölle</string>
     <string name="compose_preview_image_description">Toiminnot kuvalle %s</string>
-    <string name="poll_info_format"> \u0020<!-- 15 ääntä • 1 tunti jäljellä --> %1$s• %2$s</string>
+    <string name="poll_info_format"><!-- 15 ääntä • 1 tunti jäljellä -->%1$s• %2$s</string>
     <string name="action_compose_shortcut">Kirjoita</string>
     <string name="unreblog_private">Peru tehostus</string>
     <string name="description_post_reblogged">Tehostettu</string>
@@ -649,4 +649,19 @@
     <string name="title_lists_failed">Listat - lataaminen epäonnistui</string>
     <string name="manage_lists">Hallinnoi listoja</string>
     <string name="poll_show_votes">Näytä äänet</string>
+    <string name="notification_severed_relationships_name">Katkaistut yhteydet</string>
+    <string name="notification_severed_relationships_description">Ilmoitukset katkaistuista yhteyksistä</string>
+    <string name="action_add_to_tab">Lisää välilehteen</string>
+    <string name="action_add_to_tab_success">\'%1$s\' lisätty välilehtiin</string>
+    <string name="action_manage_tabs">Hallinnoi välilehtiä</string>
+    <string name="action_remove_tab">Poista välilehti</string>
+    <string name="notification_severed_relationships_domain_block_body">Moderaattori esti verkkotunnuksen</string>
+    <string name="notification_severed_relationships_format">Yhteys katkaistu: <b>%1$s </b></string>
+    <string name="notification_severed_relationships_user_domain_block_body">Estit verkkotunnuksen</string>
+    <string name="notification_severed_relationships_account_suspension_body">Moderaattori esti tilin</string>
+    <string name="notification_severed_relationships_unknown_body">Tuntematon syy</string>
+    <plurals name="notification_severed_relationships_summary_report_fmt">
+        <item quantity="one">%1$d yhteys katkaistu</item>
+        <item quantity="other">%1$d yhteyttä katkaistu</item>
+    </plurals>
 </resources>

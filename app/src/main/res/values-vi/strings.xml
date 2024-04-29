@@ -316,7 +316,7 @@
     <plurals name="poll_info_votes">
         <item quantity="other">%s người bình chọn</item>
     </plurals>
-    <string name="poll_info_format"> <!-- 15 người bình chọn • còn 1 giờ --> %1$s • %2$s</string>
+    <string name="poll_info_format"><!-- 15 người bình chọn • còn 1 giờ -->%1$s • %2$s</string>
     <string name="compose_preview_image_description">Mô tả cho hình %s</string>
     <string name="compose_shortcut_short_label">Soạn</string>
     <string name="compose_shortcut_long_label">Soạn tút</string>
@@ -499,7 +499,7 @@
     <string name="post_media_alt">✦</string>
     <string name="action_discard">Hủy bỏ thay đổi</string>
     <string name="action_continue_edit">Tiếp tục sửa</string>
-    <string name="compose_unsaved_changes">Thay đổi chưa được lưu.</string>
+    <string name="unsaved_changes">Thay đổi chưa được lưu.</string>
     <string name="mute_notifications_switch">Ẩn thông báo</string>
     <string name="status_edit_info">Sửa %1$s</string>
     <string name="status_created_info">Đăng %1$s</string>
@@ -533,11 +533,11 @@
     <string name="notification_unknown_name">Chưa biết</string>
     <string name="socket_timeout_exception">Mất thời gian kết nối quá lâu</string>
     <string name="ui_error_unknown">chưa rõ lý do</string>
-    <string name="ui_error_bookmark">Lưu tút không thành công: %s</string>
+    <string name="ui_error_bookmark_fmt">Lưu tút không thành công: %1$s</string>
     <string name="ui_error_clear_notifications">Xóa thông báo không thành công: %s</string>
-    <string name="ui_error_favourite">Thích tút không thành công: %s</string>
-    <string name="ui_error_reblog">Đăng lại tút không thành công: %s</string>
-    <string name="ui_error_vote">Bình chọn không thành công: %s</string>
+    <string name="ui_error_favourite_fmt">Thích tút không thành công: %1$s</string>
+    <string name="ui_error_reblog_fmt">Đăng lại tút không thành công: %1$s</string>
+    <string name="ui_error_vote_fmt">Bình chọn không thành công: %1$s</string>
     <string name="ui_error_accept_follow_request">Chấp nhận theo dõi không thành công: %s</string>
     <string name="ui_error_reject_follow_request">Từ chối theo dõi không thành công: %s</string>
     <string name="ui_success_accepted_follow_request">Đã chấp nhận yêu cầu theo dõi</string>

@@ -35,6 +35,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
@@ -56,6 +57,9 @@ import app.pachli.R
 import app.pachli.core.activity.AccountSelectionListener
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.emojify
+import app.pachli.core.activity.extensions.TransitionKind
+import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
+import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.activity.loadAvatar
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
@@ -69,7 +73,7 @@ import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.EditProfileActivityIntent
 import app.pachli.core.navigation.ReportActivityIntent
-import app.pachli.core.navigation.StatusListActivityIntent
+import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.ViewMediaActivityIntent
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Relationship
@@ -178,6 +182,12 @@ class AccountActivity :
 
     private var noteWatcher: TextWatcher? = null
 
+    private val onBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            binding.accountFragmentViewPager.currentItem = 0
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         loadResources()
@@ -205,6 +215,8 @@ class AccountActivity :
         } else {
             binding.saveNoteInfo.visibility = View.INVISIBLE
         }
+
+        onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 
     /**
@@ -241,7 +253,7 @@ class AccountActivity :
                 else -> throw AssertionError()
             }
             val accountListIntent = AccountListActivityIntent(this, kind, viewModel.accountId)
-            startActivityWithSlideInAnimation(accountListIntent)
+            startActivityWithDefaultTransition(accountListIntent)
         }
         binding.accountFollowers.setOnClickListener(accountListClickListener)
         binding.accountFollowing.setOnClickListener(accountListClickListener)
@@ -297,7 +309,10 @@ class AccountActivity :
 
                 override fun onTabUnselected(tab: TabLayout.Tab?) {}
 
-                override fun onTabSelected(tab: TabLayout.Tab?) {}
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    tab?.position ?: return
+                    onBackPressedCallback.isEnabled = tab.position > 0
+                }
             },
         )
     }
@@ -312,6 +327,14 @@ class AccountActivity :
             val bottom = insets.getInsets(systemBars()).bottom
             val left = insets.getInsets(systemBars()).left
             binding.accountCoordinatorLayout.updatePadding(right = right, bottom = bottom, left = left)
+
+            // Normal swipe spinner startOffset is negative so it slides down from the view
+            // above it. This puts it above the systembar and it finishes too high up the
+            // screen. Move it down so it starts at the top edge, scale it so it appears to
+            // grow instead of appearing out of thin air, and keep the final resting place at
+            // the same relative offset to the start.
+            val absoluteOffset = binding.swipeRefreshLayout.progressViewEndOffset - binding.swipeRefreshLayout.progressViewStartOffset
+            binding.swipeRefreshLayout.setProgressViewOffset(true, 0, absoluteOffset)
 
             WindowInsetsCompat.CONSUMED
         }
@@ -554,7 +577,7 @@ class AccountActivity :
     }
 
     private fun viewImage(view: View, uri: String) {
-        view.transitionName = uri
+        ViewCompat.setTransitionName(view, uri)
         startActivity(
             ViewMediaActivityIntent(view.context, uri),
             ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, uri).toBundle(),
@@ -623,7 +646,7 @@ class AccountActivity :
             binding.accountFollowButton.setOnClickListener {
                 if (viewModel.isSelf) {
                     val intent = EditProfileActivityIntent(this@AccountActivity)
-                    startActivity(intent)
+                    startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     return@setOnClickListener
                 }
 
@@ -951,13 +974,13 @@ class AccountActivity :
     }
 
     override fun onViewTag(tag: String) {
-        val intent = StatusListActivityIntent.hashtag(this, tag)
-        startActivityWithSlideInAnimation(intent)
+        val intent = TimelineActivityIntent.hashtag(this, tag)
+        startActivityWithDefaultTransition(intent)
     }
 
     override fun onViewAccount(id: String) {
         val intent = AccountActivityIntent(this, id)
-        startActivityWithSlideInAnimation(intent)
+        startActivityWithDefaultTransition(intent)
     }
 
     override fun onViewUrl(url: String) {

@@ -37,13 +37,13 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
 import app.pachli.components.trending.viewmodel.TrendingTagsViewModel
-import app.pachli.core.activity.BaseActivity
 import app.pachli.core.activity.RefreshableFragment
+import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.navigation.StatusListActivityIntent
+import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.databinding.FragmentTrendingTagsBinding
 import app.pachli.interfaces.ActionButtonActivity
@@ -111,6 +111,7 @@ class TrendingTagsFragment :
             }
         }
 
+        // Hide the action button so it doesn't obscure chart information
         (activity as? ActionButtonActivity)?.actionButton?.hide()
     }
 
@@ -172,8 +173,8 @@ class TrendingTagsFragment :
     }
 
     fun onViewTag(tag: String) {
-        (requireActivity() as BaseActivity).startActivityWithSlideInAnimation(
-            StatusListActivityIntent.hashtag(
+        activity?.startActivityWithDefaultTransition(
+            TimelineActivityIntent.hashtag(
                 requireContext(),
                 tag,
             ),

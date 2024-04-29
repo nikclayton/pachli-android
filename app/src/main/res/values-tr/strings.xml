@@ -304,7 +304,7 @@
     <string name="compose_shortcut_short_label">Oluştur</string>
     <string name="notification_clear_text">Tüm bildirimleri kalıcı olarak silmek istediğinizden emin misiniz\?</string>
     <string name="compose_preview_image_description">%s görüntüsü için eylemler</string>
-    <string name="poll_info_format"> <!-- 15 oy • 1 saat kaldı --> %1$s • %2$s</string>
+    <string name="poll_info_format"><!-- 15 oy • 1 saat kaldı -->%1$s • %2$s</string>
     <plurals name="poll_info_votes">
         <item quantity="one">%s oy</item>
         <item quantity="other">%s oylar</item>
@@ -524,7 +524,7 @@
     <string name="status_created_info">%1$s oluşturdu</string>
     <string name="dialog_follow_hashtag_title">Etiketi takip et</string>
     <string name="dialog_follow_hashtag_hint">#etiket</string>
-    <string name="compose_unsaved_changes">Kaydedilmemiş değişikliklerin var.</string>
+    <string name="unsaved_changes">Kaydedilmemiş değişikliklerin var.</string>
     <string name="status_edit_info">%1$s düzenledi</string>
     <string name="title_edits">Düzenlemeler</string>
     <string name="hint_description">Açıklama</string>
@@ -547,13 +547,13 @@
     <string name="notification_unknown_name">Bilinmeyen</string>
     <string name="socket_timeout_exception">Sunucuyla bağlantı kurmak çok uzun sürdü</string>
     <string name="ui_error_unknown">bilinmeyen sebep</string>
-    <string name="ui_error_bookmark">Yer imi gönderisi başarısız oldu: %s</string>
-    <string name="ui_error_vote">Ankete oy gönderilemedi: %s</string>
+    <string name="ui_error_bookmark_fmt">Yer imi gönderisi başarısız oldu: %1$s</string>
+    <string name="ui_error_vote_fmt">Ankete oy gönderilemedi: %1$s</string>
     <string name="ui_error_clear_notifications">Bildirimler temizlenemedi: %s</string>
-    <string name="ui_error_favourite">Gönderi gözdelere eklenemedi: %s</string>
+    <string name="ui_error_favourite_fmt">Gönderi gözdelere eklenemedi: %1$s</string>
     <string name="ui_error_accept_follow_request">Takip isteği kabul edilemedi: %s</string>
     <string name="ui_error_reject_follow_request">Takip isteği reddedilemedi: %s</string>
-    <string name="ui_error_reblog">Gönderi yeniden paylaşılamadı: %s</string>
+    <string name="ui_error_reblog_fmt">Gönderi yeniden paylaşılamadı: %1$s</string>
     <string name="ui_success_accepted_follow_request">Takip isteği kabul edildi</string>
     <string name="ui_success_rejected_follow_request">Takip isteği engellendi</string>
     <string name="description_login">Çoğu durumda çalışır. Diğer uygulamalara veri sızmaz.</string>

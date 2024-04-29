@@ -308,7 +308,7 @@
     <string name="notification_clear_text">Är du säker på att du vill rensa dina aviseringar permanent\?</string>
     <string name="action_delete_and_redraft">Radera och skriv på nytt</string>
     <string name="dialog_redraft_post_warning">Radera och skriv ny toot\?</string>
-    <string name="poll_info_format"> \u0020<!-- 15 röster • 1 timme kvar --> \u0020%1$s • %2$s</string>
+    <string name="poll_info_format"><!-- 15 röster • 1 timme kvar -->%1$s • %2$s</string>
     <plurals name="poll_info_votes">
         <item quantity="one">%s röst</item>
         <item quantity="other">%s röster</item>
@@ -532,7 +532,7 @@
     <string name="status_created_info">%1$s skapade</string>
     <string name="action_discard">Förkasta ändringar</string>
     <string name="action_continue_edit">Fortsätt redigera</string>
-    <string name="compose_unsaved_changes">Du har ändringar som inte sparats.</string>
+    <string name="unsaved_changes">Du har ändringar som inte sparats.</string>
     <string name="action_post_failed">Uppladdning misslyckades</string>
     <string name="action_post_failed_detail">Ett fel inträffade när inlägget skulle laddas upp och har sparats till utkast.
 \n
@@ -586,12 +586,12 @@
     <string name="notification_listenable_worker_description">Aviseringar när Pachli arbetar i bakgrunden</string>
     <string name="notification_notification_worker">Hämtar aviseringar…</string>
     <string name="notification_prune_cache">Cacheunderhåll…</string>
-    <string name="ui_error_reblog">Att knuffa inlägg misslyckades: %s</string>
-    <string name="ui_error_vote">Rösta i omröstning misslyckades: %s</string>
+    <string name="ui_error_reblog_fmt">Att knuffa inlägg misslyckades: %1$s</string>
+    <string name="ui_error_vote_fmt">Rösta i omröstning misslyckades: %1$s</string>
     <string name="ui_error_accept_follow_request">Acceptera följarförfrågan misslyckades: %s</string>
-    <string name="ui_error_bookmark">Att bokmärka inlägg misslyckades: %s</string>
+    <string name="ui_error_bookmark_fmt">Att bokmärka inlägg misslyckades: %1$s</string>
     <string name="ui_error_clear_notifications">Rensing av aviseringar misslyckades: %s</string>
-    <string name="ui_error_favourite">Att favoritmarkera inlägg misslyckades: %s</string>
+    <string name="ui_error_favourite_fmt">Att favoritmarkera inlägg misslyckades: %1$s</string>
     <string name="error_list_load">Fel vid laddning av listor</string>
     <string name="ui_error_reject_follow_request">Avacceptera följarförgrågan misslyckades: %s</string>
     <string name="label_filter_context">Filtrera sammanhang</string>
@@ -601,7 +601,7 @@
     <string name="error_missing_edits">Din server vet att det här inlägget har redigerats, men har ingen kopia av ändringarna, så de kan inte visas för dig.
 \n
 \nDet är <a href="https://github.com/mastodon/mastodon/issues/25398">Mastodon problem #25398</a>.</string>
-    <string name="ui_error_translate_status">Översättning misslyckades: %s</string>
+    <string name="ui_error_translate_status_fmt">Översättning misslyckades: %1$s</string>
     <string name="update_dialog_negative">Påminna mig aldrig</string>
     <string name="translating">Översätter…</string>
     <string name="dialog_delete_filter_positive_action">Radera</string>
@@ -624,7 +624,7 @@
     <string name="error_media_upload_sending_fmt">Uppladdning misslyckades: %s</string>
     <string name="pref_update_notification_frequency_never">Aldrig</string>
     <string name="pref_title_show_self_boosts_description">Någon som knuffar sin toot</string>
-    <string name="ui_error_filter_v1_load">Laddning av filter misslyckades: %s</string>
+    <string name="ui_error_filter_v1_load_fmt">Laddning av filter misslyckades: %1$s</string>
     <string name="confirmation_hashtag_muted">#%s dold</string>
     <string name="janky_animation_title">Du behöver kanske starta om din enhet</string>
     <string name="confirmation_hashtag_unmuted">#%s avdold</string>

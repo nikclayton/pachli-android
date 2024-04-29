@@ -374,7 +374,7 @@
         <item quantity="many"><b>%s</b> пашыраных</item>
         <item quantity="other"><b>%s</b> пашыраных</item>
     </plurals>
-    <string name="compose_unsaved_changes">У Вас засталіся незахаваныя змены.</string>
+    <string name="unsaved_changes">У Вас засталіся незахаваныя змены.</string>
     <string name="expand_collapse_all_posts">Разгарнуць/згарнуць допісы</string>
     <string name="action_open_post">Адкрыць допіс</string>
     <string name="restart_required">Патрэбна перазапусціць праграму</string>
@@ -459,7 +459,7 @@
     <string name="send_account_username_to">Падзяліцца імем карыстальніка ўліковага запісу праз…</string>
     <string name="account_username_copied">Імя карыстальніка скапіявана</string>
     <string name="filter_apply">Прымяніць</string>
-    <string name="poll_info_format"> <!-- 15 галасоў • 1 гадзіна засталася --> %1$s • %2$s</string>
+    <string name="poll_info_format"><!-- 15 галасоў • 1 гадзіна засталася -->%1$s • %2$s</string>
     <string name="poll_info_time_absolute">завяршыцца ў %s</string>
     <plurals name="poll_timespan_hours">
         <item quantity="one">Засталася %d гадзіна</item>
@@ -572,10 +572,10 @@
     <string name="total_accounts">Усяго ўліковых запісаў</string>
     <string name="accessibility_talking_about_tag">%1$d людзей кажуць пра хэштэг %2$s</string>
     <string name="pref_title_show_stat_inline">Паказваць статыстыку допісаў у стужцы</string>
-    <string name="ui_error_reblog">Не атрымалася пашырыць допіс: %s</string>
+    <string name="ui_error_reblog_fmt">Не атрымалася пашырыць допіс: %1$s</string>
     <string name="hint_filter_title">Мой фільтр</string>
     <string name="filter_description_format">%s: %s</string>
-    <string name="ui_error_bookmark">Не атрымалася дадаць допіс да закладак: %s</string>
+    <string name="ui_error_bookmark_fmt">Не атрымалася дадаць допіс да закладак: %1$s</string>
     <string name="ui_error_accept_follow_request">Не атрымалася пацвердзіць запыт на падпіску: %s</string>
     <string name="ui_success_accepted_follow_request">Запыт на падпіску пацверджаны</string>
     <string name="ui_success_rejected_follow_request">Запыт на падпіску заблакіраваны</string>

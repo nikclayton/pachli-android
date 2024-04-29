@@ -18,32 +18,39 @@
 package app.pachli
 
 import android.content.Context
+import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat.getString
 import androidx.fragment.app.Fragment
 import app.pachli.components.conversation.ConversationsFragment
 import app.pachli.components.notifications.NotificationsFragment
 import app.pachli.components.timeline.TimelineFragment
 import app.pachli.components.trending.TrendingLinksFragment
 import app.pachli.components.trending.TrendingTagsFragment
-import app.pachli.core.database.model.TabData
-import app.pachli.core.network.model.TimelineKind
+import app.pachli.core.model.Timeline
+import app.pachli.core.navigation.ComposeActivityIntent
+import app.pachli.core.network.model.Status
 
 /**
- * Wrap a [TabData] with additional information to display a tab with that data.
+ * Wrap a [Timeline] with additional information to display a tab with that
+ * timeline.
  *
- * @param tabData wrapped [TabData]
+ * @param timeline wrapped [Timeline]
  * @param text text to use for this tab when displayed in lists
  * @param icon icon to use when displaying the tab
  * @param fragment [Fragment] to display the tab's contents
  * @param title title to display in the action bar if this tab is active
+ * @param composeIntent intent to launch [ComposeActivity] for this timeline, or null
+ *     if composing from this timeline is not supported
  */
 data class TabViewData(
-    val tabData: TabData,
+    val timeline: Timeline,
     @StringRes val text: Int,
     @DrawableRes val icon: Int,
     val fragment: () -> Fragment,
     val title: (Context) -> String = { context -> context.getString(text) },
+    val composeIntent: ((Context) -> Intent)? = { context -> ComposeActivityIntent(context) },
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -51,95 +58,112 @@ data class TabViewData(
 
         other as TabViewData
 
-        if (tabData != other.tabData) return false
+        if (timeline != other.timeline) return false
 
         return true
     }
 
-    override fun hashCode() = tabData.hashCode()
+    override fun hashCode() = timeline.hashCode()
 
     companion object {
-        fun from(tabData: TabData) = when (tabData) {
-            TabData.Home -> TabViewData(
-                tabData = tabData,
+        fun from(timeline: Timeline) = when (timeline) {
+            Timeline.Home -> TabViewData(
+                timeline = timeline,
                 text = R.string.title_home,
                 icon = R.drawable.ic_home_24dp,
-                fragment = { TimelineFragment.newInstance(TimelineKind.Home) },
+                fragment = { TimelineFragment.newInstance(timeline) },
             )
-            TabData.Notifications -> TabViewData(
-                tabData = tabData,
+            Timeline.Notifications -> TabViewData(
+                timeline = timeline,
                 text = R.string.title_notifications,
                 icon = R.drawable.ic_notifications_24dp,
                 fragment = { NotificationsFragment.newInstance() },
             )
-            TabData.Local -> TabViewData(
-                tabData = tabData,
+            Timeline.PublicLocal -> TabViewData(
+                timeline = timeline,
                 text = R.string.title_public_local,
                 icon = R.drawable.ic_local_24dp,
-                fragment = { TimelineFragment.newInstance(TimelineKind.PublicLocal) },
+                fragment = { TimelineFragment.newInstance(timeline) },
             )
-            TabData.Federated -> TabViewData(
-                tabData = tabData,
+            Timeline.PublicFederated -> TabViewData(
+                timeline = timeline,
                 text = R.string.title_public_federated,
                 icon = R.drawable.ic_public_24dp,
-                fragment = { TimelineFragment.newInstance(TimelineKind.PublicFederated) },
+                fragment = { TimelineFragment.newInstance(timeline) },
             )
-            TabData.Direct -> TabViewData(
-                tabData = tabData,
+            Timeline.Conversations -> TabViewData(
+                timeline = timeline,
                 text = R.string.title_direct_messages,
                 icon = R.drawable.ic_reblog_direct_24dp,
                 fragment = { ConversationsFragment.newInstance() },
-            )
-            TabData.TrendingTags -> TabViewData(
-                tabData = tabData,
+            ) {
+                ComposeActivityIntent(
+                    it,
+                    ComposeActivityIntent.ComposeOptions(visibility = Status.Visibility.PRIVATE),
+                )
+            }
+            Timeline.TrendingHashtags -> TabViewData(
+                timeline = timeline,
                 text = R.string.title_public_trending_hashtags,
                 icon = R.drawable.ic_trending_up_24px,
                 fragment = { TrendingTagsFragment.newInstance() },
+                composeIntent = null,
             )
-            TabData.TrendingLinks -> TabViewData(
-                tabData = tabData,
+            Timeline.TrendingLinks -> TabViewData(
+                timeline = timeline,
                 text = R.string.title_public_trending_links,
-                icon = R.drawable.ic_trending_up_24px,
+                icon = R.drawable.ic_newspaper_24,
                 fragment = { TrendingLinksFragment.newInstance() },
             )
-            TabData.TrendingStatuses -> TabViewData(
-                tabData = tabData,
+            Timeline.TrendingStatuses -> TabViewData(
+                timeline = timeline,
                 text = R.string.title_public_trending_statuses,
-                icon = R.drawable.ic_trending_up_24px,
-                fragment = { TimelineFragment.newInstance(TimelineKind.TrendingStatuses) },
+                icon = R.drawable.ic_whatshot_24,
+                fragment = { TimelineFragment.newInstance(timeline) },
             )
-            is TabData.Hashtag -> TabViewData(
-                tabData = tabData,
+            is Timeline.Hashtags -> TabViewData(
+                timeline = timeline,
                 text = R.string.hashtags,
                 icon = R.drawable.ic_hashtag,
-                fragment = { TimelineFragment.newInstance(TimelineKind.Tag(tabData.tags)) },
+                fragment = { TimelineFragment.newInstance(timeline) },
                 title = { context ->
-                    tabData.tags.joinToString(separator = " ") {
-                        context.getString(
-                            R.string.title_tag,
-                            it,
-                        )
+                    timeline.tags.joinToString(separator = " ") {
+                        context.getString(R.string.title_tag, it)
                     }
                 },
-            )
-            is TabData.UserList -> TabViewData(
-                tabData = tabData,
+            ) { context ->
+                val tag = (timeline as Timeline.Hashtags).tags.first()
+                ComposeActivityIntent(
+                    context,
+                    ComposeActivityIntent.ComposeOptions(
+                        content = getString(context, R.string.title_tag_with_initial_position).format(tag),
+                        initialCursorPosition = ComposeActivityIntent.ComposeOptions.InitialCursorPosition.START,
+                    ),
+                )
+            }
+
+            is Timeline.UserList -> TabViewData(
+                timeline = timeline,
                 text = R.string.list,
                 icon = app.pachli.core.ui.R.drawable.ic_list,
-                fragment = {
-                    TimelineFragment.newInstance(
-                        TimelineKind.UserList(tabData.listId, tabData.title),
-                    )
-                },
-                title = { tabData.title },
+                fragment = { TimelineFragment.newInstance(timeline) },
+                title = { timeline.title },
             )
-            TabData.Bookmarks -> TabViewData(
-                tabData = tabData,
+            Timeline.Bookmarks -> TabViewData(
+                timeline = timeline,
                 text = R.string.title_bookmarks,
                 icon = R.drawable.ic_bookmark_active_24dp,
-                fragment = { TimelineFragment.newInstance(TimelineKind.Bookmarks) },
+                fragment = { TimelineFragment.newInstance(timeline) },
             )
-            else -> throw IllegalArgumentException("unknown tab type: $tabData")
+            Timeline.Favourites -> TabViewData(
+                timeline = timeline,
+                text = R.string.title_favourites,
+                icon = R.drawable.ic_favourite_filled_24dp,
+                fragment = { TimelineFragment.newInstance(timeline) },
+            )
+            is Timeline.User.Pinned -> throw IllegalArgumentException("can't add to tab: $timeline")
+            is Timeline.User.Posts -> throw IllegalArgumentException("can't add to tab: $timeline")
+            is Timeline.User.Replies -> throw IllegalArgumentException("can't add to tab: $timeline")
         }
     }
 }

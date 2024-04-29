@@ -22,7 +22,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.TextView
@@ -30,11 +29,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import app.pachli.core.activity.BaseActivity
+import app.pachli.core.activity.extensions.TransitionKind
+import app.pachli.core.activity.extensions.setCloseTransition
+import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.activity.openLinkInCustomTab
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.designsystem.R as DR
+import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.navigation.LoginActivityIntent
 import app.pachli.core.navigation.MainActivityIntent
+import app.pachli.core.network.extensions.getServerErrorMessage
 import app.pachli.core.network.model.AccessToken
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.preferences.getNonNullString
@@ -129,13 +132,6 @@ class LoginActivity : BaseActivity() {
         return false
     }
 
-    override fun finish() {
-        super.finish()
-        if (isAdditionalLogin() || isAccountMigration()) {
-            overridePendingTransition(DR.anim.slide_from_left, DR.anim.slide_to_right)
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.add(R.string.action_browser_login)?.apply {
             setOnMenuItemClickListener {
@@ -198,9 +194,12 @@ class LoginActivity : BaseActivity() {
                 { e ->
                     binding.loginButton.isEnabled = true
                     binding.domainTextInputLayout.error =
-                        getString(R.string.error_failed_app_registration)
+                        String.format(
+                            getString(R.string.error_failed_app_registration_fmt),
+                            (e.getServerErrorMessage() ?: e.localizedMessage).unicodeWrap(),
+                        )
                     setLoading(false)
-                    Timber.e(Log.getStackTraceString(e))
+                    Timber.e(e, "Error when creating/registing app")
                     return@launch
                 },
             )
@@ -323,9 +322,9 @@ class LoginActivity : BaseActivity() {
 
             val intent = MainActivityIntent(this)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-            overridePendingTransition(DR.anim.explode, DR.anim.explode)
+            startActivityWithTransition(intent, TransitionKind.EXPLODE)
+            finishAffinity()
+            setCloseTransition(TransitionKind.EXPLODE)
         }, { e ->
             setLoading(false)
             binding.domainTextInputLayout.error =

@@ -32,8 +32,8 @@ android {
 
     defaultConfig {
         applicationId = "app.pachli"
-        versionCode = 12
-        versionName = "2.3.0"
+        versionCode = 13
+        versionName = "2.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -127,6 +127,7 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.database)
     implementation(projects.core.designsystem)
+    implementation(projects.core.model)
     implementation(projects.core.navigation)
     implementation(projects.core.network)
     implementation(projects.core.preferences)
@@ -181,6 +182,7 @@ dependencies {
     debugImplementation(libs.leakcanary)
 
     testImplementation(projects.core.testing)
+    testImplementation(projects.core.networkTest)
     testImplementation(libs.androidx.test.junit)
     testImplementation(libs.robolectric)
     testImplementation(libs.bundles.mockito)

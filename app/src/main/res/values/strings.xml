@@ -412,7 +412,7 @@
     <string name="compose_delete_draft">Delete draft?</string>
     <string name="compose_save_draft">Save draft?</string>
     <string name="compose_save_draft_loses_media">Save draft? (Attachments will be uploaded again when you restore the draft.)</string>
-    <string name="compose_unsaved_changes">You have unsaved changes.</string>
+    <string name="unsaved_changes">You have unsaved changes.</string>
     <string name="send_post_notification_title">Sending post…</string>
     <string name="send_post_notification_error_title">Error sending post</string>
     <string name="send_post_notification_channel_name">Sending Posts</string>
@@ -510,9 +510,7 @@
     <string name="compose_shortcut_short_label">Compose</string>
     <string name="notification_clear_text">Are you sure you want to permanently clear all your notifications?</string>
     <string name="compose_preview_image_description">Actions for image %s</string>
-    <string name="poll_info_format">
-        <!-- 15 votes • 1 hour left -->
-        %1$s • %2$s</string>
+    <string name="poll_info_format"><!-- 15 votes • 1 hour left -->%1$s • %2$s</string>
     <plurals name="poll_info_votes">
         <item quantity="one">%s vote</item>
         <item quantity="other">%s votes</item>
@@ -640,15 +638,15 @@
     <string name="socket_timeout_exception">Contacting your server took too long</string>
     <!-- Error messages, displayed in snackbars, when something failed -->
     <string name="ui_error_unknown">unknown reason</string>
-    <string name="ui_error_bookmark">Bookmarking post failed: %s</string>
+    <string name="ui_error_bookmark_fmt">Bookmarking post failed: %1$s</string>
     <string name="ui_error_clear_notifications">Clearing notifications failed: %s</string>
-    <string name="ui_error_favourite">Favoriting post failed: %s</string>
-    <string name="ui_error_reblog">Boosting post failed: %s</string>
-    <string name="ui_error_vote">Voting in poll failed: %s</string>
-    <string name="ui_error_translate_status">Translation failed: %s</string>
+    <string name="ui_error_favourite_fmt">Favoriting post failed: %1$s</string>
+    <string name="ui_error_reblog_fmt">Boosting post failed: %1$s</string>
+    <string name="ui_error_vote_fmt">Voting in poll failed: %1$s</string>
+    <string name="ui_error_translate_status_fmt">Translation failed: %1$s</string>
     <string name="ui_error_accept_follow_request">Accepting follow request failed: %s</string>
     <string name="ui_error_reject_follow_request">Rejecting follow request failed: %s</string>
-    <string name="ui_error_filter_v1_load">Loading filters failed: %s</string>
+    <string name="ui_error_filter_v1_load_fmt">Loading filters failed: %1$s</string>
     <!-- Success messages, displayed in snackbars, when an action succeeded -->
     <string name="ui_success_accepted_follow_request">Follow request accepted</string>
     <string name="ui_success_rejected_follow_request">Follow request blocked</string>
@@ -701,5 +699,12 @@
     <string name="pref_update_check_no_updates">There are no updates available</string>
     <string name="pref_update_next_scheduled_check">Next scheduled check: %1$s</string>
     <string name="error_media_download">Could not download %1$s: %2$d %3$s</string>
+    <string name="action_add_to_tab">Add to tab</string>
+    <string name="action_add_to_tab_success">Added \'%1$s\' to tabs</string>
+    <string name="action_remove_tab">Remove tab</string>
+    <string name="action_manage_tabs">Manage tabs</string>
+    <string name="error_filter_missing_keyword">At least one keyword or phrase is required</string>
+    <string name="error_filter_missing_context">At least one filter context is required</string>
+    <string name="error_filter_missing_title">Title is required</string>
 
 </resources>

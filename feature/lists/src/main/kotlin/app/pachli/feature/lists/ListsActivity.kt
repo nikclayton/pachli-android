@@ -39,12 +39,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.core.activity.BaseActivity
+import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.data.repository.Lists
 import app.pachli.core.data.repository.ListsRepository.Companion.compareByListTitle
-import app.pachli.core.navigation.StatusListActivityIntent
+import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.network.model.MastoList
 import app.pachli.core.network.model.UserListRepliesPolicy
 import app.pachli.core.network.retrofit.apiresult.ApiError
@@ -112,9 +114,27 @@ class ListsActivity : BaseActivity(), MenuProvider {
         lifecycleScope.launch {
             viewModel.errors.collect { error ->
                 when (error) {
-                    is Error.Create -> showMessage(getString(R.string.error_create_list_fmt, error.title, error.throwable.message))
-                    is Error.Delete -> showMessage(getString(R.string.error_delete_list_fmt, error.title, error.throwable.message))
-                    is Error.Update -> showMessage(getString(R.string.error_rename_list_fmt, error.title, error.throwable.message))
+                    is Error.Create -> showMessage(
+                        String.format(
+                            getString(R.string.error_create_list_fmt),
+                            error.title.unicodeWrap(),
+                            error.throwable.message.unicodeWrap(),
+                        ),
+                    )
+                    is Error.Delete -> showMessage(
+                        String.format(
+                            getString(R.string.error_delete_list_fmt),
+                            error.title.unicodeWrap(),
+                            error.throwable.message.unicodeWrap(),
+                        ),
+                    )
+                    is Error.Update -> showMessage(
+                        String.format(
+                            getString(R.string.error_rename_list_fmt),
+                            error.title.unicodeWrap(),
+                            error.throwable.message.unicodeWrap(),
+                        ),
+                    )
                 }
             }
         }
@@ -242,8 +262,8 @@ class ListsActivity : BaseActivity(), MenuProvider {
     }
 
     private fun onListSelected(listId: String, listTitle: String) {
-        startActivityWithSlideInAnimation(
-            StatusListActivityIntent.list(this, listId, listTitle),
+        startActivityWithDefaultTransition(
+            TimelineActivityIntent.list(this, listId, listTitle),
         )
     }
 

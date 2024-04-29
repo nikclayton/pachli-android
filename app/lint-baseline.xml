@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0)" variant="all" version="8.3.0">
+<issues format="6" by="lint 8.3.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.2)" variant="all" version="8.3.2">
 
     <issue
         id="InvalidPackage"
@@ -43,11 +43,33 @@
     <issue
         id="UnusedAttribute"
         message="Attribute `localeConfig` is only used in API level 33 and higher (current min is 23)"
-        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;>"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="24"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `networkSecurityConfig` is only used in API level 24 and higher (current min is 23)"
+        errorLine1="        android:networkSecurityConfig=&quot;@xml/network_security_config&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="25"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `enableOnBackInvokedCallback` is only used in API level 33 and higher (current min is 23)"
+        errorLine1="        android:enableOnBackInvokedCallback=&quot;true&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="26"
             column="9"/>
     </issue>
 
@@ -91,7 +113,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-bg/strings.xml"
-            line="122"
+            line="121"
             column="5"/>
     </issue>
 
@@ -124,7 +146,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-bg/strings.xml"
-            line="162"
+            line="161"
             column="5"/>
     </issue>
 
@@ -350,23 +372,23 @@
 
     <issue
         id="MissingQuantity"
-        message="For locale &quot;ca&quot; (Catalan) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;poll_info_people&quot;>"
+        message="For locale &quot;bg&quot; (Bulgarian) the following quantity should also be defined: `one` (e.g. &quot;1 ден&quot;)"
+        errorLine1="    &lt;plurals name=&quot;error_upload_max_media_reached&quot;>"
         errorLine2="    ^">
         <location
-            file="src/main/res/values-ca/strings.xml"
+            file="src/main/res/values-bg/strings.xml"
             line="369"
             column="5"/>
     </issue>
 
     <issue
         id="MissingQuantity"
-        message="For locale &quot;bg&quot; (Bulgarian) the following quantity should also be defined: `one` (e.g. &quot;1 ден&quot;)"
-        errorLine1="    &lt;plurals name=&quot;error_upload_max_media_reached&quot;>"
+        message="For locale &quot;ca&quot; (Catalan) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;poll_info_people&quot;>"
         errorLine2="    ^">
         <location
-            file="src/main/res/values-bg/strings.xml"
-            line="370"
+            file="src/main/res/values-ca/strings.xml"
+            line="369"
             column="5"/>
     </issue>
 
@@ -751,14 +773,14 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="636"
+            line="634"
             column="5"/>
     </issue>
 
     <issue
         id="UnusedTranslation"
         message="The language `ber (Berber languages)` is present in this project, but not declared in the `localeConfig` resource"
-        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;>"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -769,7 +791,7 @@
     <issue
         id="UnusedTranslation"
         message="The language `el (Greek)` is present in this project, but not declared in the `localeConfig` resource"
-        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;>"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -780,7 +802,7 @@
     <issue
         id="UnusedTranslation"
         message="The language `fi (Finnish)` is present in this project, but not declared in the `localeConfig` resource"
-        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;>"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -791,7 +813,7 @@
     <issue
         id="UnusedTranslation"
         message="The language `fy (Western Frisian)` is present in this project, but not declared in the `localeConfig` resource"
-        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;>"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -802,7 +824,7 @@
     <issue
         id="UnusedTranslation"
         message="The language `in (Indonesian)` is present in this project, but not declared in the `localeConfig` resource"
-        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;>"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -813,7 +835,7 @@
     <issue
         id="UnusedTranslation"
         message="The language `lv (Latvian)` is present in this project, but not declared in the `localeConfig` resource"
-        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;>"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -824,7 +846,7 @@
     <issue
         id="UnusedTranslation"
         message="The language `ml (Malayalam)` is present in this project, but not declared in the `localeConfig` resource"
-        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;>"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -835,7 +857,7 @@
     <issue
         id="UnusedTranslation"
         message="The language `si (Sinhala)` is present in this project, but not declared in the `localeConfig` resource"
-        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;>"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -846,7 +868,7 @@
     <issue
         id="UnusedTranslation"
         message="The language `sk (Slovak)` is present in this project, but not declared in the `localeConfig` resource"
-        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;>"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
@@ -872,7 +894,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="493"
+            line="516"
             column="9"/>
     </issue>
 
@@ -894,7 +916,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/adapter/AccountFieldEditAdapter.kt"
-            line="44"
+            line="49"
             column="9"/>
     </issue>
 
@@ -905,7 +927,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/adapter/AccountFieldEditAdapter.kt"
-            line="50"
+            line="55"
             column="9"/>
     </issue>
 
@@ -949,19 +971,8 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/adapter/TabAdapter.kt"
-            line="55"
+            line="53"
             column="9"/>
-    </issue>
-
-    <issue
-        id="NotifyDataSetChanged"
-        message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
-        errorLine1="            notifyDataSetChanged()"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/adapter/TabAdapter.kt"
-            line="158"
-            column="13"/>
     </issue>
 
     <issue
@@ -1543,7 +1554,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="552"
+            line="550"
             column="13"/>
     </issue>
 
@@ -1554,7 +1565,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="593"
+            line="591"
             column="13"/>
     </issue>
 
@@ -1565,7 +1576,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="599"
+            line="597"
             column="13"/>
     </issue>
 
@@ -1576,7 +1587,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="628"
+            line="626"
             column="13"/>
     </issue>
 
@@ -1587,19 +1598,8 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="655"
+            line="653"
             column="13"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;--&quot; with an &quot;em dash&quot; character (—, &amp;#8212;) ?"
-        errorLine1="    &lt;string name=&quot;poll_info_format&quot;>&quot; &amp;lt;!-- 15 votes • 1 hour left --&amp;gt; %1$s • %2$s&quot;&lt;!-- 15 votes • 1 hour left -->"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-bg/strings.xml"
-            line="52"
-            column="37"/>
     </issue>
 
     <issue
@@ -2430,7 +2430,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_tab_preference.xml"
-            line="26"
+            line="27"
             column="6"/>
     </issue>
 
@@ -2617,30 +2617,8 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/util/ShareShortcutHelper.kt"
-            line="84"
+            line="96"
             column="5"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view ``ImageView`` has `setOnTouchListener` called on it but does not override `performClick`"
-        errorLine1="            binding.imageView.setOnTouchListener { _, event ->"
-        errorLine2="            ^">
-        <location
-            file="src/main/java/app/pachli/adapter/TabAdapter.kt"
-            line="92"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="`onTouch` lambda should call `View#performClick` when a click is detected"
-        errorLine1="            binding.imageView.setOnTouchListener { _, event ->"
-        errorLine2="                                                 ^">
-        <location
-            file="src/main/java/app/pachli/adapter/TabAdapter.kt"
-            line="92"
-            column="50"/>
     </issue>
 
     <issue
@@ -2784,17 +2762,6 @@
             file="src/main/res/layout/view_compose_schedule.xml"
             line="38"
             column="9"/>
-    </issue>
-
-    <issue
-        id="NullSafeMutableLiveData"
-        message="Expected non-nullable value"
-        errorLine1="            emojisMutable.postValue(instanceInfoRepo.getEmojis())"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/components/announcements/AnnouncementsViewModel.kt"
-            line="54"
-            column="37"/>
     </issue>
 
 </issues>

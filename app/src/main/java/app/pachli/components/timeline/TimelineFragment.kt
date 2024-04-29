@@ -49,18 +49,20 @@ import app.pachli.components.timeline.viewmodel.StatusAction
 import app.pachli.components.timeline.viewmodel.StatusActionSuccess
 import app.pachli.components.timeline.viewmodel.TimelineViewModel
 import app.pachli.components.timeline.viewmodel.UiSuccess
-import app.pachli.core.activity.BaseActivity
 import app.pachli.core.activity.RefreshableFragment
+import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.common.extensions.visible
+import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.database.model.TranslationState
+import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
+import app.pachli.core.network.extensions.getServerErrorMessage
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
-import app.pachli.core.network.model.TimelineKind
+import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.extensions.getErrorString
 import app.pachli.databinding.FragmentTimelineBinding
@@ -88,6 +90,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
@@ -112,11 +115,11 @@ class TimelineFragment :
     // If the navigation library was being used this would happen automatically, so this
     // workaround can be removed when that change happens.
     private val viewModel: TimelineViewModel by lazy {
-        if (timelineKind == TimelineKind.Home) {
+        if (timeline == Timeline.Home) {
             viewModels<CachedTimelineViewModel>(
                 extrasProducer = {
                     MutableCreationExtras(defaultViewModelCreationExtras).apply {
-                        set(DEFAULT_ARGS_KEY, TimelineViewModel.creationExtras(timelineKind))
+                        set(DEFAULT_ARGS_KEY, TimelineViewModel.creationExtras(timeline))
                     }
                 },
             ).value
@@ -124,7 +127,7 @@ class TimelineFragment :
             viewModels<NetworkTimelineViewModel>(
                 extrasProducer = {
                     MutableCreationExtras(defaultViewModelCreationExtras).apply {
-                        set(DEFAULT_ARGS_KEY, TimelineViewModel.creationExtras(timelineKind))
+                        set(DEFAULT_ARGS_KEY, TimelineViewModel.creationExtras(timeline))
                     }
                 },
             ).value
@@ -133,7 +136,7 @@ class TimelineFragment :
 
     private val binding by viewBinding(FragmentTimelineBinding::bind)
 
-    private lateinit var timelineKind: TimelineKind
+    private lateinit var timeline: Timeline
 
     private lateinit var adapter: TimelinePagingAdapter
 
@@ -154,7 +157,7 @@ class TimelineFragment :
 
         val arguments = requireArguments()
 
-        timelineKind = arguments.getParcelable(KIND_ARG)!!
+        timeline = arguments.getParcelable(KIND_ARG)!!
 
         isSwipeToRefreshEnabled = arguments.getBoolean(ARG_ENABLE_SWIPE_TO_REFRESH, true)
 
@@ -188,24 +191,19 @@ class TimelineFragment :
         setupSwipeRefreshLayout()
         setupRecyclerView()
 
-        if (actionButtonPresent()) {
-            binding.recyclerView.addOnScrollListener(
-                object : RecyclerView.OnScrollListener() {
-                    val actionButton = (activity as? ActionButtonActivity)?.actionButton
+        (activity as? ActionButtonActivity)?.actionButton?.let { actionButton ->
+            actionButton.show()
 
-                    override fun onScrolled(view: RecyclerView, dx: Int, dy: Int) {
-                        actionButton?.visible(viewModel.uiState.value.showFabWhileScrolling || dy == 0)
+            val actionButtonScrollListener = ActionButtonScrollListener(actionButton)
+            binding.recyclerView.addOnScrollListener(actionButtonScrollListener)
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    viewModel.uiState.distinctUntilChangedBy { it.showFabWhileScrolling }.collect {
+                        actionButtonScrollListener.showActionButtonWhileScrolling = it.showFabWhileScrolling
                     }
-
-                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                        newState != SCROLL_STATE_IDLE && return
-
-                        actionButton?.show()
-
-                        saveVisibleId()
-                    }
-                },
-            )
+                }
+            }
         }
 
         /**
@@ -239,8 +237,10 @@ class TimelineFragment :
                     viewModel.uiError.collect { error ->
                         val message = getString(
                             error.message,
-                            error.throwable.localizedMessage
-                                ?: getString(R.string.ui_error_unknown),
+                            (
+                                error.throwable.getServerErrorMessage() ?: error.throwable.localizedMessage
+                                    ?: getString(R.string.ui_error_unknown)
+                                ).unicodeWrap(),
                         )
                         Timber.d(error.throwable, message)
                         snackbar = Snackbar.make(
@@ -466,7 +466,7 @@ class TimelineFragment :
                                 PresentationState.PRESENTED -> {
                                     if (adapter.itemCount == 0) {
                                         binding.statusView.setup(BackgroundMessage.Empty())
-                                        if (timelineKind == TimelineKind.Home) {
+                                        if (timeline == Timeline.Home) {
                                             binding.statusView.showHelp(R.string.help_empty_home)
                                         }
                                         binding.statusView.show()
@@ -567,6 +567,14 @@ class TimelineFragment :
             header = TimelineLoadStateAdapter { adapter.retry() },
             footer = TimelineLoadStateAdapter { adapter.retry() },
         )
+
+        binding.recyclerView.addOnScrollListener(
+            object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == SCROLL_STATE_IDLE) saveVisibleId()
+                }
+            },
+        )
     }
 
     /** Refresh the displayed content, as if the user had swiped on the SwipeRefreshLayout */
@@ -629,12 +637,12 @@ class TimelineFragment :
 
     override fun onShowReblogs(statusId: String) {
         val intent = AccountListActivityIntent(requireContext(), AccountListActivityIntent.Kind.REBLOGGED, statusId)
-        (activity as BaseActivity).startActivityWithSlideInAnimation(intent)
+        activity?.startActivityWithDefaultTransition(intent)
     }
 
     override fun onShowFavs(statusId: String) {
         val intent = AccountListActivityIntent(requireContext(), AccountListActivityIntent.Kind.FAVOURITED, statusId)
-        (activity as BaseActivity).startActivityWithSlideInAnimation(intent)
+        activity?.startActivityWithDefaultTransition(intent)
     }
 
     override fun onContentCollapsedChange(viewData: StatusViewData, isCollapsed: Boolean) {
@@ -642,7 +650,7 @@ class TimelineFragment :
     }
 
     // Can only translate the home timeline at the moment
-    override fun canTranslate() = timelineKind == TimelineKind.Home
+    override fun canTranslate() = timeline == Timeline.Home
 
     override fun onTranslate(statusViewData: StatusViewData) {
         viewModel.accept(StatusAction.Translate(statusViewData))
@@ -672,10 +680,10 @@ class TimelineFragment :
     }
 
     override fun onViewTag(tag: String) {
-        val timelineKind = viewModel.timelineKind
+        val timelineKind = viewModel.timeline
 
         // If already viewing a tag page, then ignore any request to view that tag again.
-        if (timelineKind is TimelineKind.Tag && timelineKind.tags.contains(tag)) {
+        if ((timelineKind as? Timeline.Hashtags)?.tags?.contains(tag) == true) {
             return
         }
 
@@ -683,10 +691,10 @@ class TimelineFragment :
     }
 
     override fun onViewAccount(id: String) {
-        val timelineKind = viewModel.timelineKind
+        val timelineKind = viewModel.timeline
 
         // Ignore request to view the account page we're currently viewing
-        if (timelineKind is TimelineKind.User && timelineKind.id == id) {
+        if (timelineKind is Timeline.User && timelineKind.id == id) {
             return
         }
 
@@ -703,35 +711,31 @@ class TimelineFragment :
      * that have been made to it.
      */
     private fun handleStatusSentOrEdit(status: Status) {
-        when (timelineKind) {
-            is TimelineKind.User.Pinned -> return
+        when (timeline) {
+            is Timeline.User.Pinned -> return
 
-            is TimelineKind.Home,
-            is TimelineKind.PublicFederated,
-            is TimelineKind.PublicLocal,
+            is Timeline.Home,
+            is Timeline.PublicFederated,
+            is Timeline.PublicLocal,
             -> adapter.refresh()
-            is TimelineKind.User -> if (status.account.id == (timelineKind as TimelineKind.User).id) {
+            is Timeline.User -> if (status.account.id == (timeline as Timeline.User).id) {
                 adapter.refresh()
             }
-            is TimelineKind.Bookmarks,
-            is TimelineKind.Favourites,
-            is TimelineKind.Tag,
-            is TimelineKind.TrendingStatuses,
-            is TimelineKind.UserList,
+            is Timeline.Bookmarks,
+            is Timeline.Favourites,
+            is Timeline.Hashtags,
+            is Timeline.TrendingStatuses,
+            is Timeline.UserList,
+            is Timeline.Conversations,
+            Timeline.Notifications,
+            Timeline.TrendingHashtags,
+            Timeline.TrendingLinks,
             -> return
         }
     }
 
     public override fun removeItem(viewData: StatusViewData) {
         viewModel.removeStatusWithId(viewData.id)
-    }
-
-    private fun actionButtonPresent(): Boolean {
-        return viewModel.timelineKind !is TimelineKind.Tag &&
-            viewModel.timelineKind !is TimelineKind.Favourites &&
-            viewModel.timelineKind !is TimelineKind.Bookmarks &&
-            viewModel.timelineKind !is TimelineKind.TrendingStatuses &&
-            activity is ActionButtonActivity
     }
 
     private var talkBackWasEnabled = false
@@ -771,12 +775,12 @@ class TimelineFragment :
         private const val ARG_ENABLE_SWIPE_TO_REFRESH = "enableSwipeToRefresh"
 
         fun newInstance(
-            timelineKind: TimelineKind,
+            timeline: Timeline,
             enableSwipeToRefresh: Boolean = true,
         ): TimelineFragment {
             val fragment = TimelineFragment()
             val arguments = Bundle(2)
-            arguments.putParcelable(KIND_ARG, timelineKind)
+            arguments.putParcelable(KIND_ARG, timeline)
             arguments.putBoolean(ARG_ENABLE_SWIPE_TO_REFRESH, enableSwipeToRefresh)
             fragment.arguments = arguments
             return fragment

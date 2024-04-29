@@ -614,7 +614,9 @@ interface MastodonApi {
         @Field("context[]") context: List<FilterContext>,
         @Field("irreversible") irreversible: Boolean?,
         @Field("whole_word") wholeWord: Boolean?,
-        @Field("expires_in") expiresInSeconds: Int?,
+        // String not Int because the empty string is used to represent "indefinite",
+        // see https://github.com/mastodon/documentation/issues/1216#issuecomment-2030222940
+        @Field("expires_in") expiresInSeconds: String?,
     ): NetworkResult<FilterV1>
 
     @FormUrlEncoded
@@ -625,7 +627,9 @@ interface MastodonApi {
         @Field("context[]") context: List<FilterContext>,
         @Field("irreversible") irreversible: Boolean?,
         @Field("whole_word") wholeWord: Boolean?,
-        @Field("expires_in") expiresInSeconds: Int?,
+        // String not Int because the empty string is used to represent "indefinite",
+        // see https://github.com/mastodon/documentation/issues/1216#issuecomment-2030222940
+        @Field("expires_in") expiresInSeconds: String?,
     ): NetworkResult<FilterV1>
 
     @DELETE("api/v1/filters/{id}")
@@ -639,7 +643,9 @@ interface MastodonApi {
         @Field("title") title: String,
         @Field("context[]") context: List<FilterContext>,
         @Field("filter_action") filterAction: Filter.Action,
-        @Field("expires_in") expiresInSeconds: Int?,
+        // String not Int because the empty string is used to represent "indefinite",
+        // see https://github.com/mastodon/documentation/issues/1216#issuecomment-2030222940
+        @Field("expires_in") expiresInSeconds: String?,
     ): NetworkResult<Filter>
 
     @FormUrlEncoded
@@ -649,7 +655,9 @@ interface MastodonApi {
         @Field("title") title: String? = null,
         @Field("context[]") context: List<FilterContext>? = null,
         @Field("filter_action") filterAction: Filter.Action? = null,
-        @Field("expires_in") expiresInSeconds: Int? = null,
+        // String not Int because the empty string is used to represent "indefinite",
+        // see https://github.com/mastodon/documentation/issues/1216#issuecomment-2030222940
+        @Field("expires_in") expiresInSeconds: String? = null,
     ): NetworkResult<Filter>
 
     @DELETE("api/v2/filters/{id}")
@@ -779,11 +787,17 @@ interface MastodonApi {
     suspend fun unfollowTag(@Path("name") name: String): NetworkResult<HashTag>
 
     @GET("api/v1/trends/tags")
-    suspend fun trendingTags(): NetworkResult<List<TrendingTag>>
+    suspend fun trendingTags(
+        @Query("limit") limit: Int? = null,
+    ): NetworkResult<List<TrendingTag>>
 
     @GET("api/v1/trends/links")
-    suspend fun trendingLinks(): NetworkResult<List<TrendsLink>>
+    suspend fun trendingLinks(
+        @Query("limit") limit: Int? = null,
+    ): NetworkResult<List<TrendsLink>>
 
     @GET("api/v1/trends/statuses")
-    suspend fun trendingStatuses(): Response<List<Status>>
+    suspend fun trendingStatuses(
+        @Query("limit") limit: Int? = null,
+    ): Response<List<Status>>
 }
