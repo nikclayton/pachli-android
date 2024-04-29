@@ -790,26 +790,35 @@ data object CreateGithubRelease : ReleaseStep() {
 }
 
 @Serializable
-data object WaitForBitriseToBuild : ReleaseStep() {
+data object RunReleaseWorkflow : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        t.info(
-            """
-                Wait for Bitrise to build and upload the APK to Google Play.
+        val releaseWorkflowName = "upload-blue-release-google-play.yml"
+        val releaseTag = spec.releaseTag()
+        t.info("Running release workflow with $releaseTag")
+        t.info("Triggering https://github.com/pachli/pachli-android/actions/workflows/$releaseWorkflowName")
 
-                Check https://app.bitrise.io/app/a3e773c3c57a894c?workflow=workflow-release
-            """.trimIndent(),
+        val githubToken = System.getenv("GITHUB_TOKEN")
+            ?: throw UsageError("GITHUB_TOKEN is null")
+        val github = GitHubBuilder().withOAuthToken(githubToken).build()
+        val repo = github.getRepository(
+            "${config.repositoryMain.owner}/${config.repositoryMain.repo}",
         )
+        val releaseWorkflow = repo.getWorkflow(releaseWorkflowName)
+        releaseWorkflow.dispatch(releaseTag)
 
-        while (!t.confirm("Has Bitrise uploaded the APK?")) { }
         return null
     }
 }
 
 @Serializable
-data object MarkAsBetaOnPlay : ReleaseStep() {
+data object WaitForReleaseWorkflowToComplete : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        t.info("Run the workflow https://github.com/pachli/pachli-android/actions/workflows/upload-blue-release-google-play.yml")
-        while (!t.confirm("Have you done all this?")) { }
+        val releaseWorkflowName = "upload-blue-release-google-play.yml"
+
+        // TODO - poll for workflow state every minute to see if it completes
+
+        t.info("Wait for workflow to complete: https://github.com/pachli/pachli-android/actions/workflows/$releaseWorkflowName")
+        while (!t.confirm("Has it completed?")) { }
         return null
     }
 }

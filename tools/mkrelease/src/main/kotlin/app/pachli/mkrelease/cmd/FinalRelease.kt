@@ -53,7 +53,8 @@ class FinalRelease : CliktCommand(name = "final") {
             PushTaggedMain,
             CreateGithubRelease,
 //            WaitForBitriseToBuild,
-            MarkAsBetaOnPlay,
+            RunReleaseWorkflow,
+            WaitForReleaseWorkflowToComplete,
             DownloadApk,
             AttachApkToGithubRelease,
             // Promote the release to the non-testing track
