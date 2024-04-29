@@ -16,6 +16,7 @@
  */
 
 plugins {
+    alias(libs.plugins.pachli.tool)
     kotlin("plugin.serialization") version "1.9.0"
 }
 
@@ -50,18 +51,6 @@ dependencies {
 
     // Gitlab API
     implementation("org.gitlab4j:gitlab4j-api:5.2.0")
-
-    // Logging
-    implementation("io.github.oshai:kotlin-logging-jvm:6.0.3")
-    implementation("ch.qos.logback:logback-classic:1.4.14")
-
-    // Testing
-    testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2") // for parameterized tests
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 // Fixes:
