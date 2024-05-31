@@ -42,7 +42,6 @@ import org.xml.sax.XMLReader
 
 class ViewEditsAdapter(
     private val edits: List<StatusEdit>,
-    private val animateAvatars: Boolean,
     private val animateEmojis: Boolean,
     private val useBlurhash: Boolean,
     private val listener: LinkListener,
@@ -135,12 +134,12 @@ class ViewEditsAdapter(
             // binding.statusEditPollDescription.show()
 
             val pollAdapter = PollAdapter(
-                options = poll.options.map { PollOptionViewData.from(it, false) },
+                options = poll.options.map { PollOptionViewData.from(it) },
                 votesCount = 0,
                 votersCount = null,
                 edit.emojis,
                 animateEmojis = animateEmojis,
-                displayMode = if (poll.multiple) DisplayMode.MULTIPLE_CHOICE else DisplayMode.SINGLE_CHOICE,
+                displayMode = DisplayMode.EDIT_HISTORY,
                 enabled = false,
                 resultClickListener = null,
                 pollOptionClickListener = null,
@@ -210,11 +209,6 @@ class ViewEditsAdapter(
     }
 
     override fun getItemCount() = edits.size
-
-    companion object {
-        private const val VIEW_TYPE_EDITS_NEWEST = 0
-        private const val VIEW_TYPE_EDITS = 1
-    }
 }
 
 /**

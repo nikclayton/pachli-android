@@ -36,13 +36,13 @@ open class Extractor {
 
     private fun removeOverlappingEntities(entities: MutableList<Entity>) {
         // sort by index
-        entities.sortWith(Comparator { e1, e2 -> e1.start - e2.start })
+        entities.sortWith { e1, e2 -> e1.start - e2.start }
 
         // Remove overlapping entities.
         // Two entities overlap only when one is URL and the other is hashtag/mention
         // which is a part of the URL. When it happens, we choose URL over hashtag/mention
         // by selecting the one with smaller start index.
-        if (!entities.isEmpty()) {
+        if (entities.isNotEmpty()) {
             val it = entities.iterator()
             var prev = it.next()
             while (it.hasNext()) {
@@ -269,7 +269,7 @@ open class Extractor {
         /**
          * The maximum url length that the Twitter backend supports.
          */
-        const val MAX_URL_LENGTH = 4096
+        private const val MAX_URL_LENGTH = 4096
 
         /**
          * The backend adds http:// for normal links and https to *.twitter.com URLs

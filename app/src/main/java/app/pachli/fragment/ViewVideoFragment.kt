@@ -33,7 +33,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.OptIn
-import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
@@ -67,8 +66,8 @@ import okhttp3.OkHttpClient
  * UI behaviour:
  *
  * - Fragment starts, media description is visible at top of screen, video starts playing
- * - Media description + toolbar disappears after [CONTROLS_TIMEOUT]
- * - Tapping shows controls + media description + toolbar, which fade after [CONTROLS_TIMEOUT]
+ * - Media description + toolbar disappears after [ViewMediaFragment.CONTROLS_TIMEOUT]
+ * - Tapping shows controls + media description + toolbar, which fade after [ViewMediaFragment.CONTROLS_TIMEOUT]
  * - Tapping pause, or the media description, pauses the video and the controls + media description
  *   remain visible
  */
@@ -134,7 +133,7 @@ class ViewVideoFragment : ViewMediaFragment() {
             var wasPlaying: Boolean? = null
 
             /** Handle taps and flings */
-            val simpleGestureDetector = GestureDetectorCompat(
+            val simpleGestureDetector = GestureDetector(
                 requireContext(),
                 object : GestureDetector.SimpleOnGestureListener() {
                     override fun onDown(e: MotionEvent) = true

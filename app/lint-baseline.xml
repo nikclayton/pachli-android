@@ -1483,6 +1483,28 @@
 
     <issue
         id="UnusedResources"
+        message="The resource `R.string.failed_to_pin` appears to be unused"
+        errorLine1="    &lt;string name=&quot;failed_to_pin&quot;>Failed to Pin&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="444"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.failed_to_unpin` appears to be unused"
+        errorLine1="    &lt;string name=&quot;failed_to_unpin&quot;>Failed to Unpin&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="445"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
         message="The resource `R.string.description_login` appears to be unused"
         errorLine1="    &lt;string name=&quot;description_login&quot;>Works in most cases. No data is leaked to other apps.&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1593,6 +1615,17 @@
 
     <issue
         id="UnusedResources"
+        message="The resource `R.string.ui_error_unknown` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ui_error_unknown&quot;>unknown reason&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="640"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
         message="The resource `R.string.hint_filter_title` appears to be unused"
         errorLine1="    &lt;string name=&quot;hint_filter_title&quot;>My filter&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1600,39 +1633,6 @@
             file="src/main/res/values/strings.xml"
             line="653"
             column="13"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;hint_search&quot;>검색...&lt;/string>"
-        errorLine2="                               ~~~~~">
-        <location
-            file="src/main/res/values-ko/strings.xml"
-            line="125"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;dialog_message_uploading_media&quot;>업로드 중...&lt;/string>"
-        errorLine2="                                                  ~~~~~~~~">
-        <location
-            file="src/main/res/values-ko/strings.xml"
-            line="131"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;compose_preview_image_description&quot;>이미지 %s를...&lt;/string>"
-        errorLine2="                                                     ~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ko/strings.xml"
-            line="315"
-            column="54"/>
     </issue>
 
     <issue
@@ -2430,7 +2430,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_tab_preference.xml"
-            line="27"
+            line="28"
             column="6"/>
     </issue>
 
@@ -2622,17 +2622,6 @@
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_tab_preference.xml"
-            line="14"
-            column="6"/>
-    </issue>
-
-    <issue
         id="KeyboardInaccessibleWidget"
         message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
         errorLine1="    android:clickable=&quot;true&quot;"
@@ -2641,17 +2630,6 @@
             file="src/main/res/layout/material_drawer_header.xml"
             line="8"
             column="5"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Filter: MyFilter&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;Filter: MyFilter&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_status_filtered.xml"
-            line="18"
-            column="9"/>
     </issue>
 
     <issue
@@ -2705,7 +2683,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/item_poll.xml"
-            line="36"
+            line="37"
             column="9"/>
     </issue>
 
