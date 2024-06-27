@@ -31,7 +31,7 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    id("com.gradle.develocity") version "3.17.4"
+    id("com.gradle.develocity") version "3.17.5"
 }
 
 develocity {
@@ -67,6 +67,7 @@ include(":core:ui")
 include(":feature:about")
 include(":feature:lists")
 include(":feature:login")
+include(":feature:suggestions")
 include(":tools")
 include(":tools:mklanguages")
 include(":tools:mkrelease")

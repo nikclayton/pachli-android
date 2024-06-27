@@ -28,7 +28,6 @@
     <string name="title_follow_requests">অনুরোধ অনুসরণ করুন</string>
     <string name="title_edit_profile">আপনার প্রোফাইল সম্পাদনা করুন</string>
     <string name="title_drafts">খসড়াগুলো</string>
-    <string name="post_username_format">\@%s</string>
     <string name="post_boosted_format">%s সমর্থন দিয়েছে</string>
     <string name="post_sensitive_media_title">সংবেদনশীল কন্টেন্ট</string>
     <string name="post_media_hidden_title">মিডিয়া লুকানো</string>
@@ -91,15 +90,10 @@
     <string name="action_content_warning">সতর্কবার্তা</string>
     <string name="action_emoji_keyboard">ইমোজি কীবোর্ড</string>
     <string name="action_add_tab">ট্যাব যুক্ত করুন</string>
-    <string name="action_links">লিংকসমূহ</string>
-    <string name="action_mentions">উল্লেখসমূহ</string>
-    <string name="action_hashtags">হ্যাশট্যাগ</string>
     <string name="action_open_reblogger">সমর্থক লেখক খুলুন</string>
     <string name="action_open_reblogged_by">সমর্থন দেখান</string>
     <string name="action_open_faved_by">প্রিয়গুলি দেখান</string>
-    <string name="title_hashtags_dialog">হ্যাশট্যাগ</string>
     <string name="title_mentions_dialog">উল্লেখসমূহ</string>
-    <string name="title_links_dialog">লিংকসমূহ</string>
     <string name="action_open_media_n">মিডিয়া খুলুন #%d</string>
     <string name="download_image">%1$s ডাউনলোড হচ্ছে</string>
     <string name="action_copy_link">লিঙ্ক অনুলিপি করুন</string>

@@ -94,6 +94,7 @@ import app.pachli.core.preferences.AppTheme
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.ui.extensions.getErrorString
+import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.ActivityComposeBinding
 import app.pachli.util.PickMediaFiles
 import app.pachli.util.getInitialLanguages
@@ -101,7 +102,6 @@ import app.pachli.util.getLocaleList
 import app.pachli.util.getMediaSize
 import app.pachli.util.highlightSpans
 import app.pachli.util.iconRes
-import app.pachli.util.makeIcon
 import app.pachli.util.modernLanguageCode
 import app.pachli.util.setDrawableTint
 import com.canhub.cropper.CropImage
@@ -413,6 +413,13 @@ class ComposeActivity :
         )
         binding.composeEditField.setTokenizer(ComposeTokenizer())
 
+        val mentionColour = binding.composeEditField.linkTextColors.defaultColor
+        highlightSpans(binding.composeEditField.text, mentionColour)
+        binding.composeEditField.doAfterTextChanged { editable ->
+            highlightSpans(editable!!, mentionColour)
+            viewModel.onContentChanged(editable)
+        }
+
         binding.composeEditField.setText(startingText)
 
         when (composeOptions?.initialCursorPosition ?: InitialCursorPosition.END) {
@@ -420,13 +427,6 @@ class ComposeActivity :
             InitialCursorPosition.END -> binding.composeEditField.setSelection(
                 binding.composeEditField.length(),
             )
-        }
-
-        val mentionColour = binding.composeEditField.linkTextColors.defaultColor
-        highlightSpans(binding.composeEditField.text, mentionColour)
-        binding.composeEditField.doAfterTextChanged { editable ->
-            highlightSpans(editable!!, mentionColour)
-            viewModel.onContentChanged(editable)
         }
 
         // work around Android platform bug -> https://issuetracker.google.com/issues/67102093
@@ -509,7 +509,7 @@ class ComposeActivity :
         lifecycleScope.launch {
             viewModel.uploadError.collect { throwable ->
                 if (throwable is UploadServerError) {
-                    displayTransientMessage(throwable.errorMessage)
+                    displayTransientMessage(throwable.getErrorString(this@ComposeActivity))
                 } else {
                     displayTransientMessage(
                         getString(R.string.error_media_upload_sending_fmt, throwable.getErrorString(this@ComposeActivity)),
@@ -594,7 +594,7 @@ class ComposeActivity :
     private fun setupLanguageSpinner(initialLanguages: List<String>) {
         binding.composePostLanguageButton.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.postLanguage = (parent.adapter.getItem(position) as Locale).modernLanguageCode
+                viewModel.onLanguageChanged((parent.adapter.getItem(position) as Locale).modernLanguageCode)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -927,7 +927,7 @@ class ComposeActivity :
 
     @VisibleForTesting
     val selectedLanguage: String?
-        get() = viewModel.postLanguage
+        get() = viewModel.language
 
     private fun updateVisibleCharactersLeft(textLength: Int) {
         val remainingLength = maximumTootCharacters - textLength

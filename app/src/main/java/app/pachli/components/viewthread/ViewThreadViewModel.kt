@@ -33,6 +33,7 @@ import app.pachli.components.timeline.FilterKind
 import app.pachli.components.timeline.FiltersRepository
 import app.pachli.components.timeline.util.ifExpected
 import app.pachli.core.accounts.AccountManager
+import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.TranslatedStatusEntity
@@ -44,7 +45,6 @@ import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.network.FilterModel
 import app.pachli.usecase.TimelineCases
-import app.pachli.util.StatusDisplayOptionsRepository
 import app.pachli.viewdata.StatusViewData
 import at.connyduck.calladapter.networkresult.fold
 import at.connyduck.calladapter.networkresult.getOrElse
@@ -88,18 +88,13 @@ class ViewThreadViewModel @Inject constructor(
 
     val statusDisplayOptions = statusDisplayOptionsRepository.flow
 
-    private val alwaysShowSensitiveMedia: Boolean
-    private val alwaysOpenSpoiler: Boolean
-
-    val activeAccount: AccountEntity
+    val activeAccount: AccountEntity = accountManager.activeAccount!!
+    private val alwaysShowSensitiveMedia: Boolean = activeAccount.alwaysShowSensitiveMedia
+    private val alwaysOpenSpoiler: Boolean = activeAccount.alwaysOpenSpoiler
 
     private var filterModel: FilterModel? = null
 
     init {
-        activeAccount = accountManager.activeAccount!!
-        alwaysShowSensitiveMedia = activeAccount.alwaysShowSensitiveMedia
-        alwaysOpenSpoiler = activeAccount.alwaysOpenSpoiler
-
         viewModelScope.launch {
             eventHub.events
                 .collect { event ->

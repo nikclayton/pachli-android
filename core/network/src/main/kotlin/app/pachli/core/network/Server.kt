@@ -17,7 +17,6 @@
 
 package app.pachli.core.network
 
-import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import app.pachli.core.common.PachliError
@@ -271,11 +270,15 @@ data class Server(
                     }
                 }
 
-                // GoToSocial has client-side filtering, not server-side
                 GOTOSOCIAL -> {
                     when {
                         // Implemented in https://github.com/superseriousbusiness/gotosocial/pull/2594
                         v >= "0.15.0".toVersion() -> c[ORG_JOINMASTODON_FILTERS_CLIENT] = "1.1.0".toVersion()
+                        // Implemented in https://github.com/superseriousbusiness/gotosocial/pull/2936
+                        v >= "0.16.0".toVersion() -> {
+                            c[ORG_JOINMASTODON_FILTERS_CLIENT] = "1.1.0".toVersion()
+                            c[ORG_JOINMASTODON_FILTERS_SERVER] = "1.0.0".toVersion()
+                        }
                     }
                 }
 
@@ -296,16 +299,13 @@ data class Server(
     }
 
     /** Errors that can occur when processing server capabilities */
-    sealed class Error(
-        @StringRes resourceId: Int,
-        vararg formatArgs: String,
-    ) : PachliError(resourceId, *formatArgs) {
+    sealed interface Error : PachliError {
         /** Could not parse the server's version string */
-        data class UnparseableVersion(val version: String, val throwable: Throwable) : Error(
-            R.string.server_error_unparseable_version,
-            version,
-            throwable.localizedMessage,
-        )
+        data class UnparseableVersion(val version: String, val throwable: Throwable) : Error {
+            override val resourceId = R.string.server_error_unparseable_version
+            override val formatArgs: Array<String> = arrayOf(version, throwable.localizedMessage ?: "")
+            override val cause: PachliError? = null
+        }
     }
 }
 

@@ -20,10 +20,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import app.pachli.R
 import app.pachli.core.network.model.HashTag
 import app.pachli.core.ui.BindingHolder
+import app.pachli.core.ui.LinkListener
 import app.pachli.databinding.ItemHashtagBinding
-import app.pachli.interfaces.LinkListener
 
 class SearchHashtagsAdapter(private val linkListener: LinkListener) :
     PagingDataAdapter<HashTag, BindingHolder<ItemHashtagBinding>>(HASHTAG_COMPARATOR) {
@@ -35,7 +36,7 @@ class SearchHashtagsAdapter(private val linkListener: LinkListener) :
 
     override fun onBindViewHolder(holder: BindingHolder<ItemHashtagBinding>, position: Int) {
         getItem(position)?.let { (name) ->
-            holder.binding.root.text = String.format("#%s", name)
+            holder.binding.root.text = holder.binding.root.context.getString(R.string.title_tag, name)
             holder.binding.root.setOnClickListener { linkListener.onViewTag(name) }
         }
     }

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="error_network">Ocorreu um erro de rede. Por favor, verifique tua Internet e tente novamente.</string>
-    <string name="error_network_fmt">Ocorreu um erro de rede: %s</string>
-    <string name="error_generic_fmt">Ocorreu um erro: %s</string>
-    <string name="error_404_not_found_fmt">Tua instância não suporta este recurso: %1$s</string>
     <string name="error_generic">Um erro ocorreu.</string>
     <string name="message_empty">Nada aqui.</string>
     <string name="action_retry">Tentar novamente</string>
@@ -11,4 +8,10 @@
     <string name="action_view_profile">Perfil</string>
     <string name="action_more">Mais</string>
     <string name="action_refresh">Atualizar</string>
+    <string name="url_domain_notifier">\u0020(🔗 %s)</string>
+    <string name="action_links">URL</string>
+    <string name="action_mentions">Menções</string>
+    <string name="action_hashtags">Hashtags</string>
+    <string name="title_links_dialog">Links</string>
+    <string name="title_hashtags_dialog">Hashtags</string>
 </resources>

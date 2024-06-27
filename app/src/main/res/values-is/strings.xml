@@ -36,7 +36,6 @@
     <string name="title_follow_requests">Fylgjendabeiðnir</string>
     <string name="title_edit_profile">Breyta notandasniðinu þínu</string>
     <string name="title_scheduled_posts">Áætlaðar færslur</string>
-    <string name="post_username_format">\@%s</string>
     <string name="post_boosted_format">%s endurbirti</string>
     <string name="post_sensitive_media_title">Viðkvæmt efni</string>
     <string name="post_media_hidden_title">Myndefni er falið</string>
@@ -103,15 +102,10 @@
     <string name="action_schedule_post">Tímasetja færslu</string>
     <string name="action_reset_schedule">Frumstilla</string>
     <string name="action_add_tab">Bæta við flipa</string>
-    <string name="action_links">Tenglar</string>
-    <string name="action_mentions">Tilvísanir</string>
-    <string name="action_hashtags">Myllumerki</string>
     <string name="action_open_reblogger">Opna höfund endurbirtingar</string>
     <string name="action_open_reblogged_by">Sýna endurbirtingar</string>
     <string name="action_open_faved_by">Birta eftirlæti</string>
-    <string name="title_hashtags_dialog">Myllumerki</string>
     <string name="title_mentions_dialog">Tilvísanir</string>
-    <string name="title_links_dialog">Tenglar</string>
     <string name="action_open_media_n">Opna myndefni #%d</string>
     <string name="download_image">Sæki %1$s</string>
     <string name="action_copy_link">Afrita tengilinn</string>
@@ -479,7 +473,6 @@
     <string name="failed_to_unpin">Mistókst að losa</string>
     <string name="pref_show_self_username_always">Alltaf</string>
     <string name="pref_show_self_username_disambiguate">Þegar er skráð inn á mörgum aðgöngum</string>
-    <string name="url_domain_notifier">\u0020(🔗 %s)</string>
     <string name="action_set_focus">Setja virknistað</string>
     <string name="pref_show_self_username_never">Aldrei</string>
     <string name="pref_title_show_self_username">Birta notandanafn á verkfærastikum</string>
@@ -557,7 +550,6 @@
     <string name="filter_description_hide">Fela alveg</string>
     <string name="ui_error_bookmark_fmt">Mistókst að bókamerkja færslu: %1$s</string>
     <string name="socket_timeout_exception">Rann út á tíma við að tengjast netþjóninum þínum</string>
-    <string name="ui_error_unknown">óþekkt ástæða</string>
     <string name="ui_error_clear_notifications">Vandamál með hreinsun á tilkynningum: %s</string>
     <string name="ui_error_reject_follow_request">Mistókst að hafna fylgjendabeiðni: %s</string>
     <string name="ui_success_accepted_follow_request">Samþykkt beiðni um að fylgjast með</string>

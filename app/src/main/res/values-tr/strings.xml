@@ -28,7 +28,6 @@
     <string name="title_follow_requests">Takip istekleri</string>
     <string name="title_edit_profile">Profili düzenle</string>
     <string name="title_drafts">Taslaklar</string>
-    <string name="post_username_format">\@%s</string>
     <string name="post_boosted_format">%s yeniden paylaştı</string>
     <string name="post_sensitive_media_title">Hassas medya</string>
     <string name="post_media_hidden_title">Gizlenmiş medya</string>
@@ -262,11 +261,7 @@
     <string name="action_unfavourite">Gözdeyi kaldır</string>
     <string name="action_view_domain_mutes">Gizli alan adları</string>
     <string name="action_mute_domain">%s alan adını sessize al</string>
-    <string name="action_links">Bağlantılar</string>
-    <string name="action_hashtags">Etiketler</string>
     <string name="action_open_faved_by">Gözdeleri göster</string>
-    <string name="title_hashtags_dialog">Etiketler</string>
-    <string name="title_links_dialog">Bağlantılar</string>
     <string name="download_media">Medya indir</string>
     <string name="downloading_media">Medya indiriliyor</string>
     <string name="mute_domain_warning">%s\? alan adından gelen her şeyi engellemek istediğinden emin misin\? Bu alan adından gelen içeriği herhangi bir genel zaman tünelinde veya bildirimlerinde göremezsiniz. Bu alan adındaki takipçilerin de kaldırılacak.</string>
@@ -337,7 +332,6 @@
     <string name="failed_fetch_posts">Yayınlar getirilemedi</string>
     <string name="report_description_1">Bildirim sunucu yöneticinize gönderilecektir. Bu hesabı neden bildirdiğinizle ilgili açıklama yapabilirsiniz:</string>
     <string name="report_description_remote_instance">Hesap başka bir sunucudan. Raporun anonim bir kopyasını da oraya gönderilsin mi\?</string>
-    <string name="action_mentions">Bahsedenler</string>
     <string name="action_open_reblogger">Gönderi yazanını aç</string>
     <string name="action_open_reblogged_by">Yeniden paylaşımları göster</string>
     <string name="title_mentions_dialog">Bahsedenler</string>
@@ -447,7 +441,6 @@
     <string name="duration_180_days">180 gün</string>
     <string name="duration_60_days">60 gün</string>
     <string name="duration_90_days">90 gün</string>
-    <string name="url_domain_notifier">\u0020(🔗 %s)</string>
     <string name="pref_default_post_language">Varsayılan gönderme dili</string>
     <string name="notification_report_name">Raporlar</string>
     <string name="notification_report_description">Denetleme raporlarıyla ilgili bildirimler</string>
@@ -546,7 +539,6 @@
     <string name="action_post_failed_do_nothing">Yoksay</string>
     <string name="notification_unknown_name">Bilinmeyen</string>
     <string name="socket_timeout_exception">Sunucuyla bağlantı kurmak çok uzun sürdü</string>
-    <string name="ui_error_unknown">bilinmeyen sebep</string>
     <string name="ui_error_bookmark_fmt">Yer imi gönderisi başarısız oldu: %1$s</string>
     <string name="ui_error_vote_fmt">Ankete oy gönderilemedi: %1$s</string>
     <string name="ui_error_clear_notifications">Bildirimler temizlenemedi: %s</string>

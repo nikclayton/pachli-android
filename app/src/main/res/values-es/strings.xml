@@ -28,7 +28,6 @@
     <string name="title_follow_requests">Solicitudes</string>
     <string name="title_edit_profile">Editar tu perfil</string>
     <string name="title_drafts">Borradores</string>
-    <string name="post_username_format">\@%s</string>
     <string name="post_boosted_format">%s impulsó</string>
     <string name="post_sensitive_media_title">Contenido sensible</string>
     <string name="post_media_hidden_title">Material oculto</string>
@@ -58,8 +57,8 @@
     <string name="action_show_reblogs">Mostrar impulsos</string>
     <string name="action_report">Reportar</string>
     <string name="action_delete">Eliminar</string>
-    <string name="action_send">TOOT</string>
-    <string name="action_send_public">¡Publicar!</string>
+    <string name="action_send">PUBLICAR</string>
+    <string name="action_send_public">¡PUBLICAR!</string>
     <string name="action_view_preferences">Ajustes</string>
     <string name="action_view_account_preferences">Preferencias de cuenta</string>
     <string name="action_view_favourites">Favoritos</string>
@@ -112,7 +111,7 @@
     <string name="dialog_download_image">Descargar</string>
     <string name="dialog_message_cancel_follow_request">¿Cancelar petición de amistad?</string>
     <string name="dialog_unfollow_warning">¿Dejar de seguir esta cuenta?</string>
-    <string name="dialog_delete_post_warning">¿Eliminar este toot\?</string>
+    <string name="dialog_delete_post_warning">¿Eliminar esta publicación?</string>
     <string name="visibility_public">Público: Mostrar en historias públicas</string>
     <string name="visibility_unlisted">Oculto: No mostrar en historias públicas</string>
     <string name="visibility_private">Privado: Sólo visible para seguidores</string>
@@ -263,7 +262,6 @@
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s y %2$s</string>
     <string name="conversation_more_recipients">%1$s, %2$s y %3$d más</string>
-    <string name="action_mentions">Menciones</string>
     <string name="action_open_faved_by">Mostrar favoritos</string>
     <string name="title_mentions_dialog">Menciones</string>
     <string name="download_media">Descargar multimedia</string>
@@ -307,13 +305,9 @@
     </plurals>
     <string name="poll_info_closed">cerrada</string>
     <string name="action_delete_and_redraft">Eliminar y editar</string>
-    <string name="action_links">Enlaces</string>
-    <string name="action_hashtags">Etiquetas</string>
-    <string name="title_hashtags_dialog">Etiquetas</string>
-    <string name="title_links_dialog">Enlaces</string>
     <string name="action_open_media_n">Abrir contenido #%d</string>
     <string name="downloading_media">Descargando contenido</string>
-    <string name="dialog_redraft_post_warning">¿Eliminar y devolver a borradores este toot\?</string>
+    <string name="dialog_redraft_post_warning">¿Eliminar y volver a redactar esta publicación?</string>
     <string name="pref_title_notification_filter_poll">encuestas han terminado</string>
     <string name="notification_poll_description">Notificaciones sobre encuestas que han terminado</string>
     <string name="pref_title_public_filter_keywords">Cronologías públicas</string>
@@ -440,10 +434,10 @@
 \n- Estadísticas de seguidores y publicaciones en perfiles
 \n
 \nLas notificaciones Push no serán afectadas, pero puedes revisar manualmente tus preferencias.</string>
-    <string name="drafts_post_reply_removed">El toot al que redactaste una respuesta ha sido eliminado</string>
+    <string name="drafts_post_reply_removed">La publicación a la que redactaste una respuesta ha sido eliminada</string>
     <string name="draft_deleted">Borrador eliminado</string>
     <string name="drafts_failed_loading_reply">Error al cargar la información de respuesta</string>
-    <string name="drafts_post_failed_to_send">¡Este toot no se pudo enviar!</string>
+    <string name="drafts_post_failed_to_send">¡Esta publicación no se pudo enviar!</string>
     <string name="duration_indefinite">Indefinido</string>
     <string name="label_duration">Duración</string>
     <string name="post_media_attachments">Adjuntos</string>
@@ -483,7 +477,6 @@
     <string name="failed_to_pin">Fallo al fijar</string>
     <string name="failed_to_unpin">Fallo al quitarlo</string>
     <string name="pref_show_self_username_disambiguate">Cuando hay varias cuentas ingresadas</string>
-    <string name="url_domain_notifier">\u0020(🔗 %s)</string>
     <string name="notification_sign_up_description">Notificaciones de nuevos usuarios</string>
     <string name="notification_update_name">Ediciones de una publicación</string>
     <string name="notification_update_description">Notificaciones cuando se editan publicaciones con las que has interactuado</string>
@@ -564,7 +557,6 @@
     <string name="status_filtered_show_anyway">Mostrar de todas formas</string>
     <string name="status_filter_placeholder_label_format">Filtrado: %s</string>
     <string name="pref_title_show_stat_inline">Mostrar estadísticas de la entrada en la línea de tiempo</string>
-    <string name="ui_error_unknown">razón desconocida</string>
     <string name="socket_timeout_exception">Contactar con tu servidor ha tardado demasiado tiempo</string>
     <string name="select_list_empty">Todavía no tienes listas</string>
     <string name="help_empty_home">Esta es tu <b> cronología de inicio</b>. Muestra las publicaciones recientes de las cuentas que sigues.
@@ -597,7 +589,7 @@
     <string name="filter_keyword_addition_title">Añadir palabra</string>
     <string name="pref_ui_text_size">Tamaño de fuente</string>
     <string name="notification_notification_worker">Obteniendo notificaciones…</string>
-    <string name="load_newest_notifications">Cargar nuevas notificaciones</string>
+    <string name="load_newest_notifications">Cargar notificaciones más nuevas</string>
     <string name="compose_delete_draft">¿Eliminar borrador\?</string>
     <string name="ui_error_translate_status_fmt">La traducción falló: %1$s</string>
     <string name="update_dialog_negative">Nunca me recuerdas</string>
@@ -641,13 +633,7 @@
     <string name="action_translate_undo">Deshacer traducción</string>
     <string name="notification_prune_cache">Mantenimiento de caché…</string>
     <string name="pref_summary_timeline_filters">Tu servidor no soporta los filtros</string>
-    <string name="server_repository_error_unsupported_schema">/.well-known/nodeinfo no contiene esquemas comprensibles</string>
-    <string name="server_repository_error_get_node_info">fallo al obtener nodeinfo %1$s: %2$s</string>
-    <string name="server_repository_error_validate_node_info">fallo al validar nodeinfo %1$s: %2$s</string>
-    <string name="server_repository_error_get_instance_info">fallo al obtener /api/v1/instance: %1$s</string>
     <string name="server_repository_error">No se pudo obtener la info del servidor %1$s: %2$s</string>
-    <string name="server_repository_error_get_well_known_node_info">fallo al obtener /.well-known/nodeinfo: %1$s</string>
-    <string name="server_repository_error_capabilities">fallo al analizar las capacidades del servidor: %1$s</string>
     <string name="error_media_download">No se pudo descargar %1$s: %2$d %3$s</string>
     <string name="pref_title_update_check_now">Buscar actualizaciones ahora</string>
     <string name="pref_update_check_no_updates">No hay actualizaciones disponibles</string>
@@ -676,4 +662,5 @@
     <string name="error_filter_missing_keyword">Por lo menos se necesita una palabra clave o frase</string>
     <string name="error_filter_missing_context">Por lo menos se necesita un contexto para el filtro</string>
     <string name="error_filter_missing_title">Se necesita el título</string>
+    <string name="action_suggestions">Cuentas sugeridas</string>
 </resources>

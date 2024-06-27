@@ -19,7 +19,7 @@
 plugins {
     `java-gradle-plugin`
     `maven-publish`
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.0.0"
 }
 
 group = "app.pachli.plugins"
@@ -36,7 +36,7 @@ gradlePlugin {
 
 dependencies {
     implementation(libs.android.gradlePlugin)
-    implementation("org.jetbrains:markdown:0.7.0")
+    implementation("org.jetbrains:markdown:0.7.3")
     implementation("com.squareup:javapoet:1.13.0")
 }
 

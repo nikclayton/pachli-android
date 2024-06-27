@@ -48,6 +48,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.forEach
@@ -69,6 +70,7 @@ import app.pachli.components.notifications.showMigrationNoticeIfNecessary
 import app.pachli.core.activity.AccountSelectionListener
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.PostLookupFallbackBehavior
+import app.pachli.core.activity.ReselectableFragment
 import app.pachli.core.activity.emojify
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
@@ -101,6 +103,7 @@ import app.pachli.core.navigation.PreferencesActivityIntent
 import app.pachli.core.navigation.PreferencesActivityIntent.PreferenceScreen
 import app.pachli.core.navigation.ScheduledStatusActivityIntent
 import app.pachli.core.navigation.SearchActivityIntent
+import app.pachli.core.navigation.SuggestionsActivityIntent
 import app.pachli.core.navigation.TabPreferenceActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.TrendingActivityIntent
@@ -108,17 +111,16 @@ import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Notification
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
+import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.ActivityMainBinding
 import app.pachli.db.DraftsAlert
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.ReselectableFragment
 import app.pachli.pager.MainPagerAdapter
 import app.pachli.updatecheck.UpdateCheck
 import app.pachli.usecase.DeveloperToolsUseCase
 import app.pachli.usecase.LogoutUsecase
 import app.pachli.util.getDimension
-import app.pachli.util.makeIcon
-import app.pachli.util.updateShortcut
+import app.pachli.util.updateShortcuts
 import at.connyduck.calladapter.networkresult.fold
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
@@ -138,6 +140,7 @@ import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.materialdrawer.holder.BadgeStyle
 import com.mikepenz.materialdrawer.holder.ColorHolder
+import com.mikepenz.materialdrawer.holder.ImageHolder
 import com.mikepenz.materialdrawer.holder.StringHolder
 import com.mikepenz.materialdrawer.iconics.iconicsIcon
 import com.mikepenz.materialdrawer.model.AbstractDrawerItem
@@ -228,10 +231,13 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            installSplashScreen()
+        }
         super.onCreate(savedInstanceState)
 
-        val activeAccount = accountManager.activeAccount
-            ?: return // will be redirected to LoginActivity by BaseActivity
+        // will be redirected to LoginActivity by BaseActivity
+        val activeAccount = accountManager.activeAccount ?: return
 
         var showNotificationTab = false
 
@@ -699,6 +705,13 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                         startActivityWithDefaultTransition(intent)
                     }
                 },
+                primaryDrawerItem {
+                    nameRes = R.string.action_suggestions
+                    iconicsIcon = GoogleMaterial.Icon.gmd_explore
+                    onClick = {
+                        startActivityWithDefaultTransition(SuggestionsActivityIntent(context))
+                    }
+                },
                 SectionDrawerItem().apply {
                     nameRes = listsSectionTitle
                 },
@@ -1045,9 +1058,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     }
 
     private fun onFetchUserInfoSuccess(me: Account) {
-        glide.asBitmap()
-            .load(me.header)
-            .into(header.accountHeaderBackground)
+        header.headerBackground = ImageHolder(me.header)
 
         loadDrawerAvatar(me.avatar, false)
 
@@ -1073,7 +1084,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         updateProfiles()
 
         externalScope.launch {
-            updateShortcut(applicationContext, accountManager.activeAccount!!)
+            updateShortcuts(applicationContext, accountManager)
         }
     }
 

@@ -72,15 +72,10 @@
     <string name="action_copy_link">Chép URL</string>
     <string name="download_image">Đang tải %1$s</string>
     <string name="action_open_media_n">Mở tập tin #%d</string>
-    <string name="title_links_dialog">Links</string>
     <string name="title_mentions_dialog">Lượt nhắc tới</string>
-    <string name="title_hashtags_dialog">Hashtag</string>
     <string name="action_open_faved_by">Xem lượt thích</string>
     <string name="action_open_reblogged_by">Xem lượt đăng lại</string>
     <string name="action_open_reblogger">Xem lượt đăng lại</string>
-    <string name="action_hashtags">Hashtag</string>
-    <string name="action_mentions">Lượt nhắc tới</string>
-    <string name="action_links">Links</string>
     <string name="action_add_tab">Thêm Tab</string>
     <string name="action_schedule_post">Lên lịch</string>
     <string name="action_emoji_keyboard">Emoji</string>
@@ -143,7 +138,6 @@
     <string name="post_media_hidden_title">Media bị ẩn</string>
     <string name="post_sensitive_media_title">Nhạy cảm</string>
     <string name="post_boosted_format">%s đăng lại</string>
-    <string name="post_username_format">\@%s</string>
     <string name="title_scheduled_posts">Những tút đã lên lịch</string>
     <string name="title_edit_profile">Chỉnh sửa hồ sơ</string>
     <string name="title_follow_requests">Yêu cầu theo dõi</string>
@@ -461,7 +455,6 @@
     <string name="filter_expiration_format">%s (%s)</string>
     <string name="duration_no_change">(Không đổi)</string>
     <string name="description_post_language">Ngôn ngữ đăng</string>
-    <string name="url_domain_notifier">\u0020(🔗 %s)</string>
     <string name="action_set_focus">Chọn tâm điểm</string>
     <string name="set_focus_description">Nhấn hoặc kéo vòng tròn để chọn tiêu điểm sẽ hiển thị trong hình thu nhỏ.</string>
     <string name="pref_title_show_self_username">Hiện URL của tôi trên tab</string>
@@ -532,7 +525,6 @@
     <string name="dialog_follow_hashtag_hint">#hashtag</string>
     <string name="notification_unknown_name">Chưa biết</string>
     <string name="socket_timeout_exception">Mất thời gian kết nối quá lâu</string>
-    <string name="ui_error_unknown">chưa rõ lý do</string>
     <string name="ui_error_bookmark_fmt">Lưu tút không thành công: %1$s</string>
     <string name="ui_error_clear_notifications">Xóa thông báo không thành công: %s</string>
     <string name="ui_error_favourite_fmt">Thích tút không thành công: %1$s</string>

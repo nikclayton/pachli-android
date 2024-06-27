@@ -28,7 +28,6 @@
     <string name="title_follow_requests">Követési kérelmek</string>
     <string name="title_edit_profile">Profilod szerkesztése</string>
     <string name="title_drafts">Piszkozatok</string>
-    <string name="post_username_format">\@%s</string>
     <string name="post_boosted_format">%s megtolta</string>
     <string name="post_sensitive_media_title">Érzékeny tartalom</string>
     <string name="post_media_hidden_title">Rejtett média</string>
@@ -88,13 +87,8 @@
     <string name="action_content_warning">Tartalom figyelmeztetés</string>
     <string name="action_emoji_keyboard">Emoji billentyűzet</string>
     <string name="action_add_tab">Fül hozzáadása</string>
-    <string name="action_links">Linkek</string>
-    <string name="action_mentions">Említések</string>
-    <string name="action_hashtags">Hashtagek</string>
     <string name="action_open_faved_by">Kedvencek megjelenítése</string>
-    <string name="title_hashtags_dialog">Hashtagek</string>
     <string name="title_mentions_dialog">Említések</string>
-    <string name="title_links_dialog">Linkek</string>
     <string name="download_image">%1$s letöltése</string>
     <string name="action_copy_link">Link másolása</string>
     <string name="action_share_as">Megosztás mint …</string>
@@ -482,7 +476,6 @@
     <string name="pref_show_self_username_disambiguate">Ha több fiók is be van jelentkezve</string>
     <string name="pref_show_self_username_never">Soha</string>
     <string name="duration_no_change">(Nincs változás)</string>
-    <string name="url_domain_notifier">\u0020(🔗 %s)</string>
     <string name="action_set_focus">Fókuszpont beállítása</string>
     <string name="error_following_hashtag_format">Hiba a #%s követésekor</string>
     <string name="error_unfollowing_hashtag_format">Hiba a #%s követésének befejezésekor</string>
@@ -556,7 +549,6 @@
     <string name="status_filter_placeholder_label_format">Szűrve: %s</string>
     <string name="pref_title_account_filter_keywords">Profil</string>
     <string name="socket_timeout_exception">A kapcsolatfelvétel a kiszolgálóddal túl sokáig tartott</string>
-    <string name="ui_error_unknown">ismeretlen ok</string>
     <string name="ui_error_bookmark_fmt">Bejegyzés könyvjelzőzése sikertelen: %1$s</string>
     <string name="ui_error_clear_notifications">Értesítések törlése sikertelen: %s</string>
     <string name="filter_action_warn">Figyelmeztetés</string>

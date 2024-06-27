@@ -47,6 +47,7 @@ import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.PostLookupFallbackBehavior
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.activity.openLink
+import app.pachli.core.data.repository.ServerRepository
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.navigation.AttachmentViewData
@@ -62,7 +63,6 @@ import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.ui.extensions.getErrorString
 import app.pachli.interfaces.StatusActionListener
-import app.pachli.network.ServerRepository
 import app.pachli.usecase.TimelineCases
 import app.pachli.view.showMuteAccountDialog
 import app.pachli.viewdata.IStatusViewData
@@ -129,7 +129,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                         val msg = getString(
                             R.string.server_repository_error,
                             accountManager.activeAccount!!.domain,
-                            it.msg(requireContext()),
+                            it.fmt(requireContext()),
                         )
                         Timber.e(msg)
                         try {

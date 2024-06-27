@@ -32,6 +32,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import app.pachli.core.common.PachliError
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.ui.databinding.ViewBackgroundMessageBinding
 import app.pachli.core.ui.extensions.getDrawableRes
@@ -99,6 +100,10 @@ class BackgroundMessageView @JvmOverloads constructor(
         setup(throwable.getDrawableRes(), throwable.getErrorString(context), listener)
     }
 
+    fun setup(error: PachliError, listener: ((v: View) -> Unit)? = null) {
+        setup(error.getDrawableRes(), error.fmt(context), listener)
+    }
+
     fun setup(message: BackgroundMessage, listener: ((v: View) -> Unit)? = null) {
         setup(message.drawableRes, message.stringRes, listener)
     }
@@ -121,7 +126,11 @@ class BackgroundMessageView @JvmOverloads constructor(
         binding.messageTextView.text = message
         binding.messageTextView.movementMethod = LinkMovementMethod.getInstance()
         binding.imageView.setImageResource(imageRes)
-        binding.button.setOnClickListener(clickListener)
+        binding.button.setOnClickListener {
+            it.isEnabled = false
+            clickListener?.invoke(it)
+        }
+        binding.button.isEnabled = true
         binding.button.visible(clickListener != null)
     }
 

@@ -175,22 +175,17 @@ class DraftHelper @Inject constructor(
             map.getExtensionFromMimeType(mimeType)
         }
 
-        val filename = String.format("Pachli_Draft_Media_%s_%d.%s", timeStamp, index, fileExtension)
+        val filename = "Pachli_Draft_Media_${timeStamp}_$index.$fileExtension"
         val file = File(folder, filename)
 
         if (scheme == "https") {
             // saving redrafted media
             try {
                 val request = Request.Builder().url(toString()).build()
-
                 val response = okHttpClient.newCall(request).execute()
 
-                val sink = file.sink().buffer()
-
-                response.body?.source()?.use { input ->
-                    sink.use { output ->
-                        output.writeAll(input)
-                    }
+                response.body?.source()?.buffer?.use { input ->
+                    file.sink().buffer().use { it.writeAll(input) }
                 }
             } catch (ex: IOException) {
                 Timber.w(ex, "failed to save media")

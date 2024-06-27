@@ -32,8 +32,8 @@ android {
 
     defaultConfig {
         applicationId = "app.pachli"
-        versionCode = 15
-        versionName = "2.5.1"
+        versionCode = 16
+        versionName = "2.5.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -136,6 +136,7 @@ dependencies {
     implementation(projects.feature.about)
     implementation(projects.feature.lists)
     implementation(projects.feature.login)
+    implementation(projects.feature.suggestions)
 
     implementation(libs.kotlinx.coroutines.android)
 
@@ -150,6 +151,7 @@ dependencies {
     implementation(libs.bundles.retrofit)
 
     implementation(libs.bundles.okhttp)
+    implementation(libs.okio)
 
     implementation(libs.conscrypt.android)
 

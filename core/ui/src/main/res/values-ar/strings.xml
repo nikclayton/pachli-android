@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="error_network">حدث خطأ في الشبكة! يرجى التحقق من اتصالك ثم أعد المحاولة!</string>
-    <string name="error_network_fmt">وقع خطأ في الشبكة: %s</string>
-    <string name="error_generic_fmt">وقع خطأ: %s</string>
-    <string name="error_404_not_found_fmt">خادمك لا يدعم هذه الميزة: %1$s</string>
     <string name="error_generic">وقع هناك خطأ.</string>
     <string name="message_empty">لا شيء هنا.</string>
     <string name="action_retry">أعد المحاولة</string>
@@ -11,4 +8,10 @@
     <string name="action_view_profile">الملف التعريفي</string>
     <string name="action_more">المزيد</string>
     <string name="action_refresh">إنعاش</string>
+    <string name="url_domain_notifier">\u0020(🔗 %s)</string>
+    <string name="action_links">الروابط</string>
+    <string name="action_mentions">الإشارات</string>
+    <string name="action_hashtags">الوسوم</string>
+    <string name="title_links_dialog">الروابط</string>
+    <string name="title_hashtags_dialog">الوسوم</string>
 </resources>

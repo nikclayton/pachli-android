@@ -28,7 +28,6 @@
     <string name="title_follow_requests">Žádosti o sledování</string>
     <string name="title_edit_profile">Upravit váš profil</string>
     <string name="title_drafts">Koncepty</string>
-    <string name="post_username_format">\@%s</string>
     <string name="post_boosted_format">%s boostnul/a</string>
     <string name="post_sensitive_media_title">Citlivý obsah</string>
     <string name="post_media_hidden_title">Média skryta</string>
@@ -90,15 +89,10 @@
     <string name="action_content_warning">Varování o obsahu</string>
     <string name="action_emoji_keyboard">Klávesnice s emoji</string>
     <string name="action_add_tab">Přidat panel</string>
-    <string name="action_links">Odkazy</string>
-    <string name="action_mentions">Zmínky</string>
-    <string name="action_hashtags">Hashtagy</string>
     <string name="action_open_reblogger">Otevřít autora boostu</string>
     <string name="action_open_reblogged_by">Zobrazit boosty</string>
     <string name="action_open_faved_by">Zobrazit oblíbení</string>
-    <string name="title_hashtags_dialog">Hashtagy</string>
     <string name="title_mentions_dialog">Zmínky</string>
-    <string name="title_links_dialog">Odkazy</string>
     <string name="action_open_media_n">Otevřít médium #%d</string>
     <string name="download_image">Stahuji %1$s</string>
     <string name="action_copy_link">Zkopírovat odkaz</string>
@@ -459,7 +453,6 @@
     <string name="duration_14_days">14 dní</string>
     <string name="duration_30_days">30 dní</string>
     <string name="drafts_post_reply_removed">Příspěvek, na který jste připravili odpověď, byl odstraněn</string>
-    <string name="url_domain_notifier">\u0020(🔗 %s)</string>
     <string name="action_set_focus">Nastavit bod zaostření</string>
     <string name="tips_push_notification_migration">Znovu se přihlaste ke všem účtům, abyste povolili podporu push oznámení.</string>
     <string name="dialog_push_notification_migration">Aby bylo možné používat push oznámení prostřednictvím UnifiedPush, Pachli potřebuje oprávnění k odběru oznámení na vašem serveru Mastodon. To vyžaduje opětovné přihlášení ke změně rozsahů OAuth udělených aplikaci Pachli. Použitím možnosti opětovného přihlášení zde nebo v předvolbách účtu zachováte všechny vaše místní koncepty a mezipaměť.</string>

@@ -112,7 +112,7 @@ class ComposeAutoCompleteAdapter(
             is ItemAutocompleteAccountBinding -> {
                 val accountResult = getItem(position) as AutocompleteResult.AccountResult
                 val account = accountResult.account
-                binding.username.text = context.getString(R.string.post_username_format, account.username)
+                binding.username.text = context.getString(DR.string.post_username_format, account.username)
                 binding.displayName.text = account.name.emojify(account.emojis, binding.displayName, animateEmojis)
                 val avatarRadius = context.resources.getDimensionPixelSize(DR.dimen.avatar_radius_42dp)
                 loadAvatar(
@@ -167,15 +167,15 @@ class ComposeAutoCompleteAdapter(
         private const val EMOJI_VIEW_TYPE = 2
 
         private fun formatUsername(result: AutocompleteResult.AccountResult): String {
-            return String.format("@%s", result.account.username)
+            return "@${result.account.username}"
         }
 
         private fun formatHashtag(result: AutocompleteResult.HashtagResult): String {
-            return String.format("#%s", result.hashtag)
+            return "#${result.hashtag}"
         }
 
         private fun formatEmoji(result: AutocompleteResult.EmojiResult): String {
-            return String.format(":%s:", result.emoji.shortcode)
+            return ":${result.emoji.shortcode}:"
         }
     }
 }

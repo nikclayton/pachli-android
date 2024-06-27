@@ -27,29 +27,23 @@ import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.core.activity.loadAvatar
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
+import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.database.model.ConversationAccountEntity
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.SmartLengthInputFilter
-import app.pachli.util.StatusDisplayOptions
 
 class ConversationViewHolder internal constructor(
     itemView: View,
     private val statusDisplayOptions: StatusDisplayOptions,
     private val listener: StatusActionListener<ConversationViewData>,
 ) : StatusBaseViewHolder<ConversationViewData>(itemView) {
-    private val conversationNameTextView: TextView
-    private val contentCollapseButton: Button
-    private val avatars: Array<ImageView>
-
-    init {
-        conversationNameTextView = itemView.findViewById(R.id.conversation_name)
-        contentCollapseButton = itemView.findViewById(R.id.button_toggle_content)
-        avatars = arrayOf(
-            avatar,
-            itemView.findViewById(R.id.status_avatar_1),
-            itemView.findViewById(R.id.status_avatar_2),
-        )
-    }
+    private val conversationNameTextView: TextView = itemView.findViewById(R.id.conversation_name)
+    private val contentCollapseButton: Button = itemView.findViewById(R.id.button_toggle_content)
+    private val avatars: Array<ImageView> = arrayOf(
+        avatar,
+        itemView.findViewById(R.id.status_avatar_1),
+        itemView.findViewById(R.id.status_avatar_2),
+    )
 
     fun setupWithConversation(
         viewData: ConversationViewData,
