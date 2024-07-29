@@ -15,6 +15,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.Accessibilit
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate
 import app.pachli.R
+import app.pachli.adapter.FilterableStatusViewHolder
 import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.core.activity.openLink
 import app.pachli.core.network.model.Status.Companion.MAX_MEDIA_ATTACHMENTS
@@ -47,6 +48,13 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
             info: AccessibilityNodeInfoCompat,
         ) {
             super.onInitializeAccessibilityNodeInfo(host, info)
+
+            val viewHolder = recyclerView.findContainingViewHolder(host)
+            if (viewHolder is FilterableStatusViewHolder<*> && viewHolder.matchedFilter != null) {
+                info.addAction(showAnywayAction)
+                info.addAction(editFilterAction)
+                return
+            }
 
             val pos = recyclerView.getChildAdapterPosition(host)
             val status = statusProvider.getStatus(pos) ?: return
@@ -99,6 +107,10 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
             }
             if (actionable.reblogsCount > 0) info.addAction(openRebloggedByAction)
             if (actionable.favouritesCount > 0) info.addAction(openFavsAction)
+
+            status.actionable.card?.authors?.firstOrNull()?.account?.let {
+                info.addAction(openBylineAccountAction)
+            }
 
             info.addAction(moreAction)
         }
@@ -170,9 +182,23 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
                     interrupt()
                     statusActionListener.onShowFavs(status.actionableId)
                 }
+                app.pachli.core.ui.R.id.action_open_byline_account -> {
+                    status.actionable.card?.authors?.firstOrNull()?.account?.let {
+                        interrupt()
+                        statusActionListener.onViewAccount(it.id)
+                    }
+                }
                 app.pachli.core.ui.R.id.action_more -> {
                     statusActionListener.onMore(host, status)
                 }
+                app.pachli.core.ui.R.id.action_show_anyway -> statusActionListener.clearWarningAction(status)
+                app.pachli.core.ui.R.id.action_edit_filter -> {
+                    (recyclerView.findContainingViewHolder(host) as? FilterableStatusViewHolder<*>)?.matchedFilter?.let {
+                        statusActionListener.onEditFilterById(it.id)
+                        return@let true
+                    } ?: false
+                }
+
                 else -> return super.performAccessibilityAction(host, action, args)
             }
             return true
@@ -358,9 +384,24 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
         context.getString(R.string.action_open_faved_by),
     )
 
+    private val openBylineAccountAction = AccessibilityActionCompat(
+        app.pachli.core.ui.R.id.action_open_byline_account,
+        context.getString(R.string.action_open_byline_account),
+    )
+
     private val moreAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_more,
         context.getString(app.pachli.core.ui.R.string.action_more),
+    )
+
+    private val showAnywayAction = AccessibilityActionCompat(
+        app.pachli.core.ui.R.id.action_show_anyway,
+        context.getString(R.string.status_filtered_show_anyway),
+    )
+
+    private val editFilterAction = AccessibilityActionCompat(
+        app.pachli.core.ui.R.id.action_edit_filter,
+        context.getString(R.string.filter_edit_title),
     )
 
     private data class LinkSpanInfo(val text: String, val link: String)

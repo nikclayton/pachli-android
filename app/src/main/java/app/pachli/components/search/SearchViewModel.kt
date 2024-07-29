@@ -21,30 +21,67 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import app.pachli.components.compose.ComposeAutoCompleteAdapter
+import app.pachli.components.search.SearchOperator.DateOperator
+import app.pachli.components.search.SearchOperator.FromOperator
+import app.pachli.components.search.SearchOperator.HasEmbedOperator
+import app.pachli.components.search.SearchOperator.HasLinkOperator
+import app.pachli.components.search.SearchOperator.HasMediaOperator
+import app.pachli.components.search.SearchOperator.HasPollOperator
+import app.pachli.components.search.SearchOperator.IsReplyOperator
+import app.pachli.components.search.SearchOperator.IsSensitiveOperator
+import app.pachli.components.search.SearchOperator.LanguageOperator
+import app.pachli.components.search.SearchOperator.WhereOperator
 import app.pachli.components.search.adapter.SearchPagingSourceFactory
 import app.pachli.core.accounts.AccountManager
+import app.pachli.core.data.repository.ServerRepository
 import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_FROM
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_AUDIO
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_EMBED
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_IMAGE
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_LINK
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_MEDIA
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_POLL
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_VIDEO
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IN_LIBRARY
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IN_PUBLIC
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_REPLY
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_SENSITIVE
+import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_LANGUAGE
 import app.pachli.core.network.model.DeletedStatus
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.usecase.TimelineCases
+import app.pachli.util.getInitialLanguages
+import app.pachli.util.getLocaleList
 import app.pachli.viewdata.StatusViewData
 import at.connyduck.calladapter.networkresult.NetworkResult
 import at.connyduck.calladapter.networkresult.fold
 import at.connyduck.calladapter.networkresult.onFailure
+import com.github.michaelbull.result.mapBoth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.z4kn4fein.semver.constraints.toConstraint
 import javax.inject.Inject
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    mastodonApi: MastodonApi,
+    private val mastodonApi: MastodonApi,
     private val timelineCases: TimelineCases,
     private val accountManager: AccountManager,
+    private val serverRepository: ServerRepository,
 ) : ViewModel() {
 
     var currentQuery: String = ""
@@ -56,6 +93,108 @@ class SearchViewModel @Inject constructor(
     val mediaPreviewEnabled = activeAccount?.mediaPreviewEnabled ?: false
     private val alwaysShowSensitiveMedia = activeAccount?.alwaysShowSensitiveMedia ?: false
     private val alwaysOpenSpoiler = activeAccount?.alwaysOpenSpoiler ?: false
+
+    private val _operatorViewData = MutableStateFlow(
+        setOf(
+            SearchOperatorViewData.from(HasMediaOperator()),
+            SearchOperatorViewData.from(DateOperator()),
+            SearchOperatorViewData.from(HasEmbedOperator()),
+            SearchOperatorViewData.from(FromOperator()),
+            SearchOperatorViewData.from(LanguageOperator()),
+            SearchOperatorViewData.from(HasLinkOperator()),
+            SearchOperatorViewData.from(HasPollOperator()),
+            SearchOperatorViewData.from(IsReplyOperator()),
+            SearchOperatorViewData.from(IsSensitiveOperator()),
+            SearchOperatorViewData.from(WhereOperator()),
+        ),
+    )
+
+    /**
+     * Complete set of [SearchOperatorViewData].
+     *
+     * Items are never added or removed from this, only replaced with [replaceOperator].
+     * An item can be retrieved by class using [getOperator]
+     *
+     * @see [replaceOperator]
+     * @see [getOperator]
+     */
+    val operatorViewData = _operatorViewData.asStateFlow()
+
+    val locales = accountManager.activeAccountFlow.map {
+        getLocaleList(getInitialLanguages(activeAccount = it))
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        getLocaleList(getInitialLanguages()),
+    )
+
+    val server = serverRepository.flow.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        null,
+    )
+
+    /**
+     * Set of operators the server supports.
+     *
+     * Empty set if the server does not support any operators.
+     */
+    val availableOperators = serverRepository.flow.map { result ->
+        result.mapBoth(
+            { server ->
+                buildSet {
+                    val constraint100 = ">=1.0.0".toConstraint()
+                    val canHasMedia = server.can(ORG_JOINMASTODON_SEARCH_QUERY_HAS_MEDIA, constraint100)
+                    val canHasImage = server.can(ORG_JOINMASTODON_SEARCH_QUERY_HAS_IMAGE, constraint100)
+                    val canHasVideo = server.can(ORG_JOINMASTODON_SEARCH_QUERY_HAS_VIDEO, constraint100)
+                    val canHasAudio = server.can(ORG_JOINMASTODON_SEARCH_QUERY_HAS_AUDIO, constraint100)
+                    if (canHasMedia || canHasImage || canHasVideo || canHasAudio) {
+                        add(HasMediaOperator())
+                    }
+
+                    if (server.can(ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE, constraint100)) {
+                        add(DateOperator())
+                    }
+
+                    if (server.can(ORG_JOINMASTODON_SEARCH_QUERY_FROM, constraint100)) {
+                        add(FromOperator())
+                    }
+
+                    if (server.can(ORG_JOINMASTODON_SEARCH_QUERY_LANGUAGE, constraint100)) {
+                        add(LanguageOperator())
+                    }
+
+                    if (server.can(ORG_JOINMASTODON_SEARCH_QUERY_HAS_LINK, constraint100)) {
+                        add(HasLinkOperator())
+                    }
+                    if (server.can(ORG_JOINMASTODON_SEARCH_QUERY_HAS_EMBED, constraint100)) {
+                        add(HasEmbedOperator())
+                    }
+
+                    if (server.can(ORG_JOINMASTODON_SEARCH_QUERY_HAS_POLL, constraint100)) {
+                        add(HasPollOperator())
+                    }
+                    if (server.can(ORG_JOINMASTODON_SEARCH_QUERY_IS_REPLY, constraint100)) {
+                        add(IsReplyOperator())
+                    }
+                    if (server.can(ORG_JOINMASTODON_SEARCH_QUERY_IS_SENSITIVE, constraint100)) {
+                        add(IsSensitiveOperator())
+                    }
+
+                    val canInLibrary = server.can(ORG_JOINMASTODON_SEARCH_QUERY_IN_LIBRARY, constraint100)
+                    val canInPublic = server.can(ORG_JOINMASTODON_SEARCH_QUERY_IN_PUBLIC, constraint100)
+                    if (canInLibrary || canInPublic) add(WhereOperator())
+                }
+            },
+            {
+                emptySet()
+            },
+        )
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptySet(),
+    )
 
     private val loadedStatuses: MutableList<StatusViewData> = mutableListOf()
 
@@ -81,26 +220,37 @@ class SearchViewModel @Inject constructor(
     val statusesFlow = Pager(
         config = PagingConfig(pageSize = DEFAULT_LOAD_SIZE, initialLoadSize = DEFAULT_LOAD_SIZE),
         pagingSourceFactory = statusesPagingSourceFactory,
-    ).flow
-        .cachedIn(viewModelScope)
+    ).flow.cachedIn(viewModelScope)
 
     val accountsFlow = Pager(
         config = PagingConfig(pageSize = DEFAULT_LOAD_SIZE, initialLoadSize = DEFAULT_LOAD_SIZE),
         pagingSourceFactory = accountsPagingSourceFactory,
-    ).flow
-        .cachedIn(viewModelScope)
+    ).flow.cachedIn(viewModelScope)
 
     val hashtagsFlow = Pager(
         config = PagingConfig(pageSize = DEFAULT_LOAD_SIZE, initialLoadSize = DEFAULT_LOAD_SIZE),
         pagingSourceFactory = hashtagsPagingSourceFactory,
-    ).flow
-        .cachedIn(viewModelScope)
+    ).flow.cachedIn(viewModelScope)
 
-    fun search(query: String) {
+    /** @return The operator of type T. */
+    inline fun <reified T : SearchOperator> getOperator() = operatorViewData.value.find { it.operator is T }?.operator as T?
+
+    /**
+     * Replaces the existing [SearchOperatorViewData] in [_operatorViewData]
+     * with [viewData].
+     */
+    fun <T : SearchOperator> replaceOperator(viewData: SearchOperatorViewData<T>) = _operatorViewData.update { operators ->
+        operators.find { it.javaClass == viewData.javaClass }?.let { operators - it + viewData } ?: operators
+    }
+
+    fun search() {
+        val operatorQuery = _operatorViewData.value.mapNotNull { it.operator.query() }.joinToString(" ")
+        currentQuery = if (operatorQuery.isNotBlank()) arrayOf(currentSearchFieldContent, operatorQuery).joinToString(" ") else currentSearchFieldContent ?: ""
+
         loadedStatuses.clear()
-        statusesPagingSourceFactory.newSearch(query)
-        accountsPagingSourceFactory.newSearch(query)
-        hashtagsPagingSourceFactory.newSearch(query)
+        statusesPagingSourceFactory.newSearch(currentQuery)
+        accountsPagingSourceFactory.newSearch(currentQuery)
+        hashtagsPagingSourceFactory.newSearch(currentQuery)
     }
 
     fun removeItem(statusViewData: StatusViewData) {
@@ -192,6 +342,21 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             timelineCases.muteConversation(statusViewData.id, mute)
         }
+    }
+
+    /** Searches for autocomplete suggestions. */
+    suspend fun searchAccountAutocompleteSuggestions(token: String): List<ComposeAutoCompleteAdapter.AutocompleteResult> {
+        // "resolve" is false as, by definition, the server will only return statuses it
+        // knows about, therefore the accounts that posted those statuses will definitely
+        // be known by the server and there is no need to resolve them further.
+        return mastodonApi.search(query = token, resolve = false, type = SearchType.Account.apiParameter, limit = 10)
+            .fold(
+                { it.accounts.map { ComposeAutoCompleteAdapter.AutocompleteResult.AccountResult(it) } },
+                {
+                    Timber.e(it, "Autocomplete search for %s failed.", token)
+                    emptyList()
+                },
+            )
     }
 
     private fun updateStatusViewData(newStatusViewData: StatusViewData) {

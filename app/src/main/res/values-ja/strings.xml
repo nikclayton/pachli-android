@@ -424,7 +424,6 @@
     <string name="compose_preview_image_description">画像 %s に対する操作</string>
     <string name="duration_no_change">(変更なし)</string>
     <string name="language_display_name_format">%s (%s)</string>
-    <string name="error_multimedia_size_limit">ビデオと音声ファイルのサイズは %s MB を超えることはできません。</string>
     <string name="error_image_edit_failed">画像が編集できませんでした。</string>
     <string name="action_edit_image">画像の編集</string>
     <string name="error_following_hashtags_unsupported">このインスタンスはハッシュタグのフォローに対応していません。</string>
@@ -596,7 +595,7 @@
     <string name="pref_title_font_family">フォント</string>
     <string name="description_poll">選択肢付きの投票: %1$s, %2$s, %3$s, %4$s; %5$s</string>
     <string name="label_image">画像</string>
-    <string name="status_filter_placeholder_label_format">フィルタ済み: %s</string>
+    <string name="status_filter_placeholder_label_format">フィルタ済み: &lt;b>%1$s&lt;/b></string>
     <string name="pref_title_show_self_boosts_description">自分の投稿をブーストすること</string>
     <string name="confirmation_hashtag_unmuted">%s を非表示にしました</string>
     <string name="pref_title_show_self_boosts">セルフブーストを表示</string>

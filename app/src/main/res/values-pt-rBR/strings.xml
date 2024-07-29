@@ -462,7 +462,6 @@
     <string name="pref_summary_http_proxy_invalid">&lt;inválido&gt;</string>
     <string name="pref_show_self_username_always">Sempre</string>
     <string name="error_image_edit_failed">A imagem não pôde ser editada.</string>
-    <string name="error_multimedia_size_limit">Arquivos de vídeo e áudio não podem exceder %s MB de tamanho.</string>
     <string name="hint_media_description_missing">A mídia deve ter uma descrição.</string>
     <string name="pref_show_self_username_never">Nunca</string>
     <string name="post_media_alt">ALT</string>
@@ -532,7 +531,7 @@
     <string name="title_public_trending_links">URL em alta</string>
     <string name="title_tab_public_trending_links">URL</string>
     <string name="title_public_trending_hashtags">Hashtags em alta</string>
-    <string name="status_filter_placeholder_label_format">Filtrado(s): %s</string>
+    <string name="status_filter_placeholder_label_format">Filtrado(s): &lt;b>%1$s&lt;/b></string>
     <string name="confirmation_hashtag_unfollowed">#%s deixado de seguir</string>
     <string name="ui_error_vote_fmt">Votar na enquete falhou: %1$s</string>
     <string name="update_dialog_neutral">Não me lembre desta versão</string>

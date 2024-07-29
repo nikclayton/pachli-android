@@ -56,7 +56,8 @@
             <com.google.android.material.chip.ChipGroup
                     android:id="@+id/keywordChips"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true">
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/actionChip"
@@ -110,7 +111,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
-                android:entries="@array/filter_duration_names" />
+                android:entries="@array/filter_duration_labels" />
 
             <TextView
                 android:layout_width="match_parent"

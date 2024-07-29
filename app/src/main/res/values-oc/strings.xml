@@ -457,7 +457,6 @@
     <string name="duration_90_days">90 jorns</string>
     <string name="duration_180_days">180 jorns</string>
     <string name="duration_365_days">365 jorns</string>
-    <string name="error_multimedia_size_limit">Los fichièrs video e àudio pòdon pas despassar %s.</string>
     <string name="set_focus_description">Tocatz o lisatz lo cercle per causir lo punt focal que deu aparéisser sus las miniaturas.</string>
     <string name="pref_title_show_self_username">Mostrar lo nom d’utilizaire dins la barra d’aisinas</string>
     <string name="pref_show_self_username_disambiguate">Quand mai d’un compte es connectat</string>
@@ -547,7 +546,7 @@
     <string name="ui_success_accepted_follow_request">Demanda d’abonament acceptada</string>
     <string name="ui_success_rejected_follow_request">Demanda d’abonament blocada</string>
     <string name="status_filtered_show_anyway">Afichar ça que la</string>
-    <string name="status_filter_placeholder_label_format">Filtrat : %s</string>
+    <string name="status_filter_placeholder_label_format">Filtrat : &lt;b>%1$s&lt;/b></string>
     <string name="pref_title_account_filter_keywords">Perfils</string>
     <string name="hint_filter_title">Mon filtre</string>
     <string name="label_filter_title">Títol</string>

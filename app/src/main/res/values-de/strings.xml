@@ -473,7 +473,6 @@
     <string name="action_details">Details</string>
     <string name="error_image_edit_failed">Das Bild konnte nicht bearbeitet werden.</string>
     <string name="saving_draft">Entwurf wird gespeichert …</string>
-    <string name="error_multimedia_size_limit">Video- und Audiodateien dürfen nicht größer als %s MB sein.</string>
     <string name="error_following_hashtag_format">Fehler beim Folgen von #%s</string>
     <string name="error_unfollowing_hashtag_format">Fehler beim Entfolgen von #%s</string>
     <string name="delete_scheduled_post_warning">Diesen geplanten Beitrag löschen\?</string>
@@ -555,7 +554,7 @@
     <string name="notification_unknown_name">Unbekannt</string>
     <string name="ui_error_clear_notifications">Löschen der Benachrichtigungen schlug fehl: %s</string>
     <string name="ui_error_reject_follow_request">Ablehnen der Folgeanfrage schlug fehl: %s</string>
-    <string name="status_filter_placeholder_label_format">Gefiltert: %s</string>
+    <string name="status_filter_placeholder_label_format">Gefiltert: &lt;b>%1$s&lt;/b></string>
     <string name="pref_title_account_filter_keywords">Profile</string>
     <string name="hint_filter_title">Mein Filter</string>
     <string name="label_filter_title">Titel</string>

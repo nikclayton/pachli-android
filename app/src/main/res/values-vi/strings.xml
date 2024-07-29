@@ -449,7 +449,6 @@
     <string name="status_count_one_plus">1+</string>
     <string name="action_edit_image">Sửa ảnh</string>
     <string name="error_image_edit_failed">Hình ảnh này không thể sửa.</string>
-    <string name="error_multimedia_size_limit">Video và audio không thể quá %s MB.</string>
     <string name="error_following_hashtag_format">Lỗi khi theo dõi #%s</string>
     <string name="error_unfollowing_hashtag_format">Lỗi khi bỏ theo dõi #%s</string>
     <string name="filter_expiration_format">%s (%s)</string>
@@ -535,7 +534,7 @@
     <string name="ui_success_accepted_follow_request">Đã chấp nhận yêu cầu theo dõi</string>
     <string name="ui_success_rejected_follow_request">Đã từ chối yêu cầu theo dõi</string>
     <string name="status_filtered_show_anyway">Vẫn hiện</string>
-    <string name="status_filter_placeholder_label_format">Đã lọc: %s</string>
+    <string name="status_filter_placeholder_label_format">Đã lọc: &lt;b>%1$s&lt;/b></string>
     <string name="pref_title_account_filter_keywords">Người</string>
     <string name="hint_filter_title">Bộ lọc của tôi</string>
     <string name="label_filter_title">Tên bộ lọc</string>

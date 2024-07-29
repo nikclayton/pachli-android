@@ -19,7 +19,12 @@ package app.pachli.components.preference
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.DrawableRes
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import app.pachli.BuildConfig
 import app.pachli.R
@@ -30,7 +35,7 @@ import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.AccountPreferenceDataStore
-import app.pachli.core.data.repository.ServerRepository
+import app.pachli.core.data.repository.FiltersRepository
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.FiltersActivityIntent
@@ -41,8 +46,6 @@ import app.pachli.core.navigation.LoginActivityIntent.LoginMode
 import app.pachli.core.navigation.PreferencesActivityIntent
 import app.pachli.core.navigation.PreferencesActivityIntent.PreferenceScreen
 import app.pachli.core.navigation.TabPreferenceActivityIntent
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_FILTERS_CLIENT
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_FILTERS_SERVER
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
@@ -57,13 +60,13 @@ import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
 import app.pachli.util.getPachliDisplayName
 import app.pachli.util.iconRes
-import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.Ok
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import dagger.hilt.android.AndroidEntryPoint
-import io.github.z4kn4fein.semver.constraints.toConstraint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -78,7 +81,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
     lateinit var mastodonApi: MastodonApi
 
     @Inject
-    lateinit var serverRepository: ServerRepository
+    lateinit var filtersRepository: FiltersRepository
 
     @Inject
     lateinit var eventHub: EventHub
@@ -87,6 +90,28 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
     lateinit var accountPreferenceDataStore: AccountPreferenceDataStore
 
     private val iconSize by unsafeLazy { resources.getDimensionPixelSize(DR.dimen.preference_icon_size) }
+
+    /**
+     * The filter preference.
+     *
+     * Is enabled/disabled at runtime.
+     */
+    private lateinit var filterPreference: Preference
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                // Enable/disable the filter preference based on info from
+                // FiltersRespository. filterPreferences is safe to access here,
+                // it was populated in onCreatePreferences, called by onCreate
+                // before onViewCreated is called.
+                filtersRepository.filters.collect { filters ->
+                    filterPreference.isEnabled = filters is Ok
+                }
+            }
+        }
+        return super.onViewCreated(view, savedInstanceState)
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val context = requireContext()
@@ -162,7 +187,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 }
             }
 
-            preference {
+            filterPreference = preference {
                 setTitle(R.string.pref_title_timeline_filters)
                 setIcon(R.drawable.ic_filter_24dp)
                 setOnPreferenceClickListener {
@@ -170,17 +195,9 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                     activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     true
                 }
-                val server = serverRepository.flow.value.getOrElse { null }
-                isEnabled = server?.let {
-                    it.can(
-                        ORG_JOINMASTODON_FILTERS_CLIENT,
-                        ">1.0.0".toConstraint(),
-                    ) || it.can(
-                        ORG_JOINMASTODON_FILTERS_SERVER,
-                        ">1.0.0".toConstraint(),
-                    )
-                } ?: false
-                if (!isEnabled) summary = context.getString(R.string.pref_summary_timeline_filters)
+                setSummaryProvider {
+                    if (it.isEnabled) "" else context.getString(R.string.pref_summary_timeline_filters)
+                }
             }
 
             preferenceCategory(R.string.pref_publishing) {

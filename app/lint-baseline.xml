@@ -102,10 +102,10 @@
         errorLine2="                           ^">
         <location
             file="src/main/java/app/pachli/components/compose/MediaUploader.kt"
-            line="268"
+            line="388"
             column="28"/>
         <location
-            file="${:core:activity*buildDir}/generated/res/resValues/orangeFdroid/debug/values/gradleResValues.xml"
+            file="${:core:activity*buildDir}/generated/res/resValues/blueFdroid/debug/values/gradleResValues.xml"
             line="7"
             column="5"
             message="This definition does not require arguments"/>
@@ -701,7 +701,7 @@
         errorLine2="                                                                                                                                                                                                                                                                                                     ^">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="498"
+            line="497"
             column="294"/>
     </issue>
 
@@ -712,8 +712,19 @@
         errorLine2="                                                  ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="520"
+            line="519"
             column="51"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="Repeated word &quot;til&quot; in message: possible typo"
+        errorLine1="    &lt;string name=&quot;action_add_to_tab&quot;>Legg til til fane&lt;/string>"
+        errorLine2="                                          ^">
+        <location
+            file="src/main/res/values-nb-rNO/strings.xml"
+            line="649"
+            column="43"/>
     </issue>
 
     <issue
@@ -745,7 +756,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="100"
+            line="99"
             column="5"/>
     </issue>
 
@@ -1185,7 +1196,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="278"
+            line="275"
             column="19"/>
     </issue>
 
@@ -1196,7 +1207,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="283"
+            line="280"
             column="19"/>
     </issue>
 
@@ -1284,7 +1295,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="23"
+            line="22"
             column="13"/>
     </issue>
 
@@ -1295,7 +1306,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="33"
+            line="32"
             column="13"/>
     </issue>
 
@@ -1306,7 +1317,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="75"
+            line="74"
             column="13"/>
     </issue>
 
@@ -1317,7 +1328,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="81"
+            line="80"
             column="13"/>
     </issue>
 
@@ -1328,7 +1339,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="102"
+            line="101"
             column="13"/>
     </issue>
 
@@ -1339,7 +1350,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="110"
+            line="109"
             column="13"/>
     </issue>
 
@@ -1350,7 +1361,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="144"
+            line="143"
             column="13"/>
     </issue>
 
@@ -1843,17 +1854,6 @@
             file="src/main/res/layout/item_autocomplete_emoji.xml"
             line="19"
             column="6"/>
-    </issue>
-
-    <issue
-        id="SelectableText"
-        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
-        errorLine1="&lt;TextView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_autocomplete_hashtag.xml"
-            line="2"
-            column="2"/>
     </issue>
 
     <issue

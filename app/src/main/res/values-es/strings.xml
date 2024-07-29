@@ -452,7 +452,6 @@
     <string name="action_delete_conversation">Eliminar conversación</string>
     <string name="pref_title_confirm_favourites">Pedir confirmación antes de marcar como favorito</string>
     <string name="pref_title_notification_filter_updates">una publicación con la que interactué se editó</string>
-    <string name="error_multimedia_size_limit">Los archivos de video y audio no pueden pesar más de %s MB.</string>
     <string name="error_image_edit_failed">Esta imagen no puede ser editada.</string>
     <string name="pref_show_self_username_always">Siempre</string>
     <string name="pref_show_self_username_never">Nunca</string>
@@ -555,7 +554,7 @@
     <string name="pref_title_account_filter_keywords">Perfiles</string>
     <string name="notification_unknown_name">Desconocido</string>
     <string name="status_filtered_show_anyway">Mostrar de todas formas</string>
-    <string name="status_filter_placeholder_label_format">Filtrado: %s</string>
+    <string name="status_filter_placeholder_label_format">Filtrado: &lt;b>%1$s&lt;/b></string>
     <string name="pref_title_show_stat_inline">Mostrar estadísticas de la entrada en la línea de tiempo</string>
     <string name="socket_timeout_exception">Contactar con tu servidor ha tardado demasiado tiempo</string>
     <string name="select_list_empty">Todavía no tienes listas</string>
@@ -608,7 +607,7 @@
     <string name="pref_title_update_settings">Actualizaciones de programa</string>
     <string name="title_public_trending_statuses">Publicaciones en tendencia</string>
     <string name="announcement_date">%1$s %2$s</string>
-    <string name="load_newest_statuses">Carga publicaciones más nuevas</string>
+    <string name="load_newest_statuses">Cargar las publicaciones más nuevas</string>
     <string name="dialog_save_profile_changes_message">¿Quieres guardar tus cambios de perfil?</string>
     <string name="pref_update_notification_frequency_always">Siempre</string>
     <string name="error_media_upload_sending_fmt">La carga falló: %s</string>
@@ -663,4 +662,22 @@
     <string name="error_filter_missing_context">Por lo menos se necesita un contexto para el filtro</string>
     <string name="error_filter_missing_title">Se necesita el título</string>
     <string name="action_suggestions">Cuentas sugeridas</string>
+    <string name="compose_schedule_date_time_fmt">%1$s %2$s</string>
+    <string name="compose_warn_language_dialog_change_language_fmt">Cambiar el idioma a %1$s y publicar</string>
+    <string name="compose_warn_language_dialog_accept_language_fmt">Publicar tal cual (%1$s)</string>
+    <string name="error_media_uploader_upload_not_found_fmt">no se encontró la subida de medios con ID de %1$s</string>
+    <string name="error_prepare_media_unknown_file_size">no se pudo determinar el tamaño del archivo</string>
+    <string name="error_prepare_media_unknown_mime_type">se desconoce el tipo de archivo</string>
+    <string name="preview_card_byline_fmt">Ver más de %1$s</string>
+    <string name="action_open_byline_account">Mostrar el perfil del autor del artículo</string>
+    <string name="action_open_link">Abrir enlace</string>
+    <string name="compose_warn_language_dialog_title">Comprueba el idioma de la publicación</string>
+    <string name="compose_warn_language_dialog_fmt">El idioma de la publicación está configurado en %1$s, pero es posible que la hayas escrito en %2$s.</string>
+    <string name="error_prepare_media_unsupported_mime_type_fmt">el servidor no es compatible con el tipo de archivo: %1$s</string>
+    <string name="error_pick_media_fmt">No se pudo adjuntar el archivo a la publicación: %1$s</string>
+    <string name="error_media_uploader_throwable_fmt">%1$s</string>
+    <string name="error_prepare_media_content_resolver_missing_path_fmt">al agente de resolución de contenido le faltó una ruta: %1$s</string>
+    <string name="error_prepare_media_content_resolver_unsupported_scheme_fmt">el agente de resolución de contenido tiene un esquema no compatible: %1$s</string>
+    <string name="error_prepare_media_file_is_too_large_fmt">el tamaño del archivo es %1$s, el máximo permitido es %2$s</string>
+    <string name="error_prepare_media_io_fmt">%1$s</string>
 </resources>

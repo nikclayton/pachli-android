@@ -425,7 +425,6 @@
     <string name="limit_notifications">Limita les notificacions de la cronologia</string>
     <string name="filter_expiration_format">%s (%s)</string>
     <string name="dialog_delete_conversation_warning">Vols suprimir aquesta conversa\?</string>
-    <string name="error_multimedia_size_limit">Els fitxers de vídeo i àudio no poden superar la mida de %s MB.</string>
     <string name="error_image_edit_failed">La imatge no s\'ha pogut editar.</string>
     <string name="action_dismiss">Descartar</string>
     <string name="pref_title_http_proxy_port_message">El port hauria d\'estar entre %d i %d</string>
@@ -538,7 +537,7 @@
     <string name="dialog_follow_hashtag_title">Segueix hashtag</string>
     <string name="dialog_follow_hashtag_hint">#hashtag</string>
     <string name="notification_unknown_name">Desconegut</string>
-    <string name="status_filter_placeholder_label_format">Filtrat: %s</string>
+    <string name="status_filter_placeholder_label_format">Filtrat: &lt;b>%1$s&lt;/b></string>
     <string name="pref_title_account_filter_keywords">Perfils</string>
     <string name="status_filtered_show_anyway">Mostra de totes maneres</string>
     <string name="socket_timeout_exception">El contacte amb el teu servidor ha trigat massa</string>

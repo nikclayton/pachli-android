@@ -93,9 +93,11 @@ import app.pachli.core.network.model.Status
 import app.pachli.core.preferences.AppTheme
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
-import app.pachli.core.ui.extensions.getErrorString
+import app.pachli.core.ui.extensions.await
 import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.ActivityComposeBinding
+import app.pachli.languageidentification.LanguageIdentifier
+import app.pachli.languageidentification.UNDETERMINED_LANGUAGE_TAG
 import app.pachli.util.PickMediaFiles
 import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
@@ -107,6 +109,8 @@ import app.pachli.util.setDrawableTint
 import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.options
+import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.onFailure
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
@@ -117,8 +121,8 @@ import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.io.IOException
-import java.text.DecimalFormat
 import java.util.Locale
+import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.flow.collect
@@ -160,6 +164,12 @@ class ComposeActivity :
     private val binding by viewBinding(ActivityComposeBinding::inflate)
 
     private var maxUploadMediaNumber = DEFAULT_MAX_MEDIA_ATTACHMENTS
+
+    /** List of locales the user can choose from when posting. */
+    private lateinit var locales: List<Locale>
+
+    @Inject
+    lateinit var languageIdentifierFactory: LanguageIdentifier.Factory
 
     private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
@@ -386,11 +396,11 @@ class ComposeActivity :
     }
 
     private fun setupContentWarningField(startingContentWarning: String?) {
-        if (startingContentWarning != null) {
-            binding.composeContentWarningField.setText(startingContentWarning)
-        }
         binding.composeContentWarningField.doOnTextChanged { newContentWarning, _, _, _ ->
             viewModel.onContentWarningChanged(newContentWarning?.toString() ?: "")
+        }
+        if (startingContentWarning != null) {
+            binding.composeContentWarningField.setText(startingContentWarning)
         }
     }
 
@@ -507,14 +517,10 @@ class ComposeActivity :
         }
 
         lifecycleScope.launch {
-            viewModel.uploadError.collect { throwable ->
-                if (throwable is UploadServerError) {
-                    displayTransientMessage(throwable.getErrorString(this@ComposeActivity))
-                } else {
-                    displayTransientMessage(
-                        getString(R.string.error_media_upload_sending_fmt, throwable.getErrorString(this@ComposeActivity)),
-                    )
-                }
+            viewModel.uploadError.collect { mediaUploaderError ->
+                val message = mediaUploaderError.fmt(this@ComposeActivity)
+
+                displayPermamentMessage(getString(R.string.error_media_upload_sending_fmt, message))
             }
         }
     }
@@ -602,7 +608,8 @@ class ComposeActivity :
             }
         }
         binding.composePostLanguageButton.apply {
-            adapter = LocaleAdapter(context, android.R.layout.simple_spinner_dropdown_item, getLocaleList(initialLanguages))
+            locales = getLocaleList(initialLanguages)
+            adapter = LocaleAdapter(context, android.R.layout.simple_spinner_dropdown_item, locales)
             setSelection(0)
         }
     }
@@ -707,6 +714,14 @@ class ComposeActivity :
         super.onSaveInstanceState(outState)
     }
 
+    private fun displayPermamentMessage(message: String) {
+        val bar = Snackbar.make(binding.activityCompose, message, Snackbar.LENGTH_INDEFINITE)
+        // necessary so snackbar is shown over everything
+        bar.view.elevation = resources.getDimension(DR.dimen.compose_activity_snackbar_elevation)
+        bar.setAnchorView(R.id.composeBottomBar)
+        bar.show()
+    }
+
     private fun displayTransientMessage(message: String) {
         val bar = Snackbar.make(binding.activityCompose, message, Snackbar.LENGTH_LONG)
         // necessary so snackbar is shown over everything
@@ -714,6 +729,7 @@ class ComposeActivity :
         bar.setAnchorView(R.id.composeBottomBar)
         bar.show()
     }
+
     private fun displayTransientMessage(@StringRes stringId: Int) {
         displayTransientMessage(getString(stringId))
     }
@@ -950,11 +966,89 @@ class ComposeActivity :
         return binding.composeScheduleView.verifyScheduledTime(binding.composeScheduleView.getDateTime(viewModel.scheduledAt.value))
     }
 
-    private fun onSendClicked() {
+    private fun onSendClicked() = lifecycleScope.launch {
+        confirmStatusLanguage()
+
         if (verifyScheduledTime()) {
             sendStatus()
         } else {
             showScheduleView()
+        }
+    }
+
+    /**
+     * Check the status' language.
+     *
+     * Try and identify the language the status is written in, and compare that with
+     * the language the user selected. If the selected language is not in the top three
+     * detected languages, and the language was detected at 60+% confidence then prompt
+     * the user to change the language before posting.
+     */
+    private suspend fun confirmStatusLanguage() {
+        // Note: There's some dancing around here because the language identifiers
+        // are BCP-47 codes (potentially with multiple components) and the Mastodon API wants ISO 639.
+        // See https://github.com/mastodon/mastodon/issues/23541
+
+        // Null check. Shouldn't be necessary
+        val currentLang = viewModel.language ?: return
+
+        // Try and identify the language the status is written in. Limit to the
+        // first three possibilities. Don't show errors to the user, just bail,
+        // as there's nothing they can do to resolve any error.
+        val languages = languageIdentifierFactory.newInstance().use {
+            it.identifyPossibleLanguages(binding.composeEditField.text.toString())
+                .getOrElse {
+                    Timber.d("error when identifying languages: %s", it)
+                    return
+                }
+        }
+
+        // If there are no matches then bail
+        // Note: belt and braces, shouldn't happen per documented behaviour, as at
+        // least one item should always be returned.
+        if (languages.isEmpty()) return
+
+        // Ignore results where the language could not be determined.
+        if (languages.first().languageTag == UNDETERMINED_LANGUAGE_TAG) return
+
+        // If the current language is any of the ones detected then it's OK.
+        if (languages.any { it.languageTag.startsWith(currentLang) }) return
+
+        // Warn the user about the language mismatch only if 60+% sure of the guess.
+        val detectedLang = languages.first()
+        if (detectedLang.confidence < 0.6) return
+
+        // Viewmodel's language tag has just the first component (e.g., "zh"), the
+        // guessed language might more (e.g,. "-Hant"), so trim to just the first.
+        val detectedLangTruncatedTag = detectedLang.languageTag.split('-', limit = 2)[0]
+
+        val localeList = getLocaleList(emptyList()).associateBy { it.modernLanguageCode }
+
+        val detectedLocale = localeList[detectedLangTruncatedTag] ?: return
+        val detectedDisplayLang = detectedLocale.displayLanguage
+        val currentDisplayLang = localeList[viewModel.language]?.displayLanguage ?: return
+
+        // Otherwise, show the dialog.
+        val dialog = AlertDialog.Builder(this@ComposeActivity)
+            .setTitle(R.string.compose_warn_language_dialog_title)
+            .setMessage(
+                getString(
+                    R.string.compose_warn_language_dialog_fmt,
+                    currentDisplayLang,
+                    detectedDisplayLang,
+                ),
+            )
+            .create()
+            .await(
+                getString(R.string.compose_warn_language_dialog_change_language_fmt, detectedDisplayLang),
+                getString(R.string.compose_warn_language_dialog_accept_language_fmt, currentDisplayLang),
+            )
+
+        if (dialog == AlertDialog.BUTTON_POSITIVE) {
+            viewModel.onLanguageChanged(detectedLangTruncatedTag)
+            locales.indexOf(detectedLocale).takeIf { it != -1 }?.let {
+                binding.composePostLanguageButton.setSelection(it)
+            }
         }
     }
 
@@ -1091,18 +1185,12 @@ class ComposeActivity :
 
     private fun pickMedia(uri: Uri, description: String? = null) {
         lifecycleScope.launch {
-            viewModel.pickMedia(uri, description).onFailure { throwable ->
-                val errorString = when (throwable) {
-                    is FileSizeException -> {
-                        val decimalFormat = DecimalFormat("0.##")
-                        val allowedSizeInMb = throwable.allowedSizeInBytes.toDouble() / (1024 * 1024)
-                        val formattedSize = decimalFormat.format(allowedSizeInMb)
-                        getString(R.string.error_multimedia_size_limit, formattedSize)
-                    }
-                    is VideoOrImageException -> getString(R.string.error_media_upload_image_or_video)
-                    else -> getString(R.string.error_media_upload_opening)
-                }
-                displayTransientMessage(errorString)
+            viewModel.pickMedia(uri, description).onFailure {
+                val message = getString(
+                    R.string.error_pick_media_fmt,
+                    it.fmt(this@ComposeActivity),
+                )
+                displayPermamentMessage(message)
             }
         }
     }
@@ -1287,6 +1375,7 @@ class ComposeActivity :
         }
     }
 
+    /** Media queued for upload. */
     data class QueuedMedia(
         val localId: Int,
         val uri: Uri,
