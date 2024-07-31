@@ -46,6 +46,7 @@ private val log = KotlinLogging.logger {}
 // init - Ask questions, create config
 // beta - Creates a new beta from the current state
 // release - Creates a new release from the current state
+// blog - Creates a skeleton blog post from the current state
 
 val CONFIG_FILE = File("mkrelease.json")
 
@@ -158,5 +159,6 @@ fun main(args: Array<String>) = App().subcommands(
     StartRelease(),
     BetaRelease(),
     FinalRelease(),
+    Blog(),
     State(),
 ).main(args)

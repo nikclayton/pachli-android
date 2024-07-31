@@ -1149,9 +1149,21 @@ data object AnnounceTheBetaRelease : ReleaseStep() {
         while (!t.confirm("Have you done all this?")) { }
 
         // Done. This version can now be marked as the previous version
+        // See SaveFinalRelease]
         val releaseSpec = ReleaseSpec.from(SPEC_FILE)
         return releaseSpec.copy(
             prevVersion = releaseSpec.thisVersion!!,
+            thisVersion = null,
+            pullRequest = null,
+        )
+    }
+}
+
+@Serializable
+data object SaveFinalRelease : ReleaseStep() {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        return spec.copy(
+            prevVersion = spec.thisVersion!!,
             thisVersion = null,
             pullRequest = null,
         )

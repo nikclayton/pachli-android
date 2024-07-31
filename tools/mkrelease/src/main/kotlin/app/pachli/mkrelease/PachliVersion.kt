@@ -17,8 +17,8 @@
 
 package app.pachli.mkrelease
 
-import kotlinx.serialization.Serializable
 import kotlin.math.sign
+import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class PachliVersion : Comparable<PachliVersion> {
@@ -27,7 +27,10 @@ sealed class PachliVersion : Comparable<PachliVersion> {
     abstract val patch: Int
     abstract val versionCode: Int
 
+    /** Version in format "$major.$minor.$patch" */
     open fun versionName() = "$major.$minor.$patch"
+
+    /** Version in format "v$major.$minor.$patch" */
     open fun versionTag() = "v$major.$minor.$patch"
 
     override fun compareTo(other: PachliVersion): Int {
