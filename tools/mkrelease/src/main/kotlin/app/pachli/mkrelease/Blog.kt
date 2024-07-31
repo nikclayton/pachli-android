@@ -145,9 +145,10 @@ data object CreateBlogPost : BlogStep {
         val date = dateFormatter.format(now)
 
         val dir = "${formatter.format(now)}-xx-${spec.prevVersion.versionName()}-release"
-        val assetPath = getAssetDir(spec)
+        val blogPostFile = "$date-${spec.prevVersion.versionName()}-release.md"
 
         val version = spec.prevVersion.versionName()
+        val versionTag = spec.prevVersion.versionTag()
 
         val title = "Pachli $version released"
 
@@ -172,6 +173,8 @@ TODO
 
 Languages with updated translations are:
 
+TODO - update this list
+
 - Finnish by [Kalle Kniivilä](https://github.com/pachli/pachli-android/commits?author=kalle.kniivila@gmail.com)
 - Spanish by [Miles Krell](https://github.com/pachli/pachli-android/commits?author=noreply@mileskrell.com)
 - Swedish by [Luna Jernberg](https://github.com/pachli/pachli-android/commits?author=bittin@reimu.nl)
@@ -189,11 +192,13 @@ If you would like to help improve Pachli's translation in to your language there
 ## Thank you
 
 Thank you to everyone who took the time to report issues and provide additional followup information and screenshots.
+
+[Download Pachli $version from Google Play](https://play.google.com/store/apps/details?id=app.pachli), [F-Droid](https://f-droid.org/en/packages/app.pachli/), or the [GitHub release page](https://github.com/pachli/pachli-android/releases/tag/$versionTag).
         """.trimIndent()
 
         t.info(template)
 
-        (postsPath / "${dir}.md").toFile().writeText(template)
+        (postsPath / blogPostFile).toFile().writeText(template)
 
         return null
     }
