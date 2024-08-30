@@ -187,6 +187,11 @@ dependencies {
 
     implementation(libs.semver)
 
+    implementation(libs.markwon)
+    implementation(libs.markwon.html)
+    implementation(libs.markwon.inline.parser)
+    implementation(libs.markwon.simple.ext)
+
     debugImplementation(libs.leakcanary)
 
     testImplementation(projects.core.testing)

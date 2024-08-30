@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.text.format.DateUtils
+import android.text.style.URLSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -37,7 +38,9 @@ import app.pachli.core.network.model.Emoji
 import app.pachli.core.network.model.PreviewCardKind
 import app.pachli.core.network.model.Status
 import app.pachli.core.preferences.CardViewMode
+import app.pachli.core.ui.NoTrailingSpaceLinkMovementMethod
 import app.pachli.core.ui.makeIcon
+import app.pachli.core.ui.markupHiddenUrls
 import app.pachli.core.ui.setClickableMentions
 import app.pachli.core.ui.setClickableText
 import app.pachli.interfaces.StatusActionListener
@@ -60,8 +63,12 @@ import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.color.MaterialColors
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
+import io.noties.markwon.Markwon
+import io.noties.markwon.html.HtmlPlugin
+import io.noties.markwon.simple.ext.SimpleExtPlugin
 import java.text.NumberFormat
 import java.util.Date
+import timber.log.Timber
 
 abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(itemView: View) :
     RecyclerView.ViewHolder(itemView) {
@@ -238,11 +245,94 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(i
             }
         }
 
-        val content = viewData.content
+//        val markwon = Markwon.builder(context)
+//            .usePlugin(TablePlugin.create(context))
+//            .usePlugin(SoftBreakAddsNewLinePlugin.create())
+//            .usePlugin(SyntaxHighlightPlugin.create(Prism4j(MySuperGrammerLocator()), Prism4jThemeDefault.create()))
+//            .usePlugin(StrikethroughPlugin.create())
+//            .usePlugin(MarkwonInlineParserPlugin.create())
+//            .usePlugin(
+//                object : AbstractMarkwonPlugin() {
+//                    override fun configure(registry: MarkwonPlugin.Registry) {
+//                        registry.require(
+//                            MarkwonInlineParserPlugin::class.java,
+//                        ) { plugin: MarkwonInlineParserPlugin ->
+//                            plugin.factoryBuilder()
+//                                .excludeInlineProcessor(HtmlInlineProcessor::class.java)
+//                        }
+//                    }
+//                },
+//            )
+//            .build()
+
+//        val content = viewData.content
+        val markwon = Markwon.builder(context)
+            .usePlugin(SimpleExtPlugin.create())
+            .usePlugin(HtmlPlugin.create())
+//            .usePlugin(FixMastodonHtml)
+//            .usePlugin(EmojiSpanPlugin(emojis, statusDisplayOptions.animateEmojis))
+//            .usePlugin(LinkVisitorPlugin())
+//            .usePlugin(LinkResolverPlugin())
+//            .usePlugin(MarkwonInlineParserPlugin.create())
+//            .usePlugin(
+//                object : AbstractMarkwonPlugin() {
+//                    override fun configure(registry: MarkwonPlugin.Registry) {
+//                        registry.require(
+//                            MarkwonInlineParserPlugin::class.java,
+//                        ) { plugin: MarkwonInlineParserPlugin ->
+//                            plugin.factoryBuilder()
+//                                .excludeInlineProcessor(HtmlInlineProcessor::class.java)
+//                        }
+//                    }
+//                },
+//            )
+            .build()
+
+        // Replace <p>...</p> with a Markdown paragraph (two blank lines).
+        val c = viewData.status.actionableStatus.content
+            // <p> and </p> become Markdown "\n\n" at the end of paras.
+            .replace("<p>", "")
+            .replace("</p>", "\n\n")
+            .replace("<br>", "\n")
+            .replace("<br/>", "\n")
+            .replace("<br />", "\n")
+            .replace("&amp;", "&")
+
+        // Problem -- HTML in fenced code blocks is treated literally by Markwon.
+        // Easiest fix (probably) is to remove all HTML elements inside fenced blocks.
+        //
+        // Any literal HTML the user wanted to enter will have "&lt;" as the opening bracket
+        // of the start tag.
+        //
+        // Fenced code blocks start "```" and end "```"
+        val rxCodeBlock = """^```(.*?)^```""".toRegex(setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.MULTILINE))
+        val rxTag = """</?[^>]+?>""".toRegex(RegexOption.DOT_MATCHES_ALL)
+
+        Timber.d(c)
+        val processedContent = c.replace(rxCodeBlock) { match ->
+            match.value.replace(rxTag, "")
+        }
+        val content = markwon.toMarkdown(processedContent)
+
         if (expanded) {
             val emojifiedText =
                 content.emojify(emojis, this.content, statusDisplayOptions.animateEmojis)
-            setClickableText(this.content, emojifiedText, mentions, tags, listener)
+//            setClickableText(this.content, emojifiedText, mentions, tags, listener)
+
+            // --- This block does what setClickableText does.
+            val spannableContent = markupHiddenUrls(this.content, emojifiedText)
+            val finalText = spannableContent.apply {
+                getSpans(0, spannableContent.length, URLSpan::class.java).forEach {
+                    setClickableText(it, this, mentions, tags, listener)
+                }
+            }
+            markwon.setParsedMarkdown(this.content, finalText)
+
+//            markwon.setParsedMarkdown(this.content, content)
+            this.content.movementMethod = NoTrailingSpaceLinkMovementMethod.getInstance()
+
+            // ---
+
             for (i in mediaLabels.indices) {
                 updateMediaLabel(i, sensitive, true)
             }

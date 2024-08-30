@@ -46,6 +46,9 @@ fun CharSequence.emojify(emojis: List<Emoji>?, view: View, animate: Boolean): Ch
 
     val builder = SpannableStringBuilder.valueOf(this)
 
+    // TODO: This is O(len(emojis)) x O(len(input)). Would be better to parse the string
+    // once, looking up each emoji shortcode as it's found (and accept a
+    // Map<shortcode: String, (url: String, staticUrl: String)>
     emojis.forEach { (shortcode, url, staticUrl) ->
         val matcher = Pattern.compile(":$shortcode:", Pattern.LITERAL)
             .matcher(this)

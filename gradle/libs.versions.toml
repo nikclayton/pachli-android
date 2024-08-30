@@ -52,6 +52,7 @@ ksp = "2.0.20-1.0.24"
 image-cropper = "4.3.2"
 leakcanary = "2.14"
 lint = "31.5.2" # = agp + 23.0.0 (= 8.5.2), see https://github.com/googlesamples/android-custom-lint-rules#lint-version
+markwon = "4.6.2"
 material = "1.12.0"
 material-drawer = "9.0.2"
 material-iconics = "5.5.0-compose01"
@@ -191,6 +192,10 @@ lint-api = { module = "com.android.tools.lint:lint-api", version.ref = "lint" }
 lint-checks = { module = "com.android.tools.lint:lint-checks", version.ref = "lint" }
 lint-cli = { module = "com.android.tools.lint:lint", version.ref = "lint" }
 lint-tests = { module = "com.android.tools.lint:lint-tests", version.ref = "lint" }
+markwon = { module = "io.noties.markwon:core", version.ref = "markwon" }
+markwon-html = { module = "io.noties.markwon:html", version.ref = "markwon" }
+markwon-inline-parser = { module = "io.noties.markwon:inline-parser", version.ref = "markwon" }
+markwon-simple-ext = { module = "io.noties.markwon:simple-ext", version.ref = "markwon" }
 material-drawer-core = { module = "com.mikepenz:materialdrawer", version.ref = "material-drawer" }
 material-drawer-iconics = { module = "com.mikepenz:materialdrawer-iconics", version.ref = "material-drawer" }
 material-iconics = { module = "com.mikepenz:iconics-core", version.ref="material-iconics" }
