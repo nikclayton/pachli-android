@@ -1,0 +1,5 @@
+Pachli 2.7.1
+
+Correcciones:
+
+- Posicionar correctamente las tarjetas de previsualización, mostrar la descripción de la tarjeta

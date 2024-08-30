@@ -1,0 +1,18 @@
+Pachli 2.7.0
+
+Nuevo:
+
+- Operadores de búsqueda en interfaz
+- Advertir si el idioma de la publicación fuese erróneo
+- Mostrar autor
+- Editar filtros desde línea de tiempo
+- Autocompletar etiquetas y mostrar su uso
+
+Correcciones:
+
+- Visibilidad de la etiqueta en tendencia
+- Filtros en GoToSocial 0.16+
+- Ocultar teclado después de búsqueda
+- Cálculo correcto de caracteres
+- Correcta puntuación de la descripción del contenido
+- Actualizar traducciones: chino, español, finés, irlandés y noruego

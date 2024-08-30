@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.5.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.5.0)" variant="all" version="8.5.0">
+<issues format="6" by="lint 8.5.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.5.2)" variant="all" version="8.5.2">
 
     <issue
         id="InvalidPackage"
@@ -36,7 +36,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="17"
+            line="18"
             column="9"/>
     </issue>
 
@@ -47,7 +47,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="24"
+            line="25"
             column="9"/>
     </issue>
 
@@ -58,7 +58,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="25"
+            line="26"
             column="9"/>
     </issue>
 
@@ -69,7 +69,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="26"
+            line="27"
             column="9"/>
     </issue>
 
@@ -499,23 +499,23 @@
     <issue
         id="Typos"
         message="&quot;media&quot; is a common misspelling; did you mean &quot;medier&quot;?"
-        errorLine1="    &lt;string name=&quot;error_media_upload_permission&quot;>Trenger tillatelse til å lese media.&lt;/string>"
-        errorLine2="                                                                               ^">
+        errorLine1="    &lt;string name=&quot;error_media_upload_permission&quot;>Pachli tenger tillatelse for å lese media.&lt;/string>"
+        errorLine2="                                                                                     ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
             line="8"
-            column="80"/>
+            column="86"/>
     </issue>
 
     <issue
         id="Typos"
         message="&quot;media&quot; is a common misspelling; did you mean &quot;medier&quot;?"
-        errorLine1="    &lt;string name=&quot;error_media_download_permission&quot;>Trenger tillatelse for å lagre media.&lt;/string>"
-        errorLine2="                                                                                  ^">
+        errorLine1="    &lt;string name=&quot;error_media_download_permission&quot;>Pachli trenger tillatelse for å lagre media.&lt;/string>"
+        errorLine2="                                                                                         ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
             line="9"
-            column="83"/>
+            column="90"/>
     </issue>
 
     <issue
@@ -696,23 +696,12 @@
 
     <issue
         id="Typos"
-        message="Repeated word &quot;tek&quot; in message: possible typo"
-        errorLine1="    &lt;string name=&quot;dialog_push_notification_migration_other_accounts&quot;>Pachli\&apos;ye bildirim aboneliği izni vermek için mevcut hesabınıza yeniden giriş yaptınız. Ancak, yine de bu şekilde geçirilmemiş başka hesaplarınız var. UnifiedPush bildirimleri desteğini etkinleştirmek için bunlara geçin ve tek tek yeniden giriş yapın.&lt;/string>"
-        errorLine2="                                                                                                                                                                                                                                                                                                     ^">
-        <location
-            file="src/main/res/values-tr/strings.xml"
-            line="497"
-            column="294"/>
-    </issue>
-
-    <issue
-        id="Typos"
         message="&quot;Media&quot; is a common misspelling; did you mean &quot;Medier&quot;?"
         errorLine1="    &lt;string name=&quot;hint_media_description_missing&quot;>Media bør ha en beskrivelse.&lt;/string>"
         errorLine2="                                                  ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="519"
+            line="514"
             column="51"/>
     </issue>
 
@@ -723,7 +712,7 @@
         errorLine2="                                          ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="649"
+            line="644"
             column="43"/>
     </issue>
 
@@ -756,7 +745,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="99"
+            line="101"
             column="5"/>
     </issue>
 
@@ -800,7 +789,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="629"
+            line="626"
             column="5"/>
     </issue>
 
@@ -811,7 +800,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="24"
+            line="25"
             column="31"/>
     </issue>
 
@@ -822,7 +811,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="24"
+            line="25"
             column="31"/>
     </issue>
 
@@ -833,7 +822,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="24"
+            line="25"
             column="31"/>
     </issue>
 
@@ -844,7 +833,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="24"
+            line="25"
             column="31"/>
     </issue>
 
@@ -855,7 +844,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="24"
+            line="25"
             column="31"/>
     </issue>
 
@@ -866,7 +855,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="24"
+            line="25"
             column="31"/>
     </issue>
 
@@ -877,7 +866,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="24"
+            line="25"
             column="31"/>
     </issue>
 
@@ -888,7 +877,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="24"
+            line="25"
             column="31"/>
     </issue>
 
@@ -899,7 +888,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="24"
+            line="25"
             column="31"/>
     </issue>
 
@@ -910,7 +899,7 @@
         errorLine2="                             ~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="18"
+            line="19"
             column="30"/>
     </issue>
 
@@ -1091,83 +1080,6 @@
     </issue>
 
     <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;?android:attr/colorBackground&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_timeline_notifications.xml"
-            line="23"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_account.xml"
-            line="8"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_draft.xml"
-            line="8"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/selectableItemBackgroundBorderless` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;?attr/selectableItemBackgroundBorderless&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_emoji_button.xml"
-            line="4"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_hashtag.xml"
-            line="16"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;?android:colorBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_tab_preference.xml"
-            line="7"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_tab_preference_small.xml"
-            line="7"
-            column="5"/>
-    </issue>
-
-    <issue
         id="UnusedResources"
         message="The resource `R.menu.activity_scheduled_status` appears to be unused"
         errorLine1="&lt;menu xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
@@ -1284,7 +1196,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="19"
+            line="21"
             column="13"/>
     </issue>
 
@@ -1295,7 +1207,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="22"
+            line="24"
             column="13"/>
     </issue>
 
@@ -1306,7 +1218,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="32"
+            line="34"
             column="13"/>
     </issue>
 
@@ -1317,7 +1229,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="74"
+            line="76"
             column="13"/>
     </issue>
 
@@ -1328,7 +1240,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="80"
+            line="82"
             column="13"/>
     </issue>
 
@@ -1339,7 +1251,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="101"
+            line="103"
             column="13"/>
     </issue>
 
@@ -1350,7 +1262,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="109"
+            line="111"
             column="13"/>
     </issue>
 
@@ -1361,7 +1273,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="143"
+            line="145"
             column="13"/>
     </issue>
 
@@ -1483,17 +1395,6 @@
         <location
             file="src/main/res/values/strings.xml"
             line="425"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.restart` appears to be unused"
-        errorLine1="    &lt;string name=&quot;restart&quot;>Restart&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="426"
             column="13"/>
     </issue>
 
@@ -1636,7 +1537,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="621"
+            line="618"
             column="13"/>
     </issue>
 
@@ -1647,7 +1548,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="647"
+            line="644"
             column="13"/>
     </issue>
 
@@ -2281,7 +2182,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_status.xml"
-            line="247"
+            line="246"
             column="6"/>
     </issue>
 
@@ -2292,7 +2193,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_status.xml"
-            line="275"
+            line="274"
             column="6"/>
     </issue>
 
@@ -2303,7 +2204,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_status.xml"
-            line="303"
+            line="302"
             column="6"/>
     </issue>
 
@@ -2600,7 +2501,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/item_status.xml"
-            line="237"
+            line="236"
             column="9"/>
     </issue>
 
@@ -2635,17 +2536,6 @@
             file="src/main/res/layout/material_drawer_header.xml"
             line="8"
             column="5"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            binding.scheduledDateTime.text = &quot;&quot;"
-        errorLine2="                                             ~~">
-        <location
-            file="src/main/java/app/pachli/components/compose/view/ComposeScheduleView.kt"
-            line="79"
-            column="46"/>
     </issue>
 
     <issue

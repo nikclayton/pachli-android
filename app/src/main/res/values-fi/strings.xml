@@ -224,8 +224,7 @@
     <string name="send_post_link_to">Jaa julkaisun URL…</string>
     <string name="notification_update_format">%s muokkasi julkaisua</string>
     <string name="notification_update_name">Julkaisujen muokkaukset</string>
-    <string name="title_migration_relogin">Kirjaudu uudestaan sisään ottaaksesi vastaan push-ilmoituksia</string>
-    <string name="action_details">Yksityiskohdat</string>
+    <string name="title_migration_relogin">Kirjaudu uudestaan sisään ottaaksesi vastaan puskuilmoituksia</string>
     <string name="error_image_edit_failed">Kuvaa ei voitu muokata.</string>
     <string name="description_visibility_unlisted">Listaamaton</string>
     <string name="dialog_delete_conversation_warning">Poista tämä keskustelu\?</string>
@@ -298,7 +297,6 @@
     <string name="filter_dialog_whole_word_description">Kun avainsana tai lauseke sisältää ainoastaan kirjaimia ja numeroita, sitä sovelletaan vain jos se vastaa koko sanaa</string>
     <string name="abbreviated_years_ago">%dv</string>
     <string name="title_public_trending_statuses">Nousussa olevat julkaisut</string>
-    <string name="action_dismiss">Hylkää</string>
     <string name="compose_active_account_description">Julkaistaan käyttäjänä %1$s</string>
     <string name="dialog_redraft_post_warning">Julkaisu poistetaan ja kirjoitetaan uudestaan?</string>
     <string name="error_following_hashtags_unsupported">Tämä instanssi ei tue aihetunnisteita.</string>
@@ -449,7 +447,6 @@
     <string name="error_media_playback">Toisto epäonnistui: %s</string>
     <string name="drafts_failed_loading_reply">Vastaustietojn lataaminen epäonnistui</string>
     <string name="warning_scheduling_interval">Lyhin ajastusväli Mastodonissa on 5 minuuttia.</string>
-    <string name="dialog_push_notification_migration_other_accounts">Olet kirjautunut uudelleen nykyiseen tiliisi myöntääksesi Pachlille tilausluvan. Sinulla on kuitenkin muitakin tilejä, joita ei ole siirretty tällä tavalla. Vaihda niihin ja kirjaudu uudelleen yksi kerrallaan, jotta UnifiedPush-ilmoitusten tuki voidaan ottaa käyttöön.</string>
     <string name="mute_notifications_switch">Hiljennä ilmoitukset</string>
     <string name="accessibility_talking_about_tag">%1$d käyttäjää keskustelee aihetunnisteesta %2$s</string>
     <string name="translation_provider_fmt">%1$s</string>
@@ -461,7 +458,7 @@
     <string name="load_newest_statuses">Lataa uusimmat julkaisut</string>
     <string name="dialog_save_profile_changes_message">Haluatko tallentaa profiilisi muutokset?</string>
     <string name="ui_error_favourite_fmt">Julkaisun tykkääminen epäonnistui: %1$s</string>
-    <string name="pachli_compose_post_quicksetting_label">Kirjoita julkaisu</string>
+    <string name="pachli_compose_post_quicksetting_label">Kirjoita Julkaisu</string>
     <string name="ui_error_bookmark_fmt">Kirjamerkin liittäminen julkaisuun epäonnistui: %1$s</string>
     <string name="no_scheduled_posts">Sinulla ei ole ajastettuja julkaisuja.</string>
     <string name="report_category_spam">Roskapostia</string>
@@ -482,7 +479,6 @@
     <string name="account_date_joined">Liittyi %1$s</string>
     <string name="ui_error_filter_v1_load_fmt">Suodattimien lataaminen epäonnistui: %1$s</string>
     <string name="announcement_date_updated">(Päivitetty: %1$s)</string>
-    <string name="tips_push_notification_migration">Kirjaudu uudelleen kaikille tileille push-ilmoitusten ottamiseksi käyttöön.</string>
     <string name="pref_update_notification_frequency_once_per_version">Kerran jokaisesta versiosta</string>
     <string name="filter_description_hide">Piilota täysin</string>
     <string name="filter_description_format">%s: %s</string>
@@ -503,7 +499,6 @@
     <string name="label_filter_context">Suodattimen kontekstit</string>
     <string name="pref_title_confirm_reblogs">Pyydä vahvistus ennen tehostamista</string>
     <string name="account_note_hint">Yksityinen muistiinpano tästä tilistä</string>
-    <string name="dialog_push_notification_migration">Push-ilmoitusten käyttämiseksi UnifiedPushin kautta Pachli tarvitsee luvan tilata Mastodon-palvelimellesi ilmoitukset. Tämä edellyttää Pachlille myönnettyjen OAuthin laajuuksien muuttamista. Uudelleenkirjautumisvaihtoehdon käyttäminen täällä tai tilin asetuksissa tallentaa kaikki paikalliset luonnokset ja välimuistin.</string>
     <string name="label_filter_action">Suodattimen toiminta</string>
     <string name="update_dialog_title">Päivitys on saatavilla</string>
     <string name="filter_edit_keyword_title">Muokkaa avainsanaa</string>
@@ -515,7 +510,7 @@
 \nTykkäysten/Tehostusten laskurit julkaisuissa
 \nSeuraaja/Julkaisumäärät profiileissa
 \n
-\nTämä ei veikuta push-ilmoituksiin, mutta voit muuttaa ilmoitusasetukset erikseen.</string>
+\nTämä ei veikuta puskuilmoituksiin, mutta voit muuttaa ilmoitusasetukset erikseen.</string>
     <string name="wellbeing_hide_stats_posts">Piilota julkaisujen laskurit</string>
     <string name="status_created_info">Luotu: %1$s</string>
     <string name="action_add">Lisää</string>
@@ -665,7 +660,7 @@
     <string name="search_operator_attachment_dialog_any_label">Kaikki</string>
     <string name="search_operator_attachment_dialog_image_label">Kuvat</string>
     <string name="search_operator_attachment_dialog_video_label">Video</string>
-    <string name="search_operator_attachment_no_media_label">Ei liitteitä</string>
+    <string name="search_operator_attachment_no_media_label">Ei mediaa</string>
     <string name="search_operator_attachment_kind_image_label">kuvat</string>
     <string name="search_operator_attachment_kind_video_label">video</string>
     <string name="search_operator_attachment_kind_audio_label">audio</string>
@@ -701,12 +696,12 @@
     <string name="search_operator_date_all">Päivämäärät ▾</string>
     <string name="search_operator_date_checked">%1$s - %2$s</string>
     <string name="search_operator_date_checked_same_day">Päivänä %1$s</string>
-    <string name="search_operator_date_dialog_title">Rajoita ajalle välillä…</string>
+    <string name="search_operator_date_dialog_title">Rajoita julkaisuihin jotka on lähetetty…</string>
     <string name="search_operator_language_dialog_title">Rajoita julkaisuun, jotka on kirjoitettu…</string>
-    <string name="search_operator_language_all">Kaikki kielet ▾</string>
+    <string name="search_operator_language_all">Mikä tahansa kieli ▾</string>
     <string name="search_operator_language_checked_fmt">%1$s</string>
-    <string name="search_operator_language_dialog_all">Kaikki kielet</string>
-    <string name="search_operator_replies_all">Sisällytä vastaukset ▾</string>
+    <string name="search_operator_language_dialog_all">Mikä tahansa kieli</string>
+    <string name="search_operator_replies_all">Myös vastaukset ▾</string>
     <string name="search_operator_replies_replies_only">Näytä vain vastaukset</string>
     <string name="search_operator_replies_no_replies">Ei vastauksia</string>
     <string name="search_operator_replies_dialog_title">Sisällytä vastaukset?</string>
@@ -729,9 +724,9 @@
     <string name="search_operator_attachment_has_media_except_1_label_fmt">Kaikki paitsi %1$s</string>
     <string name="error_load_filter_failed_fmt">Suodattimen lataaminen epäonnistui: %1$s</string>
     <string name="error_save_filter_failed_fmt">Suodattimen tallentaminen epäonnistui: %1$s</string>
-    <string name="search_operator_attachment_all">Liitteet ▾</string>
+    <string name="search_operator_attachment_all">Mediat ▾</string>
     <string name="search_operator_attachment_has_media_except_2_label_fmt">Kaikki paitsi %1$s, %2$s</string>
-    <string name="search_operator_attachment_dialog_title">Vain julkaisut joissa on liitteitä?</string>
+    <string name="search_operator_attachment_dialog_title">Vain julkaisut joissa on medialiitteitä?</string>
     <string name="search_operator_attachment_dialog_audio_label">Audio</string>
     <string name="search_operator_attachment_has_media_label">Vähintään yksi liite</string>
     <string name="search_operator_attachment_has_media_except_3_label_fmt">Kaikki paitsi %1$s, %2$s, %3$s</string>
@@ -752,6 +747,40 @@
     <string name="search_operator_sensitive_dialog_title">Julkaisut joissa arkaluonteista sisältöä</string>
     <string name="search_operator_sensitive_dialog_all">Kaikki julkaisut</string>
     <string name="search_operator_replies_dialog_no_replies">Ilman vastauksia</string>
-    <string name="search_operator_sensitive_all">Näytä arkaluonteinen sisältö ▾</string>
+    <string name="search_operator_sensitive_all">Myös arkaluonteinen sisältö ▾</string>
     <string name="search_operator_sensitive_no_sensitive">Ei arkaluonteista sisältöä</string>
+    <string name="action_filter_search">Suodata tulokset</string>
+    <string name="search_operator_date_dialog_all">Milloin tahansa</string>
+    <string name="search_operator_date_dialog_last_7_days">Viimeiset 7 päivää</string>
+    <string name="search_operator_date_dialog_today">Tänään</string>
+    <string name="search_operator_date_dialog_last_30_days">Viimeiset 30 päivää</string>
+    <string name="search_operator_date_dialog_last_6_months">Viimeiset 6 kuukautta</string>
+    <string name="search_operator_date_dialog_custom_range">Valinnainen aika</string>
+    <string name="pref_title_labs">Laboratoriokokeet</string>
+    <string name="pref_labs_warning">Nämä ovat koeluontoisia toimintoja. Ei ole varmaa, toimivatko ne, tai otetaanko ne tuleviin versioihin. Käytä omalla riskillä.</string>
+    <string name="pref_labs_reverse_home_timeline_title">Aikajana käänteisessä järjestyksessä</string>
+    <string name="pref_labs_reverse_home_timeline_off_summary">Uusimmat julkaisut ensin</string>
+    <string name="pref_labs_reverse_home_timeline_on_summary">Vanhimmat julkaisut ensin</string>
+    <string name="pref_notification_method_pull">Ilmoitusten haku</string>
+    <string name="pref_notification_fetch_method_title">Ilmoitustapa</string>
+    <string name="pref_notification_fetch_ok_timestamp_fmt">✔%1$s sitten @ %2$s</string>
+    <string name="pref_notification_fetch_err_timestamp_fmt">✖ %1$s sitten @ %2$s</string>
+    <string name="pref_notification_fetch_server_rejected">%1$s ei hyväksynyt puskuilmoitusten rekisteröintiä</string>
+    <string name="pref_title_change_unified_push_distributor">Vaihda Unified Push -puskuilmoitusten jakelijaa</string>
+    <string name="pref_change_unified_push_distributor_msg">Tämä tyhjentää Unified Push -ilmoitusten jakelijan valinnan ja käynnistää Pachlin uudestaan.
+\n
+\nJos useita Unified Push -jakelijoita on asennettu, sinua pyydetään valitsemaan niistä yksi.</string>
+    <string name="pref_notification_fetch_needs_push">Tililtä puuttuu puskuilmoitusten valtuutus (scope). Ulos ja takaisin kirjautuminen voi ratkaista ongelman.</string>
+    <string name="pref_title_notification_up_distributor">Unified push -ilmoitusten jakelija</string>
+    <string name="pref_notification_up_distributor_none">Ei ole</string>
+    <string name="pref_notification_up_distributor_name_fmt">%1$s. Napauta avataksesi</string>
+    <string name="pref_notification_method_mixed">Jotkut tilit käyttävät Unified Push -puskuilmoituksia, jotkut hakevat 15 minuutin välein. Napauta nähdäksesi tarkemmin</string>
+    <string name="pref_title_notification_method">Ilmoitustapa</string>
+    <string name="pref_notification_method_all_pull">Haetaan noin kerran 15 minuutissa. Napauta nähdäksesi tarkemmin.</string>
+    <string name="pref_notification_method_all_push">Kaikki tilit käyttävät Unified Push -puskuilmoituksia. Napauta nähdäksesi tarkemmin.</string>
+    <string name="pref_title_notification_battery_optimisation">Virrankäytön optimointi</string>
+    <string name="pref_notification_battery_optimisation_should_ignore">Virrankäytön optimoinnnin tulisi olla pois käytöstä. Napauta avataksesi.</string>
+    <string name="pref_notification_battery_optimisation_is_disabled">Virrankäytön optimointi on poistettu käytöstä</string>
+    <string name="pref_notification_battery_optimisation_ok">Virrankäytön optimointia ei tarvitse poistaa käytöstä.</string>
+    <string name="pref_notification_method_push">Puskuilmoitus</string>
 </resources>
