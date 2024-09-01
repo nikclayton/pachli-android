@@ -19,6 +19,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
+import app.pachli.MySuperGrammerLocator
 import app.pachli.R
 import app.pachli.core.activity.decodeBlurHash
 import app.pachli.core.activity.emojify
@@ -64,8 +65,13 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.color.MaterialColors
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import io.noties.markwon.Markwon
+import io.noties.markwon.SoftBreakAddsNewLinePlugin
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.html.HtmlPlugin
 import io.noties.markwon.simple.ext.SimpleExtPlugin
+import io.noties.markwon.syntax.Prism4jThemeDefault
+import io.noties.markwon.syntax.SyntaxHighlightPlugin
+import io.noties.prism4j.Prism4j
 import java.text.NumberFormat
 import java.util.Date
 import timber.log.Timber
@@ -269,6 +275,9 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(i
         val markwon = Markwon.builder(context)
             .usePlugin(SimpleExtPlugin.create())
             .usePlugin(HtmlPlugin.create())
+            .usePlugin(SoftBreakAddsNewLinePlugin.create())
+            .usePlugin(SyntaxHighlightPlugin.create(Prism4j(MySuperGrammerLocator()), Prism4jThemeDefault.create()))
+            .usePlugin(StrikethroughPlugin.create())
 //            .usePlugin(FixMastodonHtml)
 //            .usePlugin(EmojiSpanPlugin(emojis, statusDisplayOptions.animateEmojis))
 //            .usePlugin(LinkVisitorPlugin())
@@ -297,6 +306,7 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(i
             .replace("<br/>", "\n")
             .replace("<br />", "\n")
             .replace("&amp;", "&")
+            .replace("((<\\s?p\\s?>|<\\s?br\\s?/?>)&gt;(((?!(<\\s?br\\s?/?>|<\\s?/s?p\\s?>)).)*))".toRegex(), "$2<blockquote>$3</blockquote>")
 
         // Problem -- HTML in fenced code blocks is treated literally by Markwon.
         // Easiest fix (probably) is to remove all HTML elements inside fenced blocks.
@@ -310,9 +320,21 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(i
 
         Timber.d(c)
         val processedContent = c.replace(rxCodeBlock) { match ->
-            match.value.replace(rxTag, "")
+            match.value
+                .replace(rxTag, "")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&amp;", "&")
         }
-        val content = markwon.toMarkdown(processedContent)
+
+        val rxLiteral = """(?<!`)`(.+?)`""".toRegex(setOf(RegexOption.MULTILINE))
+        val p = processedContent.replace(rxLiteral) { match ->
+            match.value
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&amp;", "&")
+        }
+        val content = markwon.toMarkdown(p)
 
         if (expanded) {
             val emojifiedText =

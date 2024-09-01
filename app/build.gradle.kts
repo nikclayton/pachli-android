@@ -21,6 +21,7 @@ plugins {
     alias(libs.plugins.pachli.android.application)
     alias(libs.plugins.pachli.android.hilt)
     alias(libs.plugins.kotlin.parcelize)
+    kotlin("kapt")
 }
 
 apply(from = "gitTools.gradle")
@@ -109,6 +110,10 @@ configurations {
     testImplementation {
         exclude(group = "org.conscrypt", module = "conscrypt-android")
     }
+
+    implementation {
+        exclude(group = "org.jetbrains", module = "annotations")
+    }
 }
 
 dependencies {
@@ -191,6 +196,10 @@ dependencies {
     implementation(libs.markwon.html)
     implementation(libs.markwon.inline.parser)
     implementation(libs.markwon.simple.ext)
+    implementation(libs.markwon.strikethrough)
+    implementation(libs.markwon.syntax.highlight)
+//    annotationProcessor 'io.noties:prism4j-bundler:2.0.0'
+    kapt("io.noties:prism4j-bundler:2.0.0")
 
     debugImplementation(libs.leakcanary)
 
