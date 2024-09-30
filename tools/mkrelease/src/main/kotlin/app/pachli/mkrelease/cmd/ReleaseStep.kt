@@ -790,6 +790,27 @@ data object CreateGithubRelease : ReleaseStep() {
 }
 
 @Serializable
+data object RunOrangeReleaseWorkflow : ReleaseStep() {
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val releaseWorkflowName = "upload-orange-release-google-play.yml"
+        val releaseTag = spec.releaseTag()
+        t.info("Running orange release workflow with $releaseTag")
+        t.info("Triggering https://github.com/pachli/pachli-android/actions/workflows/$releaseWorkflowName")
+
+        val githubToken = System.getenv("GITHUB_TOKEN")
+            ?: throw UsageError("GITHUB_TOKEN is null")
+        val github = GitHubBuilder().withOAuthToken(githubToken).build()
+        val repo = github.getRepository(
+            "${config.repositoryMain.owner}/${config.repositoryMain.repo}",
+        )
+        val releaseWorkflow = repo.getWorkflow(releaseWorkflowName)
+        releaseWorkflow.dispatch(releaseTag)
+
+        return null
+    }
+}
+
+@Serializable
 data object RunReleaseWorkflow : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val releaseWorkflowName = "upload-blue-release-google-play.yml"

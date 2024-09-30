@@ -53,6 +53,7 @@ class FinalRelease : CliktCommand(name = "final") {
             PushTaggedMain,
             CreateGithubRelease,
 //            WaitForBitriseToBuild,
+            RunOrangeReleaseWorkflow,
             RunReleaseWorkflow,
             WaitForReleaseWorkflowToComplete,
             DownloadApk,
