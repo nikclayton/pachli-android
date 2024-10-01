@@ -35,6 +35,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 apply("com.android.library")
                 apply("org.jetbrains.kotlin.android")
                 apply("pachli.android.lint")
+                apply("com.autonomousapps.dependency-analysis")
             }
 
             extensions.configure<LibraryExtension> {
