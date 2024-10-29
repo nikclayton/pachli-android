@@ -49,4 +49,6 @@
     <locale android:name="zh-CN"/>
     <locale android:name="zh-HK"/>
     <locale android:name="ja"/>
+    <locale android:name="my"/>
+    <locale android:name="lt"/>
 </locale-config>

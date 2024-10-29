@@ -43,7 +43,7 @@ import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData.Companion.list
-import app.pachli.core.navigation.EditFilterActivityIntent
+import app.pachli.core.navigation.EditContentFilterActivityIntent
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.ui.extensions.getErrorString
@@ -56,6 +56,7 @@ import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -76,6 +77,8 @@ class ViewThreadFragment :
     private var alwaysShowSensitiveMedia = false
     private var alwaysOpenSpoiler = false
 
+    override var pachliAccountId by Delegates.notNull<Long>()
+
     /**
      * State of the "reveal" menu item that shows/hides content that is behind a content
      * warning. Setting this invalidates the menu to redraw the menu item.
@@ -88,11 +91,12 @@ class ViewThreadFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        thisThreadsStatusId = requireArguments().getString(ID_EXTRA)!!
+        pachliAccountId = requireArguments().getLong(ARG_PACHLI_ACCOUNT_ID)
+        thisThreadsStatusId = requireArguments().getString(ARG_ID)!!
 
         lifecycleScope.launch {
             val statusDisplayOptions = viewModel.statusDisplayOptions.value
-            adapter = ThreadAdapter(statusDisplayOptions, this@ViewThreadFragment)
+            adapter = ThreadAdapter(pachliAccountId, statusDisplayOptions, this@ViewThreadFragment)
         }
     }
 
@@ -115,6 +119,7 @@ class ViewThreadFragment :
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.recyclerView.setAccessibilityDelegateCompat(
             ListStatusAccessibilityDelegate(
+                pachliAccountId,
                 binding.recyclerView,
                 this,
             ) { index -> adapter.currentList.getOrNull(index) },
@@ -244,7 +249,7 @@ class ViewThreadFragment :
                 true
             }
             R.id.action_open_in_web -> {
-                context?.openLink(requireArguments().getString(URL_EXTRA)!!)
+                context?.openLink(requireArguments().getString(ARG_URL)!!)
                 true
             }
             R.id.action_refresh -> {
@@ -327,32 +332,32 @@ class ViewThreadFragment :
         // there are no reblogs in threads
     }
 
-    override fun onEditFilterById(filterId: String) {
+    override fun onEditFilterById(pachliAccountId: Long, filterId: String) {
         requireActivity().startActivityWithTransition(
-            EditFilterActivityIntent.edit(requireContext(), filterId),
+            EditContentFilterActivityIntent.edit(requireContext(), pachliAccountId, filterId),
             TransitionKind.SLIDE_FROM_END,
         )
     }
 
-    override fun onExpandedChange(viewData: StatusViewData, expanded: Boolean) {
+    override fun onExpandedChange(pachliAccountId: Long, viewData: StatusViewData, expanded: Boolean) {
         viewModel.changeExpanded(expanded, viewData)
     }
 
-    override fun onContentHiddenChange(viewData: StatusViewData, isShowing: Boolean) {
+    override fun onContentHiddenChange(pachliAccountId: Long, viewData: StatusViewData, isShowing: Boolean) {
         viewModel.changeContentShowing(isShowing, viewData)
     }
 
     override fun onShowReblogs(statusId: String) {
-        val intent = AccountListActivityIntent(requireContext(), AccountListActivityIntent.Kind.REBLOGGED, statusId)
+        val intent = AccountListActivityIntent(requireContext(), pachliAccountId, AccountListActivityIntent.Kind.REBLOGGED, statusId)
         activity?.startActivityWithDefaultTransition(intent)
     }
 
     override fun onShowFavs(statusId: String) {
-        val intent = AccountListActivityIntent(requireContext(), AccountListActivityIntent.Kind.FAVOURITED, statusId)
+        val intent = AccountListActivityIntent(requireContext(), pachliAccountId, AccountListActivityIntent.Kind.FAVOURITED, statusId)
         activity?.startActivityWithDefaultTransition(intent)
     }
 
-    override fun onContentCollapsedChange(viewData: StatusViewData, isCollapsed: Boolean) {
+    override fun onContentCollapsedChange(pachliAccountId: Long, viewData: StatusViewData, isCollapsed: Boolean) {
         viewModel.changeContentCollapsed(isCollapsed, viewData)
     }
 
@@ -378,7 +383,7 @@ class ViewThreadFragment :
     }
 
     override fun onShowEdits(statusId: String) {
-        val viewEditsFragment = ViewEditsFragment.newInstance(statusId)
+        val viewEditsFragment = ViewEditsFragment.newInstance(pachliAccountId, statusId)
 
         parentFragmentManager.commit {
             setCustomAnimations(
@@ -392,20 +397,22 @@ class ViewThreadFragment :
         }
     }
 
-    override fun clearWarningAction(viewData: StatusViewData) {
+    override fun clearWarningAction(pachliAccountId: Long, viewData: StatusViewData) {
         viewModel.clearWarning(viewData)
     }
 
     companion object {
-        private const val ID_EXTRA = "id"
-        private const val URL_EXTRA = "url"
+        private const val ARG_PACHLI_ACCOUNT_ID = "app.pachli.ARG_PACHLI_ACCOUNT_ID"
+        private const val ARG_ID = "app.pachli.ARG_ID"
+        private const val ARG_URL = "app.pachli.ARG_URL"
 
-        fun newInstance(id: String, url: String?): ViewThreadFragment {
-            val arguments = Bundle(2)
+        fun newInstance(pachliAccountId: Long, id: String, url: String?): ViewThreadFragment {
             val fragment = ViewThreadFragment()
-            arguments.putString(ID_EXTRA, id)
-            arguments.putString(URL_EXTRA, url)
-            fragment.arguments = arguments
+            fragment.arguments = Bundle(3).apply {
+                putLong(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
+                putString(ARG_ID, id)
+                putString(ARG_URL, url)
+            }
             return fragment
         }
     }

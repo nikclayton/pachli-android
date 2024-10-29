@@ -29,7 +29,7 @@ package app.pachli.core.preferences
  *
  * - Adding a new preference that does not change the interpretation of an existing preference
  */
-const val SCHEMA_VERSION = 2023090201
+const val SCHEMA_VERSION = 2024101701
 
 /** The schema version for fresh installs */
 const val NEW_INSTALL_SCHEMA_VERSION = 0
@@ -59,8 +59,21 @@ object PrefKeys {
     const val SHOW_STATS_INLINE = "showStatsInline"
 
     const val CUSTOM_TABS = "customTabs"
-    const val WELLBEING_LIMITED_NOTIFICATIONS = "wellbeingModeLimitedNotifications"
+
+    /**
+     * True if post stats (# boosts, # favourites) are hidden in a
+     * status' detailed view. False to show them.
+     */
     const val WELLBEING_HIDE_STATS_POSTS = "wellbeingHideStatsPosts"
+
+    /**
+     * True if the following should be hidden on profile pages:
+     *
+     * - Whether or not the account follows you
+     * - # statuses posted by this account
+     * - # followers this account has
+     * - # accounts this account is following
+     */
     const val WELLBEING_HIDE_STATS_PROFILE = "wellbeingHideStatsProfile"
 
     const val HTTP_PROXY_ENABLED = "httpProxyEnabled"
@@ -112,8 +125,20 @@ object PrefKeys {
     const val DOWNLOAD_LOCATION = "downloadLocation"
     const val TAB_TAP_BEHAVIOUR = "tabTapBehaviour"
 
+    /**
+     * True if the status' language should be checked before posting and the user
+     * should be prompted to confirm if it doesn't match the set language.
+     */
+    const val CONFIRM_STATUS_LANGUAGE = "confirmStatusLanguage"
+
+    /** Tab alignment. See [TabAlignment]. */
+    const val TAB_ALIGNMENT = "tabAlignment"
+
+    /** Tab contents. See [TabContents]. */
+    const val TAB_CONTENTS = "tabContents"
+
     /** Keys that are no longer used (e.g., the preference has been removed */
     object Deprecated {
-        // Empty at this time
+        const val WELLBEING_LIMITED_NOTIFICATIONS = "wellbeingModeLimitedNotifications"
     }
 }

@@ -411,8 +411,6 @@
     <string name="action_unmute_domain">Cofnij wyciszenie %s</string>
     <string name="action_unmute_desc">Cofnij wyciszenie %s</string>
     <string name="pref_title_hide_top_toolbar">Ukryj tytuł górnego paska narzędzi</string>
-    <string name="pref_main_nav_position_option_bottom">Dół</string>
-    <string name="pref_main_nav_position_option_top">Góra</string>
     <plurals name="error_upload_max_media_reached">
         <item quantity="one">Nie możesz przesłać więcej niż %1$d załącznik.</item>
         <item quantity="few">Nie możesz przesłać więcej niż %1$d załączniki.</item>
@@ -422,7 +420,6 @@
     <string name="drafts_failed_loading_reply">Nie udało się załadować informacji o odpowiedzi</string>
     <string name="drafts_post_failed_to_send">Przesłanie wpisu nie powiodło się!</string>
     <string name="no_announcements">Nie ma ogłoszeń.</string>
-    <string name="limit_notifications">Ogranicz liczbę powiadomień o zmianach na osi czasu</string>
     <string name="label_duration">Czas trwania</string>
     <string name="notification_subscription_name">Nowe wpisy</string>
     <string name="wellbeing_mode_notice">Niektóre informacje, które mogą wpływać na Twój dobrostan psychiczny zostaną ukryte. W ich skład wchodzą:
@@ -489,9 +486,6 @@
     <string name="set_focus_description">Naciśnij lub przeciągnij kółko, aby wybrać punkt centralny, który będzie zawsze widoczny w miniaturkach.</string>
     <string name="action_unfollow_hashtag_format">Odobserwuj #%s\?</string>
     <string name="pref_default_post_language">Domyślny język wpisów</string>
-    <string name="pref_show_self_username_never">Nigdy</string>
-    <string name="pref_show_self_username_always">Zawsze</string>
-    <string name="pref_show_self_username_disambiguate">Gdy wiele kont jest zalogowanych</string>
     <string name="status_created_at_now">teraz</string>
     <string name="action_add_reaction">dodaj reakcję</string>
     <string name="notification_header_report_format">%s zgłosił/a %s</string>

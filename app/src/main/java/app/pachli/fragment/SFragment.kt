@@ -38,24 +38,24 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import app.pachli.R
-import app.pachli.core.accounts.AccountManager
 import app.pachli.core.activity.AccountSelectionListener
 import app.pachli.core.activity.BaseActivity
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.PostLookupFallbackBehavior
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.activity.openLink
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.ServerRepository
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.domain.DownloadUrlUseCase
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.ReportActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.ViewMediaActivityIntent
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
 import app.pachli.core.network.model.Attachment
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.parseAsMastodonHtml
@@ -97,6 +97,8 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
 
     private var serverCanTranslate = false
 
+    protected abstract var pachliAccountId: Long
+
     override fun startActivity(intent: Intent) {
         if (intent.component?.className?.startsWith("app.pachli.") == true) {
             requireActivity().startActivityWithDefaultTransition(intent)
@@ -122,10 +124,10 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 serverRepository.flow.collect { result ->
                     result.onSuccess {
-                        serverCanTranslate = it?.can(
+                        serverCanTranslate = it.can(
                             operation = ORG_JOINMASTODON_STATUSES_TRANSLATE,
                             constraint = ">=1.0".toConstraint(),
-                        ) ?: false
+                        )
                     }
                     result.onFailure {
                         val msg = getString(
@@ -153,19 +155,19 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
 
     protected fun openReblog(status: Status?) {
         if (status == null) return
-        bottomSheetActivity.viewAccount(status.account.id)
+        bottomSheetActivity.viewAccount(pachliAccountId, status.account.id)
     }
 
     protected fun viewThread(statusId: String?, statusUrl: String?) {
-        bottomSheetActivity.viewThread(statusId!!, statusUrl)
+        bottomSheetActivity.viewThread(pachliAccountId, statusId!!, statusUrl)
     }
 
     protected fun viewAccount(accountId: String?) {
-        bottomSheetActivity.viewAccount(accountId!!)
+        bottomSheetActivity.viewAccount(pachliAccountId, accountId!!)
     }
 
     override fun onViewUrl(url: String) {
-        bottomSheetActivity.viewUrl(url, PostLookupFallbackBehavior.OPEN_IN_BROWSER)
+        bottomSheetActivity.viewUrl(pachliAccountId, url, PostLookupFallbackBehavior.OPEN_IN_BROWSER)
     }
 
     protected fun reply(status: Status) {
@@ -409,7 +411,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
         val attachment = attachments[urlIndex].attachment
         when (attachment.type) {
             Attachment.Type.GIFV, Attachment.Type.VIDEO, Attachment.Type.IMAGE, Attachment.Type.AUDIO -> {
-                val intent = ViewMediaActivityIntent(requireContext(), owningUsername, attachments, urlIndex)
+                val intent = ViewMediaActivityIntent(requireContext(), pachliAccountId, owningUsername, attachments, urlIndex)
                 if (view != null) {
                     val url = attachment.url
                     ViewCompat.setTransitionName(view, url)
@@ -430,11 +432,11 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
     }
 
     protected fun viewTag(tag: String) {
-        startActivity(TimelineActivityIntent.hashtag(requireContext(), tag))
+        startActivity(TimelineActivityIntent.hashtag(requireContext(), pachliAccountId, tag))
     }
 
     private fun openReportPage(accountId: String, accountUsername: String, statusId: String) {
-        startActivity(ReportActivityIntent(requireContext(), accountId, accountUsername, statusId))
+        startActivity(ReportActivityIntent(requireContext(), pachliAccountId, accountId, accountUsername, statusId))
     }
 
     private fun showConfirmDeleteDialog(viewData: T) {

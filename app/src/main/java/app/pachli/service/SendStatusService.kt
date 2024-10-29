@@ -26,8 +26,8 @@ import app.pachli.appstore.StatusScheduledEvent
 import app.pachli.components.compose.MediaUploader
 import app.pachli.components.drafts.DraftHelper
 import app.pachli.components.notifications.pendingIntentFlags
-import app.pachli.core.accounts.AccountManager
 import app.pachli.core.common.util.unsafeLazy
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.MainActivityIntent
 import app.pachli.core.network.model.Attachment
@@ -40,6 +40,7 @@ import at.connyduck.calladapter.networkresult.fold
 import com.github.michaelbull.result.getOrElse
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.IOException
+import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -129,7 +130,7 @@ class SendStatusService : Service() {
         val statusToSend = statusesToSend[statusId] ?: return
 
         // when account == null, user has logged out, cancel sending
-        val account = accountManager.getAccountById(statusToSend.accountId)
+        val account = accountManager.getAccountById(statusToSend.pachliAccountId)
 
         if (account == null) {
             statusesToSend.remove(statusId)
@@ -247,30 +248,33 @@ class SendStatusService : Service() {
                 )
             }
 
-            sendResult.fold({ sentStatus ->
-                statusesToSend.remove(statusId)
-                // If the status was loaded from a draft, delete the draft and associated media files.
-                if (statusToSend.draftId != 0) {
-                    draftHelper.deleteDraftAndAttachments(statusToSend.draftId)
-                }
+            sendResult.fold(
+                { sentStatus ->
+                    statusesToSend.remove(statusId)
+                    // If the status was loaded from a draft, delete the draft and associated media files.
+                    if (statusToSend.draftId != 0) {
+                        draftHelper.deleteDraftAndAttachments(statusToSend.draftId)
+                    }
 
-                mediaUploader.cancelUploadScope(*statusToSend.media.map { it.localId }.toIntArray())
+                    mediaUploader.cancelUploadScope(*statusToSend.media.map { it.localId }.toIntArray())
 
-                val scheduled = !statusToSend.scheduledAt.isNullOrEmpty()
+                    val scheduled = statusToSend.scheduledAt != null
 
-                if (scheduled) {
-                    eventHub.dispatch(StatusScheduledEvent)
-                } else if (!isNew) {
-                    eventHub.dispatch(StatusEditedEvent(statusToSend.statusId!!, sentStatus as Status))
-                } else {
-                    eventHub.dispatch(StatusComposedEvent(sentStatus as Status))
-                }
+                    if (scheduled) {
+                        eventHub.dispatch(StatusScheduledEvent)
+                    } else if (!isNew) {
+                        eventHub.dispatch(StatusEditedEvent(statusToSend.statusId!!, sentStatus as Status))
+                    } else {
+                        eventHub.dispatch(StatusComposedEvent(sentStatus as Status))
+                    }
 
-                notificationManager.cancel(statusId)
-            }, { throwable ->
-                Timber.w(throwable, "failed sending status")
-                failOrRetry(throwable, statusId)
-            })
+                    notificationManager.cancel(statusId)
+                },
+                { throwable ->
+                    Timber.w(throwable, "failed sending status")
+                    failOrRetry(throwable, statusId)
+                },
+            )
             stopSelfWhenDone()
         }
     }
@@ -326,7 +330,7 @@ class SendStatusService : Service() {
             val notification = buildDraftNotification(
                 R.string.send_post_notification_error_title,
                 R.string.send_post_notification_saved_content,
-                failedStatus.accountId,
+                failedStatus.pachliAccountId,
                 statusId,
             )
 
@@ -351,7 +355,7 @@ class SendStatusService : Service() {
             val notification = buildDraftNotification(
                 R.string.send_post_notification_cancel_title,
                 R.string.send_post_notification_saved_content,
-                statusToCancel.accountId,
+                statusToCancel.pachliAccountId,
                 statusId,
             )
 
@@ -366,7 +370,7 @@ class SendStatusService : Service() {
     private suspend fun saveStatusToDrafts(status: StatusToSend, failedToSendAlert: Boolean) {
         draftHelper.saveDraft(
             draftId = status.draftId,
-            accountId = status.accountId,
+            pachliAccountId = status.pachliAccountId,
             inReplyToId = status.inReplyToId,
             content = status.text,
             contentWarning = status.warningText,
@@ -475,12 +479,12 @@ data class StatusToSend(
     val visibility: String,
     val sensitive: Boolean,
     val media: List<MediaToSend>,
-    val scheduledAt: String?,
+    val scheduledAt: Date?,
     val inReplyToId: String?,
     val poll: NewPoll?,
     val replyingStatusContent: String?,
     val replyingStatusAuthorUsername: String?,
-    val accountId: Long,
+    val pachliAccountId: Long,
     val draftId: Int,
     val idempotencyKey: String,
     var retries: Int,

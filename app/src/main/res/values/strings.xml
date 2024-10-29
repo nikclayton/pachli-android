@@ -255,7 +255,8 @@
     <string name="pref_title_app_theme">App theme</string>
     <string name="pref_title_timelines">Timelines</string>
     <string name="pref_title_timeline_filters">Filters</string>
-    <string name="pref_summary_timeline_filters">Your server does not support filters</string>
+    <string name="pref_title_content_filters">Content filters</string>
+    <string name="pref_summary_content_filters">Your server does not support content filters</string>
     <string name="pref_title_browser_settings">Browser</string>
     <string name="pref_title_custom_tabs">Use Chrome Custom Tabs</string>
     <string name="pref_title_hide_follow_button">Hide compose button while scrolling</string>
@@ -285,8 +286,6 @@
     <string name="pref_publishing">Publishing (synced with server)</string>
     <string name="pref_failed_to_sync">Failed to sync settings</string>
     <string name="pref_main_nav_position">Main navigation position</string>
-    <string name="pref_main_nav_position_option_top">Top</string>
-    <string name="pref_main_nav_position_option_bottom">Bottom</string>
     <string name="post_privacy_public">Public</string>
     <string name="post_privacy_unlisted">Unlisted</string>
     <string name="post_privacy_followers_only">Followers-only</string>
@@ -297,9 +296,6 @@
     <string name="post_text_size_medium">Medium</string>
     <string name="post_text_size_large">Large</string>
     <string name="post_text_size_largest">Largest</string>
-    <string name="pref_show_self_username_always">Always</string>
-    <string name="pref_show_self_username_disambiguate">When multiple accounts logged in</string>
-    <string name="pref_show_self_username_never">Never</string>
     <string name="notification_mention_name">New mentions</string>
     <string name="notification_mention_descriptions">Notifications about new mentions</string>
     <string name="notification_follow_name">New followers</string>
@@ -443,6 +439,7 @@
     </plurals>
     <string name="title_reblogged_by">Boosted by</string>
     <string name="title_favourited_by">Favorited by</string>
+    <string name="conversation_0_recipients">No other participants</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s and %2$s</string>
     <string name="conversation_more_recipients">%1$s, %2$s and %3$d more</string>
@@ -575,6 +572,7 @@
     <string name="pref_title_show_cards_in_timelines">Show link previews in timelines</string>
     <string name="pref_title_confirm_reblogs">Show confirmation before boosting</string>
     <string name="pref_title_confirm_favourites">Show confirmation before favoriting</string>
+    <string name="pref_title_confirm_status_language">Check post\'s language setting before posting</string>
     <string name="pref_title_hide_top_toolbar">Hide the title of the top toolbar</string>
     <string name="pref_title_wellbeing_mode">Wellbeing</string>
     <string name="account_note_hint">Your private note about this account</string>
@@ -586,7 +584,6 @@
         Push-notifications will not be affected, but you can review your notification preferences manually.
     </string>
     <string name="review_notifications">Review Notifications</string>
-    <string name="limit_notifications">Limit timeline notifications</string>
     <string name="wellbeing_hide_stats_posts">Hide quantitative stats on posts</string>
     <string name="wellbeing_hide_stats_profile">Hide quantitative stats on profiles</string>
     <plurals name="error_upload_max_media_reached">
@@ -721,6 +718,7 @@
     <string name="compose_warn_language_dialog_fmt">The post\'s language is set to %1$s but you might have written it in %2$s.</string>
     <string name="compose_warn_language_dialog_change_language_fmt">Change language to "%1$s" and post</string>
     <string name="compose_warn_language_dialog_accept_language_fmt">Post as-is (%1$s)</string>
+    <string name="compose_warn_language_dialog_accept_and_dont_ask_fmt">Post as-is (%1$s) and don\'t ask again</string>
 
     <string name="error_media_uploader_upload_not_found_fmt">media upload with ID %1$s not found</string>
     <string name="error_media_uploader_throwable_fmt">%1$s</string>
@@ -852,4 +850,7 @@
     <string name="search_operator_where_dialog_library_hint">Your own posts, boosts, favorites, bookmarks, and posts that @mention you</string>
     <string name="search_operator_where_dialog_public">Public posts</string>
     <string name="search_operator_where_dialog_public_hint">Public, searchable posts known by server</string>
+
+    <string name="action_copy_item">Copy item</string>
+    <string name="item_copied">Text copied</string>
 </resources>

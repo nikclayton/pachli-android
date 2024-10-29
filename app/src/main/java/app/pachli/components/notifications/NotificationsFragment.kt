@@ -55,9 +55,9 @@ import app.pachli.core.activity.openLink
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.model.FilterAction
 import app.pachli.core.navigation.AttachmentViewData.Companion.list
-import app.pachli.core.navigation.EditFilterActivityIntent
-import app.pachli.core.network.model.Filter
+import app.pachli.core.navigation.EditContentFilterActivityIntent
 import app.pachli.core.network.model.Notification
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
@@ -82,6 +82,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.properties.Delegates
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
@@ -113,11 +114,16 @@ class NotificationsFragment :
 
     private var talkBackWasEnabled = false
 
+    override var pachliAccountId by Delegates.notNull<Long>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        pachliAccountId = requireArguments().getLong(ARG_PACHLI_ACCOUNT_ID)
+
         adapter = NotificationsPagingAdapter(
             notificationDiffCallback,
+            pachliAccountId,
             accountId = viewModel.account.accountId,
             statusActionListener = this,
             notificationActionListener = this,
@@ -155,7 +161,7 @@ class NotificationsFragment :
         layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.setAccessibilityDelegateCompat(
-            ListStatusAccessibilityDelegate(binding.recyclerView, this) { pos: Int ->
+            ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this) { pos: Int ->
                 if (pos in 0 until adapter.itemCount) {
                     adapter.peek(pos)
                 } else {
@@ -562,7 +568,7 @@ class NotificationsFragment :
         onViewAccount(status.account.id)
     }
 
-    override fun onExpandedChange(viewData: NotificationViewData, expanded: Boolean) {
+    override fun onExpandedChange(pachliAccountId: Long, viewData: NotificationViewData, expanded: Boolean) {
         adapter.snapshot().withIndex()
             .filter {
                 it.value?.statusViewData?.actionableId == viewData.statusViewData!!.actionableId
@@ -573,7 +579,7 @@ class NotificationsFragment :
             }
     }
 
-    override fun onContentHiddenChange(viewData: NotificationViewData, isShowing: Boolean) {
+    override fun onContentHiddenChange(pachliAccountId: Long, viewData: NotificationViewData, isShowing: Boolean) {
         adapter.snapshot().withIndex()
             .filter {
                 it.value?.statusViewData?.actionableId == viewData.statusViewData!!.actionableId
@@ -584,7 +590,7 @@ class NotificationsFragment :
             }
     }
 
-    override fun onContentCollapsedChange(viewData: NotificationViewData, isCollapsed: Boolean) {
+    override fun onContentCollapsedChange(pachliAccountId: Long, viewData: NotificationViewData, isCollapsed: Boolean) {
         adapter.snapshot().withIndex().filter {
             it.value?.statusViewData?.actionableId == viewData.statusViewData!!.actionableId
         }
@@ -594,25 +600,26 @@ class NotificationsFragment :
             }
     }
 
-    override fun onEditFilterById(filterId: String) {
+    override fun onEditFilterById(pachliAccountId: Long, filterId: String) {
         requireActivity().startActivityWithTransition(
-            EditFilterActivityIntent.edit(requireContext(), filterId),
+            EditContentFilterActivityIntent.edit(requireContext(), pachliAccountId, filterId),
             TransitionKind.SLIDE_FROM_END,
         )
     }
 
     override fun onNotificationContentCollapsedChange(
+        pachliAccountId: Long,
         isCollapsed: Boolean,
         viewData: NotificationViewData,
     ) {
-        onContentCollapsedChange(viewData, isCollapsed)
+        onContentCollapsedChange(pachliAccountId, viewData, isCollapsed)
     }
 
-    override fun clearWarningAction(viewData: NotificationViewData) {
+    override fun clearWarningAction(pachliAccountId: Long, viewData: NotificationViewData) {
         adapter.snapshot().withIndex().filter { it.value?.statusViewData?.actionableId == viewData.statusViewData!!.actionableId }
             .map {
                 it.value?.statusViewData = it.value?.statusViewData?.copy(
-                    filterAction = Filter.Action.NONE,
+                    filterAction = FilterAction.NONE,
                 )
                 adapter.notifyItemChanged(it.index)
             }
@@ -680,7 +687,15 @@ class NotificationsFragment :
     }
 
     companion object {
-        fun newInstance() = NotificationsFragment()
+        private const val ARG_PACHLI_ACCOUNT_ID = "app.pachli.ARG_PACHLI_ACCOUNT_ID"
+
+        fun newInstance(pachliAccountId: Long): NotificationsFragment {
+            val fragment = NotificationsFragment()
+            fragment.arguments = Bundle(1).apply {
+                putLong(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
+            }
+            return fragment
+        }
 
         private val notificationDiffCallback: DiffUtil.ItemCallback<NotificationViewData> =
             object : DiffUtil.ItemCallback<NotificationViewData>() {

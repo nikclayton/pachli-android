@@ -360,7 +360,6 @@
     </plurals>
     <string name="wellbeing_hide_stats_profile">Скриване на количествена статистика на профили</string>
     <string name="wellbeing_hide_stats_posts">Скриване на количествена статистика на публикации</string>
-    <string name="limit_notifications">Ограничаване на известия от емисия</string>
     <string name="review_notifications">Преглед на известията</string>
     <string name="wellbeing_mode_notice">Част от информацията, която може да повлияе на вашето психично състояние, ще бъде скрита. Това включва:
 \n
@@ -403,8 +402,6 @@
     <string name="post_privacy_followers_only">Само за последователи</string>
     <string name="post_privacy_unlisted">Скрито</string>
     <string name="post_privacy_public">Публично</string>
-    <string name="pref_main_nav_position_option_bottom">Долу</string>
-    <string name="pref_main_nav_position_option_top">Горе</string>
     <string name="pref_main_nav_position">Основна навигационна позиция</string>
     <string name="pref_failed_to_sync">Синхронизирането на настройките бе неуспешно</string>
     <string name="pref_publishing">Публикуване (синхронизирано със сървър)</string>

@@ -212,8 +212,6 @@
     <string name="pref_publishing">Toots (sincronizados com a instância)</string>
     <string name="pref_failed_to_sync">Erro ao sincronizar configurações</string>
     <string name="pref_main_nav_position">Posição do menu principal</string>
-    <string name="pref_main_nav_position_option_top">Superior</string>
-    <string name="pref_main_nav_position_option_bottom">Inferior</string>
     <string name="post_privacy_public">Público</string>
     <string name="pref_title_http_proxy_port">Porta da proxy HTTP</string>
     <string name="post_privacy_unlisted">Não listado</string>
@@ -430,7 +428,6 @@
 \n
 \nNotificações push não serão afetadas, mas é possível rever as configurações das notificações manualmente.</string>
     <string name="review_notifications">Rever Notificações</string>
-    <string name="limit_notifications">Limitar notificações da timeline</string>
     <string name="no_announcements">Sem anúncios.</string>
     <string name="warning_scheduling_interval">O Mastodon tem um intervalo mínimo de agendamento de 5 minutos.</string>
     <string name="pref_title_show_cards_in_timelines">Mostrar pré-visualização de hiperligações nas timelines</string>
@@ -467,9 +464,6 @@
     <string name="set_focus_description">Toca ou arrasta o círculo para escolher o ponto de focagem que estará sempre visível nas pré-visualizações.</string>
     <string name="filter_expiration_format">%s(%s)</string>
     <string name="duration_no_change">(Sem alteração)</string>
-    <string name="pref_show_self_username_always">Sempre</string>
-    <string name="pref_show_self_username_disambiguate">Quando autenticado em várias contas</string>
-    <string name="pref_show_self_username_never">Nunca</string>
     <string name="description_post_language">Idioma da publicação</string>
     <string name="pref_title_show_self_username">Mostrar o nome de utilizador nas barras de ferramentas</string>
     <string name="action_set_focus">Define o ponto de focagem</string>

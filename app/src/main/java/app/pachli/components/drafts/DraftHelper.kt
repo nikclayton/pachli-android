@@ -51,7 +51,7 @@ class DraftHelper @Inject constructor(
 ) {
     suspend fun saveDraft(
         draftId: Int,
-        accountId: Long,
+        pachliAccountId: Long,
         inReplyToId: String?,
         content: String?,
         contentWarning: String?,
@@ -63,7 +63,7 @@ class DraftHelper @Inject constructor(
         poll: NewPoll?,
         failedToSend: Boolean,
         failedToSendAlert: Boolean,
-        scheduledAt: String?,
+        scheduledAt: Date?,
         language: String?,
         statusId: String?,
     ) = withContext(Dispatchers.IO) {
@@ -114,7 +114,7 @@ class DraftHelper @Inject constructor(
 
         val draft = DraftEntity(
             id = draftId,
-            accountId = accountId,
+            accountId = pachliAccountId,
             inReplyToId = inReplyToId,
             content = content,
             contentWarning = contentWarning,
@@ -144,8 +144,8 @@ class DraftHelper @Inject constructor(
         draftDao.delete(draft.id)
     }
 
-    suspend fun deleteAllDraftsAndAttachmentsForAccount(accountId: Long) {
-        draftDao.loadDrafts(accountId).forEach { draft ->
+    suspend fun deleteAllDraftsAndAttachmentsForAccount(pachliAccountId: Long) {
+        draftDao.loadDrafts(pachliAccountId).forEach { draft ->
             deleteDraftAndAttachments(draft)
         }
     }

@@ -37,8 +37,8 @@ import app.pachli.components.notifications.KEY_SENDER_ACCOUNT_IDENTIFIER
 import app.pachli.components.notifications.KEY_SPOILER
 import app.pachli.components.notifications.KEY_VISIBILITY
 import app.pachli.components.notifications.REPLY_ACTION
-import app.pachli.core.accounts.AccountManager
 import app.pachli.core.common.string.randomAlphanumericString
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.network.model.Status
 import app.pachli.service.SendStatusService
@@ -108,7 +108,7 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
                         poll = null,
                         replyingStatusContent = null,
                         replyingStatusAuthorUsername = null,
-                        accountId = account.id,
+                        pachliAccountId = account.id,
                         draftId = -1,
                         idempotencyKey = randomAlphanumericString(16),
                         retries = 0,

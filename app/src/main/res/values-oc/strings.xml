@@ -398,8 +398,6 @@
     <string name="post_media_audio">Àudio</string>
     <string name="notification_subscription_name">Publicacions novèlas</string>
     <string name="notification_follow_request_description">Notificacions de demandas de seguiment</string>
-    <string name="pref_main_nav_position_option_bottom">Enbàs</string>
-    <string name="pref_main_nav_position_option_top">Ennaut</string>
     <string name="pref_main_nav_position">Posicion de navigacion principala</string>
     <string name="pref_title_animate_custom_emojis">Emoji animats personalizats</string>
     <string name="pref_title_gradient_for_media">Afichar un degradat colorat pels mèdias amagats</string>
@@ -419,7 +417,6 @@
     </plurals>
     <string name="wellbeing_hide_stats_profile">Amagar las estatisticas dels perfils</string>
     <string name="wellbeing_hide_stats_posts">Amagar las estatisticas dels tuts</string>
-    <string name="limit_notifications">Limitar las notificacions de la cronologia</string>
     <string name="pref_title_hide_top_toolbar">Amagar lo títol ennaut de la barra</string>
     <string name="pref_title_confirm_reblogs">Afichar una confirmacion abans de partejar</string>
     <string name="action_unbookmark">Tirar dels marcapaginas</string>
@@ -429,8 +426,6 @@
     <string name="failed_to_pin">Fracàs en penjant</string>
     <string name="failed_to_unpin">Fracàs en despenjant</string>
     <string name="description_post_language">Lenga de la publicacion</string>
-    <string name="pref_show_self_username_always">Totjorn</string>
-    <string name="pref_show_self_username_never">Jamai</string>
     <string name="notification_update_name">Publicacions modificadas</string>
     <string name="status_count_one_plus">&gt;1</string>
     <string name="duration_14_days">14 jorns</string>
@@ -452,7 +447,6 @@
     <string name="duration_365_days">365 jorns</string>
     <string name="set_focus_description">Tocatz o lisatz lo cercle per causir lo punt focal que deu aparéisser sus las miniaturas.</string>
     <string name="pref_title_show_self_username">Mostrar lo nom d’utilizaire dins la barra d’aisinas</string>
-    <string name="pref_show_self_username_disambiguate">Quand mai d’un compte es connectat</string>
     <string name="action_set_focus">Posicionar lo punt focal</string>
     <string name="title_migration_relogin">Se tornar connectar per recebre las notificacions instantanèas</string>
     <string name="pref_title_confirm_favourites">Demandar confirmacion abans d’apondre en favorit</string>
@@ -536,7 +530,7 @@
     <string name="ui_success_accepted_follow_request">Demanda d’abonament acceptada</string>
     <string name="ui_success_rejected_follow_request">Demanda d’abonament blocada</string>
     <string name="status_filtered_show_anyway">Afichar ça que la</string>
-    <string name="status_filter_placeholder_label_format">Filtrat : &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">Filtrat : &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Perfils</string>
     <string name="hint_filter_title">Mon filtre</string>
     <string name="label_filter_title">Títol</string>
@@ -563,9 +557,7 @@
     <string name="ui_error_accept_follow_request">Fracàs de l’acceptacion de la demanda : %s</string>
     <string name="ui_error_reject_follow_request">Fracàs del refús de la demanda : %s</string>
     <string name="pref_title_show_stat_inline">Mostrar las estatisticas dins la cronologia</string>
-    <string name="help_empty_home">Aquò es vòstra <b>cronologia</b>. Mòstra las publicacions recentas dels comptes que seguissètz.
-\n
-\nPer explorar mai de compte podètz siá los descobrir dins d’autres fils, per exemple lo fil local de vòstra instància [iconics gmd_group], siá los trapar per lor nom [iconics gmd_search], per exemple « Pachli » per trobar nòstre compte Mastodon.</string>
+    <string name="help_empty_home">Aquò es vòstra <b>cronologia</b>. Mòstra las publicacions recentas dels comptes que seguissètz. \n \nPer explorar mai de compte podètz siá los descobrir dins d’autres fils, per exemple lo fil local de vòstra instància [iconics gmd_group], siá los trapar per lor nom [iconics gmd_search], per exemple « Pachli » per trobar nòstre compte Mastodon.</string>
     <string name="error_missing_edits">Vòstre servidor sap qu’aquesta publicacion foguèt modificada mas ten pas cap de còpia de las modificacions doncas vos las pòt afichar.
 \n
 \nAquò es un problèma de <a href="https://github.com/mastodon/mastodon/issues/25398">Mastodon #25398</a>.</string>

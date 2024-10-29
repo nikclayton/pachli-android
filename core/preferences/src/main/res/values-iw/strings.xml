@@ -14,4 +14,18 @@
     <string name="tab_tap_behaviour_jump_to_next_page">לקפוץ לדף הבא</string>
     <string name="tab_tap_behaviour_jump_to_newest">Jump to new content</string>
     <string name="pref_category_tabs">טאבים</string>
+    <string name="pref_main_nav_position_option_top">למעלה</string>
+    <string name="pref_main_nav_position_option_bottom">למטה</string>
+    <string name="pref_show_self_username_always">תמיד</string>
+    <string name="pref_show_self_username_never">אף פעם</string>
+    <string name="pref_show_self_username_disambiguate">כאשר מספר חשבונות מחוברים</string>
+    <string name="pref_tab_alignment_start">תחילת כיוון הטקסט</string>
+    <string name="pref_tab_alignment_justify_if_possible">הרחבה לרוחב מלא</string>
+    <string name="pref_tab_alignment_end">סוף כיוון הטקסט</string>
+    <string name="pref_title_tab_contents">תוכן כרטיסיות ניווט עיקריות</string>
+    <string name="pref_title_tab_alignment">כרטיסי ניווט עיקריים</string>
+    <string name="pref_tab_contents_icon_only">סמל רק</string>
+    <string name="pref_tab_contents_text_only">טקסט רק</string>
+    <string name="pref_tab_contents_icon_text_inline">סמל עם טקסט לציד</string>
+    <string name="pref_tab_contents_icon_text_below">סמל עם טקסט למטה</string>
 </resources>

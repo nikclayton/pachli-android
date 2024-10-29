@@ -220,8 +220,6 @@
     <string name="post_privacy_followers_only">केवलमनुसर्तृभ्यः</string>
     <string name="post_privacy_unlisted">अनिर्दिष्टम्</string>
     <string name="post_privacy_public">सार्वजनिकम्</string>
-    <string name="pref_main_nav_position_option_bottom">नितलम्</string>
-    <string name="pref_main_nav_position_option_top">शिखरम्</string>
     <string name="pref_main_nav_position">मुख्यमार्गणस्थितिः</string>
     <string name="pref_failed_to_sync">विन्यासं समसामयिकं कर्तुं विफलता</string>
     <string name="pref_publishing">प्रकाशनम् (जालवितरकेण सह सामयिकम्)</string>
@@ -404,7 +402,6 @@
     <string name="duration_365_days">३६५ दिनानि</string>
     <string name="duration_no_change">(परिवर्तनं नास्ति)</string>
     <string name="review_notifications">सूचनाः सम्दृश्यन्ताम्</string>
-    <string name="pref_show_self_username_never">न कदापि</string>
     <string name="pref_default_post_language">पूर्वनिविष्टा प्रकाशका भाषा</string>
     <string name="notification_report_name">आवेदनानि</string>
     <string name="notification_update_name">सम्पादनानि निवेद्यन्ताम्</string>
@@ -417,7 +414,6 @@
     <string name="report_category_other">अन्यम्</string>
     <string name="dialog_delete_conversation_warning">इदं सम्भाषणं निष्कास्यताम् \?</string>
     <string name="pref_title_notification_filter_sign_ups">कश्चन पञ्जीकरणम् अकरोत्</string>
-    <string name="pref_show_self_username_always">सर्वदा</string>
     <string name="notification_subscription_name">नूतन-प्रकटनानि</string>
     <string name="notification_sign_up_name">पञ्जीकरणानि</string>
     <string name="no_announcements">उद्घोषणाः न सन्ति।</string>
@@ -465,7 +461,6 @@
     <string name="title_migration_relogin">पुनःसम्प्रवेशाय विज्ञापन-ज्ञापनसूचनाः</string>
     <string name="dialog_follow_hashtag_hint">#निश्रेणिचिह्नशीर्षकः</string>
     <string name="dialog_follow_hashtag_title">व्यक्तित्वविवरणलेखा अनुसरतु</string>
-    <string name="limit_notifications">कालानुक्रमपङ्क्त्याः सूचनाः परिमिताः कुरुताम्</string>
     <string name="notification_report_description">परिमितावेदनानि प्रति ज्ञापनसूचनाः</string>
     <string name="unsaved_changes">भवतः अरक्षितानि परिवर्तनानि सन्ति।</string>
     <string name="pref_title_notification_filter_reports">नूतनम् आवेदनमस्ति</string>

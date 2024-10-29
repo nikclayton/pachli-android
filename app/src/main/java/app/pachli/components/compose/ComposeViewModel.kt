@@ -30,17 +30,20 @@ import app.pachli.components.compose.ComposeActivity.QueuedMedia
 import app.pachli.components.compose.ComposeAutoCompleteAdapter.AutocompleteResult
 import app.pachli.components.drafts.DraftHelper
 import app.pachli.components.search.SearchType
-import app.pachli.core.accounts.AccountManager
 import app.pachli.core.common.PachliError
 import app.pachli.core.common.string.mastodonLength
 import app.pachli.core.common.string.randomAlphanumericString
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.InstanceInfoRepository
+import app.pachli.core.data.repository.ServerRepository
+import app.pachli.core.model.ServerOperation
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.ComposeKind
 import app.pachli.core.network.model.Attachment
 import app.pachli.core.network.model.NewPoll
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.ui.MentionSpan
 import app.pachli.service.MediaToSend
 import app.pachli.service.ServiceClient
@@ -49,17 +52,23 @@ import at.connyduck.calladapter.networkresult.fold
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.mapError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.z4kn4fein.semver.constraints.toConstraint
+import java.util.Date
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -73,6 +82,8 @@ class ComposeViewModel @Inject constructor(
     private val serviceClient: ServiceClient,
     private val draftHelper: DraftHelper,
     instanceInfoRepo: InstanceInfoRepository,
+    serverRepository: ServerRepository,
+    private val sharedPreferencesRepository: SharedPreferencesRepository,
 ) : ViewModel() {
 
     /** The current content */
@@ -128,7 +139,7 @@ class ComposeViewModel @Inject constructor(
     val showContentWarning = _showContentWarning.asStateFlow()
     private val _poll: MutableStateFlow<NewPoll?> = MutableStateFlow(null)
     val poll = _poll.asStateFlow()
-    private val _scheduledAt: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val _scheduledAt: MutableStateFlow<Date?> = MutableStateFlow(null)
     val scheduledAt = _scheduledAt.asStateFlow()
 
     private val _media: MutableStateFlow<List<QueuedMedia>> = MutableStateFlow(emptyList())
@@ -139,6 +150,22 @@ class ComposeViewModel @Inject constructor(
     val closeConfirmation = _closeConfirmation.asStateFlow()
     private val _statusLength = MutableStateFlow(0)
     val statusLength = _statusLength.asStateFlow()
+
+    /** Flow of whether or not the server can schedule posts. */
+    val serverCanSchedule = serverRepository.flow.map {
+        it.get()?.can(ServerOperation.ORG_JOINMASTODON_STATUSES_SCHEDULED, ">= 1.0.0".toConstraint()) == true
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /**
+     * True if the post's language should be checked before posting.
+     *
+     * Modifications are persisted back to shared preferences.
+     */
+    var confirmStatusLanguage: Boolean
+        get() = sharedPreferencesRepository.confirmStatusLanguage
+        set(value) {
+            sharedPreferencesRepository.confirmStatusLanguage = value
+        }
 
     private lateinit var composeKind: ComposeKind
 
@@ -396,7 +423,7 @@ class ComposeViewModel @Inject constructor(
 
         draftHelper.saveDraft(
             draftId = draftId,
-            accountId = accountManager.activeAccount?.id!!,
+            pachliAccountId = accountManager.activeAccount?.id!!,
             inReplyToId = inReplyToId,
             content = content,
             contentWarning = contentWarning,
@@ -421,7 +448,7 @@ class ComposeViewModel @Inject constructor(
     suspend fun sendStatus(
         content: String,
         spoilerText: String,
-        accountId: Long,
+        pachliAccountId: Long,
     ) {
         if (!scheduledTootId.isNullOrEmpty()) {
             api.deleteScheduledStatus(scheduledTootId!!)
@@ -448,7 +475,7 @@ class ComposeViewModel @Inject constructor(
             poll = poll.value,
             replyingStatusContent = null,
             replyingStatusAuthorUsername = null,
-            accountId = accountId,
+            pachliAccountId = pachliAccountId,
             draftId = draftId,
             idempotencyKey = randomAlphanumericString(16),
             retries = 0,
@@ -611,7 +638,7 @@ class ComposeViewModel @Inject constructor(
         setupComplete = true
     }
 
-    fun updateScheduledAt(newScheduledAt: String?) {
+    fun updateScheduledAt(newScheduledAt: Date?) {
         if (newScheduledAt != scheduledAt.value) {
             scheduledTimeChanged = true
         }

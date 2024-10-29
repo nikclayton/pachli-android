@@ -20,9 +20,9 @@ package app.pachli.components.notifications
 import android.app.NotificationManager
 import android.content.Context
 import androidx.annotation.WorkerThread
-import app.pachli.core.accounts.AccountManager
 import app.pachli.core.activity.NotificationConfig
 import app.pachli.core.common.string.isLessThan
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.network.model.Links
 import app.pachli.core.network.model.Marker
@@ -56,14 +56,14 @@ class NotificationFetcher @Inject constructor(
     private val accountManager: AccountManager,
     @ApplicationContext private val context: Context,
 ) {
-    suspend fun fetchAndShow(accountId: Long) {
+    suspend fun fetchAndShow(pachliAccountId: Long) {
         Timber.d("NotificationFetcher.fetchAndShow() started")
 
         val accounts = buildList {
-            if (accountId == NotificationWorker.ALL_ACCOUNTS) {
+            if (pachliAccountId == NotificationWorker.ALL_ACCOUNTS) {
                 addAll(accountManager.getAllAccountsOrderedByActive())
             } else {
-                accountManager.getAccountById(accountId)?.let { add(it) }
+                accountManager.getAccountById(pachliAccountId)?.let { add(it) }
             }
         }
 

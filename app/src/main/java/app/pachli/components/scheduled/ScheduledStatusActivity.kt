@@ -165,6 +165,8 @@ class ScheduledStatusActivity :
                 scheduledAt = item.scheduledAt,
                 sensitive = item.params.sensitive,
                 kind = ComposeOptions.ComposeKind.EDIT_SCHEDULED,
+                poll = item.params.poll,
+                language = item.params.language,
             ),
         )
         startActivity(intent)

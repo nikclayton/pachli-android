@@ -60,6 +60,7 @@ enum class FilterContext {
          * @return The filter context for [timeline], or null if filters are not applied
          *     to this timeline.
          */
+        @Deprecated("Use app.pachli.core.model.FilterContext instead")
         fun from(timeline: Timeline): FilterContext? = when (timeline) {
             is Timeline.Home, is Timeline.UserList -> HOME
             is Timeline.User -> ACCOUNT
@@ -74,6 +75,14 @@ enum class FilterContext {
             Timeline.TrendingLinks,
             -> PUBLIC
             Timeline.Conversations -> null
+        }
+
+        fun from(filterContext: app.pachli.core.model.FilterContext) = when (filterContext) {
+            app.pachli.core.model.FilterContext.HOME -> HOME
+            app.pachli.core.model.FilterContext.NOTIFICATIONS -> NOTIFICATIONS
+            app.pachli.core.model.FilterContext.PUBLIC -> PUBLIC
+            app.pachli.core.model.FilterContext.THREAD -> THREAD
+            app.pachli.core.model.FilterContext.ACCOUNT -> ACCOUNT
         }
     }
 }

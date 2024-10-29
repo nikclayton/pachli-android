@@ -21,7 +21,9 @@ import android.view.View
 import androidx.core.text.HtmlCompat
 import app.pachli.R
 import app.pachli.core.data.model.StatusDisplayOptions
+import app.pachli.core.model.FilterAction
 import app.pachli.core.network.model.Filter
+import app.pachli.core.network.model.FilterAction as NetworkFilterAction
 import app.pachli.databinding.ItemStatusWrapperBinding
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.viewdata.IStatusViewData
@@ -33,26 +35,28 @@ open class FilterableStatusViewHolder<T : IStatusViewData>(
     var matchedFilter: Filter? = null
 
     override fun setupWithStatus(
+        pachliAccountId: Long,
         viewData: T,
         listener: StatusActionListener<T>,
         statusDisplayOptions: StatusDisplayOptions,
         payloads: Any?,
     ) {
-        super.setupWithStatus(viewData, listener, statusDisplayOptions, payloads)
-        setupFilterPlaceholder(viewData, listener)
+        super.setupWithStatus(pachliAccountId, viewData, listener, statusDisplayOptions, payloads)
+        setupFilterPlaceholder(pachliAccountId, viewData, listener)
     }
 
     private fun setupFilterPlaceholder(
+        pachliAccountId: Long,
         status: T,
         listener: StatusActionListener<T>,
     ) {
-        if (status.filterAction !== Filter.Action.WARN) {
+        if (status.filterAction !== FilterAction.WARN) {
             matchedFilter = null
             setPlaceholderVisibility(false)
             return
         }
 
-        status.actionable.filtered?.find { it.filter.action === Filter.Action.WARN }?.let { result ->
+        status.actionable.filtered?.find { it.filter.filterAction === NetworkFilterAction.WARN }?.let { result ->
             this.matchedFilter = result.filter
             setPlaceholderVisibility(true)
 
@@ -67,10 +71,10 @@ open class FilterableStatusViewHolder<T : IStatusViewData>(
             binding.statusFilteredPlaceholder.statusFilterLabel.text = label
 
             binding.statusFilteredPlaceholder.statusFilterShowAnyway.setOnClickListener {
-                listener.clearWarningAction(status)
+                listener.clearWarningAction(pachliAccountId, status)
             }
             binding.statusFilteredPlaceholder.statusFilterEditFilter.setOnClickListener {
-                listener.onEditFilterById(result.filter.id)
+                listener.onEditFilterById(pachliAccountId, result.filter.id)
             }
         } ?: {
             matchedFilter = null

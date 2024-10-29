@@ -11,4 +11,10 @@
     <string name="download_location_downloads">Cartafol para descargas</string>
     <string name="download_location_per_sender">Cartafoles por conta, no cartafol Descargas</string>
     <string name="pref_category_tabs">Lapelas</string>
+    <string name="pref_main_nav_position_option_top">Arriba</string>
+    <string name="pref_main_nav_position_option_bottom">Abaixo</string>
+    <string name="pref_show_self_username_always">Sempre</string>
+    <string name="pref_show_self_username_disambiguate">Cando hai máis dunha conta activa</string>
+    <string name="pref_show_self_username_never">Nunca</string>
+    <string name="pref_tab_contents_icon_only">Só a icona</string>
 </resources>

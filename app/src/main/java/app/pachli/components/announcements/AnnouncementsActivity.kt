@@ -35,6 +35,7 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.navigation.TimelineActivityIntent
+import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.databinding.ActivityAnnouncementsBinding
@@ -98,7 +99,7 @@ class AnnouncementsActivity :
         )
 
         val wellbeingEnabled = sharedPreferencesRepository.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_POSTS, false)
-        val animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
+        val animateEmojis = sharedPreferencesRepository.animateEmojis
         val useAbsoluteTime = sharedPreferencesRepository.getBoolean(PrefKeys.ABSOLUTE_TIME_VIEW, false)
 
         adapter = AnnouncementAdapter(emptyList(), this, wellbeingEnabled, animateEmojis, useAbsoluteTime)
@@ -187,15 +188,15 @@ class AnnouncementsActivity :
     }
 
     override fun onViewTag(tag: String) {
-        val intent = TimelineActivityIntent.hashtag(this, tag)
+        val intent = TimelineActivityIntent.hashtag(this, intent.pachliAccountId, tag)
         startActivityWithDefaultTransition(intent)
     }
 
     override fun onViewAccount(id: String) {
-        viewAccount(id)
+        viewAccount(intent.pachliAccountId, id)
     }
 
     override fun onViewUrl(url: String) {
-        viewUrl(url)
+        viewUrl(intent.pachliAccountId, url)
     }
 }

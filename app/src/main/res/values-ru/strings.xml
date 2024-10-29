@@ -404,8 +404,6 @@
     <string name="hashtags">Хэштеги</string>
     <string name="add_hashtag_title">Добавить хэштэг</string>
     <string name="pref_title_gradient_for_media">Отображать цветные градиенты для скрытых изображений</string>
-    <string name="pref_main_nav_position_option_bottom">Снизу</string>
-    <string name="pref_main_nav_position_option_top">Сверху</string>
     <string name="pref_main_nav_position">Расположение панели навигации</string>
     <string name="action_unmute_domain">Отменить глушение %s</string>
     <string name="dialog_mute_hide_notifications">Скрыть уведомления</string>
@@ -443,7 +441,6 @@
     <string name="draft_deleted">Черновик удалён</string>
     <string name="drafts_post_failed_to_send">Этот гудок не удалось отправить!</string>
     <string name="wellbeing_hide_stats_profile">Скрыть количественную статистику по профилям пользователей</string>
-    <string name="limit_notifications">Ограничение уведомлений в ленте</string>
     <string name="review_notifications">Просмотр уведомлений</string>
     <string name="notification_subscription_description">Уведомления, когда кто-то, на кого вы подписаны, опубликовал новую запись</string>
     <string name="notification_subscription_name">Новые гудки</string>

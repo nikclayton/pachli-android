@@ -293,8 +293,6 @@
     <string name="post_privacy_followers_only">Só seguidoras</string>
     <string name="post_privacy_unlisted">Non listado</string>
     <string name="post_privacy_public">Público</string>
-    <string name="pref_main_nav_position_option_bottom">Abaixo</string>
-    <string name="pref_main_nav_position_option_top">Arriba</string>
     <string name="pref_main_nav_position">Posición de navegación principal</string>
     <string name="pref_failed_to_sync">Fallou a sincronización dos axustes</string>
     <string name="pref_publishing">Ao publicar (sincronizado co servidor)</string>
@@ -370,7 +368,6 @@
     </plurals>
     <string name="wellbeing_hide_stats_profile">Agochar estatísticas cuantitativas nos perfís</string>
     <string name="wellbeing_hide_stats_posts">Agochar estatísticas cuantitativas nas publicacións</string>
-    <string name="limit_notifications">Limitar notificacións da cronoloxía</string>
     <string name="review_notifications">Revisar Notificacións</string>
     <string name="wellbeing_mode_notice">Agocharemos algunha información que podería afectar ao teu benestar mental. Esto inclúe:
 \n
@@ -462,9 +459,6 @@
     <string name="delete_scheduled_post_warning">Eliminar publicación programada\?</string>
     <string name="failed_to_pin">Fallo ao Fixar</string>
     <string name="failed_to_unpin">Fallo ao Desafixar</string>
-    <string name="pref_show_self_username_always">Sempre</string>
-    <string name="pref_show_self_username_disambiguate">Cando hai máis dunha conta activa</string>
-    <string name="pref_show_self_username_never">Nunca</string>
     <string name="notification_report_description">Notificacións sobre temas de moderación</string>
     <string name="report_category_spam">Spam</string>
     <string name="action_unfollow_hashtag_format">Non seguir #%s\?</string>
@@ -523,9 +517,7 @@
     <string name="dialog_follow_hashtag_title">Seguir cancelo</string>
     <string name="dialog_follow_hashtag_hint">#cancelo</string>
     <string name="hint_description">Descrición</string>
-    <string name="help_empty_home">Esta é a túa <b>cronoloxía de inicio</b>. Mostra as publicacións recentes das contas que segues.
-\n
-\nPara atopar contas podes mirar nalgunha das outras cronoloxías. Por exemplo, na cronoloxía local da túa instancia [iconics gmd_group]. Ou buscalas polo seu nome [iconics gmd_search]; por exemplo busca Pachli para atopar a nosa conta en Mastodon.</string>
+    <string name="help_empty_home">Esta é a túa <b>cronoloxía de inicio</b>. Mostra as publicacións recentes das contas que segues. \n \nPara atopar contas podes mirar nalgunha das outras cronoloxías. Por exemplo, na cronoloxía local da túa instancia [iconics gmd_group]. Ou buscalas polo seu nome [iconics gmd_search]; por exemplo busca Pachli para atopar a nosa conta en Mastodon.</string>
     <string name="post_media_image">Imaxe</string>
     <string name="hint_filter_title">O meu filtro</string>
     <string name="notification_unknown_name">Descoñecido</string>
@@ -600,7 +592,7 @@
     <string name="title_lists_failed">Listas - fallou a carga</string>
     <string name="manage_lists">Xestionar listas</string>
     <string name="announcement_date_updated">(Actualizada: %1$s)</string>
-    <string name="pref_summary_timeline_filters">O servidor non é compatible cos filtros</string>
+    <string name="pref_summary_content_filters">O servidor non é compatible cos filtros</string>
     <string name="pref_title_update_settings">Actualizacións do software</string>
     <string name="label_image">Imaxe</string>
     <string name="ui_error_translate_status_fmt">Fallou a tradución: %1$s</string>

@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.ListAdapter
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.common.extensions.visible
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.BindingHolder
@@ -49,7 +48,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * Shows all the user's lists with a button to allow them to add/remove the given
+ * Shows all the user's lists with a checkbox to allow them to add/remove the given
  * account from each list.
  */
 @AndroidEntryPoint
@@ -57,7 +56,9 @@ class ListsForAccountFragment : DialogFragment() {
     private val viewModel: ListsForAccountViewModel by viewModels(
         extrasProducer = {
             defaultViewModelCreationExtras.withCreationCallback<ListsForAccountViewModel.Factory> { factory ->
-                factory.create(requireArguments().getString(ARG_ACCOUNT_ID)!!)
+                factory.create(
+                    requireArguments().getString(ARG_ACCOUNT_ID)!!,
+                )
             }
         },
     )
@@ -187,33 +188,43 @@ class ListsForAccountFragment : DialogFragment() {
         ): BindingHolder<ItemAddOrRemoveFromListBinding> {
             val binding =
                 ItemAddOrRemoveFromListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            return BindingHolder(binding)
+            val holder = BindingHolder(binding)
+
+            binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
+                val item = getItem(holder.bindingAdapterPosition)
+                if (isChecked == item.isMember) return@setOnCheckedChangeListener
+
+                if (isChecked) {
+                    viewModel.addAccountToList(item.list.id)
+                } else {
+                    viewModel.deleteAccountFromList(item.list.id)
+                }
+            }
+            return holder
         }
 
         override fun onBindViewHolder(holder: BindingHolder<ItemAddOrRemoveFromListBinding>, position: Int) {
             val item = getItem(position)
             holder.binding.listNameView.text = item.list.title
-            holder.binding.addButton.apply {
-                visible(!item.isMember)
-                setOnClickListener {
-                    viewModel.addAccountToList(item.list.id)
-                }
-            }
-            holder.binding.removeButton.apply {
-                visible(item.isMember)
-                setOnClickListener {
-                    viewModel.deleteAccountFromList(item.list.id)
-                }
+
+            with(holder.binding.checkBox) {
+                contentDescription = getString(
+                    if (item.isMember) R.string.action_remove_from_list else R.string.action_add_to_list,
+                )
+                isChecked = item.isMember
             }
         }
     }
 
     companion object {
-        /** The ID of the account to add/remove the lists */
-        private const val ARG_ACCOUNT_ID = "accountId"
+        private const val ARG_PACHLI_ACCOUNT_ID = "app.pachli.ARG_PACHLI_ACCOUNT_ID"
 
-        fun newInstance(accountId: String): ListsForAccountFragment {
+        /** The ID of the account to add/remove the lists */
+        private const val ARG_ACCOUNT_ID = "app.pachli.ARG_ACCOUNT_ID"
+
+        fun newInstance(pachliAccountId: Long, accountId: String): ListsForAccountFragment {
             val args = Bundle().apply {
+                putLong(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
                 putString(ARG_ACCOUNT_ID, accountId)
             }
             return ListsForAccountFragment().apply { arguments = args }

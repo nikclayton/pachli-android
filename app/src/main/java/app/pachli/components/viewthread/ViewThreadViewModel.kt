@@ -29,20 +29,20 @@ import app.pachli.appstore.StatusDeletedEvent
 import app.pachli.appstore.StatusEditedEvent
 import app.pachli.components.timeline.CachedTimelineRepository
 import app.pachli.components.timeline.util.ifExpected
-import app.pachli.core.accounts.AccountManager
-import app.pachli.core.data.repository.FilterVersion
-import app.pachli.core.data.repository.FiltersRepository
+import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.ContentFiltersRepository
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.TranslatedStatusEntity
 import app.pachli.core.database.model.TranslationState
-import app.pachli.core.network.model.Filter
-import app.pachli.core.network.model.FilterContext
+import app.pachli.core.model.ContentFilterVersion
+import app.pachli.core.model.FilterAction
+import app.pachli.core.model.FilterContext
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
-import app.pachli.network.FilterModel
+import app.pachli.network.ContentFilterModel
 import app.pachli.usecase.TimelineCases
 import app.pachli.viewdata.StatusViewData
 import at.connyduck.calladapter.networkresult.fold
@@ -74,7 +74,7 @@ class ViewThreadViewModel @Inject constructor(
     private val moshi: Moshi,
     private val repository: CachedTimelineRepository,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
-    private val filtersRepository: FiltersRepository,
+    private val contentFiltersRepository: ContentFiltersRepository,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<ThreadUiState> = MutableStateFlow(ThreadUiState.Loading)
@@ -93,7 +93,7 @@ class ViewThreadViewModel @Inject constructor(
     private val alwaysShowSensitiveMedia: Boolean = activeAccount.alwaysShowSensitiveMedia
     private val alwaysOpenSpoiler: Boolean = activeAccount.alwaysOpenSpoiler
 
-    private var filterModel: FilterModel? = null
+    private var contentFilterModel: ContentFilterModel? = null
 
     init {
         viewModelScope.launch {
@@ -113,11 +113,11 @@ class ViewThreadViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            filtersRepository.filters.collect { filters ->
+            contentFiltersRepository.contentFilters.collect { filters ->
                 filters.onSuccess {
-                    filterModel = when (it?.version) {
-                        FilterVersion.V2 -> FilterModel(FilterContext.THREAD)
-                        FilterVersion.V1 -> FilterModel(FilterContext.THREAD, it.filters)
+                    contentFilterModel = when (it?.version) {
+                        ContentFilterVersion.V2 -> ContentFilterModel(FilterContext.THREAD)
+                        ContentFilterVersion.V1 -> ContentFilterModel(FilterContext.THREAD, it.contentFilters)
                         else -> null
                     }
                     updateStatuses()
@@ -201,49 +201,52 @@ class ViewThreadViewModel @Inject constructor(
 
             val contextResult = contextCall.await()
 
-            contextResult.fold({ statusContext ->
-                val ids = statusContext.ancestors.map { it.id } + statusContext.descendants.map { it.id }
-                val cachedViewData = repository.getStatusViewData(ids)
-                val cachedTranslations = repository.getStatusTranslations(ids)
-                val ancestors = statusContext.ancestors.map { status ->
-                    val svd = cachedViewData[status.id]
-                    StatusViewData.from(
-                        status,
-                        isShowingContent = svd?.contentShowing ?: (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
-                        isExpanded = svd?.expanded ?: alwaysOpenSpoiler,
-                        isCollapsed = svd?.contentCollapsed ?: true,
-                        isDetailed = false,
-                        translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
-                        translation = cachedTranslations[status.id],
-                    )
-                }.filterByFilterAction()
-                val descendants = statusContext.descendants.map { status ->
-                    val svd = cachedViewData[status.id]
-                    StatusViewData.from(
-                        status,
-                        isShowingContent = svd?.contentShowing ?: (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
-                        isExpanded = svd?.expanded ?: alwaysOpenSpoiler,
-                        isCollapsed = svd?.contentCollapsed ?: true,
-                        isDetailed = false,
-                        translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
-                        translation = cachedTranslations[status.id],
-                    )
-                }.filterByFilterAction()
-                val statuses = ancestors + detailedStatus + descendants
+            contextResult.fold(
+                { statusContext ->
+                    val ids = statusContext.ancestors.map { it.id } + statusContext.descendants.map { it.id }
+                    val cachedViewData = repository.getStatusViewData(activeAccount.id, ids)
+                    val cachedTranslations = repository.getStatusTranslations(activeAccount.id, ids)
+                    val ancestors = statusContext.ancestors.map { status ->
+                        val svd = cachedViewData[status.id]
+                        StatusViewData.from(
+                            status,
+                            isShowingContent = svd?.contentShowing ?: (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
+                            isExpanded = svd?.expanded ?: alwaysOpenSpoiler,
+                            isCollapsed = svd?.contentCollapsed ?: true,
+                            isDetailed = false,
+                            translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
+                            translation = cachedTranslations[status.id],
+                        )
+                    }.filterByFilterAction()
+                    val descendants = statusContext.descendants.map { status ->
+                        val svd = cachedViewData[status.id]
+                        StatusViewData.from(
+                            status,
+                            isShowingContent = svd?.contentShowing ?: (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
+                            isExpanded = svd?.expanded ?: alwaysOpenSpoiler,
+                            isCollapsed = svd?.contentCollapsed ?: true,
+                            isDetailed = false,
+                            translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
+                            translation = cachedTranslations[status.id],
+                        )
+                    }.filterByFilterAction()
+                    val statuses = ancestors + detailedStatus + descendants
 
-                _uiState.value = ThreadUiState.Success(
-                    statusViewData = statuses,
-                    detailedStatusPosition = ancestors.size,
-                    revealButton = statuses.getRevealButtonState(),
-                )
-            }, { throwable ->
-                _errors.emit(throwable)
-                _uiState.value = ThreadUiState.Success(
-                    statusViewData = listOf(detailedStatus),
-                    detailedStatusPosition = 0,
-                    revealButton = RevealButtonState.NO_BUTTON,
-                )
-            })
+                    _uiState.value = ThreadUiState.Success(
+                        statusViewData = statuses,
+                        detailedStatusPosition = ancestors.size,
+                        revealButton = statuses.getRevealButtonState(),
+                    )
+                },
+                { throwable ->
+                    _errors.emit(throwable)
+                    _uiState.value = ThreadUiState.Success(
+                        statusViewData = listOf(detailedStatus),
+                        detailedStatusPosition = 0,
+                        revealButton = RevealButtonState.NO_BUTTON,
+                    )
+                },
+            )
         }
     }
 
@@ -335,7 +338,7 @@ class ViewThreadViewModel @Inject constructor(
             )
         }
         viewModelScope.launch {
-            repository.saveStatusViewData(status.copy(isExpanded = expanded))
+            repository.saveStatusViewData(activeAccount.id, status.copy(isExpanded = expanded))
         }
     }
 
@@ -344,7 +347,7 @@ class ViewThreadViewModel @Inject constructor(
             viewData.copy(isShowingContent = isShowing)
         }
         viewModelScope.launch {
-            repository.saveStatusViewData(status.copy(isShowingContent = isShowing))
+            repository.saveStatusViewData(activeAccount.id, status.copy(isShowingContent = isShowing))
         }
     }
 
@@ -353,7 +356,7 @@ class ViewThreadViewModel @Inject constructor(
             viewData.copy(isCollapsed = isCollapsed)
         }
         viewModelScope.launch {
-            repository.saveStatusViewData(status.copy(isCollapsed = isCollapsed))
+            repository.saveStatusViewData(activeAccount.id, status.copy(isCollapsed = isCollapsed))
         }
     }
 
@@ -455,28 +458,31 @@ class ViewThreadViewModel @Inject constructor(
 
     fun translate(statusViewData: StatusViewData) {
         viewModelScope.launch {
-            repository.translate(statusViewData).fold({
-                val translatedEntity = TranslatedStatusEntity(
-                    serverId = statusViewData.actionableId,
-                    timelineUserId = activeAccount.id,
-                    content = it.content,
-                    spoilerText = it.spoilerText,
-                    poll = it.poll,
-                    attachments = it.attachments,
-                    provider = it.provider,
-                )
-                updateStatusViewData(statusViewData.status.id) { viewData ->
-                    viewData.copy(translation = translatedEntity, translationState = TranslationState.SHOW_TRANSLATION)
-                }
-            }, {
-                // Mastodon returns 403 if it thinks the original status language is the
-                // same as the user's language, ignoring the actual content of the status
-                // (https://github.com/mastodon/documentation/issues/1330). Nothing useful
-                // to do here so swallow the error
-                if (it is HttpException && it.code() == 403) return@fold
+            repository.translate(activeAccount.id, statusViewData).fold(
+                {
+                    val translatedEntity = TranslatedStatusEntity(
+                        serverId = statusViewData.actionableId,
+                        timelineUserId = activeAccount.id,
+                        content = it.content,
+                        spoilerText = it.spoilerText,
+                        poll = it.poll,
+                        attachments = it.attachments,
+                        provider = it.provider,
+                    )
+                    updateStatusViewData(statusViewData.status.id) { viewData ->
+                        viewData.copy(translation = translatedEntity, translationState = TranslationState.SHOW_TRANSLATION)
+                    }
+                },
+                {
+                    // Mastodon returns 403 if it thinks the original status language is the
+                    // same as the user's language, ignoring the actual content of the status
+                    // (https://github.com/mastodon/documentation/issues/1330). Nothing useful
+                    // to do here so swallow the error
+                    if (it is HttpException && it.code() == 403) return@fold
 
-                _errors.emit(it)
-            })
+                    _errors.emit(it)
+                },
+            )
         }
     }
 
@@ -486,6 +492,7 @@ class ViewThreadViewModel @Inject constructor(
         }
         viewModelScope.launch {
             repository.saveStatusViewData(
+                activeAccount.id,
                 statusViewData.copy(translationState = TranslationState.SHOW_ORIGINAL),
             )
         }
@@ -545,8 +552,8 @@ class ViewThreadViewModel @Inject constructor(
             if (status.isDetailed) {
                 true
             } else {
-                status.filterAction = filterModel?.filterActionFor(status.status) ?: Filter.Action.NONE
-                status.filterAction != Filter.Action.HIDE
+                status.filterAction = contentFilterModel?.filterActionFor(status.status) ?: FilterAction.NONE
+                status.filterAction != FilterAction.HIDE
             }
         }
     }

@@ -90,8 +90,6 @@
     <string name="post_text_size_medium">Vidējs</string>
     <string name="post_text_size_large">Liels</string>
     <string name="post_text_size_largest">Lielākais</string>
-    <string name="pref_show_self_username_always">Vienmēr</string>
-    <string name="pref_show_self_username_never">Nekad</string>
     <string name="notification_poll_name">Aptaujas</string>
     <string name="notification_report_name">Ziņojumi</string>
     <string name="about_pachli_version">Pachli %s</string>
@@ -276,8 +274,6 @@
     <string name="pref_title_timelines">Laika līnijas</string>
     <string name="pref_title_app_theme">Lietotnes tēma</string>
     <string name="pref_title_notification_filter_poll">aptaujas ir noslēgušās</string>
-    <string name="pref_main_nav_position_option_top">Augšā</string>
-    <string name="pref_main_nav_position_option_bottom">Apakšā</string>
     <string name="pref_title_show_boosts">Parādīt pastiprinājumus</string>
     <string name="status_count_one_plus">1+</string>
     <string name="status_created_at_now">tikko</string>
@@ -367,7 +363,6 @@
     <string name="notification_poll_description">Paziņojumi par pabeigtajām aptaujām</string>
     <string name="notification_subscription_description">Paziņojumi par jauniem ierakstiem no kāda, kura ierakstus esi abonējis</string>
     <string name="notification_sign_up_description">Paziņojumi par jauniem lietotājiem</string>
-    <string name="limit_notifications">Ierobežot laika līnijas paziņojumus</string>
     <string name="wellbeing_hide_stats_profile">Slēpt profilu kvantitatīvo statistiku</string>
     <string name="wellbeing_hide_stats_posts">Slēpt ierakstu kvantitatīvo statistiku</string>
     <string name="drafts_failed_loading_reply">Neizdevās ielādēt atbildes informāciju</string>
@@ -401,7 +396,6 @@
     <string name="add_account_description">Pievienot jaunu Mastodon kontu</string>
     <string name="pref_title_animate_custom_emojis">Animēt pielāgotās emocijzīmes</string>
     <string name="notification_sign_up_name">Jaunu dalībnieku reģistrācija</string>
-    <string name="pref_show_self_username_disambiguate">Kad pievienoti vairāki konti</string>
     <string name="restart_required">Nepieciešama lietotnes restartēšana</string>
     <string name="reblog_private">Pastiprināt sākotnējai auditorijai</string>
     <string name="description_post_reblogged">Pastiprināts</string>

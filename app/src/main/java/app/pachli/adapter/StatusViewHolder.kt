@@ -27,8 +27,8 @@ import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.common.util.formatNumber
 import app.pachli.core.data.model.StatusDisplayOptions
+import app.pachli.core.model.FilterAction
 import app.pachli.core.network.model.Emoji
-import app.pachli.core.network.model.Filter
 import app.pachli.databinding.ItemStatusBinding
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.SmartLengthInputFilter
@@ -41,6 +41,7 @@ open class StatusViewHolder<T : IStatusViewData>(
 ) : StatusBaseViewHolder<T>(root ?: binding.root) {
 
     override fun setupWithStatus(
+        pachliAccountId: Long,
         viewData: T,
         listener: StatusActionListener<T>,
         statusDisplayOptions: StatusDisplayOptions,
@@ -49,9 +50,9 @@ open class StatusViewHolder<T : IStatusViewData>(
         if (payloads == null) {
             val sensitive = !TextUtils.isEmpty(viewData.actionable.spoilerText)
             val expanded = viewData.isExpanded
-            setupCollapsedState(viewData, sensitive, expanded, listener)
+            setupCollapsedState(pachliAccountId, viewData, sensitive, expanded, listener)
             val reblogging = viewData.rebloggingStatus
-            if (reblogging == null || viewData.filterAction === Filter.Action.WARN) {
+            if (reblogging == null || viewData.filterAction === FilterAction.WARN) {
                 statusInfo.hide()
             } else {
                 val rebloggedByDisplayName = reblogging.account.name
@@ -69,7 +70,7 @@ open class StatusViewHolder<T : IStatusViewData>(
         statusFavouritesCount.visible(statusDisplayOptions.showStatsInline)
         setFavouritedCount(viewData.actionable.favouritesCount)
         setReblogsCount(viewData.actionable.reblogsCount)
-        super.setupWithStatus(viewData, listener, statusDisplayOptions, payloads)
+        super.setupWithStatus(pachliAccountId, viewData, listener, statusDisplayOptions, payloads)
     }
 
     private fun setRebloggedByDisplayName(
@@ -108,6 +109,7 @@ open class StatusViewHolder<T : IStatusViewData>(
     }
 
     private fun setupCollapsedState(
+        pachliAccountId: Long,
         viewData: T,
         sensitive: Boolean,
         expanded: Boolean,
@@ -116,7 +118,7 @@ open class StatusViewHolder<T : IStatusViewData>(
         /* input filter for TextViews have to be set before text */
         if (viewData.isCollapsible && (!sensitive || expanded)) {
             buttonToggleContent.setOnClickListener {
-                listener.onContentCollapsedChange(viewData, !viewData.isCollapsed)
+                listener.onContentCollapsedChange(pachliAccountId, viewData, !viewData.isCollapsed)
             }
             buttonToggleContent.show()
             if (viewData.isCollapsed) {
@@ -138,14 +140,15 @@ open class StatusViewHolder<T : IStatusViewData>(
     }
 
     override fun toggleExpandedState(
+        pachliAccountId: Long,
         viewData: T,
         sensitive: Boolean,
         expanded: Boolean,
         statusDisplayOptions: StatusDisplayOptions,
         listener: StatusActionListener<T>,
     ) {
-        setupCollapsedState(viewData, sensitive, expanded, listener)
-        super.toggleExpandedState(viewData, sensitive, expanded, statusDisplayOptions, listener)
+        setupCollapsedState(pachliAccountId, viewData, sensitive, expanded, listener)
+        super.toggleExpandedState(pachliAccountId, viewData, sensitive, expanded, statusDisplayOptions, listener)
     }
 
     companion object {

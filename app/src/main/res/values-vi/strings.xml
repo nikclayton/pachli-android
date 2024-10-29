@@ -209,8 +209,6 @@
     <string name="post_privacy_followers_only">Chỉ người theo dõi</string>
     <string name="post_privacy_unlisted">Hạn chế</string>
     <string name="post_privacy_public">Công khai</string>
-    <string name="pref_main_nav_position_option_bottom">Dưới màn hình</string>
-    <string name="pref_main_nav_position_option_top">Trên màn hình</string>
     <string name="pref_main_nav_position">Vị trí menu</string>
     <string name="pref_failed_to_sync">Đồng bộ hoá thất bại</string>
     <string name="pref_publishing">Đăng (đồng bộ với máy chủ)</string>
@@ -385,7 +383,6 @@
     <string name="title_announcements">Có gì mới\?</string>
     <string name="wellbeing_hide_stats_profile">Ẩn số liệu trên trang hồ sơ</string>
     <string name="wellbeing_hide_stats_posts">Ẩn số liệu trên tút</string>
-    <string name="limit_notifications">Giảm bớt thông báo</string>
     <string name="review_notifications">Chọn loại thông báo</string>
     <string name="wellbeing_mode_notice">Các thông tin ảnh hưởng tới tâm lý hành vi của bạn sẽ bị ẩn. Bao gồm:
 \n
@@ -447,9 +444,6 @@
     <string name="action_set_focus">Chọn tâm điểm</string>
     <string name="set_focus_description">Nhấn hoặc kéo vòng tròn để chọn tiêu điểm sẽ hiển thị trong hình thu nhỏ.</string>
     <string name="pref_title_show_self_username">Hiện URL của tôi trên tab</string>
-    <string name="pref_show_self_username_always">Luôn luôn</string>
-    <string name="pref_show_self_username_disambiguate">Khi đăng nhập nhiều tài khoản</string>
-    <string name="pref_show_self_username_never">Không hiện</string>
     <string name="delete_scheduled_post_warning">Bạn có chắc muốn xóa tút đã lên lịch\?</string>
     <string name="compose_save_draft_loses_media">Lưu bản nháp\? (Bạn sẽ cần tải lên lại file đính kèm)</string>
     <string name="failed_to_unpin">Không thể bỏ ghim</string>
@@ -524,7 +518,7 @@
     <string name="ui_success_accepted_follow_request">Đã chấp nhận yêu cầu theo dõi</string>
     <string name="ui_success_rejected_follow_request">Đã từ chối yêu cầu theo dõi</string>
     <string name="status_filtered_show_anyway">Vẫn hiện</string>
-    <string name="status_filter_placeholder_label_format">Đã lọc: &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">Đã lọc: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Người</string>
     <string name="hint_filter_title">Bộ lọc của tôi</string>
     <string name="label_filter_title">Tên bộ lọc</string>
@@ -541,9 +535,7 @@
     <string name="filter_edit_keyword_title">Sửa từ</string>
     <string name="filter_description_format">%s: %s</string>
     <string name="pref_title_show_stat_inline">Hiện số tương tác trên tút</string>
-    <string name="help_empty_home">Đây là <b>bảng tin của bạn</b>. Nó sẽ hiện những tút gần đây từ những người bạn theo dõi.
-\n
-\nĐể khám phá mọi người, bạn có thể xem qua ở các bảng tin khác. Ví dụ: [iconics gmd_group] Bảng tin máy chủ của bạn. Hoặc bạn cũng có thể [iconics gmd_search] tìm theo tên người dùng; ví dụ như Pachli.</string>
+    <string name="help_empty_home">Đây là <b>bảng tin của bạn</b>. Nó sẽ hiện những tút gần đây từ những người bạn theo dõi. \n \nĐể khám phá mọi người, bạn có thể xem qua ở các bảng tin khác. Ví dụ: [iconics gmd_group] Bảng tin máy chủ của bạn. Hoặc bạn cũng có thể [iconics gmd_search] tìm theo tên người dùng; ví dụ như Pachli.</string>
     <string name="hint_description">Mô tả</string>
     <string name="post_media_image">Hình ảnh</string>
     <string name="select_list_manage">Quản lý danh sách</string>

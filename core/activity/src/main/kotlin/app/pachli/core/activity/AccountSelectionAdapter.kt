@@ -22,13 +22,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import androidx.preference.PreferenceManager
 import app.pachli.core.activity.databinding.ItemAutocompleteAccountBinding
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.preferences.PrefKeys
 
-class AccountSelectionAdapter(context: Context) : ArrayAdapter<AccountEntity>(context, R.layout.item_autocomplete_account) {
+class AccountSelectionAdapter(
+    context: Context,
+    private val animateAvatars: Boolean,
+    private val animateEmojis: Boolean,
+) : ArrayAdapter<AccountEntity>(context, R.layout.item_autocomplete_account) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val binding = if (convertView == null) {
@@ -39,17 +41,13 @@ class AccountSelectionAdapter(context: Context) : ArrayAdapter<AccountEntity>(co
 
         val account = getItem(position)
         if (account != null) {
-            val pm = PreferenceManager.getDefaultSharedPreferences(binding.avatar.context)
-            val animateEmojis = pm.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
-
             binding.username.text = account.fullName
             binding.displayName.text = account.displayName.emojify(account.emojis, binding.displayName, animateEmojis)
             binding.avatarBadge.visibility = View.GONE // We never want to display the bot badge here
 
             val avatarRadius = context.resources.getDimensionPixelSize(DR.dimen.avatar_radius_42dp)
-            val animateAvatar = pm.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
 
-            loadAvatar(account.profilePictureUrl, binding.avatar, avatarRadius, animateAvatar)
+            loadAvatar(account.profilePictureUrl, binding.avatar, avatarRadius, animateAvatars)
         }
 
         return binding.root

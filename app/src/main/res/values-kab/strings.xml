@@ -242,7 +242,6 @@
     <string name="translation_provider_fmt">%1$s</string>
     <string name="hint_description">Aglam</string>
     <string name="label_image">Tugna</string>
-    <string name="pref_show_self_username_never">Werǧin</string>
     <string name="post_media_audio">Imesli</string>
     <string name="status_count_one_plus">1+</string>
     <string name="status_created_at_now">tura</string>
@@ -274,8 +273,6 @@
     <string name="post_media_alt">ALT</string>
     <string name="action_post_failed_do_nothing">Zgel</string>
     <string name="pref_summary_http_proxy_disabled">Yensa</string>
-    <string name="pref_main_nav_position_option_top">Afella</string>
-    <string name="pref_main_nav_position_option_bottom">Adda</string>
     <string name="label_duration">Tanzagt</string>
     <string name="duration_indefinite">War talast</string>
     <string name="action_subscribe_account">Ḍfeṛ</string>

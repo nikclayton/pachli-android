@@ -27,6 +27,7 @@ import app.pachli.interfaces.StatusActionListener
 import app.pachli.viewdata.StatusViewData
 
 class SearchStatusesAdapter(
+    private val pachliAccountId: Long,
     private val statusDisplayOptions: StatusDisplayOptions,
     private val statusListener: StatusActionListener<StatusViewData>,
 ) : PagingDataAdapter<StatusViewData, StatusViewHolder<StatusViewData>>(STATUS_COMPARATOR) {
@@ -39,7 +40,7 @@ class SearchStatusesAdapter(
 
     override fun onBindViewHolder(holder: StatusViewHolder<StatusViewData>, position: Int) {
         getItem(position)?.let { item ->
-            holder.setupWithStatus(item, statusListener, statusDisplayOptions)
+            holder.setupWithStatus(pachliAccountId, item, statusListener, statusDisplayOptions)
         }
     }
 

@@ -19,11 +19,10 @@ package app.pachli.core.data.repository
 
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
-import app.pachli.core.accounts.AccountManager
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.database.model.AccountEntity
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
 import app.pachli.core.preferences.CardViewMode
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
@@ -164,7 +163,7 @@ class StatusDisplayOptionsRepository @Inject constructor(
                 result.onSuccess { server ->
                     _flow.update {
                         it.copy(
-                            canTranslate = server?.can(ORG_JOINMASTODON_STATUSES_TRANSLATE, ">=1.0".toConstraint()) ?: false,
+                            canTranslate = server.can(ORG_JOINMASTODON_STATUSES_TRANSLATE, ">=1.0".toConstraint()),
                         )
                     }
                 }
@@ -176,8 +175,8 @@ class StatusDisplayOptionsRepository @Inject constructor(
     @VisibleForTesting(otherwise = PRIVATE)
     fun initialStatusDisplayOptions(account: AccountEntity? = null): StatusDisplayOptions {
         return StatusDisplayOptions(
-            animateAvatars = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, default.animateAvatars),
-            animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, default.animateEmojis),
+            animateAvatars = sharedPreferencesRepository.animateAvatars,
+            animateEmojis = sharedPreferencesRepository.animateEmojis,
             mediaPreviewEnabled = account?.mediaPreviewEnabled ?: default.mediaPreviewEnabled,
             useAbsoluteTime = sharedPreferencesRepository.getBoolean(PrefKeys.ABSOLUTE_TIME_VIEW, default.useAbsoluteTime),
             showBotOverlay = sharedPreferencesRepository.getBoolean(PrefKeys.SHOW_BOT_OVERLAY, default.showBotOverlay),

@@ -14,4 +14,18 @@
     <string name="tab_tap_behaviour_jump_to_next_page">Hoppa till nästa sida</string>
     <string name="tab_tap_behaviour_jump_to_newest">Hoppa till nytt innehåll</string>
     <string name="pref_category_tabs">Flikar</string>
+    <string name="pref_main_nav_position_option_top">Topp</string>
+    <string name="pref_main_nav_position_option_bottom">Botten</string>
+    <string name="pref_show_self_username_always">Alltid</string>
+    <string name="pref_show_self_username_disambiguate">När flera konton är inloggade</string>
+    <string name="pref_show_self_username_never">Aldrig</string>
+    <string name="pref_title_tab_alignment">Align main navigation flikar</string>
+    <string name="pref_tab_alignment_start">Start av text riktning</string>
+    <string name="pref_tab_alignment_justify_if_possible">Expandera till full bredd</string>
+    <string name="pref_title_tab_contents">Innehåll av huvudnavigationsflikar</string>
+    <string name="pref_tab_contents_icon_text_inline">Ikon med text bredvid</string>
+    <string name="pref_tab_contents_icon_text_below">Ikon med text nedan</string>
+    <string name="pref_tab_alignment_end">Slut på text riktning</string>
+    <string name="pref_tab_contents_icon_only">Endast ikon</string>
+    <string name="pref_tab_contents_text_only">Endast text</string>
 </resources>

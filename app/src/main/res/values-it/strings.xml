@@ -420,8 +420,6 @@
     <string name="no_scheduled_posts">Non hai messaggi programmati.</string>
     <string name="pref_title_enable_swipe_for_tabs">Abilita il gesto di scorrimento per passare da una scheda all\'altra</string>
     <string name="notification_follow_request_description">Notifiche sulle richieste di essere seguiti</string>
-    <string name="pref_main_nav_position_option_bottom">In fondo</string>
-    <string name="pref_main_nav_position_option_top">In cima</string>
     <string name="pref_main_nav_position">Posizione barra di navigazione</string>
     <string name="pref_title_gradient_for_media">Mostra gradienti colorati per i media nascosti</string>
     <string name="dialog_mute_hide_notifications">Nascondi notifiche</string>
@@ -429,7 +427,6 @@
     <string name="pref_title_notification_filter_follow_requests">mi viene richiesto di seguirmi</string>
     <string name="wellbeing_hide_stats_profile">Nascondi le statistiche sui profili</string>
     <string name="wellbeing_hide_stats_posts">Nascondi le statistiche sui post</string>
-    <string name="limit_notifications">Limita le notifiche della timeline</string>
     <string name="review_notifications">Rivedi le notifiche</string>
     <string name="pref_title_wellbeing_mode">Benessere</string>
     <string name="notification_subscription_description">Notifiche di nuovi messaggi di qualcuno a cui sei iscritto</string>
@@ -495,9 +492,6 @@
     <string name="set_focus_description">Tappa o crea un cerchio per scegliere il punto focale che sarà sempre visibile nelle anteprime.</string>
     <string name="action_set_focus">Imposta punto focale</string>
     <string name="description_post_language">Lingua del post</string>
-    <string name="pref_show_self_username_always">Sempre</string>
-    <string name="pref_show_self_username_never">Mai</string>
-    <string name="pref_show_self_username_disambiguate">Quando connesso con più account</string>
     <string name="duration_no_change">(nessuna modifica)</string>
     <string name="pref_title_show_self_username">Mostra nome utente nella barra strumenti</string>
     <string name="compose_save_draft_loses_media">Salvare bozza? (gli allegati verranno ricaricati quando ripristini la bozza.)</string>
@@ -559,9 +553,7 @@
     <string name="total_usage">Utilizzo totale</string>
     <string name="total_accounts">Account totali</string>
     <string name="title_public_trending_hashtags">Hashtag di tendenza</string>
-    <string name="help_empty_home">Questa è la tua <b>Timeline principale</b>. Mostra i post più recenti degli account che segui.
-\n
-\nPer esplorare gli account puoi scoprirli in una delle altre timeline. Per esempio la timeline locale della tua istanza [iconica gmd_group]. O puoi cercarli per nome [iconica gmd_search]; per esempio cerca “Pachli” per trovare il nostro account Mastodon.</string>
+    <string name="help_empty_home">Questa è la tua <b>Timeline principale</b>. Mostra i post più recenti degli account che segui. \n \nPer esplorare gli account puoi scoprirli in una delle altre timeline. Per esempio la timeline locale della tua istanza [iconica gmd_group]. O puoi cercarli per nome [iconica gmd_search]; per esempio cerca “Pachli” per trovare il nostro account Mastodon.</string>
     <string name="hint_description">Descrizione</string>
     <string name="notification_unknown_name">Sconosciuto</string>
     <string name="post_media_image">Immagine</string>
@@ -583,7 +575,7 @@
     <string name="select_list_manage">Gestisci liste</string>
     <string name="error_list_load">Errore nel caricamento delle liste</string>
     <string name="status_filtered_show_anyway">Mostra comunque</string>
-    <string name="status_filter_placeholder_label_format">Filtrato: &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">Filtrato: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Profili</string>
     <string name="hint_filter_title">I miei filtri</string>
     <string name="action_add">Aggiungi</string>

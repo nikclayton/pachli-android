@@ -66,6 +66,7 @@ import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.extensions.visible
+import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.AccountActivityIntent
@@ -76,6 +77,7 @@ import app.pachli.core.navigation.EditProfileActivityIntent
 import app.pachli.core.navigation.ReportActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.ViewMediaActivityIntent
+import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Relationship
 import app.pachli.core.network.parseAsMastodonHtml
@@ -150,8 +152,8 @@ class AccountActivity :
     private var subscribing: Boolean = false
     private var loadedAccount: Account? = null
 
-    private var animateAvatar: Boolean = false
-    private var animateEmojis: Boolean = false
+    private val animateAvatar by unsafeLazy { sharedPreferencesRepository.animateAvatars }
+    private val animateEmojis by unsafeLazy { sharedPreferencesRepository.animateEmojis }
 
     // fields for scroll animation
     private var hideFab: Boolean = false
@@ -198,8 +200,6 @@ class AccountActivity :
         // Obtain information to fill out the profile.
         viewModel.setAccountInfo(AccountActivityIntent.getAccountId(intent))
 
-        animateAvatar = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
-        animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
         hideFab = sharedPreferencesRepository.getBoolean(PrefKeys.FAB_HIDE, false)
 
         handleWindowInsets()
@@ -252,7 +252,7 @@ class AccountActivity :
                 R.id.accountFollowing -> AccountListActivityIntent.Kind.FOLLOWS
                 else -> throw AssertionError()
             }
-            val accountListIntent = AccountListActivityIntent(this, kind, viewModel.accountId)
+            val accountListIntent = AccountListActivityIntent(this, intent.pachliAccountId, kind, viewModel.accountId)
             startActivityWithDefaultTransition(accountListIntent)
         }
         binding.accountFollowers.setOnClickListener(accountListClickListener)
@@ -281,7 +281,7 @@ class AccountActivity :
      */
     private fun setupTabs() {
         // Setup the tabs and timeline pager.
-        adapter = AccountPagerAdapter(this, viewModel.accountId)
+        adapter = AccountPagerAdapter(this, intent.pachliAccountId, viewModel.accountId)
 
         binding.accountFragmentViewPager.reduceSwipeSensitivity()
         binding.accountFragmentViewPager.adapter = adapter
@@ -296,8 +296,7 @@ class AccountActivity :
         val pageMargin = resources.getDimensionPixelSize(DR.dimen.tab_page_margin)
         binding.accountFragmentViewPager.setPageTransformer(MarginPageTransformer(pageMargin))
 
-        val enableSwipeForTabs = sharedPreferencesRepository.getBoolean(PrefKeys.ENABLE_SWIPE_FOR_TABS, true)
-        binding.accountFragmentViewPager.isUserInputEnabled = enableSwipeForTabs
+        binding.accountFragmentViewPager.isUserInputEnabled = sharedPreferencesRepository.enableTabSwipe
 
         binding.accountTabLayout.addOnTabSelectedListener(
             object : TabLayout.OnTabSelectedListener {
@@ -579,7 +578,7 @@ class AccountActivity :
     private fun viewImage(view: View, owningUsername: String, uri: String) {
         ViewCompat.setTransitionName(view, uri)
         startActivity(
-            ViewMediaActivityIntent(view.context, owningUsername, uri),
+            ViewMediaActivityIntent(view.context, intent.pachliAccountId, owningUsername, uri),
             ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, uri).toBundle(),
         )
     }
@@ -645,7 +644,7 @@ class AccountActivity :
 
             binding.accountFollowButton.setOnClickListener {
                 if (viewModel.isSelf) {
-                    val intent = EditProfileActivityIntent(this@AccountActivity)
+                    val intent = EditProfileActivityIntent(this@AccountActivity, intent.pachliAccountId)
                     startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     return@setOnClickListener
                 }
@@ -975,17 +974,17 @@ class AccountActivity :
     }
 
     override fun onViewTag(tag: String) {
-        val intent = TimelineActivityIntent.hashtag(this, tag)
+        val intent = TimelineActivityIntent.hashtag(this, intent.pachliAccountId, tag)
         startActivityWithDefaultTransition(intent)
     }
 
     override fun onViewAccount(id: String) {
-        val intent = AccountActivityIntent(this, id)
+        val intent = AccountActivityIntent(this, intent.pachliAccountId, id)
         startActivityWithDefaultTransition(intent)
     }
 
     override fun onViewUrl(url: String) {
-        viewUrl(url)
+        viewUrl(intent.pachliAccountId, url)
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
@@ -1044,7 +1043,7 @@ class AccountActivity :
                 return true
             }
             R.id.action_add_or_remove_from_list -> {
-                ListsForAccountFragment.newInstance(viewModel.accountId).show(supportFragmentManager, null)
+                ListsForAccountFragment.newInstance(intent.pachliAccountId, viewModel.accountId).show(supportFragmentManager, null)
                 return true
             }
             R.id.action_mute_domain -> {
@@ -1062,7 +1061,7 @@ class AccountActivity :
             }
             R.id.action_report -> {
                 loadedAccount?.let { loadedAccount ->
-                    startActivity(ReportActivityIntent(this, viewModel.accountId, loadedAccount.username))
+                    startActivity(ReportActivityIntent(this, intent.pachliAccountId, viewModel.accountId, loadedAccount.username))
                 }
                 return true
             }

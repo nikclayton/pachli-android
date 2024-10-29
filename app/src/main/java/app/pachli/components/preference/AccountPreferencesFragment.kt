@@ -30,15 +30,15 @@ import app.pachli.BuildConfig
 import app.pachli.R
 import app.pachli.appstore.EventHub
 import app.pachli.components.notifications.activeAccountNeedsPushScope
-import app.pachli.core.accounts.AccountManager
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.util.unsafeLazy
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.AccountPreferenceDataStore
-import app.pachli.core.data.repository.FiltersRepository
+import app.pachli.core.data.repository.ContentFiltersRepository
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.AccountListActivityIntent
-import app.pachli.core.navigation.FiltersActivityIntent
+import app.pachli.core.navigation.ContentFiltersActivityIntent
 import app.pachli.core.navigation.FollowedTagsActivityIntent
 import app.pachli.core.navigation.InstanceListActivityIntent
 import app.pachli.core.navigation.LoginActivityIntent
@@ -66,6 +66,7 @@ import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -81,7 +82,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
     lateinit var mastodonApi: MastodonApi
 
     @Inject
-    lateinit var filtersRepository: FiltersRepository
+    lateinit var contentFiltersRepository: ContentFiltersRepository
 
     @Inject
     lateinit var eventHub: EventHub
@@ -98,6 +99,13 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
      */
     private lateinit var filterPreference: Preference
 
+    private var pachliAccountId by Delegates.notNull<Long>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pachliAccountId = requireArguments().getLong(ARG_PACHLI_ACCOUNT_ID)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -105,7 +113,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 // FiltersRespository. filterPreferences is safe to access here,
                 // it was populated in onCreatePreferences, called by onCreate
                 // before onViewCreated is called.
-                filtersRepository.filters.collect { filters ->
+                contentFiltersRepository.contentFilters.collect { filters ->
                     filterPreference.isEnabled = filters is Ok
                 }
             }
@@ -129,7 +137,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 setTitle(R.string.title_tab_preferences)
                 setIcon(R.drawable.ic_add_to_tab_24)
                 setOnPreferenceClickListener {
-                    val intent = TabPreferenceActivityIntent(context)
+                    val intent = TabPreferenceActivityIntent(context, pachliAccountId)
                     activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     true
                 }
@@ -139,7 +147,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 setTitle(R.string.title_followed_hashtags)
                 setIcon(R.drawable.ic_hashtag)
                 setOnPreferenceClickListener {
-                    val intent = FollowedTagsActivityIntent(context)
+                    val intent = FollowedTagsActivityIntent(context, pachliAccountId)
                     activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     true
                 }
@@ -149,7 +157,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 setTitle(R.string.action_view_mutes)
                 setIcon(R.drawable.ic_mute_24dp)
                 setOnPreferenceClickListener {
-                    val intent = AccountListActivityIntent(context, AccountListActivityIntent.Kind.MUTES)
+                    val intent = AccountListActivityIntent(context, pachliAccountId, AccountListActivityIntent.Kind.MUTES)
                     activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     true
                 }
@@ -159,7 +167,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 setTitle(R.string.action_view_blocks)
                 icon = makeIcon(GoogleMaterial.Icon.gmd_block)
                 setOnPreferenceClickListener {
-                    val intent = AccountListActivityIntent(context, AccountListActivityIntent.Kind.BLOCKS)
+                    val intent = AccountListActivityIntent(context, pachliAccountId, AccountListActivityIntent.Kind.BLOCKS)
                     activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     true
                 }
@@ -187,16 +195,19 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 }
             }
 
-            filterPreference = preference {
-                setTitle(R.string.pref_title_timeline_filters)
-                setIcon(R.drawable.ic_filter_24dp)
-                setOnPreferenceClickListener {
-                    val intent = FiltersActivityIntent(requireContext())
-                    activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
-                    true
-                }
-                setSummaryProvider {
-                    if (it.isEnabled) "" else context.getString(R.string.pref_summary_timeline_filters)
+            preferenceCategory(R.string.pref_title_timeline_filters) {
+                it.icon = makeIcon(GoogleMaterial.Icon.gmd_filter_alt)
+
+                filterPreference = preference {
+                    setTitle(R.string.pref_title_content_filters)
+                    setOnPreferenceClickListener {
+                        val intent = ContentFiltersActivityIntent(requireContext(), pachliAccountId)
+                        activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+                        true
+                    }
+                    setSummaryProvider {
+                        if (it.isEnabled) "" else context.getString(R.string.pref_summary_content_filters)
+                    }
                 }
             }
 
@@ -297,15 +308,16 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
             val intent = Intent()
             intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
             intent.putExtra("android.provider.extra.APP_PACKAGE", BuildConfig.APPLICATION_ID)
-            requireActivity().startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+            requireActivity().startActivity(intent)
         } else {
-            val intent = PreferencesActivityIntent(requireContext(), PreferenceScreen.NOTIFICATION)
+            val intent = PreferencesActivityIntent(requireContext(), pachliAccountId, PreferenceScreen.NOTIFICATION)
             requireActivity().startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
         }
     }
 
     private fun syncWithServer(visibility: String? = null, sensitive: Boolean? = null, language: String? = null) {
-        // TODO these could also be "datastore backed" preferences (a ServerPreferenceDataStore); follow-up of issue #3204
+        // TODO these could also be "datastore backed" preferences (a ServerPreferenceDataStore);
+        //  follow-up of issue #3204
 
         mastodonApi.accountUpdateSource(visibility, sensitive, language)
             .enqueue(
@@ -352,6 +364,14 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
     }
 
     companion object {
-        fun newInstance() = AccountPreferencesFragment()
+        private const val ARG_PACHLI_ACCOUNT_ID = "app.pachli.ARG_PACHLI_ACCOUNT_ID"
+
+        fun newInstance(pachliAccountId: Long): AccountPreferencesFragment {
+            val fragment = AccountPreferencesFragment()
+            fragment.arguments = Bundle(1).apply {
+                putLong(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
+            }
+            return fragment
+        }
     }
 }

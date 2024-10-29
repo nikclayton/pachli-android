@@ -48,7 +48,7 @@ import app.pachli.core.domain.DownloadUrlUseCase
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
-import app.pachli.core.navigation.EditFilterActivityIntent
+import app.pachli.core.navigation.EditContentFilterActivityIntent
 import app.pachli.core.navigation.ReportActivityIntent
 import app.pachli.core.navigation.ViewMediaActivityIntent
 import app.pachli.core.network.model.Attachment
@@ -85,10 +85,10 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
             MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
         )
         binding.searchRecyclerView.layoutManager = LinearLayoutManager(binding.searchRecyclerView.context)
-        return SearchStatusesAdapter(statusDisplayOptions, this)
+        return SearchStatusesAdapter(viewModel.activeAccount!!.id, statusDisplayOptions, this)
     }
 
-    override fun onContentHiddenChange(viewData: StatusViewData, isShowing: Boolean) {
+    override fun onContentHiddenChange(pachliAccountId: Long, viewData: StatusViewData, isShowing: Boolean) {
         viewModel.contentHiddenChange(viewData, isShowing)
     }
 
@@ -115,6 +115,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                 val attachments = AttachmentViewData.list(actionable)
                 val intent = ViewMediaActivityIntent(
                     requireContext(),
+                    pachliAccountId,
                     actionable.account.username,
                     attachments,
                     attachmentIndex,
@@ -140,18 +141,18 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
 
     override fun onViewThread(status: Status) {
         val actionableStatus = status.actionableStatus
-        bottomSheetActivity?.viewThread(actionableStatus.id, actionableStatus.url)
+        bottomSheetActivity?.viewThread(pachliAccountId, actionableStatus.id, actionableStatus.url)
     }
 
     override fun onOpenReblog(status: Status) {
-        bottomSheetActivity?.viewAccount(status.account.id)
+        bottomSheetActivity?.viewAccount(pachliAccountId, status.account.id)
     }
 
-    override fun onExpandedChange(viewData: StatusViewData, expanded: Boolean) {
+    override fun onExpandedChange(pachliAccountId: Long, viewData: StatusViewData, expanded: Boolean) {
         viewModel.expandedChange(viewData, expanded)
     }
 
-    override fun onContentCollapsedChange(viewData: StatusViewData, isCollapsed: Boolean) {
+    override fun onContentCollapsedChange(pachliAccountId: Long, viewData: StatusViewData, isCollapsed: Boolean) {
         viewModel.collapsedChange(viewData, isCollapsed)
     }
 
@@ -159,21 +160,17 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         viewModel.voteInPoll(viewData, poll, choices)
     }
 
-    override fun clearWarningAction(viewData: StatusViewData) {}
+    override fun clearWarningAction(pachliAccountId: Long, viewData: StatusViewData) {}
 
     override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
         viewModel.reblog(viewData, reblog)
     }
 
-    override fun onEditFilterById(filterId: String) {
+    override fun onEditFilterById(pachliAccountId: Long, filterId: String) {
         requireActivity().startActivityWithTransition(
-            EditFilterActivityIntent.edit(requireContext(), filterId),
+            EditContentFilterActivityIntent.edit(requireContext(), pachliAccountId, filterId),
             TransitionKind.SLIDE_FROM_END,
         )
-    }
-
-    companion object {
-        fun newInstance() = SearchStatusesFragment()
     }
 
     private fun reply(status: StatusViewData) {
@@ -399,7 +396,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
     }
 
     private fun openReportPage(accountId: String, accountUsername: String, statusId: String) {
-        startActivity(ReportActivityIntent(requireContext(), accountId, accountUsername, statusId))
+        startActivity(ReportActivityIntent(requireContext(), this.pachliAccountId, accountId, accountUsername, statusId))
     }
 
     // TODO: Identical to the same function in SFragment.kt
@@ -487,6 +484,12 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                     ).show()
                 },
             )
+        }
+    }
+
+    companion object {
+        fun newInstance(pachliAccountId: Long): SearchStatusesFragment {
+            return SearchFragment.newInstance(pachliAccountId)
         }
     }
 }

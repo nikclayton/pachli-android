@@ -25,7 +25,7 @@ import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.adapter.StatusDetailedViewHolder
 import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.data.model.StatusDisplayOptions
-import app.pachli.core.network.model.Filter
+import app.pachli.core.model.FilterAction
 import app.pachli.databinding.ItemStatusBinding
 import app.pachli.databinding.ItemStatusDetailedBinding
 import app.pachli.databinding.ItemStatusWrapperBinding
@@ -33,6 +33,7 @@ import app.pachli.interfaces.StatusActionListener
 import app.pachli.viewdata.StatusViewData
 
 class ThreadAdapter(
+    private val pachliAccountId: Long,
     private val statusDisplayOptions: StatusDisplayOptions,
     private val statusActionListener: StatusActionListener<StatusViewData>,
 ) : ListAdapter<StatusViewData, StatusBaseViewHolder<StatusViewData>>(ThreadDifferCallback) {
@@ -55,14 +56,14 @@ class ThreadAdapter(
 
     override fun onBindViewHolder(viewHolder: StatusBaseViewHolder<StatusViewData>, position: Int) {
         val status = getItem(position)
-        viewHolder.setupWithStatus(status, statusActionListener, statusDisplayOptions)
+        viewHolder.setupWithStatus(pachliAccountId, status, statusActionListener, statusDisplayOptions)
     }
 
     override fun getItemViewType(position: Int): Int {
         val viewData = getItem(position)
         return if (viewData.isDetailed) {
             VIEW_TYPE_STATUS_DETAILED
-        } else if (viewData.filterAction == Filter.Action.WARN) {
+        } else if (viewData.filterAction == FilterAction.WARN) {
             VIEW_TYPE_STATUS_FILTERED
         } else {
             VIEW_TYPE_STATUS

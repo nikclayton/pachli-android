@@ -17,29 +17,32 @@
 
 package app.pachli.core.network
 
-import app.pachli.core.network.ServerKind.AKKOMA
-import app.pachli.core.network.ServerKind.FIREFISH
-import app.pachli.core.network.ServerKind.FRIENDICA
-import app.pachli.core.network.ServerKind.GOTOSOCIAL
-import app.pachli.core.network.ServerKind.MASTODON
-import app.pachli.core.network.ServerKind.PLEROMA
-import app.pachli.core.network.ServerKind.UNKNOWN
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_FILTERS_CLIENT
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_FILTERS_SERVER
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_FROM
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_AUDIO
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_EMBED
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_IMAGE
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_LINK
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_MEDIA
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_POLL
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_VIDEO
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IN_LIBRARY
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_REPLY
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_SENSITIVE
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_LANGUAGE
-import app.pachli.core.network.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
+import app.pachli.core.model.NodeInfo
+import app.pachli.core.model.ServerKind
+import app.pachli.core.model.ServerKind.AKKOMA
+import app.pachli.core.model.ServerKind.FIREFISH
+import app.pachli.core.model.ServerKind.FRIENDICA
+import app.pachli.core.model.ServerKind.GOTOSOCIAL
+import app.pachli.core.model.ServerKind.MASTODON
+import app.pachli.core.model.ServerKind.PLEROMA
+import app.pachli.core.model.ServerKind.UNKNOWN
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_FILTERS_CLIENT
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_FILTERS_SERVER
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_FROM
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_AUDIO
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_EMBED
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_IMAGE
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_LINK
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_MEDIA
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_POLL
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_VIDEO
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IN_LIBRARY
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_REPLY
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_SENSITIVE
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_LANGUAGE
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_SCHEDULED
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Configuration
 import app.pachli.core.network.model.Contact
@@ -54,7 +57,6 @@ import app.pachli.core.network.model.Registrations
 import app.pachli.core.network.model.Thumbnail
 import app.pachli.core.network.model.Usage
 import app.pachli.core.network.model.Users
-import app.pachli.core.network.model.nodeinfo.NodeInfo
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.google.common.truth.Truth.assertWithMessage
@@ -147,6 +149,7 @@ class ServerTest(
                                 ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
                                 ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_SEARCH_QUERY_FROM to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                             ),
                         ),
                     ),
@@ -169,6 +172,7 @@ class ServerTest(
                                 ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
                                 ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_SEARCH_QUERY_FROM to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_STATUSES_TRANSLATE to "1.0.0".toVersion(),
                             ),
                         ),
@@ -204,6 +208,7 @@ class ServerTest(
                                 ORG_JOINMASTODON_SEARCH_QUERY_IS_SENSITIVE to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_SEARCH_QUERY_IN_LIBRARY to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_STATUSES_TRANSLATE to "1.1.0".toVersion(),
                             ),
                         ),
@@ -211,7 +216,7 @@ class ServerTest(
                 ),
                 arrayOf(
                     Triple(
-                        "GoToSocial has no translation or filtering",
+                        "GoToSocial has no translation, filtering, or scheduling",
                         NodeInfo.Software("gotosocial", "0.13.1 git-ccecf5a"),
                         defaultInstance,
                     ),
@@ -259,7 +264,7 @@ class ServerTest(
                 ),
                 arrayOf(
                     Triple(
-                        "Pleroma can filter",
+                        "Pleroma can filter, schedule",
                         NodeInfo.Software("pleroma", "2.6.50-875-g2eb5c453.service-origin+soapbox"),
                         defaultInstance,
                     ),
@@ -269,13 +274,14 @@ class ServerTest(
                             version = "2.6.50-875-g2eb5c453.service-origin+soapbox".toVersion(),
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                             ),
                         ),
                     ),
                 ),
                 arrayOf(
                     Triple(
-                        "Akkoma can filter",
+                        "Akkoma can filter, schedule",
                         NodeInfo.Software("akkoma", "3.9.3-0-gd83f5f66f-blob"),
                         defaultInstance,
                     ),
@@ -285,6 +291,7 @@ class ServerTest(
                             version = "3.9.3-0-gd83f5f66f-blob".toVersion(),
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                             ),
                         ),
                     ),
@@ -305,7 +312,7 @@ class ServerTest(
                 ),
                 arrayOf(
                     Triple(
-                        "Friendica can filter",
+                        "Friendica can filter, schedule",
                         NodeInfo.Software("friendica", "2023.05-1542"),
                         defaultInstance,
                     ),
@@ -315,6 +322,7 @@ class ServerTest(
                             version = "2023.5.0".toVersion(),
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                             ),
                         ),
                     ),

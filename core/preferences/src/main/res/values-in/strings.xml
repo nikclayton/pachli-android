@@ -14,4 +14,18 @@
     <string name="tab_tap_behaviour_jump_to_next_page">Login</string>
     <string name="tab_tap_behaviour_jump_to_newest">Langsung ke konten terbaru</string>
     <string name="pref_category_tabs">Tab</string>
+    <string name="pref_main_nav_position_option_top">Atas</string>
+    <string name="pref_main_nav_position_option_bottom">Bawah</string>
+    <string name="pref_show_self_username_always">Selalu</string>
+    <string name="pref_show_self_username_never">Jangan Pernah</string>
+    <string name="pref_show_self_username_disambiguate">Ketika beberapa akun masuk</string>
+    <string name="pref_tab_alignment_start">Mulai dari arah teks</string>
+    <string name="pref_tab_alignment_justify_if_possible">Perluas lebar penuh</string>
+    <string name="pref_tab_alignment_end">Akhir arah teks</string>
+    <string name="pref_title_tab_contents">Konten tab navigasi utama</string>
+    <string name="pref_tab_contents_icon_text_inline">Login</string>
+    <string name="pref_tab_contents_icon_text_below">Login</string>
+    <string name="pref_title_tab_alignment">Align tab navigasi utama</string>
+    <string name="pref_tab_contents_icon_only">Hanya Ikon</string>
+    <string name="pref_tab_contents_text_only">Hanya teks</string>
 </resources>

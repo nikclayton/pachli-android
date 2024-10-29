@@ -23,7 +23,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.map
-import app.pachli.core.accounts.AccountManager
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.database.Converters
 import app.pachli.core.database.dao.ConversationsDao
 import app.pachli.core.database.di.TransactionProvider
@@ -136,30 +136,30 @@ class ConversationsViewModel @Inject constructor(
         }
     }
 
-    fun expandHiddenStatus(expanded: Boolean, lastStatusId: String) {
+    fun expandHiddenStatus(pachliAccountId: Long, expanded: Boolean, lastStatusId: String) {
         viewModelScope.launch {
             conversationsDao.setExpanded(
-                accountManager.activeAccount!!.id,
+                pachliAccountId,
                 lastStatusId,
                 expanded,
             )
         }
     }
 
-    fun collapseLongStatus(collapsed: Boolean, lastStatusId: String) {
+    fun collapseLongStatus(pachliAccountId: Long, collapsed: Boolean, lastStatusId: String) {
         viewModelScope.launch {
             conversationsDao.setCollapsed(
-                accountManager.activeAccount!!.id,
+                pachliAccountId,
                 lastStatusId,
                 collapsed,
             )
         }
     }
 
-    fun showContent(showingHiddenContent: Boolean, lastStatusId: String) {
+    fun showContent(pachliAccountId: Long, showingHiddenContent: Boolean, lastStatusId: String) {
         viewModelScope.launch {
             conversationsDao.setShowingHiddenContent(
-                accountManager.activeAccount!!.id,
+                pachliAccountId,
                 lastStatusId,
                 showingHiddenContent,
             )

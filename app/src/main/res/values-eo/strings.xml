@@ -397,8 +397,6 @@
     </plurals>
     <string name="pref_main_nav_position">Pozicio de la ĉefa naviga breto</string>
     <string name="pref_title_notification_filter_follow_requests">iu petas sekvi min</string>
-    <string name="pref_main_nav_position_option_bottom">Malsupro</string>
-    <string name="pref_main_nav_position_option_top">Supro</string>
     <string name="account_note_saved">Konservita!</string>
     <string name="account_note_hint">Via privata noto pri ĉi tiu konto</string>
     <string name="pref_title_hide_top_toolbar">Kaŝi la titolon de la supra ilobreto</string>
@@ -440,7 +438,6 @@
 \n
 \n Sciigoj ne estos influitaj, sed vi povas kontroli viajn agordojn pri sciigojn permane.</string>
     <string name="review_notifications">Kontroli la sciigojn</string>
-    <string name="limit_notifications">Limigi sciigojn pri tempolinio</string>
     <string name="drafts_post_reply_removed">La mesaĝo, al kiu tiu ĉi malneto respondas, estis forigita</string>
     <string name="notification_sign_up_format">%s registriĝis</string>
     <string name="pref_title_notification_filter_sign_ups">iu registriĝis</string>
@@ -469,9 +466,6 @@
     <string name="delete_scheduled_post_warning">Ĉu forigi tiun planitan mesaĝon\?</string>
     <string name="duration_no_change">(Neniu ŝanĝo)</string>
     <string name="filter_expiration_format">%s (%s)</string>
-    <string name="pref_show_self_username_always">Ĉiam</string>
-    <string name="pref_show_self_username_disambiguate">Kiam vi uzas plurajn kontojn</string>
-    <string name="pref_show_self_username_never">Neniam</string>
     <string name="pref_title_show_self_username">Montri uzantnomon en ilobreto</string>
     <string name="description_post_language">Mesaĝolingvo</string>
 </resources>

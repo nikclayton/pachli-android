@@ -383,8 +383,6 @@
     <string name="add_hashtag_title">Legg til stikkord</string>
     <string name="notification_follow_request_format">%s ønsker å følge deg</string>
     <string name="pref_title_gradient_for_media">Vis fargerike gradienter for skjult media</string>
-    <string name="pref_main_nav_position_option_bottom">Bunn</string>
-    <string name="pref_main_nav_position_option_top">Topp</string>
     <string name="pref_main_nav_position">Plassering av hovednavigasjon</string>
     <string name="action_unmute_domain">Fjern demping av %s</string>
     <string name="dialog_mute_hide_notifications">Skjul varsler</string>
@@ -396,7 +394,6 @@
     <string name="title_announcements">Kunngjøringer</string>
     <string name="wellbeing_hide_stats_profile">Skjul kvantitativ informasjon på profiler</string>
     <string name="wellbeing_hide_stats_posts">Skjul kvantitativ statistikk på innleggene</string>
-    <string name="limit_notifications">Begrens tidslinjevarsler</string>
     <string name="review_notifications">Se over varsler</string>
     <string name="wellbeing_mode_notice">Informasjon som kan påvirke ditt mentale velvære vil bli skjult. Dette inkluderer:
 \n
@@ -458,9 +455,6 @@
     <string name="description_post_language">Innleggspråk</string>
     <string name="action_set_focus">Sett fokuspunkt</string>
     <string name="set_focus_description">Trykk eller dra sirkelen for å velge fokuspunktet som alltid skal være synlig i miniatyrbilder.</string>
-    <string name="pref_show_self_username_always">Alltid</string>
-    <string name="pref_show_self_username_disambiguate">Når flere konti er logget inn</string>
-    <string name="pref_show_self_username_never">Aldri</string>
     <string name="pref_title_show_self_username">Vis brukernavn på verktøylinjer</string>
     <string name="delete_scheduled_post_warning">Slette dette planlagte innlegget\?</string>
     <string name="compose_save_draft_loses_media">Lagre utkast\? (Vedlegg vil bli lastet opp igjen når du fortsetter å jobbe på utkastet.)</string>
@@ -486,9 +480,7 @@
     <string name="action_unfollow_hashtag_format">Slutte å følge #%s\?</string>
     <string name="confirmation_hashtag_unfollowed">Sluttet å følge #%s</string>
     <string name="a11y_label_loading_thread">Laster tråd</string>
-    <string name="help_empty_home">Dette er <b>Hjemmetidslinjen</b>din. Den viser de nyeste innleggene av kontoer du følger.
-\n
-\nFor å utforske kontoer kan du enten oppdage dem i en av tidslinjene dine, for eksempel den lokale tidslinjen for instansen din [iconics gmd_group], eller du kan søke etter navnet deres [iconics gmd_search]; søk for eksempel etter Pachli før å finne Mastodonkonten vår.</string>
+    <string name="help_empty_home">Dette er <b>Hjemmetidslinjen</b>din. Den viser de nyeste innleggene av kontoer du følger. \n \nFor å utforske kontoer kan du enten oppdage dem i en av tidslinjene dine, for eksempel den lokale tidslinjen for instansen din [iconics gmd_group], eller du kan søke etter navnet deres [iconics gmd_search]; søk for eksempel etter Pachli før å finne Mastodonkonten vår.</string>
     <string name="pref_ui_text_size">Skriftstørrelse for brukergrensesnitt</string>
     <string name="dialog_follow_hashtag_title">Følg emneknagger</string>
     <string name="dialog_follow_hashtag_hint">#emneknagg</string>
@@ -601,7 +593,7 @@
     <string name="notification_severed_relationships_user_domain_block_body">Du blokkerte instansen</string>
     <string name="action_translate">Oversett</string>
     <string name="action_translate_undo">Angre oversetting</string>
-    <string name="pref_summary_timeline_filters">Serveren din støtter ikke filtere</string>
+    <string name="pref_summary_content_filters">Serveren din støtter ikke filtere</string>
     <string name="notification_severed_relationships_description">Varslinger om brutte forhold</string>
     <string name="announcement_date_updated">(Oppdatert: %1$s)</string>
     <string name="error_media_playback">Avspilling mislyktes: %s</string>

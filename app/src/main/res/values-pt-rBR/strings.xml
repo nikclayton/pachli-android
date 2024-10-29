@@ -398,8 +398,6 @@
     <string name="hashtags">Hashtags</string>
     <string name="add_hashtag_title">Adicionar hashtag</string>
     <string name="pref_title_gradient_for_media">Desfocar mídia sensível</string>
-    <string name="pref_main_nav_position_option_bottom">Inferior</string>
-    <string name="pref_main_nav_position_option_top">Superior</string>
     <string name="pref_main_nav_position">Posição do menu</string>
     <string name="dialog_mute_hide_notifications">Ocultar notificações</string>
     <string name="action_unmute_domain">Desbloquear %s</string>
@@ -418,7 +416,6 @@
     </plurals>
     <string name="wellbeing_hide_stats_profile">Ocultar estatísticas numéricas dos perfis</string>
     <string name="wellbeing_hide_stats_posts">Ocultar estatísticas numéricas dos Toots</string>
-    <string name="limit_notifications">Limitar notificações da linha do tempo</string>
     <string name="review_notifications">Revisar notificações</string>
     <string name="wellbeing_mode_notice">Algumas informações que podem afetar teu bem-estar serão ocultadas. Isso inclui:
 \n
@@ -455,10 +452,8 @@
     <string name="pref_summary_http_proxy_disabled">Desabilitado</string>
     <string name="pref_summary_http_proxy_missing">&lt;não definido&gt;</string>
     <string name="pref_summary_http_proxy_invalid">&lt;inválido&gt;</string>
-    <string name="pref_show_self_username_always">Sempre</string>
     <string name="error_image_edit_failed">A imagem não pôde ser editada.</string>
     <string name="hint_media_description_missing">A mídia deve ter uma descrição.</string>
-    <string name="pref_show_self_username_never">Nunca</string>
     <string name="post_media_alt">ALT</string>
     <string name="error_muting_hashtag_format">Erro ao silenciar #%s</string>
     <string name="account_username_copied">Nome de usuário copiado</string>
@@ -481,7 +476,6 @@
     <string name="report_category_violation">Violação de regra</string>
     <string name="report_category_spam">Spam</string>
     <string name="report_category_other">Outros</string>
-    <string name="pref_show_self_username_disambiguate">Quando várias contas estão conectadas</string>
     <string name="pref_title_http_proxy_port_message">A porta deve estar entre %d e %d</string>
     <string name="status_count_one_plus">1+</string>
     <string name="status_created_at_now">agora</string>
@@ -522,7 +516,7 @@
     <string name="title_public_trending_links">URL em alta</string>
     <string name="title_tab_public_trending_links">URL</string>
     <string name="title_public_trending_hashtags">Hashtags em alta</string>
-    <string name="status_filter_placeholder_label_format">Filtrado(s): &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">Filtrado(s): &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="confirmation_hashtag_unfollowed">#%s deixado de seguir</string>
     <string name="ui_error_vote_fmt">Votar na enquete falhou: %1$s</string>
     <string name="update_dialog_neutral">Não me lembre desta versão</string>
@@ -580,9 +574,7 @@
     <string name="pref_title_show_self_boosts">Mostrar auto-Boosts</string>
     <string name="announcement_date_updated">(Atualizado: %1$s)</string>
     <string name="title_tab_public_trending_statuses">Toots</string>
-    <string name="help_empty_home">Esta é a tua <b>linha do tempo inicial</b>. Ela mostra as postagens recentes das contas que você segue.
-\n
-\nPara explorar contas, pode descobri-las em uma das outras linhas do tempo. Por exemplo, a linha do tempo local da tua instância [iconics gmd_group]. Ou pode pesquisá-las por nome [iconics gmd_search]; por exemplo, pesquise Pachli para encontrar nossa conta Mastodon.</string>
+    <string name="help_empty_home">Esta é a tua <b>linha do tempo inicial</b>. Ela mostra as postagens recentes das contas que você segue. \n \nPara explorar contas, pode descobri-las em uma das outras linhas do tempo. Por exemplo, a linha do tempo local da tua instância [iconics gmd_group]. Ou pode pesquisá-las por nome [iconics gmd_search]; por exemplo, pesquise Pachli para encontrar nossa conta Mastodon.</string>
     <string name="pref_update_notification_frequency_once_per_version">Uma vez por versão</string>
     <string name="notification_report_name">Denúncias</string>
     <string name="filter_description_hide">Ocultar completamente</string>

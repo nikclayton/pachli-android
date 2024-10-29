@@ -16,6 +16,7 @@
 
 package app.pachli.core.network.retrofit
 
+import app.pachli.core.model.NewContentFilter
 import app.pachli.core.network.model.AccessToken
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Announcement
@@ -25,6 +26,7 @@ import app.pachli.core.network.model.Conversation
 import app.pachli.core.network.model.DeletedStatus
 import app.pachli.core.network.model.Emoji
 import app.pachli.core.network.model.Filter
+import app.pachli.core.network.model.FilterAction
 import app.pachli.core.network.model.FilterContext
 import app.pachli.core.network.model.FilterKeyword
 import app.pachli.core.network.model.FilterV1
@@ -97,10 +99,10 @@ interface MastodonApi {
     suspend fun getInstanceV2(@Header(DOMAIN_HEADER) domain: String? = null): NetworkResult<InstanceV2>
 
     @GET("api/v1/filters")
-    suspend fun getFiltersV1(): ApiResult<List<FilterV1>>
+    suspend fun getContentFiltersV1(): ApiResult<List<FilterV1>>
 
     @GET("api/v2/filters")
-    suspend fun getFilters(): ApiResult<List<Filter>>
+    suspend fun getContentFilters(): ApiResult<List<Filter>>
 
     @GET("api/v2/filters/{id}")
     suspend fun getFilter(
@@ -648,16 +650,8 @@ interface MastodonApi {
         @Path("id") id: String,
     ): ApiResult<Unit>
 
-    @FormUrlEncoded
     @POST("api/v2/filters")
-    suspend fun createFilter(
-        @Field("title") title: String,
-        @Field("context[]") contexts: Set<FilterContext>,
-        @Field("filter_action") filterAction: Filter.Action,
-        // String not Int because the empty string is used to represent "indefinite",
-        // see https://github.com/mastodon/documentation/issues/1216#issuecomment-2030222940
-        @Field("expires_in") expiresInSeconds: String?,
-    ): ApiResult<Filter>
+    suspend fun createFilter(@Body newContentFilter: NewContentFilter): ApiResult<Filter>
 
     @FormUrlEncoded
     @PUT("api/v2/filters/{id}")
@@ -665,7 +659,7 @@ interface MastodonApi {
         @Path("id") id: String,
         @Field("title") title: String? = null,
         @Field("context[]") contexts: Collection<FilterContext>? = null,
-        @Field("filter_action") filterAction: Filter.Action? = null,
+        @Field("filter_action") filterAction: FilterAction? = null,
         // String not Int because the empty string is used to represent "indefinite",
         // see https://github.com/mastodon/documentation/issues/1216#issuecomment-2030222940
         @Field("expires_in") expiresInSeconds: String? = null,

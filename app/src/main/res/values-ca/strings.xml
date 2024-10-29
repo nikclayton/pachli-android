@@ -368,8 +368,6 @@
     <string name="action_unmute_conversation">No silenciar la conversació</string>
     <string name="action_mute_conversation">Silencia la conversa</string>
     <string name="notification_follow_request_format">%s ha sol·licitat seguir-te</string>
-    <string name="pref_main_nav_position_option_bottom">A baix</string>
-    <string name="pref_main_nav_position_option_top">A dalt</string>
     <string name="pref_main_nav_position">Posició de navegació principal</string>
     <string name="pref_title_gradient_for_media">Mostra els degradats de colors per als mitjans ocults</string>
     <string name="dialog_mute_hide_notifications">Amagar notificacions</string>
@@ -417,7 +415,6 @@
     </plurals>
     <string name="wellbeing_hide_stats_profile">Amaga les estadístiques quantitatives dels perfils</string>
     <string name="wellbeing_hide_stats_posts">Amaga les estadístiques quantitatives de les publicacions</string>
-    <string name="limit_notifications">Limita les notificacions de la cronologia</string>
     <string name="filter_expiration_format">%s (%s)</string>
     <string name="dialog_delete_conversation_warning">Vols suprimir aquesta conversa\?</string>
     <string name="error_image_edit_failed">La imatge no s\'ha pogut editar.</string>
@@ -430,9 +427,6 @@
     <string name="pref_summary_http_proxy_invalid">&lt;no vàlid&gt;</string>
     <string name="error_following_hashtags_unsupported">Aquesta instància no admet seguir hashtags.</string>
     <string name="notification_sign_up_format">%s s\'ha registrat</string>
-    <string name="pref_show_self_username_always">Sempre</string>
-    <string name="pref_show_self_username_disambiguate">Quan s\'inicien la sessió amb diversos comptes</string>
-    <string name="pref_show_self_username_never">Mai</string>
     <string name="error_unmuting_hashtag_format">S\'ha produït un error en activar #%s</string>
     <string name="error_muting_hashtag_format">S\'ha produït un error en silenciar #%s</string>
     <string name="post_edited">S\'ha editat %s</string>

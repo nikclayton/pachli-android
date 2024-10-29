@@ -26,13 +26,14 @@ import app.pachli.adapter.FilterableStatusViewHolder
 import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.data.model.StatusDisplayOptions
-import app.pachli.core.network.model.Filter
+import app.pachli.core.model.FilterAction
 import app.pachli.databinding.ItemStatusBinding
 import app.pachli.databinding.ItemStatusWrapperBinding
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.viewdata.StatusViewData
 
 class TimelinePagingAdapter(
+    private val pachliAccountId: Long,
     private val statusListener: StatusActionListener<StatusViewData>,
     var statusDisplayOptions: StatusDisplayOptions,
 ) : PagingDataAdapter<StatusViewData, RecyclerView.ViewHolder>(TimelineDifferCallback) {
@@ -68,6 +69,7 @@ class TimelinePagingAdapter(
     ) {
         getItem(position)?.let {
             (viewHolder as StatusViewHolder<StatusViewData>).setupWithStatus(
+                pachliAccountId,
                 it,
                 statusListener,
                 statusDisplayOptions,
@@ -78,7 +80,7 @@ class TimelinePagingAdapter(
 
     override fun getItemViewType(position: Int): Int {
         val viewData = getItem(position) ?: return VIEW_TYPE_PLACEHOLDER
-        return if (viewData.filterAction == Filter.Action.WARN) {
+        return if (viewData.filterAction == FilterAction.WARN) {
             VIEW_TYPE_STATUS_FILTERED
         } else {
             VIEW_TYPE_STATUS

@@ -121,6 +121,7 @@ import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.io.IOException
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -276,7 +277,7 @@ class ComposeActivity :
         setupButtons()
         subscribeToUpdates(mediaAdapter)
 
-        if (accountManager.shouldDisplaySelfUsername(this)) {
+        if (accountManager.shouldDisplaySelfUsername()) {
             binding.composeUsernameView.text = getString(
                 R.string.compose_active_account_description,
                 activeAccount.fullName,
@@ -292,8 +293,8 @@ class ComposeActivity :
             binding.composeEditField.setText(statusContent)
         }
 
-        if (!composeOptions?.scheduledAt.isNullOrEmpty()) {
-            binding.composeScheduleView.setDateTime(composeOptions?.scheduledAt)
+        composeOptions?.scheduledAt?.let {
+            binding.composeScheduleView.setDateTime(it)
         }
 
         setupLanguageSpinner(getInitialLanguages(composeOptions?.language, activeAccount))
@@ -304,17 +305,17 @@ class ComposeActivity :
 
         /* Finally, overwrite state with data from saved instance state. */
         savedInstanceState?.let {
-            photoUploadUri = BundleCompat.getParcelable(it, PHOTO_UPLOAD_URI_KEY, Uri::class.java)
+            photoUploadUri = BundleCompat.getParcelable(it, KEY_PHOTO_UPLOAD_URI, Uri::class.java)
 
-            (it.getSerializable(VISIBILITY_KEY) as Status.Visibility).apply {
+            (it.getSerializable(KEY_VISIBILITY) as Status.Visibility).apply {
                 setStatusVisibility(this)
             }
 
-            it.getBoolean(CONTENT_WARNING_VISIBLE_KEY).apply {
+            it.getBoolean(KEY_CONTENT_WARNING_VISIBLE).apply {
                 viewModel.showContentWarningChanged(this)
             }
 
-            it.getString(SCHEDULED_TIME_KEY)?.let { time ->
+            (it.getSerializable(KEY_SCHEDULED_TIME) as? Date)?.let { time ->
                 viewModel.updateScheduledAt(time)
             }
         }
@@ -415,8 +416,8 @@ class ComposeActivity :
         binding.composeEditField.setAdapter(
             ComposeAutoCompleteAdapter(
                 this,
-                preferences.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false),
-                preferences.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false),
+                sharedPreferencesRepository.animateAvatars,
+                sharedPreferencesRepository.animateEmojis,
                 preferences.getBoolean(PrefKeys.SHOW_BOT_OVERLAY, true),
             ),
         )
@@ -502,6 +503,15 @@ class ComposeActivity :
                     binding.composeScheduleView.setDateTime(scheduledAt)
                 }
                 updateScheduleButton()
+            }
+        }
+
+        // Hide the "Schedule" button if the server can't schedule. Simply
+        // disabling it could be confusing to users wondering why they can't
+        // use it.
+        lifecycleScope.launch {
+            viewModel.serverCanSchedule.collect {
+                binding.composeScheduleButton.visible(it)
             }
         }
 
@@ -629,12 +639,11 @@ class ComposeActivity :
             a.getDimensionPixelSize(0, 1)
         }
 
-        val animateAvatars = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
         loadAvatar(
             activeAccount.profilePictureUrl,
             binding.composeAvatar,
             avatarSize / 8,
-            animateAvatars,
+            sharedPreferencesRepository.animateAvatars,
         )
         binding.composeAvatar.contentDescription = getString(
             R.string.compose_active_account_description,
@@ -706,10 +715,10 @@ class ComposeActivity :
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putParcelable(PHOTO_UPLOAD_URI_KEY, photoUploadUri)
-        outState.putSerializable(VISIBILITY_KEY, viewModel.statusVisibility.value)
-        outState.putBoolean(CONTENT_WARNING_VISIBLE_KEY, viewModel.showContentWarning.value)
-        outState.putString(SCHEDULED_TIME_KEY, viewModel.scheduledAt.value)
+        outState.putParcelable(KEY_PHOTO_UPLOAD_URI, photoUploadUri)
+        outState.putSerializable(KEY_VISIBILITY, viewModel.statusVisibility.value)
+        outState.putBoolean(KEY_CONTENT_WARNING_VISIBLE, viewModel.showContentWarning.value)
+        outState.putSerializable(KEY_SCHEDULED_TIME, viewModel.scheduledAt.value)
         super.onSaveInstanceState(outState)
     }
 
@@ -775,7 +784,7 @@ class ComposeActivity :
             // Can't reschedule a published status
             enableButton(binding.composeScheduleButton, clickable = false, colorActive = false)
         } else {
-            val attr = if (binding.composeScheduleView.time == null) {
+            val attr = if (viewModel.scheduledAt.value == null) {
                 android.R.attr.colorControlNormal
             } else {
                 android.R.attr.colorPrimary
@@ -962,11 +971,11 @@ class ComposeActivity :
     }
 
     private fun verifyScheduledTime(): Boolean {
-        return binding.composeScheduleView.verifyScheduledTime(binding.composeScheduleView.getDateTime(viewModel.scheduledAt.value))
+        return binding.composeScheduleView.verifyScheduledTime(viewModel.scheduledAt.value)
     }
 
     private fun onSendClicked() = lifecycleScope.launch {
-        confirmStatusLanguage()
+        if (viewModel.confirmStatusLanguage) confirmStatusLanguage()
 
         if (verifyScheduledTime()) {
             sendStatus()
@@ -1041,6 +1050,7 @@ class ComposeActivity :
             .await(
                 getString(R.string.compose_warn_language_dialog_change_language_fmt, detectedDisplayLang),
                 getString(R.string.compose_warn_language_dialog_accept_language_fmt, currentDisplayLang),
+                getString(R.string.compose_warn_language_dialog_accept_and_dont_ask_fmt, currentDisplayLang),
             )
 
         if (dialog == AlertDialog.BUTTON_POSITIVE) {
@@ -1049,6 +1059,8 @@ class ComposeActivity :
                 binding.composePostLanguageButton.setSelection(it)
             }
         }
+
+        if (dialog == AlertDialog.BUTTON_NEUTRAL) viewModel.confirmStatusLanguage = false
     }
 
     /** This is for the fancy keyboards which can insert images and stuff, and drag&drop etc */
@@ -1368,7 +1380,7 @@ class ComposeActivity :
 
     private fun setEmojiList(emojiList: List<Emoji>?) {
         if (emojiList != null) {
-            val animateEmojis = sharedPreferencesRepository.getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
+            val animateEmojis = sharedPreferencesRepository.animateEmojis
             binding.emojiView.adapter = EmojiAdapter(emojiList, this@ComposeActivity, animateEmojis)
             enableButton(binding.composeEmojiButton, true, emojiList.isNotEmpty())
         }
@@ -1399,7 +1411,7 @@ class ComposeActivity :
         }
     }
 
-    override fun onTimeSet(time: String?) {
+    override fun onTimeSet(time: Date?) {
         viewModel.updateScheduledAt(time)
         if (verifyScheduledTime()) {
             scheduleBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -1420,11 +1432,10 @@ class ComposeActivity :
     companion object {
         private const val PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1
 
-        internal const val COMPOSE_OPTIONS_EXTRA = "COMPOSE_OPTIONS"
-        private const val PHOTO_UPLOAD_URI_KEY = "PHOTO_UPLOAD_URI"
-        private const val VISIBILITY_KEY = "VISIBILITY"
-        private const val SCHEDULED_TIME_KEY = "SCHEDULE"
-        private const val CONTENT_WARNING_VISIBLE_KEY = "CONTENT_WARNING_VISIBLE"
+        private const val KEY_PHOTO_UPLOAD_URI = "app.pachli.KEY_PHOTO_UPLOAD_URI"
+        private const val KEY_VISIBILITY = "app.pachli.KEY_VISIBILITY"
+        private const val KEY_SCHEDULED_TIME = "app.pachli.KEY_SCHEDULED_TIME"
+        private const val KEY_CONTENT_WARNING_VISIBLE = "app.pachli.KEY_CONTENT_WARNING_VISIBLE"
 
         fun canHandleMimeType(mimeType: String?): Boolean {
             return mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("audio/") || mimeType == "text/plain")

@@ -382,7 +382,6 @@
         <item quantity="one">Je kan niet meer dan %1$d mediabijlage uploaden.</item>
         <item quantity="other">Je kan niet meer dan %1$d mediabijlagen uploaden.</item>
     </plurals>
-    <string name="limit_notifications">Meldingen op tijdlijn beperken</string>
     <string name="account_note_saved">Opgeslagen!</string>
     <string name="account_note_hint">Jouw eigen opmerking over dit account</string>
     <string name="pref_title_wellbeing_mode">Welzijn</string>
@@ -402,8 +401,6 @@
     <string name="notification_subscription_description">Meldingen wanneer iemand waar je op bent geabonneerd een nieuw bericht plaatst</string>
     <string name="notification_subscription_name">Nieuwe berichten</string>
     <string name="notification_follow_request_description">Meldingen over volgverzoeken</string>
-    <string name="pref_main_nav_position_option_bottom">Onder</string>
-    <string name="pref_main_nav_position_option_top">Boven</string>
     <string name="pref_title_animate_custom_emojis">Lokale emojis animeren</string>
     <string name="pref_title_gradient_for_media">Kleurverloop weergeven voor verborgen media</string>
     <string name="pref_title_notification_filter_subscriptions">iemand waar ik op ben geabonneerd heeft een nieuw bericht geplaatst</string>
@@ -460,9 +457,6 @@
     <string name="duration_no_change">(geen verandering)</string>
     <string name="pref_title_show_self_username">Gebruikersnaam op werkbalken tonen</string>
     <string name="set_focus_description">Tik of sleep de cirkel naar een centraal focuspunt dat op elke thumbnail zichtbaar moet blijven.</string>
-    <string name="pref_show_self_username_always">Altijd</string>
-    <string name="pref_show_self_username_disambiguate">Wanneer meerdere accounts zijn ingelogd</string>
-    <string name="pref_show_self_username_never">Nooit</string>
     <string name="filter_expiration_format">%s (%s)</string>
     <string name="action_set_focus">Focuspunt instellen</string>
     <string name="error_following_hashtag_format">Fout tijdens het volgen van #%s</string>
@@ -533,7 +527,7 @@
     <string name="select_list_manage">Lijsten beheren</string>
     <string name="pref_title_account_filter_keywords">Profielen</string>
     <string name="status_filtered_show_anyway">Toch tonen</string>
-    <string name="status_filter_placeholder_label_format">Gefilterd: &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">Gefilterd: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="hint_filter_title">Mijn filter</string>
     <string name="label_filter_action">Filteractie</string>
     <string name="filter_action_warn">Waarschuwen</string>
@@ -592,9 +586,7 @@
     <string name="pref_title_show_self_boosts">Toon zelf-boosts</string>
     <string name="announcement_date_updated">(Bijgewerkt: %1$s)</string>
     <string name="title_tab_public_trending_statuses">Posts</string>
-    <string name="help_empty_home">Dit is je <b>Thuis tijdlijn</b>. Het toont de meest recente posts van accounts die je volgt.
-\n
-\nOm meer accounts te vinden, kun je ze ontdekken in een van de andere tijdlijnen. Bijvoorbeeld de lokale tijdlijn van jouw instance [iconics gmd_group]. Of je kunt zoeken op naam [iconics gmd_search]; bijvoorbeeld als je zoekt op Pachli dan vind je ons Mastodon account.</string>
+    <string name="help_empty_home">Dit is je <b>Thuis tijdlijn</b>. Het toont de meest recente posts van accounts die je volgt. \n \nOm meer accounts te vinden, kun je ze ontdekken in een van de andere tijdlijnen. Bijvoorbeeld de lokale tijdlijn van jouw instance [iconics gmd_group]. Of je kunt zoeken op naam [iconics gmd_search]; bijvoorbeeld als je zoekt op Pachli dan vind je ons Mastodon account.</string>
     <string name="pref_update_notification_frequency_once_per_version">Eenmaal per versie</string>
     <string name="pref_title_font_family">Lettertype-familie</string>
     <string name="ui_success_rejected_follow_request">Volg verzoek geblokkeerd</string>
@@ -615,5 +607,5 @@
     <string name="pref_title_update_check_now">Controleer nu op update</string>
     <string name="pref_update_check_no_updates">Er zijn geen updates beschikbaar</string>
     <string name="pref_update_next_scheduled_check">Volgende geplande controle: %1$s</string>
-    <string name="pref_summary_timeline_filters">Je server ondersteund geen filters</string>
+    <string name="pref_summary_content_filters">Je server ondersteund geen filters</string>
 </resources>

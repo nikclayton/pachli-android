@@ -393,8 +393,6 @@
     <string name="notification_follow_request_format">%s vill följa dig</string>
     <string name="add_hashtag_title">Lägg till hashtag</string>
     <string name="hashtags">Hashtaggar</string>
-    <string name="pref_main_nav_position_option_top">Topp</string>
-    <string name="pref_main_nav_position_option_bottom">Botten</string>
     <string name="pref_main_nav_position">Standard navigationsposition</string>
     <string name="pref_title_gradient_for_media">Visa färgglada gradienter för gömd media</string>
     <string name="action_unmute_domain">Ta bort tystad %s</string>
@@ -411,7 +409,6 @@
     <string name="notification_subscription_format">%s skrev precis</string>
     <string name="wellbeing_hide_stats_profile">Dölj kvantitativ information på profiler</string>
     <string name="wellbeing_hide_stats_posts">Dölj kvantitativ information på inlägg</string>
-    <string name="limit_notifications">Begränsa tidslinje aviseringar</string>
     <string name="review_notifications">Revidera aviseringar</string>
     <string name="wellbeing_mode_notice">Information som kan påverka ditt välmående kommer att döljas. Detta inkluderar:
 \n
@@ -428,14 +425,11 @@
     <string name="delete_scheduled_post_warning">Radera detta schemalagda inlägg\?</string>
     <string name="error_unfollowing_hashtag_format">Kunde inte avfölja #%s</string>
     <string name="dialog_delete_conversation_warning">Radera denna konversation\?</string>
-    <string name="pref_show_self_username_always">Alltid</string>
     <string name="set_focus_description">Tryck eller dra cirkeln för att välja fokuspunkten som alltid kommer synas i miniatyrbilder.</string>
     <string name="label_duration">Varaktighet</string>
     <string name="duration_indefinite">Oändligt</string>
     <string name="action_unsubscribe_account">Sluta prenumerera</string>
     <string name="description_post_language">Inläggsspråk</string>
-    <string name="pref_show_self_username_disambiguate">När flera konton är inloggade</string>
-    <string name="pref_show_self_username_never">Aldrig</string>
     <string name="notification_sign_up_name">Registreringar</string>
     <string name="notification_sign_up_description">Notiser om nya användare</string>
     <string name="notification_update_name">Inläggsredigeringar</string>
@@ -546,7 +540,7 @@
     <string name="select_list_manage">Hantera listor</string>
     <string name="select_list_empty">Du har inga listor, än</string>
     <string name="status_filtered_show_anyway">Visa allafall</string>
-    <string name="status_filter_placeholder_label_format">Filtrerad: &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">Filtrerad: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Profiler</string>
     <string name="label_filter_action">Filteråtgärd</string>
     <string name="label_filter_keywords">Nyckelord eller fraser att filtrera</string>
@@ -559,9 +553,7 @@
     <string name="filter_description_hide">Dölj helt</string>
     <string name="action_add">Lägg till</string>
     <string name="filter_keyword_display_format">%s (helt ord)</string>
-    <string name="help_empty_home">Detta är din <b>hemtidslinje</b>. Den visar de senaste inläggen för konton du följer.
-\n
-\nFör att utforska konton kan du antingen upptäcka dem i någon av de andra tidslinjerna. Till exempel den lokala tidslinjen för din instans [iconics gmd_group]. Eller så kan du söka efter dem efter namn [ikonics gmd_search]; sök till exempel efter Pachli för att hitta vårt Mastodon-konto.</string>
+    <string name="help_empty_home">Detta är din <b>hemtidslinje</b>. Den visar de senaste inläggen för konton du följer. \n \nFör att utforska konton kan du antingen upptäcka dem i någon av de andra tidslinjerna. Till exempel den lokala tidslinjen för din instans [iconics gmd_group]. Eller så kan du söka efter dem efter namn [ikonics gmd_search]; sök till exempel efter Pachli för att hitta vårt Mastodon-konto.</string>
     <string name="pref_ui_text_size">UI textstorlek</string>
     <string name="notification_listenable_worker_name">Bakgrundsaktivitet</string>
     <string name="notification_listenable_worker_description">Aviseringar när Pachli arbetar i bakgrunden</string>
@@ -618,5 +610,5 @@
     <string name="label_image">Bild</string>
     <string name="action_translate_undo">Ångra översättning</string>
     <string name="server_repository_error">Kunde inte hämta serverinformation för %1$s: %2$s</string>
-    <string name="pref_summary_timeline_filters">Din server stöder inte filter</string>
+    <string name="pref_summary_content_filters">Din server stöder inte filter</string>
 </resources>

@@ -435,8 +435,6 @@
     <string name="add_hashtag_title">إضافة وسم</string>
     <string name="pref_title_gradient_for_media">اظهر ألوانا متدرّجة للوسائط المخفية</string>
     <string name="pref_main_nav_position">موضع شريط التنقل الرئيسي</string>
-    <string name="pref_main_nav_position_option_bottom">الأسفل</string>
-    <string name="pref_main_nav_position_option_top">الأعلى</string>
     <string name="action_unmute_domain">إلغاء كتم %s</string>
     <string name="dialog_mute_hide_notifications">أخفِ الإشعارات</string>
     <string name="action_unmute_desc">إلغاء كتم %s</string>
@@ -466,7 +464,6 @@
     <string name="pref_title_confirm_favourites">أظهر نافذة لطلب التأكيد قبل الإضافة إلى المفضلة</string>
     <string name="drafts_failed_loading_reply">فشل في تحميل معلومات الرد</string>
     <string name="duration_indefinite">غير محددة</string>
-    <string name="limit_notifications">وضع حد لإشعارات الخيط الزمني</string>
     <string name="duration_14_days">14 يومًا</string>
     <string name="duration_30_days">30 يومًا</string>
     <string name="duration_60_days">60 يومًا</string>
@@ -484,7 +481,6 @@
     <string name="error_image_edit_failed">لا يمكن تحرير الصورة.</string>
     <string name="title_edits">التعديلات</string>
     <string name="pref_title_notification_filter_reports">هناك شكوى جديدة</string>
-    <string name="pref_show_self_username_never">أبداً</string>
     <string name="notification_subscription_description">تشغيل الاشعارات عندما يقوم شخص انت مشترك معه بنشر منشور جديد</string>
     <string name="notification_update_description">ارسال إشعار عند تحرير المنشورات التي تفاعلت معها</string>
     <string name="notification_report_name">شكاوي</string>
@@ -531,7 +527,6 @@
     <string name="error_following_hashtags_unsupported">مثيل الخادم هذا لا يدعم متابعة الوسوم.</string>
     <string name="action_discard">تجاهل التعديلات</string>
     <string name="action_continue_edit">الاستمرار في التعديل</string>
-    <string name="pref_show_self_username_always">دائماً</string>
     <string name="post_media_alt">ALT</string>
     <string name="notification_header_report_format">%s أبلغ عن %s</string>
     <string name="notification_summary_report_format">%s · %d منشورات ملحقة</string>
@@ -546,7 +541,6 @@
     <string name="send_account_link_to">شارك رابط الحساب الى…</string>
     <string name="send_account_username_to">شارك اسم مستخدم الحساب إلى…</string>
     <string name="account_username_copied">تم نسخ اسم المستخدم</string>
-    <string name="pref_show_self_username_disambiguate">عند تسجيل الدخول إلى حسابات متعددة</string>
     <string name="status_created_at_now">الآن</string>
     <string name="action_unfollow_hashtag_format">الغاء متابعة #%s ؟</string>
     <string name="mute_notifications_switch">كتم الاشعارات</string>
@@ -629,7 +623,7 @@
     <string name="dialog_follow_hashtag_hint">#وسم</string>
     <string name="pref_title_show_self_boosts">إظهار المعاد نشرها ذاتيا</string>
     <string name="confirmation_hashtag_muted">#%s مخفي</string>
-    <string name="pref_summary_timeline_filters">خادمك الخاص لا يدعم عوامل التصفية</string>
+    <string name="pref_summary_content_filters">خادمك الخاص لا يدعم عوامل التصفية</string>
     <string name="load_newest_statuses">تحميل أحدث المنشورات</string>
     <string name="announcement_date_updated">(%1$s :تم تحديثه)</string>
 </resources>

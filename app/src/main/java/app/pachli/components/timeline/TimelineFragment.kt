@@ -64,7 +64,7 @@ import app.pachli.core.database.model.TranslationState
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
-import app.pachli.core.navigation.EditFilterActivityIntent
+import app.pachli.core.navigation.EditContentFilterActivityIntent
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.preferences.TabTapBehaviour
@@ -91,6 +91,7 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.properties.Delegates
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -157,16 +158,20 @@ class TimelineFragment :
 
     private var isSwipeToRefreshEnabled = true
 
+    override var pachliAccountId by Delegates.notNull<Long>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val arguments = requireArguments()
 
-        timeline = arguments.getParcelable(KIND_ARG)!!
+        pachliAccountId = arguments.getLong(ARG_PACHLI_ACCOUNT_ID)
+
+        timeline = arguments.getParcelable(ARG_KIND)!!
 
         isSwipeToRefreshEnabled = arguments.getBoolean(ARG_ENABLE_SWIPE_TO_REFRESH, true)
 
-        adapter = TimelinePagingAdapter(this, viewModel.statusDisplayOptions.value)
+        adapter = TimelinePagingAdapter(pachliAccountId, this, viewModel.statusDisplayOptions.value)
     }
 
     override fun onCreateView(
@@ -502,8 +507,9 @@ class TimelineFragment :
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.fragment_timeline, menu)
+
         if (isSwipeToRefreshEnabled) {
-            menuInflater.inflate(R.menu.fragment_timeline, menu)
             menu.findItem(R.id.action_refresh)?.apply {
                 icon = IconicsDrawable(requireContext(), GoogleMaterial.Icon.gmd_refresh).apply {
                     sizeDp = 20
@@ -562,9 +568,9 @@ class TimelineFragment :
         }
 
         id?.let {
-            Timber.d("Saving ID: %s", it)
+            Timber.d("saveVisibleId: Saving ID: %s", it)
             viewModel.accept(InfallibleUiAction.SaveVisibleId(visibleId = it))
-        }
+        } ?: Timber.d("saveVisibleId: Not saving, as no ID was visible")
     }
 
     private fun setupSwipeRefreshLayout() {
@@ -575,7 +581,7 @@ class TimelineFragment :
 
     private fun setupRecyclerView() {
         binding.recyclerView.setAccessibilityDelegateCompat(
-            ListStatusAccessibilityDelegate(binding.recyclerView, this) { pos ->
+            ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this) { pos ->
                 if (pos in 0 until adapter.itemCount) {
                     adapter.peek(pos)
                 } else {
@@ -644,13 +650,13 @@ class TimelineFragment :
         viewModel.accept(StatusAction.VoteInPoll(poll, choices, viewData))
     }
 
-    override fun clearWarningAction(viewData: StatusViewData) {
-        viewModel.clearWarning(viewData)
+    override fun clearWarningAction(pachliAccountId: Long, viewData: StatusViewData) {
+        viewModel.clearWarning(pachliAccountId, viewData)
     }
 
-    override fun onEditFilterById(filterId: String) {
+    override fun onEditFilterById(pachliAccountId: Long, filterId: String) {
         requireActivity().startActivityWithTransition(
-            EditFilterActivityIntent.edit(requireContext(), filterId),
+            EditContentFilterActivityIntent.edit(requireContext(), pachliAccountId, filterId),
             TransitionKind.SLIDE_FROM_END,
         )
     }
@@ -663,26 +669,26 @@ class TimelineFragment :
         super.openReblog(status)
     }
 
-    override fun onExpandedChange(viewData: StatusViewData, expanded: Boolean) {
-        viewModel.changeExpanded(expanded, viewData)
+    override fun onExpandedChange(pachliAccountId: Long, viewData: StatusViewData, expanded: Boolean) {
+        viewModel.changeExpanded(pachliAccountId, expanded, viewData)
     }
 
-    override fun onContentHiddenChange(viewData: StatusViewData, isShowing: Boolean) {
-        viewModel.changeContentShowing(isShowing, viewData)
+    override fun onContentHiddenChange(pachliAccountId: Long, viewData: StatusViewData, isShowing: Boolean) {
+        viewModel.changeContentShowing(pachliAccountId, isShowing, viewData)
     }
 
     override fun onShowReblogs(statusId: String) {
-        val intent = AccountListActivityIntent(requireContext(), AccountListActivityIntent.Kind.REBLOGGED, statusId)
+        val intent = AccountListActivityIntent(requireContext(), pachliAccountId, AccountListActivityIntent.Kind.REBLOGGED, statusId)
         activity?.startActivityWithDefaultTransition(intent)
     }
 
     override fun onShowFavs(statusId: String) {
-        val intent = AccountListActivityIntent(requireContext(), AccountListActivityIntent.Kind.FAVOURITED, statusId)
+        val intent = AccountListActivityIntent(requireContext(), pachliAccountId, AccountListActivityIntent.Kind.FAVOURITED, statusId)
         activity?.startActivityWithDefaultTransition(intent)
     }
 
-    override fun onContentCollapsedChange(viewData: StatusViewData, isCollapsed: Boolean) {
-        viewModel.changeContentCollapsed(isCollapsed, viewData)
+    override fun onContentCollapsedChange(pachliAccountId: Long, viewData: StatusViewData, isCollapsed: Boolean) {
+        viewModel.changeContentCollapsed(pachliAccountId, isCollapsed, viewData)
     }
 
     // Can only translate the home timeline at the moment
@@ -813,16 +819,19 @@ class TimelineFragment :
     }
 
     companion object {
-        private const val KIND_ARG = "kind"
-        private const val ARG_ENABLE_SWIPE_TO_REFRESH = "enableSwipeToRefresh"
+        private const val ARG_KIND = "app.pachli.ARG_KIND"
+        private const val ARG_PACHLI_ACCOUNT_ID = "app.pachli.ARG_PACHLI_ACCOUNT_ID"
+        private const val ARG_ENABLE_SWIPE_TO_REFRESH = "app.pachli.ARG_ENABLE_SWIPE_TO_REFRESH"
 
         fun newInstance(
+            pachliAccountId: Long,
             timeline: Timeline,
             enableSwipeToRefresh: Boolean = true,
         ): TimelineFragment {
             val fragment = TimelineFragment()
-            val arguments = Bundle(2)
-            arguments.putParcelable(KIND_ARG, timeline)
+            val arguments = Bundle(3)
+            arguments.putLong(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
+            arguments.putParcelable(ARG_KIND, timeline)
             arguments.putBoolean(ARG_ENABLE_SWIPE_TO_REFRESH, enableSwipeToRefresh)
             fragment.arguments = arguments
             return fragment

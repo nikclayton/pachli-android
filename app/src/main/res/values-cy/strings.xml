@@ -316,9 +316,7 @@
     <string name="pref_title_bot_overlay">Dangos dangosydd botiau</string>
     <string name="pref_title_gradient_for_media">Dangos graddiannau lliwgar ar gyfer cyfryngau cudd</string>
     <string name="pref_failed_to_sync">Methu cydweddu gosodiadau</string>
-    <string name="pref_main_nav_position_option_top">Brig</string>
     <string name="about_pachli_version">Pachli %s</string>
-    <string name="pref_main_nav_position_option_bottom">Gwaelod</string>
     <string name="action_open_faved_by">Dangos ffefrynnau</string>
     <string name="report_description_1">Bydd yr adroddiad yn cael ei anfon at reolwr eich gweinydd. Gallwch esbonio pam rydych chi\'n adrodd ar y cyfrif hwn isod:</string>
     <string name="warning_scheduling_interval">Mae gan Mastodon egwyl amserlennu o o leiaf 5 munud.</string>
@@ -332,8 +330,6 @@
     <string name="duration_6_hours">6 awr</string>
     <string name="duration_1_day">Diwrnod</string>
     <string name="unpin_action">Dadbinio</string>
-    <string name="pref_show_self_username_never">Byth</string>
-    <string name="pref_show_self_username_always">Bob tro</string>
     <string name="post_media_attachments">Atodiadau</string>
     <string name="action_edit_image">Golygu llun</string>
     <string name="title_reblogged_by">Hybwyd gan</string>
@@ -417,7 +413,6 @@
     <string name="description_post_bookmarked">Tudalnodiwyd</string>
     <string name="select_list_title">Dewiswch restr</string>
     <string name="report_sent_success">Wedi adrodd ar @%s yn llwyddiannus</string>
-    <string name="limit_notifications">Cyfyngu ar hysbysiadau ffrydiau</string>
     <string name="pref_title_show_self_username">Dangos enw defnyddiwr mewn bariau offer</string>
     <string name="pref_title_confirm_favourites">Dangos cadarnhad cyn hoffi</string>
     <string name="pref_title_hide_top_toolbar">Cuddio teitl y bar offer uchaf</string>
@@ -440,7 +435,6 @@
     </plurals>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="description_post_edited">Golygwyd</string>
-    <string name="pref_show_self_username_disambiguate">Pan fydd cyfrifon lluosog wedi\'u mewngofnodi</string>
     <string name="drafts_failed_loading_reply">Wedi methu llwytho gwybodaeth Ateb</string>
     <string name="pref_title_alway_open_spoiler">Agor negeseuon wedi\'u marcio â rhybudd cynnwys bob tro</string>
     <string name="profile_metadata_label_label">Label</string>
@@ -575,7 +569,7 @@
     <string name="dialog_follow_hashtag_hint">#hashnod</string>
     <string name="notification_unknown_name">Anhysbys</string>
     <string name="status_filtered_show_anyway">Dangos beth bynnag</string>
-    <string name="status_filter_placeholder_label_format">Hidlwyd: &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">Hidlwyd: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Proffiliau</string>
     <string name="socket_timeout_exception">Cymrodd hi\'n rhy hir i gysylltu â\'ch gweinydd</string>
     <string name="ui_error_bookmark_fmt">Methodd tudalnodi\'r neges: %1$s</string>
@@ -606,9 +600,7 @@
     <string name="select_list_empty">Nid oes gennych restrau, eto</string>
     <string name="select_list_manage">Rheoli rhestrau</string>
     <string name="error_list_load">Gwall wrth lwytho rhestrau</string>
-    <string name="help_empty_home">Hwn yw\'ch <b>ffrwd cartref</b>. Mae\'n dangos negeseuon diweddar y cyfrifon rydych yn eu dilyn.
-\n
-\nI archwilio cyfrifon gallwch un ai eu darganfod o fewn un o\'r llinellau amser eraill. Er enghraifft, mae llinell amser eich enghraifft chi [iconics gmd_group]. Neu gallwch eu chwilio yn ôl eu henw [iconics gmd_search]; er enghraifft, chwilio am Pachli i ganfod ein cyfrif Mastodon.</string>
+    <string name="help_empty_home">Hwn yw\'ch <b>ffrwd cartref</b>. Mae\'n dangos negeseuon diweddar y cyfrifon rydych yn eu dilyn. \n \nI archwilio cyfrifon gallwch un ai eu darganfod o fewn un o\'r llinellau amser eraill. Er enghraifft, mae llinell amser eich enghraifft chi [iconics gmd_group]. Neu gallwch eu chwilio yn ôl eu henw [iconics gmd_search]; er enghraifft, chwilio am Pachli i ganfod ein cyfrif Mastodon.</string>
     <string name="pref_title_show_stat_inline">Dangos ystadegau negeseuon mewn llinell amser</string>
     <string name="pref_ui_text_size">Maint testun rhyngwyneb</string>
     <string name="notification_listenable_worker_name">Gweithgaredd cefndirol</string>

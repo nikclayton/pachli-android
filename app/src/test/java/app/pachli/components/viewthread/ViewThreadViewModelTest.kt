@@ -11,10 +11,10 @@ import app.pachli.components.compose.HiltTestApplication_Application
 import app.pachli.components.timeline.CachedTimelineRepository
 import app.pachli.components.timeline.mockStatus
 import app.pachli.components.timeline.mockStatusViewData
-import app.pachli.core.accounts.AccountManager
-import app.pachli.core.data.repository.Filters
-import app.pachli.core.data.repository.FiltersError
-import app.pachli.core.data.repository.FiltersRepository
+import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.ContentFilters
+import app.pachli.core.data.repository.ContentFiltersError
+import app.pachli.core.data.repository.ContentFiltersRepository
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.database.model.AccountEntity
@@ -46,6 +46,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -119,7 +120,7 @@ class ViewThreadViewModelTest {
     lateinit var moshi: Moshi
 
     @BindValue @JvmField
-    val filtersRepository: FiltersRepository = mock()
+    val contentFiltersRepository: ContentFiltersRepository = mock()
 
     @Inject
     lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
@@ -132,9 +133,9 @@ class ViewThreadViewModelTest {
     fun setup() {
         hilt.inject()
 
-        reset(filtersRepository)
-        filtersRepository.stub {
-            whenever(it.filters).thenReturn(MutableStateFlow<Result<Filters?, FiltersError.GetFiltersError>>(Ok(null)))
+        reset(contentFiltersRepository)
+        contentFiltersRepository.stub {
+            whenever(it.contentFilters).thenReturn(MutableStateFlow<Result<ContentFilters?, ContentFiltersError.GetContentFiltersError>>(Ok(null)))
         }
 
         reset(nodeInfoApi)
@@ -183,8 +184,8 @@ class ViewThreadViewModelTest {
         )
 
         val cachedTimelineRepository: CachedTimelineRepository = mock {
-            onBlocking { getStatusViewData(any()) } doReturn emptyMap()
-            onBlocking { getStatusTranslations(any()) } doReturn emptyMap()
+            onBlocking { getStatusViewData(anyLong(), any()) } doReturn emptyMap()
+            onBlocking { getStatusTranslations(anyLong(), any()) } doReturn emptyMap()
         }
 
         viewModel = ViewThreadViewModel(
@@ -196,7 +197,7 @@ class ViewThreadViewModelTest {
             moshi,
             cachedTimelineRepository,
             statusDisplayOptionsRepository,
-            filtersRepository,
+            contentFiltersRepository,
         )
     }
 

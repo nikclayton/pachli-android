@@ -30,10 +30,10 @@ import app.pachli.appstore.FavoriteEvent
 import app.pachli.appstore.PinEvent
 import app.pachli.appstore.ReblogEvent
 import app.pachli.components.timeline.NetworkTimelineRepository
-import app.pachli.core.accounts.AccountManager
-import app.pachli.core.data.repository.FiltersRepository
+import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.ContentFiltersRepository
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
-import app.pachli.core.network.model.Filter
+import app.pachli.core.model.FilterAction
 import app.pachli.core.network.model.Poll
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.usecase.TimelineCases
@@ -59,7 +59,7 @@ class NetworkTimelineViewModel @Inject constructor(
     private val repository: NetworkTimelineRepository,
     timelineCases: TimelineCases,
     eventHub: EventHub,
-    filtersRepository: FiltersRepository,
+    contentFiltersRepository: ContentFiltersRepository,
     accountManager: AccountManager,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     sharedPreferencesRepository: SharedPreferencesRepository,
@@ -68,7 +68,7 @@ class NetworkTimelineViewModel @Inject constructor(
     savedStateHandle,
     timelineCases,
     eventHub,
-    filtersRepository,
+    contentFiltersRepository,
     accountManager,
     statusDisplayOptionsRepository,
     sharedPreferencesRepository,
@@ -99,7 +99,7 @@ class NetworkTimelineViewModel @Inject constructor(
                         isCollapsed = true,
                     )
                 }.filter {
-                    shouldFilterStatus(it) != Filter.Action.HIDE
+                    shouldFilterStatus(it) != FilterAction.HIDE
                 }
             }
     }
@@ -111,21 +111,21 @@ class NetworkTimelineViewModel @Inject constructor(
         repository.invalidate()
     }
 
-    override fun changeExpanded(expanded: Boolean, status: StatusViewData) {
+    override fun changeExpanded(pachliAccountId: Long, expanded: Boolean, status: StatusViewData) {
         modifiedViewData[status.id] = status.copy(
             isExpanded = expanded,
         )
         repository.invalidate()
     }
 
-    override fun changeContentShowing(isShowing: Boolean, status: StatusViewData) {
+    override fun changeContentShowing(pachliAccountId: Long, isShowing: Boolean, status: StatusViewData) {
         modifiedViewData[status.id] = status.copy(
             isShowingContent = isShowing,
         )
         repository.invalidate()
     }
 
-    override fun changeContentCollapsed(isCollapsed: Boolean, status: StatusViewData) {
+    override fun changeContentCollapsed(pachliAccountId: Long, isCollapsed: Boolean, status: StatusViewData) {
         Timber.d("changeContentCollapsed: %s", isCollapsed)
         Timber.d("   %s", status.content)
         modifiedViewData[status.id] = status.copy(
@@ -134,13 +134,13 @@ class NetworkTimelineViewModel @Inject constructor(
         repository.invalidate()
     }
 
-    override fun removeAllByAccountId(accountId: String) {
+    override fun removeAllByAccountId(pachliAccountId: Long, accountId: String) {
         viewModelScope.launch {
             repository.removeAllByAccountId(accountId)
         }
     }
 
-    override fun removeAllByInstance(instance: String) {
+    override fun removeAllByInstance(pachliAccountId: Long, instance: String) {
         viewModelScope.launch {
             repository.removeAllByInstance(instance)
         }
@@ -187,19 +187,19 @@ class NetworkTimelineViewModel @Inject constructor(
         repository.invalidate()
     }
 
-    override fun reloadKeepingReadingPosition() {
-        super.reloadKeepingReadingPosition()
+    override fun reloadKeepingReadingPosition(pachliAccountId: Long) {
+        super.reloadKeepingReadingPosition(pachliAccountId)
         viewModelScope.launch {
             repository.reload()
         }
     }
 
-    override fun reloadFromNewest() {
-        super.reloadFromNewest()
-        reloadKeepingReadingPosition()
+    override fun reloadFromNewest(pachliAccountId: Long) {
+        super.reloadFromNewest(pachliAccountId)
+        reloadKeepingReadingPosition(pachliAccountId)
     }
 
-    override fun clearWarning(statusViewData: StatusViewData) {
+    override fun clearWarning(pachliAccountId: Long, statusViewData: StatusViewData) {
         viewModelScope.launch {
             repository.updateActionableStatusById(statusViewData.actionableId) {
                 it.copy(filtered = null)
@@ -207,7 +207,7 @@ class NetworkTimelineViewModel @Inject constructor(
         }
     }
 
-    override suspend fun invalidate() {
+    override suspend fun invalidate(pachliAccountId: Long) {
         repository.invalidate()
     }
 }

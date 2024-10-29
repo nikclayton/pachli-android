@@ -33,6 +33,7 @@ internal class StatusViewHolder(
 ) : NotificationsPagingAdapter.ViewHolder, StatusViewHolder<NotificationViewData>(binding) {
 
     override fun bind(
+        pachliAccountId: Long,
         viewData: NotificationViewData,
         payloads: List<*>?,
         statusDisplayOptions: StatusDisplayOptions,
@@ -47,6 +48,7 @@ internal class StatusViewHolder(
                 showStatusContent(true)
             }
             setupWithStatus(
+                pachliAccountId,
                 viewData,
                 statusActionListener,
                 statusDisplayOptions,
@@ -68,6 +70,7 @@ class FilterableStatusViewHolder(
 ) : NotificationsPagingAdapter.ViewHolder, FilterableStatusViewHolder<NotificationViewData>(binding) {
     // Note: Identical to bind() in StatusViewHolder above
     override fun bind(
+        pachliAccountId: Long,
         viewData: NotificationViewData,
         payloads: List<*>?,
         statusDisplayOptions: StatusDisplayOptions,
@@ -82,6 +85,7 @@ class FilterableStatusViewHolder(
                 showStatusContent(true)
             }
             setupWithStatus(
+                pachliAccountId,
                 viewData,
                 statusActionListener,
                 statusDisplayOptions,

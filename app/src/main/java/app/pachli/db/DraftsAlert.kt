@@ -23,7 +23,7 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import app.pachli.R
-import app.pachli.core.accounts.AccountManager
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.database.dao.DraftDao
 import app.pachli.core.navigation.DraftsActivityIntent
 import javax.inject.Inject
@@ -66,7 +66,7 @@ class DraftsAlert @Inject constructor(private val draftDao: DraftDao) {
                             .setPositiveButton(R.string.action_post_failed_show_drafts) { _: DialogInterface?, _: Int ->
                                 clearDraftsAlert(coroutineScope, activeAccountId) // User looked at drafts
 
-                                val intent = DraftsActivityIntent(context)
+                                val intent = DraftsActivityIntent(context, activeAccountId)
                                 context.startActivity(intent)
                             }
                             .setNegativeButton(R.string.action_post_failed_do_nothing) { _: DialogInterface?, _: Int ->

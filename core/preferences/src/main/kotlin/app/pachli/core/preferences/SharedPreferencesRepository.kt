@@ -19,6 +19,7 @@ package app.pachli.core.preferences
 
 import android.content.SharedPreferences
 import androidx.annotation.Keep
+import androidx.core.content.edit
 import app.pachli.core.common.di.ApplicationScope
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,10 +50,50 @@ class SharedPreferencesRepository @Inject constructor(
     val appTheme: AppTheme
         get() = getEnum(PrefKeys.APP_THEME, AppTheme.AUTO_SYSTEM)
 
+    /** True if avatars should be animated. */
+    val animateAvatars: Boolean
+        get() = getBoolean(PrefKeys.ANIMATE_GIF_AVATARS, false)
+
+    /** True if emojis should be animated. */
+    val animateEmojis: Boolean
+        get() = getBoolean(PrefKeys.ANIMATE_CUSTOM_EMOJIS, false)
+
+    /** True if the status' language should be checked before sending. */
+    var confirmStatusLanguage: Boolean
+        get() = getBoolean(PrefKeys.CONFIRM_STATUS_LANGUAGE, true)
+        set(value) {
+            edit { putBoolean(PrefKeys.CONFIRM_STATUS_LANGUAGE, value) }
+        }
+
     /** Location of downloaded files. */
     val downloadLocation: DownloadLocation
         get() = getEnum(PrefKeys.DOWNLOAD_LOCATION, DownloadLocation.DOWNLOADS)
 
+    /** True if swipe-gesture between tabs should be enabled. */
+    val enableTabSwipe: Boolean
+        get() = getBoolean(PrefKeys.ENABLE_SWIPE_FOR_TABS, true)
+
+    /** Whether to hide the top toolbar. */
+    val hideTopToolbar: Boolean
+        get() = getBoolean(PrefKeys.HIDE_TOP_TOOLBAR, false)
+
+    /** Screen location of primary navigation UI (tabs, etc). */
+    val mainNavigationPosition: MainNavigationPosition
+        get() = getEnum(PrefKeys.MAIN_NAV_POSITION, MainNavigationPosition.TOP)
+
+    /** When to show the account's username in the title. */
+    val showSelfUsername: ShowSelfUsername
+        get() = getEnum(PrefKeys.SHOW_SELF_USERNAME, ShowSelfUsername.DISAMBIGUATE)
+
+    /** How to align tabs. */
+    val tabAlignment: TabAlignment
+        get() = getEnum(PrefKeys.TAB_ALIGNMENT, TabAlignment.START)
+
+    /** How to display tabs. */
+    val tabContents: TabContents
+        get() = getEnum(PrefKeys.TAB_CONTENTS, TabContents.ICON_ONLY)
+
+    /** Behaviour when tapping on a tab. */
     val tabTapBehaviour: TabTapBehaviour
         get() = getEnum(PrefKeys.TAB_TAP_BEHAVIOUR, TabTapBehaviour.JUMP_TO_NEXT_PAGE)
 

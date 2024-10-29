@@ -42,18 +42,19 @@ import app.pachli.components.notifications.AppNotificationMethod
 import app.pachli.components.notifications.getApplicationLabel
 import app.pachli.components.notifications.hasPushScope
 import app.pachli.components.notifications.notificationMethod
-import app.pachli.core.accounts.AccountManager
 import app.pachli.core.activity.NotificationConfig
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.util.unsafeLazy
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.network.model.Notification
 import app.pachli.core.preferences.AppTheme
 import app.pachli.core.preferences.DownloadLocation
+import app.pachli.core.preferences.MainNavigationPosition
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
+import app.pachli.core.preferences.ShowSelfUsername
 import app.pachli.core.ui.extensions.await
 import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.AccountNotificationDetailsListItemBinding
@@ -71,8 +72,6 @@ import app.pachli.updatecheck.UpdateCheck
 import app.pachli.updatecheck.UpdateCheckResult.AT_LATEST
 import app.pachli.updatecheck.UpdateNotificationFrequency
 import app.pachli.util.LocaleManager
-import app.pachli.util.deserialize
-import app.pachli.util.serialize
 import app.pachli.view.FontFamilyDialogFragment
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -195,13 +194,10 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     icon = makeIcon(GoogleMaterial.Icon.gmd_format_size)
                 }
 
-                listPreference {
-                    setDefaultValue("disambiguate")
-                    setEntries(R.array.pref_show_self_username_names)
-                    setEntryValues(R.array.pref_show_self_username_values)
-                    key = PrefKeys.SHOW_SELF_USERNAME
-                    setSummaryProvider { entry }
+                enumListPreference<ShowSelfUsername> {
+                    setDefaultValue(ShowSelfUsername.DISAMBIGUATE)
                     setTitle(R.string.pref_title_show_self_username)
+                    key = PrefKeys.SHOW_SELF_USERNAME
                     isSingleLineTitle = false
                 }
 
@@ -282,16 +278,20 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     setTitle(R.string.pref_title_show_stat_inline)
                     isSingleLineTitle = false
                 }
+
+                switchPreference {
+                    setDefaultValue(true)
+                    key = PrefKeys.CONFIRM_STATUS_LANGUAGE
+                    setTitle(R.string.pref_title_confirm_status_language)
+                    isSingleLineTitle = false
+                }
             }
 
             preferenceCategory(app.pachli.core.preferences.R.string.pref_category_tabs) {
-                listPreference {
-                    setDefaultValue("top")
-                    setEntries(R.array.pref_main_nav_position_options)
-                    setEntryValues(R.array.pref_main_nav_position_values)
-                    key = PrefKeys.MAIN_NAV_POSITION
-                    setSummaryProvider { entry }
+                enumListPreference<MainNavigationPosition> {
+                    setDefaultValue(MainNavigationPosition.TOP)
                     setTitle(R.string.pref_main_nav_position)
+                    key = PrefKeys.MAIN_NAV_POSITION
                 }
 
                 switchPreference {
@@ -453,31 +453,6 @@ class PreferencesFragment : PreferenceFragmentCompat() {
             }
 
             preferenceCategory(R.string.pref_title_wellbeing_mode) {
-                switchPreference {
-                    title = getString(R.string.limit_notifications)
-                    setDefaultValue(false)
-                    key = PrefKeys.WELLBEING_LIMITED_NOTIFICATIONS
-                    setOnPreferenceChangeListener { _, value ->
-                        for (account in accountManager.accounts) {
-                            val notificationFilter = deserialize(account.notificationsFilter).toMutableSet()
-
-                            if (value == true) {
-                                notificationFilter.add(Notification.Type.FAVOURITE)
-                                notificationFilter.add(Notification.Type.FOLLOW)
-                                notificationFilter.add(Notification.Type.REBLOG)
-                            } else {
-                                notificationFilter.remove(Notification.Type.FAVOURITE)
-                                notificationFilter.remove(Notification.Type.FOLLOW)
-                                notificationFilter.remove(Notification.Type.REBLOG)
-                            }
-
-                            account.notificationsFilter = serialize(notificationFilter)
-                            accountManager.saveAccount(account)
-                        }
-                        true
-                    }
-                }
-
                 switchPreference {
                     title = getString(R.string.wellbeing_hide_stats_posts)
                     setDefaultValue(false)
