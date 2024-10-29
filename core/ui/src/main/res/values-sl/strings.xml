@@ -12,4 +12,7 @@
     <string name="action_hashtags">Ključniki</string>
     <string name="title_links_dialog">Povezave</string>
     <string name="title_hashtags_dialog">Ključniki</string>
+    <string name="action_follow">Sledi</string>
+    <string name="state_follow_requested">Prošnja za sledenje</string>
+    <string name="action_unfollow">Prenehaj slediti</string>
 </resources>

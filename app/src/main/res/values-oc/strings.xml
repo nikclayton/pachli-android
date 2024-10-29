@@ -45,8 +45,6 @@
     <string name="action_compose">Redactar</string>
     <string name="action_logout">Tampar la session</string>
     <string name="action_logout_confirm">Volètz vertadièrament vos desconnectar del compte %1$s ?</string>
-    <string name="action_follow">Seguir</string>
-    <string name="action_unfollow">Quitar de seguir</string>
     <string name="action_block">Blocar</string>
     <string name="action_unblock">Quitar de blocar</string>
     <string name="action_hide_reblogs">Rescondre los partatges</string>
@@ -172,7 +170,6 @@
     <string name="post_share_link">Partejar lo ligam del tut</string>
     <string name="post_media_images">Imatges</string>
     <string name="post_media_video">Vidèo</string>
-    <string name="state_follow_requested">Demanda d’abonament</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">en %d ans</string>
     <string name="abbreviated_in_days">en %dd</string>

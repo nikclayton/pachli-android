@@ -14,4 +14,7 @@
     <string name="action_hashtags">Aihetunnisteet</string>
     <string name="title_links_dialog">Linkit</string>
     <string name="title_hashtags_dialog">Aihetunnisteet</string>
+    <string name="action_follow">Seuraa</string>
+    <string name="state_follow_requested">Seuraamista pyydetty</string>
+    <string name="action_unfollow">Seurataan</string>
 </resources>

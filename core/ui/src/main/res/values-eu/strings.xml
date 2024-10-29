@@ -12,4 +12,7 @@
     <string name="action_hashtags">Traolak</string>
     <string name="title_links_dialog">Estekak</string>
     <string name="title_hashtags_dialog">Traolak</string>
+    <string name="action_follow">Jarraitu</string>
+    <string name="state_follow_requested">Eskaera bidalita</string>
+    <string name="action_unfollow">Jarraitzeari utzi</string>
 </resources>

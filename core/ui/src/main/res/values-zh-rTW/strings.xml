@@ -14,4 +14,7 @@
     <string name="title_links_dialog">連結</string>
     <string name="title_hashtags_dialog">話題</string>
     <string name="action_refresh">重新整理</string>
+    <string name="action_follow">關注</string>
+    <string name="state_follow_requested">已請求關注</string>
+    <string name="action_unfollow">取消關注</string>
 </resources>

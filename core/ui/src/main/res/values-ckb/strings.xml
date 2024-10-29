@@ -12,4 +12,7 @@
     <string name="action_hashtags">هاشتاگ</string>
     <string name="title_links_dialog">بەستەرەکان</string>
     <string name="title_hashtags_dialog">هاشتاگی</string>
+    <string name="action_follow">شوێنی بکەوە</string>
+    <string name="state_follow_requested">بەدواداچوونەوەی داواکراو</string>
+    <string name="action_unfollow">بەدوادانەچو</string>
 </resources>

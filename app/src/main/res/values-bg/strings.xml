@@ -149,7 +149,6 @@
     <string name="abbreviated_in_hours">след %dч</string>
     <string name="abbreviated_in_years">след %dг</string>
     <string name="abbreviated_in_days">след %dд</string>
-    <string name="state_follow_requested">Заявено последване</string>
     <string name="post_media_attachments">Прикачени файлове</string>
     <string name="post_media_audio">Аудио</string>
     <string name="post_media_video">Видео</string>
@@ -294,8 +293,6 @@
     <string name="action_hide_reblogs">Скриване на споделяния</string>
     <string name="action_unblock">Деблокиране</string>
     <string name="action_block">Блокиране</string>
-    <string name="action_unfollow">Отследване</string>
-    <string name="action_follow">Последване</string>
     <string name="action_logout_confirm">Сигурни ли сте, че искате да излезете от акаунта %1$s\?</string>
     <string name="action_logout">Излизане</string>
     <string name="action_compose">Композиране</string>

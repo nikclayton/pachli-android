@@ -51,8 +51,6 @@
     <string name="action_compose">Napsat</string>
     <string name="action_logout">Odhlásit se</string>
     <string name="action_logout_confirm">Jste si jistý/á, že se chcete odhlásit z účtu %1$s?</string>
-    <string name="action_follow">Sledovat</string>
-    <string name="action_unfollow">Přestat sledovat</string>
     <string name="action_block">Blokovat</string>
     <string name="action_unblock">Odblokovat</string>
     <string name="action_hide_reblogs">Skrýt boosty</string>
@@ -197,7 +195,6 @@
     <string name="post_share_link">Sdílet odkaz na příspěvek</string>
     <string name="post_media_images">Obrázky</string>
     <string name="post_media_video">Video</string>
-    <string name="state_follow_requested">Vyžádáno sledování</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">za %d let</string>
     <string name="abbreviated_in_days">za %d d</string>

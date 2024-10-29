@@ -14,4 +14,7 @@
     <string name="action_hashtags">Hashtagi</string>
     <string name="title_links_dialog">Linki</string>
     <string name="title_hashtags_dialog">Hashtagi</string>
+    <string name="action_follow">Obserwuj</string>
+    <string name="state_follow_requested">Wysłano prośbę o obserwację</string>
+    <string name="action_unfollow">Przestań obserwować</string>
 </resources>

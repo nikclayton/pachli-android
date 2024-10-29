@@ -143,7 +143,6 @@
     <string name="abbreviated_in_hours">ใน %d ชั่วโมง</string>
     <string name="abbreviated_in_days">ใน %d วัน</string>
     <string name="abbreviated_in_years">ใน %d ปี</string>
-    <string name="state_follow_requested">กำลังขอติดตาม</string>
     <string name="post_media_video">วิดีทัศน์</string>
     <string name="post_media_images">ภาพ</string>
     <string name="post_share_link">แบ่งปันลิงก์ Toot</string>
@@ -300,8 +299,6 @@
     <string name="action_hide_reblogs">ซ่อนการดัน</string>
     <string name="action_unblock">เลิกบล็อก</string>
     <string name="action_block">บล็อก</string>
-    <string name="action_unfollow">เลิกติดตาม</string>
-    <string name="action_follow">ติดตาม</string>
     <string name="action_logout_confirm">คุณต้องการออกจากระบบของบัญชี %1$s หรือไม่\?</string>
     <string name="action_compose">เขียนโพสต์ใหม่</string>
     <string name="action_unfavourite">เลิกชื่นชอบ</string>

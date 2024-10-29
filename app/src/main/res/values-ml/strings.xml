@@ -38,8 +38,6 @@
     <string name="action_unreblog">ബൂസ്റ്റ് പിൻവലിക്കുക</string>
     <string name="action_favourite">ഇഷ്ടപ്പെട്ടവ</string>
     <string name="action_unfavourite">ഇഷ്ടപ്പെട്ടവയിൽ നിന്നും കളയുക</string>
-    <string name="action_follow">പിന്തുടരുക</string>
-    <string name="action_unfollow">പിന്‍തുടരുന്നത് അവസാനിപ്പിക്കുക</string>
     <string name="action_view_follow_requests">പിന്‍തുടരുവാനുള്ള അഭ്യര്‍ത്ഥനകള്‍</string>
     <string name="title_domain_mutes">മറച്ചുവെച്ച ഡൊമൈനുകൾ</string>
     <string name="description_visibility_private">പിന്തുടരുന്നവർ</string>

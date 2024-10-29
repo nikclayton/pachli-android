@@ -14,4 +14,7 @@
     <string name="action_hashtags">Tagaichean hais</string>
     <string name="title_links_dialog">Ceanglaichean</string>
     <string name="title_hashtags_dialog">Tagaichean hais</string>
+    <string name="action_follow">Lean</string>
+    <string name="state_follow_requested">Iarrtas leantainn air</string>
+    <string name="action_unfollow">Na lean tuilleadh</string>
 </resources>

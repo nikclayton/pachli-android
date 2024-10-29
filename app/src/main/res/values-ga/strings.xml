@@ -130,8 +130,6 @@
     <string name="action_hide_reblogs">Folaigh athchraolta</string>
     <string name="action_unblock">Ná bac</string>
     <string name="action_block">Bac</string>
-    <string name="action_unfollow">Stop ag leanúint</string>
-    <string name="action_follow">Lean</string>
     <string name="action_logout_confirm">An bhfuil tú cinnte gur mhaith leat logáil amach as an gcuntas %1$s\?</string>
     <string name="action_compose">Cum</string>
     <string name="action_unfavourite">Bain togha</string>
@@ -219,7 +217,6 @@
     <string name="action_unmute_desc">Unmute %s</string>
     <string name="action_mute_conversation">Comhrá tost</string>
     <string name="post_media_video">Físeán</string>
-    <string name="state_follow_requested">Lean iarrtha</string>
     <string name="follows_you">Leanann tú</string>
     <string name="pref_title_alway_show_sensitive_media">Taispeáin ábhar íogair i gcónaí</string>
     <string name="filter_dialog_update_button">Nuashonrú</string>

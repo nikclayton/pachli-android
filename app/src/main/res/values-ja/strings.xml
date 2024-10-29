@@ -49,8 +49,6 @@
     <string name="action_compose">投稿する</string>
     <string name="action_logout">ログアウト</string>
     <string name="action_logout_confirm">アカウント %1$s からログアウトしてもよろしいですか？ログアウトすると、下書きや詳細設定を含めて、ローカルに保存されているアカウントの全てのデータが削除されます。</string>
-    <string name="action_follow">フォローする</string>
-    <string name="action_unfollow">フォロー解除</string>
     <string name="action_block">ブロック</string>
     <string name="action_unblock">ブロック解除</string>
     <string name="action_hide_reblogs">ブーストを非表示</string>
@@ -187,7 +185,6 @@
     <string name="post_share_link">投稿へのリンクを共有</string>
     <string name="post_media_images">画像</string>
     <string name="post_media_video">動画</string>
-    <string name="state_follow_requested">フォローリクエスト中</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="status_created_at_now">現在</string>
     <string name="abbreviated_in_years">%d年後</string>

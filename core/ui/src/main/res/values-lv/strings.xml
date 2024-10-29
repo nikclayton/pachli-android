@@ -14,4 +14,7 @@
     <string name="action_hashtags">Tēmturi</string>
     <string name="title_links_dialog">Saites</string>
     <string name="title_hashtags_dialog">Tēmturi</string>
+    <string name="action_follow">Sekot</string>
+    <string name="state_follow_requested">Sekošana pieprasīta</string>
+    <string name="action_unfollow">Pārtraukt sekošanu</string>
 </resources>

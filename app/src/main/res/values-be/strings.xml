@@ -156,8 +156,6 @@
     <string name="action_compose">Напісаць</string>
     <string name="action_logout">Выхад</string>
     <string name="action_logout_confirm">Вы ўпэўнены, што жадаеце выйсці з уліковага запісу %1$s\?</string>
-    <string name="action_follow">Падпісацца</string>
-    <string name="action_unfollow">Адпісацца</string>
     <string name="action_block">Заблакаваць</string>
     <string name="action_unblock">Разблакаваць</string>
     <string name="action_hide_reblogs">Схаваць пашырэнні</string>
@@ -270,7 +268,6 @@
     <string name="post_media_attachments">Далучэнні</string>
     <string name="status_count_one_plus">1+</string>
     <string name="status_created_at_now">зараз</string>
-    <string name="state_follow_requested">Запыт на падпіску</string>
     <string name="abbreviated_in_years">праз %dг</string>
     <string name="abbreviated_in_days">праз %dд</string>
     <string name="abbreviated_in_hours">праз %dгад</string>

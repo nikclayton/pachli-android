@@ -39,8 +39,6 @@
     <string name="action_favourite">Preferit</string>
     <string name="action_compose">Escriure</string>
     <string name="action_logout">Tanca sessió</string>
-    <string name="action_follow">Segueix</string>
-    <string name="action_unfollow">Deixa de seguir</string>
     <string name="action_block">Bloca</string>
     <string name="action_unblock">Deixa de blocar</string>
     <string name="action_report">Denuncia</string>
@@ -181,7 +179,6 @@
     <string name="download_media">Baixa el fitxer</string>
     <string name="send_media_to">Compartir la imatge a …</string>
     <string name="post_sent">Enviat!</string>
-    <string name="state_follow_requested">Petició enviada</string>
     <string name="title_posts_with_replies">Amb respostes</string>
     <string name="action_emoji_keyboard">Teclat d\'emojis</string>
     <string name="action_open_media_n">Obrir el media #%d</string>

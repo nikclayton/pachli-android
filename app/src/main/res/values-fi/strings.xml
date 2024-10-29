@@ -125,8 +125,6 @@
     <string name="action_report">Ilmianna</string>
     <string name="action_unblock">Poista esto</string>
     <string name="action_block">Estä</string>
-    <string name="action_unfollow">Seurataan</string>
-    <string name="action_follow">Seuraa</string>
     <string name="action_send_public">TUUT!</string>
     <string name="title_view_thread">Ketju</string>
     <string name="title_scheduled_posts">Ajastetut tuuttaukset</string>
@@ -360,7 +358,6 @@
     <string name="abbreviated_in_seconds">%ds</string>
     <string name="failed_to_unpin">Irrottaminen epäonnistui</string>
     <string name="unsaved_changes">Sinulla on tallentamattomia muutoksia.</string>
-    <string name="state_follow_requested">Seuraamista pyydetty</string>
     <string name="compose_delete_draft">Poista luonnos?</string>
     <string name="notification_notification_worker">Ilmoituksia haetaan…</string>
     <string name="pref_title_notification_filter_favourites">tykätyt julkaisut</string>

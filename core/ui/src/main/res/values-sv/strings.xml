@@ -14,4 +14,7 @@
     <string name="action_hashtags">Hashtaggar</string>
     <string name="title_links_dialog">Länkar</string>
     <string name="title_hashtags_dialog">Hashtaggar</string>
+    <string name="action_follow">Följ</string>
+    <string name="state_follow_requested">Följarförfrågan</string>
+    <string name="action_unfollow">Avfölj</string>
 </resources>

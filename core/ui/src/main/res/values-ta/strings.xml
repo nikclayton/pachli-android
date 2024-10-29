@@ -5,4 +5,7 @@
     <string name="action_retry">மீண்டும் முயற்சி</string>
     <string name="action_view_profile">சுயவிவரம்</string>
     <string name="action_more">மேலும்</string>
+    <string name="action_follow">பின்பற்று</string>
+    <string name="state_follow_requested">கோரிக்கையைப் பின்பற்றவும்</string>
+    <string name="action_unfollow">பின்பற்றாதே</string>
 </resources>

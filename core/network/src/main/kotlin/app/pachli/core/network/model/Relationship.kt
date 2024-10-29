@@ -45,4 +45,5 @@ data class Relationship(
     val note: String?,
     // since 3.3.0rc
     val notifying: Boolean?,
+    val languages: List<String>? = null,
 )

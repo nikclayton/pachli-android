@@ -47,8 +47,6 @@
     <string name="action_logout_confirm">သင် %1$s? မှထွက်ရန် သေချာသလား။ပုံကြမ်းများနှင့်ချိန်ညှိမှုများကိုဖျက်မည်ဖြစ်သည်။</string>
     <string name="action_post_failed_show_drafts">ပုံကြမ်းများပြရန်</string>
     <string name="action_post_failed_do_nothing">ပယ်ဖျက်မည်</string>
-    <string name="action_follow">စောင့်ကြည့်မည်</string>
-    <string name="action_unfollow">မစောင့်ကြည့်တော့ပါ</string>
     <string name="action_unblock">ဘလော့ခ်ဖြည်မည်</string>
     <string name="action_share_account_link">အကောင့်လင်ခ့်မျှဝေမည်</string>
     <string name="action_share_account_username">အကောင့်၏ Username မျှဝေမည်</string>

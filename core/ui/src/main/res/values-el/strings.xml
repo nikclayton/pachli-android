@@ -7,4 +7,6 @@
     <string name="action_more">Περισσότερα</string>
     <string name="action_links">Σύνδεσμοι</string>
     <string name="title_links_dialog">Σύνδεσμοι</string>
+    <string name="action_follow">Ακολουθήστε</string>
+    <string name="action_unfollow">Μην ακολουθείτε</string>
 </resources>

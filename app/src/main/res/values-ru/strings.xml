@@ -51,8 +51,6 @@
     <string name="action_compose">Сочинить</string>
     <string name="action_logout">Выйти</string>
     <string name="action_logout_confirm">Вы действительно хотите выйти из учётной записи %1$s?</string>
-    <string name="action_follow">Подписаться</string>
-    <string name="action_unfollow">Отписаться</string>
     <string name="action_block">Заблокировать</string>
     <string name="action_unblock">Разблокировать</string>
     <string name="action_hide_reblogs">Скрыть продвижения</string>
@@ -197,7 +195,6 @@
     <string name="post_share_link">Поделиться ссылкой на гудок</string>
     <string name="post_media_images">Изображения</string>
     <string name="post_media_video">Видео</string>
-    <string name="state_follow_requested">Запрошенные подписки</string>
     <!--Отметки времени у постов: "16s" or "2d"-->
     <string name="abbreviated_in_years">через %dг</string>
     <string name="abbreviated_in_days">через %dд</string>

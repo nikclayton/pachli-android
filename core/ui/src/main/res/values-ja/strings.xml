@@ -14,4 +14,7 @@
     <string name="action_hashtags">ハッシュタグ</string>
     <string name="title_links_dialog">リンク</string>
     <string name="title_hashtags_dialog">ハッシュタグ</string>
+    <string name="action_follow">フォローする</string>
+    <string name="state_follow_requested">フォローリクエスト中</string>
+    <string name="action_unfollow">フォロー解除</string>
 </resources>

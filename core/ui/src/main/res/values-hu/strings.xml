@@ -14,4 +14,7 @@
     <string name="action_hashtags">Hashtagek</string>
     <string name="title_links_dialog">Linkek</string>
     <string name="title_hashtags_dialog">Hashtagek</string>
+    <string name="action_follow">Követés</string>
+    <string name="state_follow_requested">Követés kérelmezve</string>
+    <string name="action_unfollow">Követés vége</string>
 </resources>

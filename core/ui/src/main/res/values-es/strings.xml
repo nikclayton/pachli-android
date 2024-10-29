@@ -14,4 +14,7 @@
     <string name="action_hashtags">Etiquetas</string>
     <string name="title_links_dialog">Enlaces</string>
     <string name="title_hashtags_dialog">Etiquetas</string>
+    <string name="action_follow">Seguir</string>
+    <string name="state_follow_requested">Solicitud enviada</string>
+    <string name="action_unfollow">Dejar de seguir</string>
 </resources>

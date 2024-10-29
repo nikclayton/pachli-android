@@ -10,8 +10,6 @@
     <string name="title_posts_with_replies">उत्तरों के साथ</string>
     <string name="title_followers">अनुगामी</string>
     <string name="action_reply">उत्तर दें</string>
-    <string name="action_follow">फ़ॉलो</string>
-    <string name="action_unfollow">अनफ़ॉलो</string>
     <string name="action_block">ब्लॉक</string>
     <string name="action_unblock">अनब्लॉक</string>
     <string name="action_hide_reblogs">बूस्ट छिपाएं</string>
@@ -271,7 +269,6 @@
     <string name="pref_title_alway_show_sensitive_media">संवेदनशील विषय वस्तु</string>
     <string name="follows_you">आपको फॉलो करते है</string>
     <string name="pref_title_notification_filter_follow_requests">फ़ॉलो करने का अनुरोध किया</string>
-    <string name="state_follow_requested">फ़ॉलो करने का अनुरोध किया हुआ</string>
     <string name="post_media_video">वीडियो</string>
     <string name="post_media_images">तस्वीरें</string>
     <string name="post_share_link">टूट का लिंक साझा करें</string>

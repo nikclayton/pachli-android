@@ -51,8 +51,6 @@
     <string name="action_compose">Bericht schrijven</string>
     <string name="action_logout">Uitloggen</string>
     <string name="action_logout_confirm">Weet je zeker dat je %1$s wil afmelden\? Dit verwijdert alle lokale gegevens van het account, inclusief conceptberichten en voorkeuren.</string>
-    <string name="action_follow">Volgen</string>
-    <string name="action_unfollow">Ontvolgen</string>
     <string name="action_block">Blokkeren</string>
     <string name="action_unblock">Deblokkeren</string>
     <string name="action_hide_reblogs">Boosts verbergen</string>
@@ -193,7 +191,6 @@
     <string name="post_share_link">Link van het bericht delen</string>
     <string name="post_media_images">Afbeeldingen</string>
     <string name="post_media_video">Video</string>
-    <string name="state_follow_requested">Volgverzoek verzonden</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">over %dj</string>
     <string name="abbreviated_in_days">over %dd</string>

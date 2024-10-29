@@ -53,8 +53,6 @@
     <string name="action_hide_reblogs">प्रकाशनानि छाद्यन्ताम्</string>
     <string name="action_unblock">अवरोधो नश्यताम्</string>
     <string name="action_block">अवरुध्यताम्</string>
-    <string name="action_unfollow">अनुसरणं अपाकुरुताम्</string>
-    <string name="action_follow">अनुस्रियताम्</string>
     <string name="action_logout_confirm">नूनमेव बहिर्गन्तुमीहते %1$s इति व्यक्तित्वलेखात् \?</string>
     <string name="action_logout">बहिर्गम्यताम्</string>
     <string name="action_compose">रच्यताम्</string>
@@ -184,7 +182,6 @@
     <string name="abbreviated_in_hours">%dh घ</string>
     <string name="abbreviated_in_days">%dd दि</string>
     <string name="abbreviated_in_years">%dy वर्ष</string>
-    <string name="state_follow_requested">अनुसरणं निवेदितम्</string>
     <string name="post_media_video">चलचित्राणि</string>
     <string name="post_media_images">चित्राणि</string>
     <string name="post_share_link">दौत्याय जालस्थानं विभाज्यताम्</string>

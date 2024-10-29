@@ -79,8 +79,6 @@
     <string name="action_compose">Escrever</string>
     <string name="action_logout">Sair</string>
     <string name="action_logout_confirm">Tem a certeza que deseja sair da conta %1$s\?</string>
-    <string name="action_follow">Seguir</string>
-    <string name="action_unfollow">Deixar de seguir</string>
     <string name="action_block">Bloquear</string>
     <string name="action_unblock">Desbloquear</string>
     <string name="action_hide_reblogs">Esconder boosts</string>
@@ -249,7 +247,6 @@
     <string name="post_media_video">Vídeo</string>
     <string name="post_media_audio">Áudio</string>
     <string name="post_media_attachments">Anexos</string>
-    <string name="state_follow_requested">Pedido para seguir enviado</string>
     <string name="abbreviated_in_years">em %dy</string>
     <string name="abbreviated_in_days">em %dd</string>
     <string name="abbreviated_in_hours">em %dh</string>

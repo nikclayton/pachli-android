@@ -12,4 +12,7 @@
     <string name="action_hashtags">Хэштеги</string>
     <string name="title_links_dialog">Ссылки</string>
     <string name="title_hashtags_dialog">Хэштеги</string>
+    <string name="action_follow">Подписаться</string>
+    <string name="state_follow_requested">Запрошенные подписки</string>
+    <string name="action_unfollow">Отписаться</string>
 </resources>

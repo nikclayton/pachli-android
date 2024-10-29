@@ -67,8 +67,6 @@
     <string name="action_report">Поскаржитися</string>
     <string name="action_unblock">Розблокувати</string>
     <string name="action_block">Заблокувати</string>
-    <string name="action_unfollow">Відписатися</string>
-    <string name="action_follow">Підписатися</string>
     <string name="action_logout_confirm">Ви впевнені, що хочете вийти %1$s\? Це призведе до видалення всіх локальних даних облікового запису, включно з чернетками та вподобаннями.</string>
     <string name="action_compose">Написати</string>
     <string name="action_unfavourite">Не подобається</string>
@@ -268,7 +266,6 @@
     <string name="abbreviated_in_hours">за %dгод</string>
     <string name="abbreviated_in_days">за %dдн</string>
     <string name="abbreviated_in_years">за %dр.</string>
-    <string name="state_follow_requested">Запит на підписку надіслано</string>
     <string name="post_media_attachments">Вкладення</string>
     <string name="post_media_audio">Звуки</string>
     <string name="post_media_video">Відео</string>

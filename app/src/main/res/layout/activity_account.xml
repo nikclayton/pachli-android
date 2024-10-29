@@ -188,6 +188,12 @@
                         app:barrierDirection="bottom"
                         app:constraint_referenced_ids="accountFollowsYouChip,accountBadgeContainer" />
 
+                    <app.pachli.core.ui.ManageRelationshipButton
+                        android:id="@+id/manageRelationship"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/labelBarrier" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/accountNoteTextInputLayout"
                         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -195,7 +201,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:visibility="gone"
-                        app:layout_constraintTop_toBottomOf="@id/labelBarrier"
+                        app:layout_constraintTop_toBottomOf="@id/manageRelationship"
                         tools:visibility="visible">
 
                         <com.google.android.material.textfield.TextInputEditText

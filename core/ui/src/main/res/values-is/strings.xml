@@ -14,4 +14,7 @@
     <string name="action_hashtags">Myllumerki</string>
     <string name="title_links_dialog">Tenglar</string>
     <string name="title_hashtags_dialog">Myllumerki</string>
+    <string name="action_follow">Fylgja</string>
+    <string name="state_follow_requested">Beðið um að fylgja</string>
+    <string name="action_unfollow">Hætta að fylgjast með</string>
 </resources>

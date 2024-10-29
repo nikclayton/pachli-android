@@ -51,8 +51,6 @@
     <string name="action_compose">Verki</string>
     <string name="action_logout">Elsaluti</string>
     <string name="action_logout_confirm">Ĉu vi certas, ke vi volas elsaluti el la konto %1$s\?</string>
-    <string name="action_follow">Sekvi</string>
-    <string name="action_unfollow">Ne plu sekvi</string>
     <string name="action_block">Bloki</string>
     <string name="action_unblock">Malbloki</string>
     <string name="action_hide_reblogs">Kaŝi diskonigojn</string>
@@ -196,7 +194,6 @@
     <string name="post_share_link">Konigi ligilon al mesaĝo</string>
     <string name="post_media_images">Bildoj</string>
     <string name="post_media_video">Video</string>
-    <string name="state_follow_requested">Sekvado petita</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">post %dj</string>
     <string name="abbreviated_in_days">post %dt</string>

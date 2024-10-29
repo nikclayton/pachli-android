@@ -27,8 +27,6 @@
     <string name="title_home">Domov</string>
     <string name="title_tab_preferences">Panely</string>
     <string name="action_bookmark">Vytvoriť záložku</string>
-    <string name="action_follow">Sledovať</string>
-    <string name="action_unfollow">Prestať sledovať</string>
     <string name="action_block">Blokovať</string>
     <string name="action_unblock">Odblokovať</string>
     <string name="action_report">Nahlásiť</string>

@@ -49,8 +49,6 @@
     <string name="action_compose">Redactar</string>
     <string name="action_logout">Cerrar sesión</string>
     <string name="action_logout_confirm">¿Seguro que quiere cerrar la sesión de %1$s? Esto eliminará todos los datos locales de la cuenta, incluyendo borradores y preferencias.</string>
-    <string name="action_follow">Seguir</string>
-    <string name="action_unfollow">Dejar de seguir</string>
     <string name="action_block">Bloquear</string>
     <string name="action_unblock">Desbloquear</string>
     <string name="action_hide_reblogs">Ocultar impulsos</string>
@@ -185,7 +183,6 @@
     <string name="post_share_link">Compartir enlace</string>
     <string name="post_media_images">Imágenes</string>
     <string name="post_media_video">Video</string>
-    <string name="state_follow_requested">Solicitud enviada</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="status_created_at_now">Ahora</string>
     <string name="abbreviated_in_years">en %dy</string>

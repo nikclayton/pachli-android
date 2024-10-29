@@ -49,8 +49,6 @@
     <string name="action_compose">Sestavi</string>
     <string name="action_logout">Odjava</string>
     <string name="action_logout_confirm">Ali ste prepričani, da se želite odjaviti iz računa %1$s\?</string>
-    <string name="action_follow">Sledi</string>
-    <string name="action_unfollow">Prenehaj slediti</string>
     <string name="action_block">Blokiraj</string>
     <string name="action_unblock">Odblokiraj</string>
     <string name="action_hide_reblogs">Skirj spodbude</string>
@@ -180,7 +178,6 @@
     <string name="post_share_link">Deli povezavo do tuta</string>
     <string name="post_media_images">Slike</string>
     <string name="post_media_video">Video</string>
-    <string name="state_follow_requested">Prošnja za sledenje</string>
     <string name="abbreviated_in_years">v %dy</string>
     <string name="abbreviated_in_days">v %dd</string>
     <string name="abbreviated_in_hours">v %dh</string>

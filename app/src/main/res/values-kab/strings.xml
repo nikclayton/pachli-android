@@ -19,8 +19,6 @@
     <string name="notification_follow_format">%s yeṭṭafar-ik·ikem-id</string>
     <string name="action_reply">Err</string>
     <string name="action_compose">Azen</string>
-    <string name="action_follow">Ḍfeṛ</string>
-    <string name="action_unfollow">Ur ṭṭafar ara</string>
     <string name="action_edit">Ẓreg</string>
     <string name="action_delete">Kkes</string>
     <string name="action_delete_and_redraft">Kkes tɛiwdeḍ tira</string>

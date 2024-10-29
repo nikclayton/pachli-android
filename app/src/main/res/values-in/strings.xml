@@ -35,8 +35,6 @@
     <string name="post_content_warning_show_less">Tampilkan Lebih Sedikit</string>
     <string name="notification_follow_format">%s mengikuti Anda</string>
     <string name="report_username_format">Laporkan @%s</string>
-    <string name="action_follow">Ikuti</string>
-    <string name="action_unfollow">Berhenti Mengikuti</string>
     <string name="action_block">Blokir</string>
     <string name="action_unblock">Buka blokir</string>
     <string name="action_report">Laporkan</string>

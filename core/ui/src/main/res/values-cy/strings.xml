@@ -14,4 +14,7 @@
     <string name="action_hashtags">Hashnodau</string>
     <string name="title_links_dialog">Dolenni</string>
     <string name="title_hashtags_dialog">Hashnodau</string>
+    <string name="action_follow">Dilyn</string>
+    <string name="state_follow_requested">Ceisiwyd</string>
+    <string name="action_unfollow">Dad-ddilyn</string>
 </resources>

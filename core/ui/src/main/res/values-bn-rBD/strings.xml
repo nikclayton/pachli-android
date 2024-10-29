@@ -12,4 +12,7 @@
     <string name="action_hashtags">হ্যাশট্যাগ</string>
     <string name="title_links_dialog">লিংকসমূহ</string>
     <string name="title_hashtags_dialog">হ্যাশট্যাগ</string>
+    <string name="action_follow">অনুসরণ কর</string>
+    <string name="state_follow_requested">অনুরোধ অনুসরণ করুন</string>
+    <string name="action_unfollow">অনুসরণ করা বন্ধ করুন</string>
 </resources>

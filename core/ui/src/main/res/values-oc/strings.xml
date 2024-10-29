@@ -14,4 +14,7 @@
     <string name="action_hashtags">Etiquetas</string>
     <string name="title_links_dialog">Ligams</string>
     <string name="title_hashtags_dialog">Etiquetas</string>
+    <string name="action_follow">Seguir</string>
+    <string name="state_follow_requested">Demanda d’abonament</string>
+    <string name="action_unfollow">Quitar de seguir</string>
 </resources>

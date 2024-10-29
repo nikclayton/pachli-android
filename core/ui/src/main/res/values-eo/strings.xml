@@ -13,4 +13,7 @@
     <string name="action_hashtags">Kradvortoj</string>
     <string name="title_links_dialog">Ligiloj</string>
     <string name="title_hashtags_dialog">Kradvortoj</string>
+    <string name="action_follow">Sekvi</string>
+    <string name="state_follow_requested">Sekvado petita</string>
+    <string name="action_unfollow">Ne plu sekvi</string>
 </resources>

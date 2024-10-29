@@ -34,9 +34,7 @@
     <string name="action_reply">Atbildēt</string>
     <string name="action_bookmark">Atzīmēt ar grāmatzīmi</string>
     <string name="action_unbookmark">Noņemt grāmatzīmi</string>
-    <string name="action_follow">Sekot</string>
     <string name="action_unblock">Atbloķēt</string>
-    <string name="action_unfollow">Pārtraukt sekošanu</string>
     <string name="action_edit">Labot</string>
     <string name="action_delete">Dzēst</string>
     <string name="action_delete_conversation">Dzēst sarunu</string>
@@ -96,7 +94,6 @@
     <string name="post_media_video">Video</string>
     <string name="post_media_audio">Audio</string>
     <string name="post_media_attachments">Pielikumi</string>
-    <string name="state_follow_requested">Sekošana pieprasīta</string>
     <string name="pref_title_public_filter_keywords">Publiskās laika līnijas</string>
     <string name="filter_addition_title">Pievienot filtru</string>
     <string name="pref_title_thread_filter_keywords">Sarunas</string>

@@ -13,4 +13,7 @@
     <string name="action_hashtags">Hashtags</string>
     <string name="title_links_dialog">Hiperligações</string>
     <string name="title_hashtags_dialog">Hashtags</string>
+    <string name="action_follow">Seguir</string>
+    <string name="state_follow_requested">Pedido para seguir enviado</string>
+    <string name="action_unfollow">Deixar de seguir</string>
 </resources>

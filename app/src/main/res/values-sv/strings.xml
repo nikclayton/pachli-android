@@ -51,8 +51,6 @@
     <string name="action_compose">Skriv</string>
     <string name="action_logout">Logga ut</string>
     <string name="action_logout_confirm">Är du säker på att du vill logga ut från kontot %1$s?</string>
-    <string name="action_follow">Följ</string>
-    <string name="action_unfollow">Avfölj</string>
     <string name="action_block">Blockera</string>
     <string name="action_unblock">Avblockera</string>
     <string name="action_hide_reblogs">Dölj knuffar</string>
@@ -194,7 +192,6 @@
     <string name="post_share_link">Dela länk till toot</string>
     <string name="post_media_images">Bilder</string>
     <string name="post_media_video">Video</string>
-    <string name="state_follow_requested">Följarförfrågan</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">om %dy</string>
     <string name="abbreviated_in_days">om %dd</string>

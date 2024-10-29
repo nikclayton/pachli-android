@@ -51,6 +51,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.MarginPageTransformer
 import app.pachli.R
@@ -83,6 +84,11 @@ import app.pachli.core.network.model.Relationship
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.preferences.AppTheme
 import app.pachli.core.preferences.PrefKeys
+import app.pachli.core.ui.FollowAction
+import app.pachli.core.ui.FollowActionCallback
+import app.pachli.core.ui.FollowOptions
+import app.pachli.core.ui.FollowOptionsDialog
+import app.pachli.core.ui.FollowState
 import app.pachli.core.ui.LinkListener
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.core.ui.getDomain
@@ -116,6 +122,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.abs
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Show a single account's profile details.
@@ -144,7 +152,7 @@ class AccountActivity :
 
     private lateinit var accountFieldAdapter: AccountFieldAdapter
 
-    private var followState: FollowState = FollowState.NOT_FOLLOWING
+    private var followState: FollowState = FollowState.NotFollowing
     private var blocking: Boolean = false
     private var muting: Boolean = false
     private var blockingDomain: Boolean = false
@@ -174,11 +182,11 @@ class AccountActivity :
     private var titleVisibleHeight: Int = 0
     private lateinit var domain: String
 
-    private enum class FollowState {
-        NOT_FOLLOWING,
-        FOLLOWING,
-        REQUESTED,
-    }
+//    private enum class FollowState {
+//        NOT_FOLLOWING,
+//        FOLLOWING,
+//        REQUESTED,
+//    }
 
     private lateinit var adapter: AccountPagerAdapter
 
@@ -217,6 +225,27 @@ class AccountActivity :
         }
 
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
+
+        binding.manageRelationship.followActionCallback = FollowActionCallback { action ->
+            when (action) {
+                is FollowAction.Follow -> viewModel.changeFollowState()
+                FollowAction.CancelFollowRequest -> showFollowRequestPendingDialog()
+                FollowAction.Unfollow -> showUnfollowWarningDialog()
+                FollowAction.ShowOptions -> {
+                    lifecycleScope.launch {
+                        val button = FollowOptionsDialog
+//                        .newInstance(viewModel.locales.value)
+//                        .show(supportFragmentManager, "follow_options_dialog")
+                            .awaitButton(
+                                supportFragmentManager,
+                                getString(android.R.string.ok),
+                                getString(android.R.string.cancel),
+                            )
+                        Timber.d("got button: $button")
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -654,17 +683,19 @@ class AccountActivity :
                     return@setOnClickListener
                 }
 
-                when (followState) {
-                    FollowState.NOT_FOLLOWING -> {
-                        viewModel.changeFollowState()
-                    }
-                    FollowState.REQUESTED -> {
-                        showFollowRequestPendingDialog()
-                    }
-                    FollowState.FOLLOWING -> {
-                        showUnfollowWarningDialog()
-                    }
-                }
+//                when (followState) {
+//                    FollowState.NotFollowing -> {
+//                        viewModel.changeFollowState()
+//                    }
+//
+//                    is FollowState.FollowRequested -> {
+//                        showFollowRequestPendingDialog()
+//                    }
+//
+//                    is FollowState.Following -> {
+//                        showUnfollowWarningDialog()
+//                    }
+//                }
                 updateFollowButton()
                 updateSubscribeButton()
             }
@@ -673,9 +704,23 @@ class AccountActivity :
 
     private fun onRelationshipChanged(relation: Relationship) {
         followState = when {
-            relation.following -> FollowState.FOLLOWING
-            relation.requested -> FollowState.REQUESTED
-            else -> FollowState.NOT_FOLLOWING
+            relation.following -> FollowState.Following(
+                FollowOptions(
+                    includeReblogs = relation.showingReblogs,
+                    notify = relation.notifying == true,
+                    languages = relation.languages,
+                ),
+            )
+
+            relation.requested -> FollowState.FollowRequested(
+                FollowOptions(
+                    includeReblogs = relation.showingReblogs,
+                    notify = relation.notifying == true,
+                    languages = relation.languages,
+                ),
+            )
+
+            else -> FollowState.NotFollowing
         }
         blocking = relation.blocking
         muting = relation.muting
@@ -690,7 +735,7 @@ class AccountActivity :
         // because subscribing is Pleroma extension, enable it __only__ when we have non-null subscribing field
         // it's also now supported in Mastodon 3.3.0rc but called notifying and use different API call
         if (!viewModel.isSelf &&
-            followState == FollowState.FOLLOWING &&
+            followState is FollowState.Following &&
             (relation.subscribing != null || relation.notifying != null)
         ) {
             binding.accountSubscribeButton.show()
@@ -726,17 +771,21 @@ class AccountActivity :
             binding.accountFollowButton.setText(R.string.action_unblock)
             return
         }
-        when (followState) {
-            FollowState.NOT_FOLLOWING -> {
-                binding.accountFollowButton.setText(R.string.action_follow)
-            }
-            FollowState.REQUESTED -> {
-                binding.accountFollowButton.setText(R.string.state_follow_requested)
-            }
-            FollowState.FOLLOWING -> {
-                binding.accountFollowButton.setText(R.string.action_unfollow)
-            }
-        }
+//        when (followState) {
+//            FollowState.NotFollowing -> {
+//                binding.accountFollowButton.setText(R.string.action_follow)
+//            }
+//
+//            is FollowState.FollowRequested -> {
+//                binding.accountFollowButton.setText(R.string.state_follow_requested)
+//            }
+//
+//            is FollowState.Following -> {
+//                binding.accountFollowButton.setText(R.string.action_unfollow)
+//            }
+//        }
+
+        binding.manageRelationship.bind(followState)
     }
 
     private fun updateMuteButton() {
@@ -748,7 +797,7 @@ class AccountActivity :
     }
 
     private fun updateSubscribeButton() {
-        if (followState != FollowState.FOLLOWING) {
+        if (followState !is FollowState.Following) {
             binding.accountSubscribeButton.hide()
         }
 
@@ -872,7 +921,7 @@ class AccountActivity :
                 }
             }
 
-            if (followState == FollowState.FOLLOWING) {
+            if (followState is FollowState.Following) {
                 val showReblogs = menu.findItem(R.id.action_show_reblogs)
                 showReblogs.title = if (showingReblogs) {
                     getString(R.string.action_hide_reblogs)
@@ -891,7 +940,7 @@ class AccountActivity :
             menu.removeItem(R.id.action_report)
         }
 
-        if (!viewModel.isSelf && followState != FollowState.FOLLOWING) {
+        if (!viewModel.isSelf && followState !is FollowState.Following) {
             menu.removeItem(R.id.action_add_or_remove_from_list)
         }
 

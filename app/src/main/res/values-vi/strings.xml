@@ -116,8 +116,6 @@
     <string name="action_hide_reblogs">Ẩn lượt đăng lại</string>
     <string name="action_unblock">Bỏ chặn</string>
     <string name="action_block">Chặn</string>
-    <string name="action_unfollow">Bỏ theo dõi</string>
-    <string name="action_follow">Theo dõi</string>
     <string name="action_logout_confirm">Bạn có muốn đăng xuất tài khoản %1$s\? Dữ liệu của tài khoản sẽ bị xóa, bao gồm những bản nháp và thiết lập.</string>
     <string name="action_compose">Soạn tút</string>
     <string name="action_unfavourite">Bỏ lưu</string>
@@ -248,7 +246,6 @@
     <string name="abbreviated_in_hours">%d giờ</string>
     <string name="abbreviated_in_days">%d ngày</string>
     <string name="abbreviated_in_years">%d năm</string>
-    <string name="state_follow_requested">Yêu cầu theo dõi</string>
     <string name="post_media_video">Video</string>
     <string name="post_media_images">Hình ảnh</string>
     <string name="post_share_link">URL tút</string>

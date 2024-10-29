@@ -11,7 +11,6 @@
     <string name="notification_follow_format">ο/η %s σας ακολούθησε</string>
     <string name="action_view_mutes">Χρήστες σε σίγαση</string>
     <string name="action_logout">Αποσύνδεση</string>
-    <string name="action_unfollow">Μην ακολουθείτε</string>
     <string name="action_unmute_domain">Άρση σίγασης του %s</string>
     <string name="action_delete_and_redraft">Διαγραφή και αναδιατύπωση</string>
     <string name="action_edit_profile">Επεξεργασία προφίλ</string>
@@ -42,7 +41,6 @@
     <string name="title_tab_preferences">Καρτέλες</string>
     <string name="notification_reblog_format">ο/η %s προώθησε τη δημοσίευσή σας</string>
     <string name="notification_favourite_format">στον/στην %s άρεσε η δημοσίευσή σας</string>
-    <string name="action_follow">Ακολουθήστε</string>
     <string name="action_report">Αναφορά</string>
     <string name="action_mute">Σίγαση</string>
     <string name="action_unfavourite">Αφαίρεση αγαπημένου</string>

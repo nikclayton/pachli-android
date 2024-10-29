@@ -22,8 +22,6 @@
     <string name="hint_search">Lorg…</string>
     <string name="action_send_public">POSTAICH!</string>
     <string name="action_emoji_keyboard">Meur-chlàr Emoji</string>
-    <string name="action_unfollow">Na lean tuilleadh</string>
-    <string name="action_follow">Lean</string>
     <string name="action_send">POSTAICH</string>
     <string name="action_delete">Sguab às</string>
     <string name="action_delete_and_redraft">Sguab às is dèan dreachd ùr air</string>
@@ -271,7 +269,6 @@
     <string name="abbreviated_in_hours">an ceann %du</string>
     <string name="abbreviated_in_days">an ceann %dl</string>
     <string name="abbreviated_in_years">an ceann %db</string>
-    <string name="state_follow_requested">Iarrtas leantainn air</string>
     <string name="post_media_video">Videothan</string>
     <string name="post_media_images">Dealbhan</string>
     <string name="about_pachli_version">Pachli %s</string>

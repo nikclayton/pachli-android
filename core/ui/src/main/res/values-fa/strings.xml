@@ -14,4 +14,7 @@
     <string name="action_hashtags">برچسب‌ها</string>
     <string name="title_links_dialog">پیوندها</string>
     <string name="title_hashtags_dialog">برچسب‌ها</string>
+    <string name="action_follow">پیگیری</string>
+    <string name="state_follow_requested">تقاضای پیگیری شد</string>
+    <string name="action_unfollow">ناپیگیری</string>
 </resources>

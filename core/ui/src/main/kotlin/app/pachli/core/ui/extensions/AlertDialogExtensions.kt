@@ -77,6 +77,8 @@ suspend fun AlertDialog.await(
  */
 data class SingleChoiceItemResult(val button: Int, val index: Int)
 
+data class MultiChoiceItemResult(val button: Int, val indices: List<Boolean>)
+
 /**
  * Shows an [AlertDialog] displaying [items] with the item at
  * [initialIndex] selected.
@@ -117,6 +119,36 @@ suspend inline fun <reified T : CharSequence> AlertDialog.Builder.awaitSingleCho
     setOnCancelListener { cont.resume(SingleChoiceItemResult(BUTTON_NEGATIVE, selectedIndex)) {} }
     setOnDismissListener { if (!cont.isCompleted) cont.resume(SingleChoiceItemResult(BUTTON_NEGATIVE, selectedIndex)) {} }
     val dialog = create()
+
+    cont.invokeOnCancellation { dialog.dismiss() }
+    dialog.show()
+}
+
+suspend inline fun <reified T : CharSequence> AlertDialog.Builder.awaitMultiChoiceItems(
+    items: List<T>,
+    initialValues: List<Boolean>,
+    @StringRes positiveTextResource: Int,
+    @StringRes negativeTextResource: Int? = null,
+    @StringRes neutralTextResource: Int? = null,
+) = suspendCancellableCoroutine { cont ->
+    val checkedItems = initialValues.toMutableList()
+
+    val itemListener = DialogInterface.OnMultiChoiceClickListener { _, which, isChecked ->
+        checkedItems[which] = isChecked
+    }
+
+    val buttonListener = DialogInterface.OnClickListener { _, which ->
+        cont.resume(MultiChoiceItemResult(which, checkedItems)) { }
+    }
+
+    setMultiChoiceItems(items.toTypedArray(), checkedItems.toBooleanArray(), itemListener)
+    setPositiveButton(positiveTextResource, buttonListener)
+    negativeTextResource?.let { setNegativeButton(it, buttonListener) }
+    neutralTextResource?.let { setNeutralButton(it, buttonListener) }
+    val dialog = create()
+
+    dialog.setOnCancelListener { cont.resume(MultiChoiceItemResult(BUTTON_NEGATIVE, checkedItems)) {} }
+    dialog.setOnDismissListener { if (!cont.isCompleted) cont.resume(MultiChoiceItemResult(BUTTON_NEGATIVE, checkedItems)) {} }
 
     cont.invokeOnCancellation { dialog.dismiss() }
     dialog.show()

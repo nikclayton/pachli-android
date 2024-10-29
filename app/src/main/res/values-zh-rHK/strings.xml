@@ -51,8 +51,6 @@
     <string name="action_compose">撰寫嘟文</string>
     <string name="action_logout">登出</string>
     <string name="action_logout_confirm">您確定要登出 %1$s 嗎？這會刪除帳戶所有本機數據，包括草稿和選項。</string>
-    <string name="action_follow">關注</string>
-    <string name="action_unfollow">取消關注</string>
     <string name="action_block">封鎖</string>
     <string name="action_unblock">取消封鎖</string>
     <string name="action_hide_reblogs">隱藏轉嘟</string>
@@ -199,7 +197,6 @@
     <string name="post_share_link">分享嘟文連結</string>
     <string name="post_media_images">照片</string>
     <string name="post_media_video">影片</string>
-    <string name="state_follow_requested">已請求關注</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">%d 年內</string>
     <string name="abbreviated_in_days">%d 天內</string>

@@ -68,8 +68,6 @@
     <string name="action_hide_reblogs">شاردنەوەی بەهێزکردنەکان</string>
     <string name="action_unblock">بەربەست کردن لاببە</string>
     <string name="action_block">بلۆک</string>
-    <string name="action_unfollow">بەدوادانەچو</string>
-    <string name="action_follow">شوێنی بکەوە</string>
     <string name="action_logout_confirm">ئایا دڵنیایت لەوەی دەتەوێت بچیتەدەرەوە لە هەژماری %1$s؟</string>
     <string name="action_logout">چوونەدەرەوە</string>
     <string name="action_compose">دروستکردن</string>
@@ -358,7 +356,6 @@
     <string name="abbreviated_in_hours">لە %dh</string>
     <string name="abbreviated_in_days">لە %dd</string>
     <string name="abbreviated_in_years">لە %dy</string>
-    <string name="state_follow_requested">بەدواداچوونەوەی داواکراو</string>
     <string name="post_media_video">ڤیدیۆ</string>
     <string name="post_media_images">وێنەکان</string>
     <string name="post_share_link">هاوبەشکردنی لینک بۆ توت</string>

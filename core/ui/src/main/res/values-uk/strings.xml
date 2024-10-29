@@ -14,4 +14,7 @@
     <string name="action_hashtags">Хештеги</string>
     <string name="title_links_dialog">Посилання</string>
     <string name="title_hashtags_dialog">Хештеги</string>
+    <string name="action_follow">Підписатися</string>
+    <string name="state_follow_requested">Запит на підписку надіслано</string>
+    <string name="action_unfollow">Відписатися</string>
 </resources>

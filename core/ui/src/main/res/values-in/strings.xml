@@ -11,4 +11,6 @@
     <string name="action_hashtags">Hashtag</string>
     <string name="title_links_dialog">Tautan</string>
     <string name="title_hashtags_dialog">Hashtag</string>
+    <string name="action_follow">Ikuti</string>
+    <string name="action_unfollow">Berhenti Mengikuti</string>
 </resources>

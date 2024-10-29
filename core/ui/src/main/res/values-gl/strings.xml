@@ -14,4 +14,7 @@
     <string name="action_hashtags">Cancelos</string>
     <string name="title_links_dialog">Ligazóns</string>
     <string name="title_hashtags_dialog">Cancelos</string>
+    <string name="action_follow">Seguir</string>
+    <string name="state_follow_requested">Seguimento solicitado</string>
+    <string name="action_unfollow">Deixar de seguir</string>
 </resources>

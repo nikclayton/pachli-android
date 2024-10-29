@@ -18,11 +18,16 @@ import app.pachli.util.Error
 import app.pachli.util.Loading
 import app.pachli.util.Resource
 import app.pachli.util.Success
+import app.pachli.util.getInitialLanguages
+import app.pachli.util.getLocaleList
 import at.connyduck.calladapter.networkresult.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -53,6 +58,14 @@ class AccountViewModel @Inject constructor(
     private var noteUpdateJob: Job? = null
 
     private val activeAccount = accountManager.activeAccount!!
+
+    val locales = accountManager.activeAccountFlow.map {
+        getLocaleList(getInitialLanguages(activeAccount = it))
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        getLocaleList(getInitialLanguages()),
+    )
 
     init {
         viewModelScope.launch {

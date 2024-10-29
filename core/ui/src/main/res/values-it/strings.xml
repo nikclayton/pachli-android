@@ -14,4 +14,7 @@
     <string name="action_hashtags">Hashtag</string>
     <string name="title_links_dialog">Collegamenti</string>
     <string name="title_hashtags_dialog">Hashtag</string>
+    <string name="action_follow">Segui</string>
+    <string name="state_follow_requested">Richiesta inviata</string>
+    <string name="action_unfollow">Smetti di seguire</string>
 </resources>

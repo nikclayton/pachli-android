@@ -13,4 +13,7 @@
     <string name="action_hashtags">Hashtagy</string>
     <string name="title_links_dialog">Odkazy</string>
     <string name="title_hashtags_dialog">Hashtagy</string>
+    <string name="action_follow">Sledovat</string>
+    <string name="state_follow_requested">Vyžádáno sledování</string>
+    <string name="action_unfollow">Přestat sledovat</string>
 </resources>

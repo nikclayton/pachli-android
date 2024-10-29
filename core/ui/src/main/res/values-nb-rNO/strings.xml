@@ -14,4 +14,7 @@
     <string name="action_hashtags">Emneknagger</string>
     <string name="title_links_dialog">Lenker</string>
     <string name="title_hashtags_dialog">Stikkord</string>
+    <string name="action_follow">Følg</string>
+    <string name="state_follow_requested">Forespørsel sendt</string>
+    <string name="action_unfollow">Slutt å følge</string>
 </resources>

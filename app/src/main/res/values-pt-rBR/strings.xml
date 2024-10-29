@@ -48,8 +48,6 @@
     <string name="action_compose">Compor</string>
     <string name="action_logout">Sair</string>
     <string name="action_logout_confirm">Tem certeza que deseja sair da conta %1$s? Isso excluirá todos os dados locais da conta, incluindo rascunhos e preferências.</string>
-    <string name="action_follow">Seguir</string>
-    <string name="action_unfollow">Deixar de seguir</string>
     <string name="action_block">Bloquear</string>
     <string name="action_unblock">Desbloquear</string>
     <string name="action_hide_reblogs">Ocultar Boosts</string>
@@ -186,7 +184,6 @@
     <string name="post_share_link">Compartilhar URL do Toot</string>
     <string name="post_media_images">Imagens</string>
     <string name="post_media_video">Vídeo</string>
-    <string name="state_follow_requested">Solicitação enviada</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">em %dy</string>
     <string name="abbreviated_in_days">em %dd</string>

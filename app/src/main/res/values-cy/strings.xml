@@ -46,8 +46,6 @@
     <string name="action_compose">Creu</string>
     <string name="action_logout">Allgofnodi</string>
     <string name="action_logout_confirm">Ydych chi\'n siŵr eich bod am allgofnodi o\'r cyfrif %1$s\? Bydd hyn yn dileu\'r holl ddata lleol, gan gynnwys drafftiau a chyfeiriadau.</string>
-    <string name="action_follow">Dilyn</string>
-    <string name="action_unfollow">Dad-ddilyn</string>
     <string name="action_block">Blocio</string>
     <string name="action_unblock">Dadflocio</string>
     <string name="action_hide_reblogs">Cuddio hybiau</string>
@@ -179,7 +177,6 @@
     <string name="post_share_link">Rhannu dolen i\'r neges</string>
     <string name="post_media_images">Delweddau</string>
     <string name="post_media_video">Fideo</string>
-    <string name="state_follow_requested">Ceisiwyd</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">ymhen %dy</string>
     <string name="abbreviated_in_days">ymhen %dd</string>

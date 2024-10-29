@@ -51,8 +51,6 @@
     <string name="action_compose">Skriv</string>
     <string name="action_logout">Logg ut</string>
     <string name="action_logout_confirm">Er du sikker på at du vil logge ut fra kontoen %1$s? Alle opplysninger, utkast, og innstillinger som er lagret på enheten, skal slettes for godt.</string>
-    <string name="action_follow">Følg</string>
-    <string name="action_unfollow">Slutt å følge</string>
     <string name="action_block">Blokkér</string>
     <string name="action_unblock">Fjern blokkering</string>
     <string name="action_hide_reblogs">Skjul delinger</string>
@@ -179,7 +177,6 @@
     <string name="post_share_link">Del lenke til tuten</string>
     <string name="post_media_images">Bilder</string>
     <string name="post_media_video">Video</string>
-    <string name="state_follow_requested">Forespørsel sendt</string>
     <string name="abbreviated_in_days">om %dd</string>
     <string name="abbreviated_in_hours">om %dh</string>
     <string name="abbreviated_in_minutes">om %dm</string>
