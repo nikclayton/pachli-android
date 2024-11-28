@@ -23,13 +23,18 @@ import androidx.room.Insert
 import androidx.room.MapColumn
 import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.TypeConverters
 import androidx.room.Upsert
+import app.pachli.core.database.Converters
 import app.pachli.core.database.model.StatusViewDataEntity
 import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.database.model.TimelineStatusEntity
 import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.network.model.Poll
 
 @Dao
+@TypeConverters(Converters::class)
 abstract class TimelineDao {
 
     @Insert(onConflict = REPLACE)
@@ -48,11 +53,11 @@ s.content, s.attachments, s.poll, s.card, s.muted, s.pinned, s.language, s.filte
 a.serverId as 'a_serverId', a.timelineUserId as 'a_timelineUserId',
 a.localUsername as 'a_localUsername', a.username as 'a_username',
 a.displayName as 'a_displayName', a.url as 'a_url', a.avatar as 'a_avatar',
-a.emojis as 'a_emojis', a.bot as 'a_bot',
+a.emojis as 'a_emojis', a.bot as 'a_bot', a.createdAt as 'a_createdAt',
 rb.serverId as 'rb_serverId', rb.timelineUserId 'rb_timelineUserId',
 rb.localUsername as 'rb_localUsername', rb.username as 'rb_username',
 rb.displayName as 'rb_displayName', rb.url as 'rb_url', rb.avatar as 'rb_avatar',
-rb.emojis as 'rb_emojis', rb.bot as 'rb_bot',
+rb.emojis as 'rb_emojis', rb.bot as 'rb_bot', rb.createdAt as 'rb_createdAt',
 svd.serverId as 'svd_serverId', svd.timelineUserId as 'svd_timelineUserId',
 svd.expanded as 'svd_expanded', svd.contentShowing as 'svd_contentShowing',
 svd.contentCollapsed as 'svd_contentCollapsed', svd.translationState as 'svd_translationState',
@@ -94,11 +99,11 @@ s.content, s.attachments, s.poll, s.card, s.muted, s.pinned, s.language, s.filte
 a.serverId as 'a_serverId', a.timelineUserId as 'a_timelineUserId',
 a.localUsername as 'a_localUsername', a.username as 'a_username',
 a.displayName as 'a_displayName', a.url as 'a_url', a.avatar as 'a_avatar',
-a.emojis as 'a_emojis', a.bot as 'a_bot',
+a.emojis as 'a_emojis', a.bot as 'a_bot', a.createdAt as 'a_createdAt',
 rb.serverId as 'rb_serverId', rb.timelineUserId 'rb_timelineUserId',
 rb.localUsername as 'rb_localUsername', rb.username as 'rb_username',
 rb.displayName as 'rb_displayName', rb.url as 'rb_url', rb.avatar as 'rb_avatar',
-rb.emojis as 'rb_emojis', rb.bot as 'rb_bot',
+rb.emojis as 'rb_emojis', rb.bot as 'rb_bot', rb.createdAt as 'rb_createdAt',
 svd.serverId as 'svd_serverId', svd.timelineUserId as 'svd_timelineUserId',
 svd.expanded as 'svd_expanded', svd.contentShowing as 'svd_contentShowing',
 svd.contentCollapsed as 'svd_contentCollapsed', svd.translationState as 'svd_translationState',
@@ -188,7 +193,8 @@ AND serverId = :statusId""",
      * @param accountId id of the account for which to clean tables
      * @param limit how many statuses to keep
      */
-    suspend fun cleanup(accountId: Long, limit: Int) {
+    @Transaction
+    open suspend fun cleanup(accountId: Long, limit: Int) {
         cleanupStatuses(accountId, limit)
         cleanupAccounts(accountId)
         cleanupStatusViewData(accountId, limit)
@@ -253,7 +259,7 @@ AND serverId = :statusId""",
         """UPDATE TimelineStatusEntity SET poll = :poll
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)""",
     )
-    abstract suspend fun setVoted(accountId: Long, statusId: String, poll: String)
+    abstract suspend fun setVoted(accountId: Long, statusId: String, poll: Poll)
 
     @Upsert
     abstract suspend fun upsertStatusViewData(svd: StatusViewDataEntity)

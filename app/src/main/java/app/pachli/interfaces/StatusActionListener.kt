@@ -24,7 +24,7 @@ import app.pachli.core.ui.LinkListener
 import app.pachli.viewdata.IStatusViewData
 
 interface StatusActionListener<T : IStatusViewData> : LinkListener {
-    fun onReply(viewData: T)
+    fun onReply(pachliAccountId: Long, viewData: T)
     fun onReblog(viewData: T, reblog: Boolean)
     fun onFavourite(viewData: T, favourite: Boolean)
     fun onBookmark(viewData: T, bookmark: Boolean)
@@ -58,7 +58,9 @@ interface StatusActionListener<T : IStatusViewData> : LinkListener {
     fun onShowFavs(statusId: String) {}
     fun onVoteInPoll(viewData: T, poll: Poll, choices: List<Int>)
     fun onShowEdits(statusId: String) {}
-    fun clearWarningAction(pachliAccountId: Long, viewData: T)
+
+    /** Remove the content filter from the status. */
+    fun clearContentFilter(pachliAccountId: Long, viewData: T)
 
     /** Edit the filter that matched this status. */
     fun onEditFilterById(pachliAccountId: Long, filterId: String)

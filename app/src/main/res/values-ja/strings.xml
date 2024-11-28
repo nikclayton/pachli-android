@@ -291,7 +291,6 @@
     <string name="notification_poll_description">投票の集計が完了したときの通知</string>
     <string name="pref_title_thread_filter_keywords">スレッド</string>
     <string name="action_add_poll">投票</string>
-    <string name="title_mentions_dialog">返信</string>
     <string name="dialog_redraft_post_warning">この投稿を削除し、下書きに戻しますか？</string>
     <string name="filter_dialog_remove_button">削除</string>
     <string name="filter_dialog_update_button">更新</string>
@@ -550,8 +549,6 @@
     <string name="filter_description_format">%s: %s</string>
     <string name="load_newest_notifications">最新の通知を読み込む</string>
     <string name="compose_delete_draft">下書きを削除しますか？</string>
-    <string name="error_list_load">リストを読み込む際のエラー</string>
-    <string name="error_media_upload_sending_fmt">アップロードに失敗しました: %s</string>
     <string name="error_missing_edits">あなたのサーバーは、この投稿が変更されたことを把握していますが、編集履歴のコピーを備えていないので、表示できません。
 \n
 \nこれは<a href="https://github.com/mastodon/mastodon/issues/25398">Mastodonのissue #25398</a>です。</string>

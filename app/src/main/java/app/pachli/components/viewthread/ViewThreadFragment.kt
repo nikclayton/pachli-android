@@ -279,8 +279,8 @@ class ViewThreadFragment :
         viewModel.refresh(thisThreadsStatusId)
     }
 
-    override fun onReply(viewData: StatusViewData) {
-        super.reply(viewData.actionable)
+    override fun onReply(pachliAccountId: Long, viewData: StatusViewData) {
+        super.reply(pachliAccountId, viewData.actionable)
     }
 
     override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
@@ -397,7 +397,7 @@ class ViewThreadFragment :
         }
     }
 
-    override fun clearWarningAction(pachliAccountId: Long, viewData: StatusViewData) {
+    override fun clearContentFilter(pachliAccountId: Long, viewData: StatusViewData) {
         viewModel.clearWarning(viewData)
     }
 

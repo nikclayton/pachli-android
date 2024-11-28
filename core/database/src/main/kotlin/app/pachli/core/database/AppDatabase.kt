@@ -20,6 +20,7 @@ package app.pachli.core.database
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT
+import android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
 import androidx.core.database.getStringOrNull
 import androidx.room.AutoMigration
 import androidx.room.Database
@@ -27,25 +28,37 @@ import androidx.room.DeleteColumn
 import androidx.room.RenameColumn
 import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import app.pachli.core.database.dao.AccountDao
+import app.pachli.core.database.dao.AnnouncementsDao
+import app.pachli.core.database.dao.ContentFiltersDao
 import app.pachli.core.database.dao.ConversationsDao
 import app.pachli.core.database.dao.DraftDao
+import app.pachli.core.database.dao.FollowingAccountDao
 import app.pachli.core.database.dao.InstanceDao
+import app.pachli.core.database.dao.ListsDao
 import app.pachli.core.database.dao.LogEntryDao
 import app.pachli.core.database.dao.RemoteKeyDao
 import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.database.dao.TranslatedStatusDao
 import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.database.model.AnnouncementEntity
+import app.pachli.core.database.model.ContentFiltersEntity
 import app.pachli.core.database.model.ConversationEntity
 import app.pachli.core.database.model.DraftEntity
-import app.pachli.core.database.model.InstanceEntity
+import app.pachli.core.database.model.EmojisEntity
+import app.pachli.core.database.model.FollowingAccountEntity
+import app.pachli.core.database.model.InstanceInfoEntity
 import app.pachli.core.database.model.LogEntryEntity
+import app.pachli.core.database.model.MastodonListEntity
 import app.pachli.core.database.model.RemoteKeyEntity
+import app.pachli.core.database.model.ServerEntity
 import app.pachli.core.database.model.StatusViewDataEntity
 import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.database.model.TimelineStatusEntity
 import app.pachli.core.database.model.TranslatedStatusEntity
+import app.pachli.core.model.ContentFilterVersion
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -55,7 +68,8 @@ import java.util.TimeZone
     entities = [
         DraftEntity::class,
         AccountEntity::class,
-        InstanceEntity::class,
+        InstanceInfoEntity::class,
+        EmojisEntity::class,
         TimelineStatusEntity::class,
         TimelineAccountEntity::class,
         ConversationEntity::class,
@@ -63,8 +77,13 @@ import java.util.TimeZone
         StatusViewDataEntity::class,
         TranslatedStatusEntity::class,
         LogEntryEntity::class,
+        MastodonListEntity::class,
+        ServerEntity::class,
+        ContentFiltersEntity::class,
+        AnnouncementEntity::class,
+        FollowingAccountEntity::class,
     ],
-    version = 8,
+    version = 10,
     autoMigrations = [
         AutoMigration(from = 1, to = 2, spec = AppDatabase.MIGRATE_1_2::class),
         AutoMigration(from = 2, to = 3),
@@ -73,6 +92,7 @@ import java.util.TimeZone
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7, spec = AppDatabase.MIGRATE_6_7::class),
         AutoMigration(from = 7, to = 8, spec = AppDatabase.MIGRATE_7_8::class),
+        AutoMigration(from = 9, to = 10),
     ],
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -84,6 +104,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun remoteKeyDao(): RemoteKeyDao
     abstract fun translatedStatusDao(): TranslatedStatusDao
     abstract fun logEntryDao(): LogEntryDao
+    abstract fun contentFiltersDao(): ContentFiltersDao
+    abstract fun listsDao(): ListsDao
+    abstract fun announcementsDao(): AnnouncementsDao
+    abstract fun followingAccountDao(): FollowingAccountDao
 
     @DeleteColumn("TimelineStatusEntity", "expanded")
     @DeleteColumn("TimelineStatusEntity", "contentCollapsed")
@@ -139,4 +163,74 @@ abstract class AppDatabase : RoomDatabase() {
     @DeleteColumn("DraftEntity", "scheduledAt")
     @RenameColumn("DraftEntity", "scheduledAtLong", "scheduledAt")
     class MIGRATE_7_8 : AutoMigrationSpec
+}
+
+val MIGRATE_8_9 = object : Migration(8, 9) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // clientId and clientSecret were made non-nullable. Before migrating data convert
+        // any existing NULL values to the empty string.
+        db.execSQL("UPDATE `AccountEntity` SET `clientId` = '' WHERE `clientId` IS NULL")
+        db.execSQL("UPDATE `AccountEntity` SET `clientSecret` = '' WHERE `clientSecret` IS NULL")
+
+        // Migrate the tables.
+        //
+        // - Mark AccountEntity.clientId and .clientSecret as NON NULL
+        // - Delete InstanceEntity.emojiList
+        // - Rename InstanceEntity.maximumTootCharacters to .maxPostCharacters
+        // - Rename InstanceEntity to InstanceInfoEntity
+        db.execSQL("CREATE TABLE IF NOT EXISTS `EmojisEntity` (`accountId` INTEGER NOT NULL, `emojiList` TEXT NOT NULL, PRIMARY KEY(`accountId`), FOREIGN KEY(`accountId`) REFERENCES `AccountEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `MastodonListEntity` (`accountId` INTEGER NOT NULL, `listId` TEXT NOT NULL, `title` TEXT NOT NULL, `repliesPolicy` TEXT NOT NULL, `exclusive` INTEGER NOT NULL, PRIMARY KEY(`accountId`, `listId`), FOREIGN KEY(`accountId`) REFERENCES `AccountEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `ServerEntity` (`accountId` INTEGER NOT NULL, `serverKind` TEXT NOT NULL, `version` TEXT NOT NULL, `capabilities` TEXT NOT NULL, PRIMARY KEY(`accountId`), FOREIGN KEY(`accountId`) REFERENCES `AccountEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `ContentFiltersEntity` (`accountId` INTEGER NOT NULL, `version` TEXT NOT NULL, `contentFilters` TEXT NOT NULL, PRIMARY KEY(`accountId`), FOREIGN KEY(`accountId`) REFERENCES `AccountEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `AnnouncementEntity` (`accountId` INTEGER NOT NULL, `announcementId` TEXT NOT NULL, `announcement` TEXT NOT NULL, PRIMARY KEY(`accountId`), FOREIGN KEY(`accountId`) REFERENCES `AccountEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)")
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `_new_AccountEntity` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `domain` TEXT NOT NULL, `accessToken` TEXT NOT NULL, `clientId` TEXT NOT NULL, `clientSecret` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `accountId` TEXT NOT NULL, `username` TEXT NOT NULL, `displayName` TEXT NOT NULL, `profilePictureUrl` TEXT NOT NULL, `profileHeaderPictureUrl` TEXT NOT NULL DEFAULT '', `notificationsEnabled` INTEGER NOT NULL, `notificationsMentioned` INTEGER NOT NULL, `notificationsFollowed` INTEGER NOT NULL, `notificationsFollowRequested` INTEGER NOT NULL, `notificationsReblogged` INTEGER NOT NULL, `notificationsFavorited` INTEGER NOT NULL, `notificationsPolls` INTEGER NOT NULL, `notificationsSubscriptions` INTEGER NOT NULL, `notificationsSignUps` INTEGER NOT NULL, `notificationsUpdates` INTEGER NOT NULL, `notificationsReports` INTEGER NOT NULL, `notificationsSeveredRelationships` INTEGER NOT NULL DEFAULT true, `notificationSound` INTEGER NOT NULL, `notificationVibration` INTEGER NOT NULL, `notificationLight` INTEGER NOT NULL, `defaultPostPrivacy` INTEGER NOT NULL, `defaultMediaSensitivity` INTEGER NOT NULL, `defaultPostLanguage` TEXT NOT NULL, `alwaysShowSensitiveMedia` INTEGER NOT NULL, `alwaysOpenSpoiler` INTEGER NOT NULL, `mediaPreviewEnabled` INTEGER NOT NULL, `lastNotificationId` TEXT NOT NULL, `notificationMarkerId` TEXT NOT NULL DEFAULT '0', `emojis` TEXT NOT NULL, `tabPreferences` TEXT NOT NULL, `notificationsFilter` TEXT NOT NULL, `oauthScopes` TEXT NOT NULL, `unifiedPushUrl` TEXT NOT NULL, `pushPubKey` TEXT NOT NULL, `pushPrivKey` TEXT NOT NULL, `pushAuth` TEXT NOT NULL, `pushServerKey` TEXT NOT NULL, `lastVisibleHomeTimelineStatusId` TEXT, `locked` INTEGER NOT NULL DEFAULT 0)",
+        )
+        db.execSQL(
+            "INSERT INTO `_new_AccountEntity` (`id`,`domain`,`accessToken`,`clientId`,`clientSecret`,`isActive`,`accountId`,`username`,`displayName`,`profilePictureUrl`,`notificationsEnabled`,`notificationsMentioned`,`notificationsFollowed`,`notificationsFollowRequested`,`notificationsReblogged`,`notificationsFavorited`,`notificationsPolls`,`notificationsSubscriptions`,`notificationsSignUps`,`notificationsUpdates`,`notificationsReports`,`notificationsSeveredRelationships`,`notificationSound`,`notificationVibration`,`notificationLight`,`defaultPostPrivacy`,`defaultMediaSensitivity`,`defaultPostLanguage`,`alwaysShowSensitiveMedia`,`alwaysOpenSpoiler`,`mediaPreviewEnabled`,`lastNotificationId`,`notificationMarkerId`,`emojis`,`tabPreferences`,`notificationsFilter`,`oauthScopes`,`unifiedPushUrl`,`pushPubKey`,`pushPrivKey`,`pushAuth`,`pushServerKey`,`lastVisibleHomeTimelineStatusId`,`locked`) SELECT `id`,`domain`,`accessToken`,`clientId`,`clientSecret`,`isActive`,`accountId`,`username`,`displayName`,`profilePictureUrl`,`notificationsEnabled`,`notificationsMentioned`,`notificationsFollowed`,`notificationsFollowRequested`,`notificationsReblogged`,`notificationsFavorited`,`notificationsPolls`,`notificationsSubscriptions`,`notificationsSignUps`,`notificationsUpdates`,`notificationsReports`,`notificationsSeveredRelationships`,`notificationSound`,`notificationVibration`,`notificationLight`,`defaultPostPrivacy`,`defaultMediaSensitivity`,`defaultPostLanguage`,`alwaysShowSensitiveMedia`,`alwaysOpenSpoiler`,`mediaPreviewEnabled`,`lastNotificationId`,`notificationMarkerId`,`emojis`,`tabPreferences`,`notificationsFilter`,`oauthScopes`,`unifiedPushUrl`,`pushPubKey`,`pushPrivKey`,`pushAuth`,`pushServerKey`,`lastVisibleHomeTimelineStatusId`,`locked` FROM `AccountEntity`",
+        )
+        db.execSQL("DROP TABLE `AccountEntity`")
+        db.execSQL("ALTER TABLE `_new_AccountEntity` RENAME TO `AccountEntity`")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_AccountEntity_domain_accountId` ON `AccountEntity` (`domain`, `accountId`)")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `_new_InstanceInfoEntity` (`instance` TEXT NOT NULL, `maxPostCharacters` INTEGER, `maxPollOptions` INTEGER, `maxPollOptionLength` INTEGER, `minPollDuration` INTEGER, `maxPollDuration` INTEGER, `charactersReservedPerUrl` INTEGER, `version` TEXT, `videoSizeLimit` INTEGER, `imageSizeLimit` INTEGER, `imageMatrixLimit` INTEGER, `maxMediaAttachments` INTEGER, `maxFields` INTEGER, `maxFieldNameLength` INTEGER, `maxFieldValueLength` INTEGER, `enabledTranslation` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`instance`))")
+        db.execSQL("INSERT INTO `_new_InstanceInfoEntity` (`instance`,`maxPostCharacters`,`maxPollOptions`,`maxPollOptionLength`,`minPollDuration`,`maxPollDuration`,`charactersReservedPerUrl`,`version`,`videoSizeLimit`,`imageSizeLimit`,`imageMatrixLimit`,`maxMediaAttachments`,`maxFields`,`maxFieldNameLength`,`maxFieldValueLength`) SELECT `instance`,`maximumTootCharacters`,`maxPollOptions`,`maxPollOptionLength`,`minPollDuration`,`maxPollDuration`,`charactersReservedPerUrl`,`version`,`videoSizeLimit`,`imageSizeLimit`,`imageMatrixLimit`,`maxMediaAttachments`,`maxFields`,`maxFieldNameLength`,`maxFieldValueLength` FROM `InstanceEntity`")
+        db.execSQL("DROP TABLE `InstanceEntity`")
+        db.execSQL("ALTER TABLE `_new_InstanceInfoEntity` RENAME TO `InstanceInfoEntity`")
+
+        // Populate the new tables with default data for existing accounts.
+        //
+        // Sets up:
+        //
+        // - InstanceInfoEntity
+        // - ServerEntity
+        // - ContentFiltersEntity
+        val accountCursor = db.query("SELECT id, domain FROM AccountEntity")
+        with(accountCursor) {
+            while (moveToNext()) {
+                val accountId = getLong(0)
+                val domain = getString(1)
+
+                val instanceInfoEntityValues = ContentValues().apply {
+                    put("instance", domain)
+                    put("enabledTranslation", 0)
+                }
+                db.insert("InstanceInfoEntity", CONFLICT_IGNORE, instanceInfoEntityValues)
+
+                val serverEntityValues = ContentValues().apply {
+                    put("accountId", accountId)
+                    put("serverKind", "UNKNOWN")
+                    put("version", "0.0.1")
+                    put("capabilities", "{}")
+                }
+                db.insert("ServerEntity", CONFLICT_IGNORE, serverEntityValues)
+
+                val contentFiltersEntityValues = ContentValues().apply {
+                    put("accountId", accountId)
+                    put("version", ContentFilterVersion.V1.name)
+                    put("contentFilters", "[]")
+                }
+                db.insert("ContentFiltersEntity", CONFLICT_IGNORE, contentFiltersEntityValues)
+            }
+        }
+    }
 }

@@ -329,7 +329,6 @@
     <string name="report_description_remote_instance">Hesap başka bir sunucudan. Raporun anonim bir kopyasını da oraya gönderilsin mi\?</string>
     <string name="action_open_reblogger">Gönderi yazanını aç</string>
     <string name="action_open_reblogged_by">Yeniden paylaşımları göster</string>
-    <string name="title_mentions_dialog">Bahsedenler</string>
     <string name="action_open_media_n">#%d medyayı aç</string>
     <string name="title_bookmarks">Yer imleri</string>
     <string name="title_scheduled_posts">Zamanlanmış yayınlar</string>
@@ -425,7 +424,7 @@
     <string name="set_focus_description">Küçük görsellerde her zaman görülebilecek odak noktasını seçmek için daireye dokunun veya sürükleyin.</string>
     <string name="no_announcements">Hiç duyuru yok.</string>
     <string name="duration_30_days">30 gün</string>
-    <string name="compose_save_draft_loses_media">Taslağı kurtarmak mı\? (Taslağı geri yüklediğinizde ekler yeniden yüklenir.)</string>
+    <string name="compose_save_draft_loses_media">Taslağı kurtarmak mı? (Taslağı geri yüklediğinizde ekler yeniden yüklenir.)</string>
     <string name="pref_title_show_self_username">Kullanıcı adını araç çubuklarında göster</string>
     <string name="duration_180_days">180 gün</string>
     <string name="duration_60_days">60 gün</string>
@@ -533,7 +532,6 @@
     <string name="description_browser_login">Ek kimlik doğrulama yöntemlerini destekleyebilir ancak desteklenen bir tarayıcı gerektirir.</string>
     <string name="select_list_empty">Henüz hiç listen yok</string>
     <string name="select_list_manage">Listeleri yönet</string>
-    <string name="error_list_load">Listeler yüklenirken hata oluştu</string>
     <string name="action_share_account_link">Hesaba bağlantı paylaş</string>
     <string name="action_share_account_username">Hesap adını paylaş</string>
     <string name="account_username_copied">Kullanıcı adı kopyalandı</string>
@@ -568,6 +566,5 @@
     <string name="error_missing_edits">Sunucunuz bu gönderinin düzenlendiğini bilir, ancak düzenlemelerin bir kopyası yoktur, bu nedenle bunlar size gösterilemez.
 \n
 \nBu <a href="https://github.com/mastodon/mastodon/issues/25398">Mastodon sorununu #25398</a>.</string>
-    <string name="error_media_upload_sending_fmt">Yükleme başarısız oldu: %s</string>
     <string name="error_media_playback">Oynatma başarısız oldu: %s</string>
 </resources>

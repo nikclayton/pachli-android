@@ -17,9 +17,6 @@
 package app.pachli.components.search.fragments
 
 import android.Manifest
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -36,7 +33,6 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.pachli.R
 import app.pachli.components.search.adapter.SearchStatusesAdapter
-import app.pachli.core.activity.AccountSelectionListener
 import app.pachli.core.activity.BaseActivity
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
@@ -55,6 +51,7 @@ import app.pachli.core.network.model.Attachment
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.model.Status.Mention
+import app.pachli.core.ui.ClipboardUseCase
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.view.showMuteAccountDialog
 import app.pachli.viewdata.StatusViewData
@@ -75,6 +72,9 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
     @Inject
     lateinit var downloadUrlUseCase: DownloadUrlUseCase
 
+    @Inject
+    lateinit var clipboard: ClipboardUseCase
+
     override val data: Flow<PagingData<StatusViewData>>
         get() = viewModel.statusesFlow
 
@@ -92,8 +92,8 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         viewModel.contentHiddenChange(viewData, isShowing)
     }
 
-    override fun onReply(viewData: StatusViewData) {
-        reply(viewData)
+    override fun onReply(pachliAccountId: Long, viewData: StatusViewData) {
+        reply(pachliAccountId, viewData)
     }
 
     override fun onFavourite(viewData: StatusViewData, favourite: Boolean) {
@@ -160,7 +160,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         viewModel.voteInPoll(viewData, poll, choices)
     }
 
-    override fun clearWarningAction(pachliAccountId: Long, viewData: StatusViewData) {}
+    override fun clearContentFilter(pachliAccountId: Long, viewData: StatusViewData) {}
 
     override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
         viewModel.reblog(viewData, reblog)
@@ -173,7 +173,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         )
     }
 
-    private fun reply(status: StatusViewData) {
+    private fun reply(pachliAccountId: Long, status: StatusViewData) {
         val actionableStatus = status.actionable
         val mentionedUsernames = actionableStatus.mentions.map { it.username }
             .toMutableSet()
@@ -184,6 +184,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
 
         val intent = ComposeActivityIntent(
             requireContext(),
+            pachliAccountId,
             ComposeOptions(
                 inReplyToId = status.actionableId,
                 replyVisibility = actionableStatus.visibility,
@@ -280,8 +281,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_copy_link -> {
-                    val clipboard = requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    clipboard.setPrimaryClip(ClipData.newPlainText(null, statusUrl))
+                    statusUrl?.let { clipboard.copyTextTo(it) }
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_open_as -> {
@@ -321,11 +321,11 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_delete_and_redraft -> {
-                    showConfirmEditDialog(statusViewData)
+                    showConfirmEditDialog(pachliAccountId, statusViewData)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_edit -> {
-                    editStatus(id, status)
+                    editStatus(pachliAccountId, id, status)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.pin -> {
@@ -362,15 +362,9 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
     }
 
     private fun showOpenAsDialog(statusUrl: String, dialogTitle: CharSequence?) {
-        bottomSheetActivity?.showAccountChooserDialog(
-            dialogTitle,
-            false,
-            object : AccountSelectionListener {
-                override fun onAccountSelected(account: AccountEntity) {
-                    bottomSheetActivity?.openAsAccount(statusUrl, account)
-                }
-            },
-        )
+        bottomSheetActivity?.showAccountChooserDialog(dialogTitle, false) { account ->
+            bottomSheetActivity?.openAsAccount(statusUrl, account)
+        }
     }
 
     private fun downloadAllMedia(status: Status) {
@@ -414,7 +408,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
     }
 
     // TODO: Identical to the same function in SFragment.kt
-    private fun showConfirmEditDialog(statusViewData: StatusViewData) {
+    private fun showConfirmEditDialog(pachliAccountId: Long, statusViewData: StatusViewData) {
         activity?.let {
             AlertDialog.Builder(it)
                 .setMessage(R.string.dialog_redraft_post_warning)
@@ -432,6 +426,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
 
                                 val intent = ComposeActivityIntent(
                                     requireContext(),
+                                    pachliAccountId,
                                     ComposeOptions(
                                         content = redraftStatus.text.orEmpty(),
                                         inReplyToId = redraftStatus.inReplyToId,
@@ -458,7 +453,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         }
     }
 
-    private fun editStatus(id: String, status: Status) {
+    private fun editStatus(pachliAccountId: Long, id: String, status: Status) {
         lifecycleScope.launch {
             mastodonApi.statusSource(id).fold(
                 { source ->
@@ -474,7 +469,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                         poll = status.poll?.toNewPoll(status.createdAt),
                         kind = ComposeOptions.ComposeKind.EDIT_POSTED,
                     )
-                    startActivity(ComposeActivityIntent(requireContext(), composeOptions))
+                    startActivity(ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions))
                 },
                 {
                     Snackbar.make(

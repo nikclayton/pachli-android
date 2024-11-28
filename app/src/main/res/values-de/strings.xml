@@ -92,7 +92,6 @@
     <string name="action_add_tab">Tab hinzufügen</string>
     <string name="action_open_reblogged_by">Geteilte Beiträge anzeigen</string>
     <string name="action_open_faved_by">Favoriten anzeigen</string>
-    <string name="title_mentions_dialog">Erwähnungen</string>
     <string name="action_open_media_n">Datei #%d öffnen</string>
     <string name="download_image">%1$s heruntergeladen</string>
     <string name="action_copy_link">Link kopieren</string>
@@ -357,7 +356,6 @@
     <string name="select_list_title">Liste auswählen</string>
     <string name="select_list_empty">Du hast noch keine Listen</string>
     <string name="select_list_manage">Listen verwalten</string>
-    <string name="error_list_load">Fehler beim Laden der Listen</string>
     <string name="list">Liste</string>
     <string name="no_drafts">Du hast keine Entwürfe.</string>
     <string name="no_scheduled_posts">Du hast keine geplanten Beiträge.</string>
@@ -464,7 +462,7 @@
     <string name="error_unfollowing_hashtag_format">Fehler beim Entfolgen von #%s</string>
     <string name="delete_scheduled_post_warning">Diesen geplanten Beitrag löschen\?</string>
     <string name="set_focus_description">Tippe oder ziehe den Kreis auf die Stelle, die in Vorschaubildern immer sichtbar sein soll.</string>
-    <string name="compose_save_draft_loses_media">Entwurf speichern\? (Anhänge werden erneut hochgeladen, sobald du den Entwurf wiederherstellst.)</string>
+    <string name="compose_save_draft_loses_media">Entwurf speichern? (Anhänge werden erneut hochgeladen, sobald du den Entwurf wiederherstellst.)</string>
     <string name="duration_no_change">(Keine Änderung)</string>
     <string name="pref_title_show_self_username">Profilname in der Hauptnavigation anzeigen</string>
     <string name="failed_to_pin">Anheften fehlgeschlagen</string>
@@ -568,7 +566,6 @@
     <string name="error_missing_edits">Deinem Server ist bekannt, dass dieser Beitrag bearbeitet wurde. Allerdings besitzt er keine Kopien der Änderungen, weshalb diese nicht angezeigt werden können.
 \n
 \nHierbei handelt es sich um <a href="https://github.com/mastodon/mastodon/issues/25398">Mastodon Issue #25398</a>.</string>
-    <string name="error_media_upload_sending_fmt">Das Hochladen ist fehlgeschlagen: %s</string>
     <string name="ui_error_translate_status_fmt">Übersetzung fehlgeschlagen: %1$s</string>
     <string name="update_dialog_negative">Erinnere mich nie</string>
     <string name="translating">Übersetze…</string>

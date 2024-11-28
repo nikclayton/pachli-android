@@ -348,15 +348,15 @@ class ConversationsFragment :
         // not needed
     }
 
-    override fun onReply(viewData: ConversationViewData) {
-        reply(viewData.lastStatus.actionable)
+    override fun onReply(pachliAccountId: Long, viewData: ConversationViewData) {
+        reply(pachliAccountId, viewData.lastStatus.actionable)
     }
 
     override fun onVoteInPoll(viewData: ConversationViewData, poll: Poll, choices: List<Int>) {
         viewModel.voteInPoll(choices, viewData.lastStatus.actionableId, poll.id)
     }
 
-    override fun clearWarningAction(pachliAccountId: Long, viewData: ConversationViewData) {
+    override fun clearContentFilter(pachliAccountId: Long, viewData: ConversationViewData) {
     }
 
     // Filters don't apply in conversations

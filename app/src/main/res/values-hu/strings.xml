@@ -88,7 +88,6 @@
     <string name="action_emoji_keyboard">Emoji billentyűzet</string>
     <string name="action_add_tab">Fül hozzáadása</string>
     <string name="action_open_faved_by">Kedvencek megjelenítése</string>
-    <string name="title_mentions_dialog">Említések</string>
     <string name="download_image">%1$s letöltése</string>
     <string name="action_copy_link">Link másolása</string>
     <string name="action_share_as">Megosztás mint …</string>
@@ -463,7 +462,7 @@
     <string name="error_following_hashtag_format">Hiba a #%s követésekor</string>
     <string name="error_unfollowing_hashtag_format">Hiba a #%s követésének befejezésekor</string>
     <string name="action_add_reaction">reakció hozzáadása</string>
-    <string name="compose_save_draft_loses_media">Elmentsük a vázlatot\? (A mellékleteket újra feltöltjük, amikor a vázlatot visszaállítod.)</string>
+    <string name="compose_save_draft_loses_media">Elmentsük a vázlatot? (A mellékleteket újra feltöltjük, amikor a vázlatot visszaállítod.)</string>
     <string name="failed_to_pin">Nem sikerült kitűzni</string>
     <string name="failed_to_unpin">Nem sikerült a kitűzés visszavonása</string>
     <string name="action_unfollow_hashtag_format">#%s követésének vége\?</string>
@@ -557,7 +556,6 @@
     <string name="post_media_image">Kép</string>
     <string name="select_list_empty">Még nincsenek listáid</string>
     <string name="select_list_manage">Listák kezelése</string>
-    <string name="error_list_load">Hiba a listák betöltése során</string>
     <string name="pref_ui_text_size">UI betűméret</string>
     <string name="notification_listenable_worker_name">Háttértevékenység</string>
     <string name="notification_listenable_worker_description">Értesítések, amikor a Pachli a háttérben működik</string>

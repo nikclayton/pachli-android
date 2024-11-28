@@ -17,10 +17,7 @@
 
 package app.pachli.components.notifications
 
-import android.content.Context
-import android.graphics.PorterDuff
 import android.graphics.Typeface
-import android.graphics.drawable.Drawable
 import android.text.InputFilter
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -28,9 +25,6 @@ import android.text.TextUtils
 import android.text.format.DateUtils
 import android.text.style.StyleSpan
 import android.view.View
-import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.StatusBaseViewHolder
@@ -192,16 +186,6 @@ internal class StatusNotificationViewHolder(
         }
     }
 
-    private fun getIconWithColor(
-        context: Context,
-        @DrawableRes drawable: Int,
-        @ColorRes color: Int,
-    ): Drawable? {
-        val icon = AppCompatResources.getDrawable(context, drawable)
-        icon?.setColorFilter(context.getColor(color), PorterDuff.Mode.SRC_ATOP)
-        return icon
-    }
-
     private fun setAvatar(statusAvatarUrl: String?, isBot: Boolean, animateAvatars: Boolean, showBotOverlay: Boolean) {
         binding.notificationStatusAvatar.setPaddingRelative(0, 0, 0, 0)
         loadAvatar(
@@ -249,26 +233,21 @@ internal class StatusNotificationViewHolder(
         val type = viewData.type
         val context = binding.notificationTopText.context
         val format: String
-        val icon: Drawable?
+        val icon = type.icon(context)
         when (type) {
             Notification.Type.FAVOURITE -> {
-                icon = getIconWithColor(context, R.drawable.ic_star_24dp, DR.color.tusky_orange)
                 format = context.getString(R.string.notification_favourite_format)
             }
             Notification.Type.REBLOG -> {
-                icon = getIconWithColor(context, R.drawable.ic_repeat_24dp, DR.color.tusky_blue)
                 format = context.getString(R.string.notification_reblog_format)
             }
             Notification.Type.STATUS -> {
-                icon = getIconWithColor(context, R.drawable.ic_home_24dp, DR.color.tusky_blue)
                 format = context.getString(R.string.notification_subscription_format)
             }
             Notification.Type.UPDATE -> {
-                icon = getIconWithColor(context, R.drawable.ic_edit_24dp, DR.color.tusky_blue)
                 format = context.getString(R.string.notification_update_format)
             }
             else -> {
-                icon = getIconWithColor(context, R.drawable.ic_star_24dp, DR.color.tusky_orange)
                 format = context.getString(R.string.notification_favourite_format)
             }
         }

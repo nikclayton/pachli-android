@@ -18,6 +18,7 @@
 package app.pachli.viewdata
 
 import android.text.Spanned
+import app.pachli.components.notifications.AccountFilterDecision
 import app.pachli.core.database.model.TranslatedStatusEntity
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.model.FilterAction
@@ -34,6 +35,18 @@ import app.pachli.core.network.model.TimelineAccount
  * about boosting a status, the boosted status is also shown). However, not all
  * notifications are related to statuses (e.g., a "Someone has followed you"
  * notification) so `statusViewData` is nullable.
+ *
+ * @param type
+ * @param id
+ * @param account
+ * @param statusViewData
+ * @param report
+ * @param relationshipSeveranceEvent
+ * @param isAboutSelf True if this notification relates to something the user
+ * posted (e.g., it's a boost, favourite, or poll ending), false otherwise
+ * (e.g., it's a mention).
+ * @param accountFilterDecision Whether this notification should be filtered
+ * because of the account that sent it, and why.
  */
 data class NotificationViewData(
     val type: Notification.Type,
@@ -42,6 +55,8 @@ data class NotificationViewData(
     var statusViewData: StatusViewData?,
     val report: Report?,
     val relationshipSeveranceEvent: RelationshipSeveranceEvent?,
+    val isAboutSelf: Boolean,
+    var accountFilterDecision: AccountFilterDecision?,
 ) : IStatusViewData {
     companion object {
         fun from(
@@ -49,7 +64,9 @@ data class NotificationViewData(
             isShowingContent: Boolean,
             isExpanded: Boolean,
             isCollapsed: Boolean,
-            filterAction: FilterAction,
+            contentFilterAction: FilterAction,
+            accountFilterDecision: AccountFilterDecision?,
+            isAboutSelf: Boolean,
         ) = NotificationViewData(
             notification.type,
             notification.id,
@@ -60,11 +77,13 @@ data class NotificationViewData(
                     isShowingContent,
                     isExpanded,
                     isCollapsed,
-                    filterAction = filterAction,
+                    contentFilterAction = contentFilterAction,
                 )
             },
             notification.report,
             notification.relationshipSeveranceEvent,
+            isAboutSelf,
+            accountFilterDecision = accountFilterDecision,
         )
     }
 
@@ -103,10 +122,10 @@ data class NotificationViewData(
         get() = statusViewData?.actionableId ?: throw IllegalStateException()
     override val rebloggingStatus: Status?
         get() = statusViewData?.rebloggingStatus
-    override var filterAction: FilterAction
-        get() = statusViewData?.filterAction ?: throw IllegalStateException()
+    override var contentFilterAction: FilterAction
+        get() = statusViewData?.contentFilterAction ?: throw IllegalStateException()
         set(value) {
-            statusViewData?.filterAction = value
+            statusViewData?.contentFilterAction = value
         }
     override val translationState: TranslationState
         get() = statusViewData?.translationState ?: throw IllegalStateException()

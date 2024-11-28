@@ -28,7 +28,6 @@ import app.pachli.core.network.model.Status
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.network.replaceCrashingCharacters
 import app.pachli.util.shouldTrimStatus
-import com.squareup.moshi.Moshi
 
 /**
  * Interface for the data shown when viewing a status, or something that wraps
@@ -107,8 +106,8 @@ interface IStatusViewData {
     // empty (e.g., StatusBaseViewHolder.setupFilterPlaceholder()). It would be better
     // if the Filter.Action class subtypes carried the FilterResult information with them,
     // and it's impossible to construct them with an empty list.
-    /** Whether this status should be filtered, and if so, how */
-    var filterAction: FilterAction
+    /** The [FilterAction] to apply, based on the status' content. */
+    var contentFilterAction: FilterAction
 
     /** The current translation state */
     val translationState: TranslationState
@@ -123,7 +122,7 @@ data class StatusViewData(
     override val isExpanded: Boolean,
     override val isShowingContent: Boolean,
     override val isCollapsed: Boolean,
-    override var filterAction: FilterAction = FilterAction.NONE,
+    override var contentFilterAction: FilterAction = FilterAction.NONE,
     override val translationState: TranslationState,
 
     /**
@@ -202,7 +201,7 @@ data class StatusViewData(
             isExpanded: Boolean,
             isCollapsed: Boolean,
             isDetailed: Boolean = false,
-            filterAction: FilterAction = FilterAction.NONE,
+            contentFilterAction: FilterAction = FilterAction.NONE,
             translationState: TranslationState = TranslationState.SHOW_ORIGINAL,
             translation: TranslatedStatusEntity? = null,
         ): StatusViewData {
@@ -223,7 +222,7 @@ data class StatusViewData(
                 isCollapsed = isCollapsed,
                 isExpanded = isExpanded,
                 isDetailed = isDetailed,
-                filterAction = filterAction,
+                contentFilterAction = contentFilterAction,
                 translationState = translationState,
                 translation = translation,
             )
@@ -270,13 +269,12 @@ data class StatusViewData(
 
         fun from(
             timelineStatusWithAccount: TimelineStatusWithAccount,
-            moshi: Moshi,
             isExpanded: Boolean,
             isShowingContent: Boolean,
             isDetailed: Boolean = false,
             translationState: TranslationState = TranslationState.SHOW_ORIGINAL,
         ): StatusViewData {
-            val status = timelineStatusWithAccount.toStatus(moshi)
+            val status = timelineStatusWithAccount.toStatus()
             return StatusViewData(
                 status = status,
                 translation = timelineStatusWithAccount.translatedStatus,

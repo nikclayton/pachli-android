@@ -81,7 +81,6 @@
     <string name="action_open_reblogger">Адкрыць аўтара пашырэння</string>
     <string name="action_open_reblogged_by">Паказаць пашырэнні</string>
     <string name="action_open_faved_by">Паказаць абраныя</string>
-    <string name="title_mentions_dialog">Згадкі</string>
     <string name="action_open_media_n">Адкрыць медыя #%d</string>
     <string name="action_add_reaction">дадаць рэакцыю</string>
     <string name="download_image">Спампоўка %1$s</string>
@@ -302,7 +301,7 @@
         <item quantity="many">Апісанне змесціва для людзей з дэфектам зроку (ліміт у %d сімвалаў)</item>
         <item quantity="other">Апісанне змесціва для людзей з дэфектам зроку (ліміт у %d сімвалаў)</item>
     </plurals>
-    <string name="compose_save_draft_loses_media">Захаваць чарнавік\? (Далучэнні будуць запампаваныя зноў, калі Вы аднавіце чарнавік.)</string>
+    <string name="compose_save_draft_loses_media">Захаваць чарнавік? (Далучэнні будуць запампаваныя зноў, калі Вы аднавіце чарнавік.)</string>
     <string name="download_failed">Не атрымалася спампаваць</string>
     <string name="unreblog_private">Скасаваць пашырэнне</string>
     <string name="pin_action">Замацаваць</string>
@@ -535,7 +534,7 @@
     <string name="description_login">Працуе амаль заўсёды. Даныя не ўцякаюць у іншыя праграмы.</string>
     <string name="notification_unknown_name">Невядома</string>
     <string name="status_filtered_show_anyway">Усё роўна паказаць</string>
-    <string name="status_filter_placeholder_label_format">Адфільтрована: &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">Адфільтрована: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Профілі</string>
     <string name="title_public_trending_hashtags">Папулярныя хэштэгі</string>
     <string name="description_browser_login">Можа падтрымліваць дадатковыя метады праверкі сапраўднасці, але для гэтага патрэбны адпаведны браузер.</string>
@@ -543,7 +542,6 @@
     <string name="post_media_image">Відарыс</string>
     <string name="select_list_empty">Яшчэ няма спісаў</string>
     <string name="select_list_manage">Кіраванне спісамі</string>
-    <string name="error_list_load">Памылка загрузкі спісаў</string>
     <string name="total_usage">Усяго выкарыстана</string>
     <string name="total_accounts">Усяго ўліковых запісаў</string>
     <string name="accessibility_talking_about_tag">%1$d людзей кажуць пра хэштэг %2$s</string>

@@ -93,7 +93,6 @@
     <string name="action_open_reblogger">打开转嘟用户主页</string>
     <string name="action_open_reblogged_by">显示转嘟</string>
     <string name="action_open_faved_by">显示喜欢</string>
-    <string name="title_mentions_dialog">提及</string>
     <string name="action_open_media_n">打开媒体文件 #%d</string>
     <string name="download_image">下载中 %1$s</string>
     <string name="action_copy_link">复制链接</string>
@@ -553,7 +552,6 @@
     <string name="post_media_image">图片</string>
     <string name="hint_description">描述</string>
     <string name="select_list_manage">管理列表</string>
-    <string name="error_list_load">加载列表出错</string>
     <string name="select_list_empty">你还没有列表</string>
     <string name="load_newest_notifications">加载最新通知</string>
     <string name="compose_delete_draft">删除草稿？</string>
@@ -565,7 +563,6 @@
     <string name="notification_notification_worker">获取通知中…</string>
     <string name="notification_prune_cache">缓存维护…</string>
     <string name="notification_listenable_worker_name">后台活动</string>
-    <string name="error_media_upload_sending_fmt">上传失败了：%s</string>
     <string name="error_media_playback">播放失败了：%s</string>
     <string name="dialog_delete_filter_text">删除筛选器\'%1$s\'吗？</string>
     <string name="dialog_delete_filter_positive_action">删除</string>

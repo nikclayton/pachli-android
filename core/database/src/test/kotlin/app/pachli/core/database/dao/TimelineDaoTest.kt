@@ -23,11 +23,15 @@ import app.pachli.core.database.AppDatabase
 import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.database.model.TimelineStatusEntity
 import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.network.model.Card
+import app.pachli.core.network.model.Emoji
+import app.pachli.core.network.model.PreviewCardKind
 import app.pachli.core.network.model.Status
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -83,7 +87,7 @@ class TimelineDaoTest {
     }
 
     @Test
-    fun cleanup() = runBlocking {
+    fun cleanup() = runTest {
         val statusesBeforeCleanup = listOf(
             makeStatus(statusId = 100),
             makeStatus(statusId = 10, authorServerId = "3"),
@@ -331,8 +335,9 @@ class TimelineDaoTest {
             displayName = "displayName",
             url = "blah",
             avatar = "avatar",
-            emojis = "[\"pachli\": \"http://pachli.cool/emoji.jpg\"]",
+            emojis = listOf(Emoji("pachli", "http://pachli.cool/emoji.jpg", "", null)),
             bot = false,
+            createdAt = null,
         )
 
         val reblogAuthor = if (reblog) {
@@ -344,8 +349,9 @@ class TimelineDaoTest {
                 displayName = "RdisplayName",
                 url = "Rblah",
                 avatar = "Ravatar",
-                emojis = "[]",
+                emojis = emptyList(),
                 bot = false,
+                createdAt = null,
             )
         } else {
             null
@@ -353,7 +359,7 @@ class TimelineDaoTest {
 
         val card = when (cardUrl) {
             null -> null
-            else -> "{ url: \"$cardUrl\" }"
+            else -> Card(cardUrl, "", "", PreviewCardKind.LINK, providerName = "", providerUrl = "")
         }
         val even = accountId % 2 == 0L
         val status = TimelineStatusEntity(
@@ -366,7 +372,7 @@ class TimelineDaoTest {
             content = "Content!$statusId",
             createdAt = createdAt,
             editedAt = null,
-            emojis = "emojis$statusId",
+            emojis = emptyList(),
             reblogsCount = 1 * statusId.toInt(),
             favouritesCount = 2 * statusId.toInt(),
             repliesCount = 3 * statusId.toInt(),
@@ -376,10 +382,10 @@ class TimelineDaoTest {
             sensitive = even,
             spoilerText = "spoiler$statusId",
             visibility = Status.Visibility.PRIVATE,
-            attachments = "attachments$accountId",
-            mentions = "mentions$accountId",
-            tags = "tags$accountId",
-            application = "application$accountId",
+            attachments = null,
+            mentions = null,
+            tags = null,
+            application = null,
             reblogServerId = if (reblog) (statusId * 100).toString() else null,
             reblogAccountId = reblogAuthor?.serverId,
             poll = null,

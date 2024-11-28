@@ -412,7 +412,6 @@
     <string name="action_copy_link">Copiar ligazón</string>
     <string name="download_image">Descargando %1$s</string>
     <string name="action_open_media_n">Abrir multimedia #%d</string>
-    <string name="title_mentions_dialog">Mencións</string>
     <string name="action_open_faved_by">Mostrar favoritos</string>
     <string name="action_open_reblogged_by">Mostrar promocións</string>
     <string name="action_open_reblogger">Abrir autor da promoción</string>
@@ -454,7 +453,7 @@
     <string name="error_following_hashtag_format">Erro ao seguir #%s</string>
     <string name="error_unfollowing_hashtag_format">Error ao retirar seguimento de #%s</string>
     <string name="action_add_reaction">engadir reacción</string>
-    <string name="compose_save_draft_loses_media">Gardar borrador\? (Os adxuntos serán subidos outra vez cando restablezas o borrador.)</string>
+    <string name="compose_save_draft_loses_media">Gardar borrador? (Os adxuntos serán subidos outra vez cando restablezas o borrador.)</string>
     <string name="pref_title_show_self_username">Mostrar identificador na barra ferramentas</string>
     <string name="delete_scheduled_post_warning">Eliminar publicación programada\?</string>
     <string name="failed_to_pin">Fallo ao Fixar</string>
@@ -550,7 +549,6 @@
     <string name="filter_edit_keyword_title">Editar palabra</string>
     <string name="select_list_empty">Aínda non tes listas</string>
     <string name="select_list_manage">Xestionar listas</string>
-    <string name="error_list_load">Erro ao cargar as listas</string>
     <string name="error_missing_edits">O teu servidor sabe que a publicación foi editada, pero non ten unha copia das edición, polo que non pode mostrarchas.
 \n
 \nÉ un <a href="https://github.com/mastodon/mastodon/issues/25398">problema coñecido</a> en Mastodon.</string>
@@ -561,7 +559,6 @@
     <string name="notification_listenable_worker_description">Notificacións cando Pachli está a funcionar en segundo plano</string>
     <string name="notification_notification_worker">Obtendo as notificacións…</string>
     <string name="notification_prune_cache">Mantemento da caché…</string>
-    <string name="error_media_upload_sending_fmt">Fallou a subida: %s</string>
     <string name="dialog_delete_filter_positive_action">Eliminar</string>
     <string name="dialog_delete_filter_text">Eliminar o filtro \'%1$s\'\?</string>
     <string name="pref_title_show_self_boosts">Mostrar autopromocións</string>
@@ -588,8 +585,6 @@
     <string name="title_tab_public_trending_hashtags">Cancelos</string>
     <string name="title_tab_public_trending_links">Ligazóns</string>
     <string name="title_tab_public_trending_statuses">Publicacións</string>
-    <string name="title_lists_loading">Listas - cargando…</string>
-    <string name="title_lists_failed">Listas - fallou a carga</string>
     <string name="manage_lists">Xestionar listas</string>
     <string name="announcement_date_updated">(Actualizada: %1$s)</string>
     <string name="pref_summary_content_filters">O servidor non é compatible cos filtros</string>
@@ -608,10 +603,6 @@
     <string name="translation_provider_fmt">%1$s</string>
     <string name="update_dialog_neutral">Non avisarme para esta versión</string>
     <string name="translating">Traducindo…</string>
-    <plurals name="notification_severed_relationships_summary_report_fmt">
-        <item quantity="one">%1$d relación perdida</item>
-        <item quantity="other">%1$d relacións perdidas</item>
-    </plurals>
     <string name="announcement_date">%1$s %2$s</string>
     <string name="load_newest_statuses">Cargar as publicacións máis recentes</string>
     <string name="pref_update_notification_frequency_never">Nunca</string>
@@ -628,7 +619,6 @@
     <string name="compose_warn_language_dialog_change_language_fmt">Cambiar o idioma a %1$s e publicar</string>
     <string name="error_media_uploader_upload_not_found_fmt">non se atopou o multimedia subido con ID %1$s</string>
     <string name="compose_warn_language_dialog_accept_language_fmt">Publicar tal como está (%1$s)</string>
-    <string name="error_media_uploader_throwable_fmt">%1$s</string>
     <string name="error_prepare_media_content_resolver_missing_path_fmt">ao resolutor da URI do contido fáltalle unha ruta: %1$s</string>
     <string name="error_prepare_media_io_fmt">%1$s</string>
     <string name="error_prepare_media_content_resolver_unsupported_scheme_fmt">o resolutor da URI do cotido non é compatible co esquema: %1$s</string>

@@ -52,7 +52,7 @@ open class StatusViewHolder<T : IStatusViewData>(
             val expanded = viewData.isExpanded
             setupCollapsedState(pachliAccountId, viewData, sensitive, expanded, listener)
             val reblogging = viewData.rebloggingStatus
-            if (reblogging == null || viewData.filterAction === FilterAction.WARN) {
+            if (reblogging == null || viewData.contentFilterAction === FilterAction.WARN) {
                 statusInfo.hide()
             } else {
                 val rebloggedByDisplayName = reblogging.account.name
@@ -90,8 +90,7 @@ open class StatusViewHolder<T : IStatusViewData>(
     protected fun setPollInfo(ownPoll: Boolean) = with(binding) {
         statusInfo.setText(if (ownPoll) R.string.poll_ended_created else R.string.poll_ended_voted)
         statusInfo.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_poll_24dp, 0, 0, 0)
-        statusInfo.compoundDrawablePadding =
-            Utils.dpToPx(context, 10)
+        statusInfo.compoundDrawablePadding = Utils.dpToPx(context, 10)
         statusInfo.setPaddingRelative(Utils.dpToPx(context, 28), 0, 0, 0)
         statusInfo.show()
     }

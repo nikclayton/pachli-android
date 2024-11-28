@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Pachli Association
+ * Copyright 2024 Pachli Association
  *
  * This file is a part of Pachli.
  *
@@ -15,7 +15,7 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package app.pachli.core.network
+package app.pachli.core.data.model
 
 import app.pachli.core.model.NodeInfo
 import app.pachli.core.model.ServerKind
@@ -264,7 +264,7 @@ class ServerTest(
                 ),
                 arrayOf(
                     Triple(
-                        "Pleroma can filter, schedule",
+                        "Pleroma can't server filter, can schedule",
                         NodeInfo.Software("pleroma", "2.6.50-875-g2eb5c453.service-origin+soapbox"),
                         defaultInstance,
                     ),
@@ -273,7 +273,7 @@ class ServerTest(
                             kind = PLEROMA,
                             version = "2.6.50-875-g2eb5c453.service-origin+soapbox".toVersion(),
                             capabilities = mapOf(
-                                ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
                                 ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                             ),
                         ),

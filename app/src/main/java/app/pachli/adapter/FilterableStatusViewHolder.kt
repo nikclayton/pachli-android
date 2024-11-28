@@ -50,7 +50,7 @@ open class FilterableStatusViewHolder<T : IStatusViewData>(
         status: T,
         listener: StatusActionListener<T>,
     ) {
-        if (status.filterAction !== FilterAction.WARN) {
+        if (status.contentFilterAction !== FilterAction.WARN) {
             matchedFilter = null
             setPlaceholderVisibility(false)
             return
@@ -71,7 +71,7 @@ open class FilterableStatusViewHolder<T : IStatusViewData>(
             binding.statusFilteredPlaceholder.statusFilterLabel.text = label
 
             binding.statusFilteredPlaceholder.statusFilterShowAnyway.setOnClickListener {
-                listener.clearWarningAction(pachliAccountId, status)
+                listener.clearContentFilter(pachliAccountId, status)
             }
             binding.statusFilteredPlaceholder.statusFilterEditFilter.setOnClickListener {
                 listener.onEditFilterById(pachliAccountId, result.filter.id)

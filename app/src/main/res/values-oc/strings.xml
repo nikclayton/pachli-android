@@ -231,7 +231,6 @@
     <string name="action_open_reblogger">Dobrir l’autor del partatge</string>
     <string name="action_open_reblogged_by">Mostrar los retuts</string>
     <string name="action_open_faved_by">Mostrar los favorits</string>
-    <string name="title_mentions_dialog">Mencions</string>
     <string name="action_open_media_n">Dobrir lo mèdia #%d</string>
     <string name="action_share_as">Partejar coma…</string>
     <string name="download_media">Telecargar lo mèdia</string>
@@ -470,7 +469,7 @@
     <string name="notification_update_description">Notificacions quand una publicacion ont avètz reagit es modificada</string>
     <string name="follow_requests_info">Malgrat que vòstre compte siá pas verrolhat, l\'equipa de %1$s a pensat que volriatz validar manualament las demandas de d\'abonament provenent d\'aqueles comptes.</string>
     <string name="pref_title_enable_swipe_for_tabs">Activar lo limpament per se desplaçar demest los onglets</string>
-    <string name="compose_save_draft_loses_media">Enregistrar lo borrolhon \? (Las pèças juntas seràn enviadas tornamai quand restauretz lo borrolhon.)</string>
+    <string name="compose_save_draft_loses_media">Enregistrar lo borrolhon ? (Las pèças juntas seràn enviadas tornamai quand restauretz lo borrolhon.)</string>
     <string name="pref_default_post_language">Lenga de publicacion per defaut</string>
     <string name="report_category_spam">Messatge indesirable</string>
     <string name="language_display_name_format">%s (%s)</string>
@@ -550,7 +549,6 @@
     <string name="post_media_image">Imatge</string>
     <string name="select_list_empty">Avètz pas encara de lista</string>
     <string name="select_list_manage">Gerir las listas</string>
-    <string name="error_list_load">Error en cargant las litas</string>
     <string name="ui_error_favourite_fmt">Fracàs de la mes en favorit : %1$s</string>
     <string name="ui_error_reblog_fmt">Fracàs en partejant : %1$s</string>
     <string name="ui_error_vote_fmt">Fracàs del vòt : %1$s</string>
@@ -568,5 +566,4 @@
     <string name="notification_listenable_worker_description">Notificacions quand Tuska s’executa en rèireplan</string>
     <string name="notification_notification_worker">Recuperacion de las notificacions…</string>
     <string name="notification_prune_cache">Manteniment del cache…</string>
-    <string name="error_media_upload_sending_fmt">Fracàs del mandadís : %s</string>
 </resources>

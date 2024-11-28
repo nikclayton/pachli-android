@@ -38,7 +38,6 @@
     <string name="action_share_as">Поділитися як …</string>
     <string name="action_copy_link">Копіювати посилання</string>
     <string name="download_image">Завантаження %1$s</string>
-    <string name="title_mentions_dialog">Згадки</string>
     <string name="action_open_faved_by">Показати, хто вподобав</string>
     <string name="action_content_warning">Попередження про вміст</string>
     <string name="action_access_scheduled_posts">Заплановані дописи</string>
@@ -479,7 +478,7 @@
     <string name="delete_scheduled_post_warning">Видалити цей запланований допис\?</string>
     <string name="failed_to_pin">Не вдалося прикріпити</string>
     <string name="failed_to_unpin">Не вдалося відкріпити</string>
-    <string name="compose_save_draft_loses_media">Зберегти чернетку\? (Вкладення будуть завантажені знову, коли ви відновите чернетку.)</string>
+    <string name="compose_save_draft_loses_media">Зберегти чернетку? (Вкладення будуть завантажені знову, коли ви відновите чернетку.)</string>
     <string name="action_add_reaction">додати реакцію</string>
     <string name="notification_report_format">Нова скарга %s</string>
     <string name="report_category_violation">Порушення правил</string>
@@ -570,7 +569,6 @@
     <string name="help_empty_home">Це ваша <b>головна стрічка</b>. Вона показує останні дописи облікових записів, за якими ви стежите. \n \nЩоб переглянути облікові записи, ви можете знайти їх в одній з інших стрічок. Наприклад, на локальній стрічці вашого сервера [iconics gmd_group]. Або ви можете шукати їх за іменами [iconics gmd_search]; наприклад, шукайте Pachli, щоб знайти наш обліковий запис Mastodon.</string>
     <string name="hint_description">Опис</string>
     <string name="post_media_image">Зображення</string>
-    <string name="error_list_load">Помилка завантаження списків</string>
     <string name="select_list_empty">У вас ще немає списків</string>
     <string name="select_list_manage">Керувати списками</string>
     <string name="pref_ui_text_size">Розмір шрифту інтерфейсу</string>
@@ -583,5 +581,4 @@
     <string name="error_missing_edits">Ваш сервер знає, що цей допис було змінено, але не має копії редагувань, тому вони не можуть бути вам показані.
 \n
 \nЦе <a href="https://github.com/mastodon/mastodon/issues/25398">помилка #25398 у Mastodon</a>.</string>
-    <string name="error_media_upload_sending_fmt">Не вдалося вивантажити: %s</string>
 </resources>

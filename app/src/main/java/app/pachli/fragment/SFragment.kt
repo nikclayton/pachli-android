@@ -16,8 +16,6 @@
 package app.pachli.fragment
 
 import android.Manifest
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -38,7 +36,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import app.pachli.R
-import app.pachli.core.activity.AccountSelectionListener
 import app.pachli.core.activity.BaseActivity
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.PostLookupFallbackBehavior
@@ -60,6 +57,7 @@ import app.pachli.core.network.model.Attachment
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.ui.ClipboardUseCase
 import app.pachli.core.ui.extensions.getErrorString
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.usecase.TimelineCases
@@ -94,6 +92,9 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
 
     @Inject
     lateinit var downloadUrlUseCase: DownloadUrlUseCase
+
+    @Inject
+    lateinit var clipboard: ClipboardUseCase
 
     private var serverCanTranslate = false
 
@@ -170,7 +171,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
         bottomSheetActivity.viewUrl(pachliAccountId, url, PostLookupFallbackBehavior.OPEN_IN_BROWSER)
     }
 
-    protected fun reply(status: Status) {
+    protected fun reply(pachliAccountId: Long, status: Status) {
         val actionableStatus = status.actionableStatus
         val account = actionableStatus.account
         var loggedInUsername: String? = null
@@ -193,7 +194,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
             kind = ComposeOptions.ComposeKind.NEW,
         )
 
-        val intent = ComposeActivityIntent(requireContext(), composeOptions)
+        val intent = ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions)
         requireActivity().startActivity(intent)
     }
 
@@ -296,9 +297,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_copy_link -> {
-                    (requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).apply {
-                        setPrimaryClip(ClipData.newPlainText(null, statusUrl))
-                    }
+                    statusUrl?.let { clipboard.copyTextTo(it) }
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_open_as -> {
@@ -489,7 +488,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                                 poll = sourceStatus.poll?.toNewPoll(sourceStatus.createdAt),
                                 kind = ComposeOptions.ComposeKind.NEW,
                             )
-                            startActivity(ComposeActivityIntent(requireContext(), composeOptions))
+                            startActivity(ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions))
                         },
                         { error: Throwable? ->
                             Timber.w(error, "error deleting status")
@@ -519,7 +518,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                         poll = status.poll?.toNewPoll(status.createdAt),
                         kind = ComposeOptions.ComposeKind.EDIT_POSTED,
                     )
-                    startActivity(ComposeActivityIntent(requireContext(), composeOptions))
+                    startActivity(ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions))
                 },
                 {
                     Snackbar.make(
@@ -538,15 +537,9 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
         }
 
         (activity as BaseActivity).apply {
-            showAccountChooserDialog(
-                dialogTitle,
-                false,
-                object : AccountSelectionListener {
-                    override fun onAccountSelected(account: AccountEntity) {
-                        openAsAccount(statusUrl, account)
-                    }
-                },
-            )
+            showAccountChooserDialog(dialogTitle, false) { account ->
+                openAsAccount(statusUrl, account)
+            }
         }
     }
 

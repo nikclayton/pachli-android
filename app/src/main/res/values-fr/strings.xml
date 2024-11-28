@@ -92,7 +92,6 @@
     <string name="action_open_reblogger">Afficher l’auteur·rice du partage</string>
     <string name="action_open_reblogged_by">Afficher les partages</string>
     <string name="action_open_faved_by">Montrer les favoris</string>
-    <string name="title_mentions_dialog">Mentions</string>
     <string name="action_open_media_n">Ouvrir le média #%d</string>
     <string name="download_image">Téléchargement de %1$s</string>
     <string name="action_copy_link">Copier le lien</string>
@@ -520,7 +519,7 @@
     <string name="failed_to_pin">Échec de l\'épinglage</string>
     <string name="status_edit_info">Modification de %1$s</string>
     <string name="status_created_info">Création par %1$s</string>
-    <string name="compose_save_draft_loses_media">Enregistrer comme brouillon \? (Les pièces jointes seront à nouveau téléchargées lorsque le brouillon sera réouvert.)</string>
+    <string name="compose_save_draft_loses_media">Enregistrer comme brouillon ? (Les pièces jointes seront à nouveau téléchargées lorsque le brouillon sera réouvert.)</string>
     <string name="language_display_name_format">%s (%s)</string>
     <string name="report_category_spam">Spam</string>
     <string name="report_category_other">Autre</string>
@@ -548,7 +547,6 @@
     <string name="description_post_edited">Modifié</string>
     <string name="select_list_empty">Vous n\'avez pas encore de liste</string>
     <string name="select_list_manage">Gérer les listes</string>
-    <string name="error_list_load">Erreur de chargement des listes</string>
     <string name="report_category_violation">Règle enfreinte</string>
     <string name="error_status_source_load">Le texte d\'origine du statut n\'a pas pu être chargé.</string>
     <string name="ui_error_clear_notifications">Échec du nettoyage des notifications : %s</string>
@@ -572,7 +570,6 @@
     <string name="filter_edit_keyword_title">Modifier mot-clé</string>
     <string name="filter_description_format">%s : %s</string>
     <string name="action_translate_undo">Annuler la traduction</string>
-    <string name="error_media_upload_sending_fmt">Le téléversement a échoué : %s</string>
     <string name="title_public_trending_statuses">Publications en tendance</string>
     <string name="title_tab_public_trending_hashtags">Hashtags</string>
     <string name="action_translate">Traduire</string>

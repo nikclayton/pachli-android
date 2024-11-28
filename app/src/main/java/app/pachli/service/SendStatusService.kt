@@ -38,6 +38,8 @@ import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
 import at.connyduck.calladapter.networkresult.fold
 import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.IOException
 import java.util.Date
@@ -145,14 +147,14 @@ class SendStatusService : Service() {
             // first, wait for media uploads to finish
             val media = statusToSend.media.map { mediaItem ->
                 if (mediaItem.id == null) {
-                    val uploadState = mediaUploader.getMediaUploadState(mediaItem.localId)
+                    val uploadState = mediaUploader.waitForUploadToFinish(mediaItem.localId)
                     val media = uploadState.getOrElse {
                         Timber.w("failed uploading media: %s", it.fmt(this@SendStatusService))
                         failSending(statusId)
                         stopSelfWhenDone()
                         return@launch
-                    }.media
-                    mediaItem.copy(id = media.mediaId, processed = media.processed)
+                    }
+                    mediaItem.copy(id = media.serverId)
                 } else {
                     mediaItem
                 }
@@ -165,15 +167,13 @@ class SendStatusService : Service() {
                     delay(1000L * mediaCheckRetries)
                     media.forEach { mediaItem ->
                         if (!mediaItem.processed) {
-                            when (mastodonApi.getMedia(mediaItem.id!!).code()) {
-                                200 -> mediaItem.processed = true // success
-                                206 -> { } // media is still being processed, continue checking
-                                else -> { // some kind of server error, retrying probably doesn't make sense
+                            mastodonApi.getMedia(mediaItem.id!!)
+                                .onSuccess { mediaItem.processed = it.code == 200 }
+                                .onFailure {
                                     failSending(statusId)
                                     stopSelfWhenDone()
                                     return@launch
                                 }
-                            }
                         }
                     }
                     mediaCheckRetries++
@@ -190,13 +190,11 @@ class SendStatusService : Service() {
                 media.forEach { mediaItem ->
                     if (mediaItem.processed && (mediaItem.description != null || mediaItem.focus != null)) {
                         mastodonApi.updateMedia(mediaItem.id!!, mediaItem.description, mediaItem.focus?.toMastodonApiString())
-                            .fold({
-                            }, { throwable ->
-                                Timber.w(throwable, "failed to update media on status send")
-                                failOrRetry(throwable, statusId)
-
+                            .onFailure { error ->
+                                Timber.w("failed to update media on status send: %s", error)
+                                failOrRetry(error.throwable, statusId)
                                 return@launch
-                            })
+                            }
                     }
                 }
             }
@@ -225,14 +223,14 @@ class SendStatusService : Service() {
             val sendResult = if (isNew) {
                 if (newStatus.scheduledAt == null) {
                     mastodonApi.createStatus(
-                        "Bearer " + account.accessToken,
+                        account.authHeader,
                         account.domain,
                         statusToSend.idempotencyKey,
                         newStatus,
                     )
                 } else {
                     mastodonApi.createScheduledStatus(
-                        "Bearer " + account.accessToken,
+                        account.authHeader,
                         account.domain,
                         statusToSend.idempotencyKey,
                         newStatus,
@@ -241,7 +239,7 @@ class SendStatusService : Service() {
             } else {
                 mastodonApi.editStatus(
                     statusToSend.statusId!!,
-                    "Bearer " + account.accessToken,
+                    account.authHeader,
                     account.domain,
                     statusToSend.idempotencyKey,
                     newStatus,
@@ -404,10 +402,10 @@ class SendStatusService : Service() {
     private fun buildDraftNotification(
         @StringRes title: Int,
         @StringRes content: Int,
-        accountId: Long,
+        pachliAccountId: Long,
         statusId: Int,
     ): Notification {
-        val intent = MainActivityIntent.openDrafts(this, accountId)
+        val intent = MainActivityIntent.fromDraftsNotification(this, pachliAccountId)
 
         val pendingIntent = PendingIntent.getActivity(
             this,

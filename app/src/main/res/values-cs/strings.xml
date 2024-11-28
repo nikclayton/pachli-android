@@ -92,7 +92,6 @@
     <string name="action_open_reblogger">Otevřít autora boostu</string>
     <string name="action_open_reblogged_by">Zobrazit boosty</string>
     <string name="action_open_faved_by">Zobrazit oblíbení</string>
-    <string name="title_mentions_dialog">Zmínky</string>
     <string name="action_open_media_n">Otevřít médium #%d</string>
     <string name="download_image">Stahuji %1$s</string>
     <string name="action_copy_link">Zkopírovat odkaz</string>
@@ -425,7 +424,7 @@
 \n - Statistiky sledujících a příspěvků na profilech
 \n
 \nPush oznámení nebudou ovlivněna, ale můžete si zkontrolovat jejich nastavení manuálně.</string>
-    <string name="compose_save_draft_loses_media">Uložit koncept\? (Přílohy budou znovu nahrány, když obnovíte koncept.)</string>
+    <string name="compose_save_draft_loses_media">Uložit koncept? (Přílohy budou znovu nahrány, když obnovíte koncept.)</string>
     <string name="set_focus_description">Klepnutím nebo přetažením kruhu vyberte ohnisko, které bude vždy viditelné v miniaturách.</string>
     <string name="pref_title_confirm_favourites">Před oblíbením zobrazit dialog pro potvrzení</string>
     <string name="pref_title_hide_top_toolbar">Skrýt nadpis horního panelu nástrojů</string>

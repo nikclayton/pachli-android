@@ -305,7 +305,6 @@
     <string name="error_image_edit_failed">Methu golygu\'r ddelwedd.</string>
     <string name="description_post_favourited">Hoffwyd</string>
     <string name="saving_draft">Yn cadw drafft…</string>
-    <string name="title_mentions_dialog">Crybwylliadau</string>
     <string name="action_open_media_n">Agor cyfryngau #%d</string>
     <string name="action_share_as">Rhannu fel …</string>
     <string name="downloading_media">Yn llwytho cyfryngau</string>
@@ -393,7 +392,7 @@
         <item quantity="other"><b>%1$s</b> Ffefryn</item>
     </plurals>
     <string name="description_visibility_direct">Uniongyrchol</string>
-    <string name="compose_save_draft_loses_media">Cadw drafft\? (Bydd atodiadau\'n cael eu lanlwytho eto pan fyddwch chi\'n adfer y drafft.)</string>
+    <string name="compose_save_draft_loses_media">Cadw drafft? (Bydd atodiadau\'n cael eu lanlwytho eto pan fyddwch chi\'n adfer y drafft.)</string>
     <string name="description_post_reblogged">Ailflogiwyd</string>
     <string name="poll_info_format"><!-- 15 votes • 1 hour left -->%1$s • %2$s</string>
     <string name="hint_media_description_missing">Dylai fod gan y cyfryngau ddisgrifiad.</string>
@@ -599,7 +598,6 @@
     <string name="post_media_image">Delwedd</string>
     <string name="select_list_empty">Nid oes gennych restrau, eto</string>
     <string name="select_list_manage">Rheoli rhestrau</string>
-    <string name="error_list_load">Gwall wrth lwytho rhestrau</string>
     <string name="help_empty_home">Hwn yw\'ch <b>ffrwd cartref</b>. Mae\'n dangos negeseuon diweddar y cyfrifon rydych yn eu dilyn. \n \nI archwilio cyfrifon gallwch un ai eu darganfod o fewn un o\'r llinellau amser eraill. Er enghraifft, mae llinell amser eich enghraifft chi [iconics gmd_group]. Neu gallwch eu chwilio yn ôl eu henw [iconics gmd_search]; er enghraifft, chwilio am Pachli i ganfod ein cyfrif Mastodon.</string>
     <string name="pref_title_show_stat_inline">Dangos ystadegau negeseuon mewn llinell amser</string>
     <string name="pref_ui_text_size">Maint testun rhyngwyneb</string>
@@ -612,7 +610,6 @@
 \nHwn yw <a href="https://github.com/mastodon/mastodon/issues/25398">mater Mastodon #25398</a>.</string>
     <string name="load_newest_notifications">Llwytho hysbysiadau diweddaraf</string>
     <string name="compose_delete_draft">Dileu\'r drafft\?</string>
-    <string name="error_media_upload_sending_fmt">Methodd y lanlwytho: %s</string>
     <string name="error_media_playback">Methodd chwarae: %s</string>
     <string name="dialog_delete_filter_positive_action">Dileu</string>
     <string name="dialog_delete_filter_text">Dileu\'r hidlydd \'%1$s\'\?</string>

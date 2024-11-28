@@ -98,7 +98,6 @@
     <string name="action_open_reblogger">Vai all\'autore della condivisione</string>
     <string name="action_open_reblogged_by">Mostra condivisioni</string>
     <string name="action_open_faved_by">Mostra preferiti</string>
-    <string name="title_mentions_dialog">Menzioni</string>
     <string name="action_open_media_n">Apri media #%d</string>
     <string name="download_image">Scaricando %1$s</string>
     <string name="action_copy_link">Copia collegamento</string>
@@ -573,7 +572,6 @@
     <string name="ui_success_rejected_follow_request">Richiesta di follow bloccata</string>
     <string name="select_list_empty">Non hai ancora alcuna lista</string>
     <string name="select_list_manage">Gestisci liste</string>
-    <string name="error_list_load">Errore nel caricamento delle liste</string>
     <string name="status_filtered_show_anyway">Mostra comunque</string>
     <string name="status_filter_placeholder_label_format">Filtrato: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Profili</string>
@@ -606,7 +604,6 @@
     <string name="update_dialog_neutral">Non ricordarmelo per questa versione</string>
     <string name="pref_title_update_settings">Aggiornamenti Software</string>
     <string name="pref_update_notification_frequency_always">Sempre</string>
-    <string name="error_media_upload_sending_fmt">Il caricamento è fallito: %s</string>
     <string name="pref_update_notification_frequency_never">Mai</string>
     <string name="title_tab_public_trending_statuses">Post</string>
     <string name="pref_update_notification_frequency_once_per_version">Una volta per versione</string>

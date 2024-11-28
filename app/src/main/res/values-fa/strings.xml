@@ -243,7 +243,6 @@
     <string name="action_open_reblogger">گشودن تقویت‌کنندهٔ بوق</string>
     <string name="action_open_reblogged_by">نمایش تقویت‌ها</string>
     <string name="action_open_faved_by">نمایش برگزیده‌ها</string>
-    <string name="title_mentions_dialog">اشاره‌ها</string>
     <string name="action_open_media_n">گشودن رسانه #%d</string>
     <string name="action_share_as">هم‌رسانی به عنوان …</string>
     <string name="download_media">بارگیری رسانه</string>
@@ -557,7 +556,6 @@
     <string name="post_media_image">تصویر</string>
     <string name="select_list_empty">هنوز هیچ سیاهه‌ای ندارید</string>
     <string name="select_list_manage">مدیریت سیاهه‌ها</string>
-    <string name="error_list_load">خطا در بار کردن سیاهه‌ها</string>
     <string name="load_newest_notifications">بار کردن جدیدترین آگاهی‌ها</string>
     <string name="compose_delete_draft">حذف پیش‌نویس؟</string>
     <string name="error_missing_edits">کارسازتان می‌داند که این فرسته ویرایش شده؛ ولی رونوشتی از ویرایش‌ها ندارد. پس نمی‌توانند نشانتان داده شوند.
@@ -568,7 +566,6 @@
     <string name="notification_listenable_worker_description">آگاهی‌ها هنگامی که تاسکی در پس‌زمینه کار می‌کند</string>
     <string name="notification_notification_worker">واکشی آگاهی‌ها…</string>
     <string name="notification_prune_cache">نگه‌داری انباره…</string>
-    <string name="error_media_upload_sending_fmt">بارگذاری شکست خورد: %s</string>
     <string name="error_media_playback">پخش شکست خورد: %s</string>
     <string name="dialog_delete_filter_positive_action">حذف</string>
     <string name="dialog_delete_filter_text">«%1$s» حذف پالایهٔ ؟</string>

@@ -91,7 +91,6 @@
     <string name="action_add_tab">إضافة لسان</string>
     <string name="action_open_reblogged_by">اعرض المشاركات</string>
     <string name="action_open_faved_by">اعرض المفضلات</string>
-    <string name="title_mentions_dialog">الإشارات</string>
     <string name="download_image">تنزيل %1$s</string>
     <string name="action_copy_link">إنسخ الرابط</string>
     <string name="action_share_as">شاركه كـ…</string>
@@ -571,7 +570,7 @@
     <string name="filter_action_warn">تحذير</string>
     <string name="title_public_trending_links">الروابط الشائعة</string>
     <string name="title_tab_public_trending_links">الروابط</string>
-    <string name="status_filter_placeholder_label_format">مُصفّى: &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">مُصفّى: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="update_dialog_neutral">لا تذكرني بهذه النسخة</string>
     <string name="ui_error_reject_follow_request">فشل رفض طلب المتابعة: %s</string>
     <string name="reaction_name_and_count">%1$s %2$d</string>
@@ -590,7 +589,6 @@
     <string name="ui_error_bookmark_fmt">%1$s :فشل إجراء إضافة المنشور إلى الفواصل المرجعية</string>
     <string name="notification_unknown_name">غير معروف</string>
     <string name="pref_update_notification_frequency_always">دائما</string>
-    <string name="error_media_upload_sending_fmt">اخفق التحميل: %s</string>
     <string name="pref_update_notification_frequency_never">أبدًا</string>
     <string name="filter_keyword_display_format">%s (الكلمةكاملة)</string>
     <string name="filter_keyword_addition_title">إضافة كلمة مفتاحية</string>
@@ -606,7 +604,6 @@
     <string name="pref_title_font_family">عائلة الخطوط</string>
     <string name="notification_listenable_worker_description">إشعارات عندما يعمل Pachli (باكلي) في الخلفية</string>
     <string name="status_filtered_show_anyway">إظهار على أي حال</string>
-    <string name="error_list_load">خطأ في تحميل القوائم</string>
     <string name="action_translate">ترجمة</string>
     <string name="select_list_empty">ليس لديك قوائم بعد</string>
     <string name="pref_title_account_filter_keywords">الملفات التعريفية</string>

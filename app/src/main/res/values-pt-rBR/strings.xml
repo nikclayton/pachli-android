@@ -87,7 +87,6 @@
     <string name="action_add_tab">Adicionar aba</string>
     <string name="action_open_reblogged_by">Mostrar Boosts</string>
     <string name="action_open_faved_by">Mostrar favoritos</string>
-    <string name="title_mentions_dialog">Menções</string>
     <string name="download_image">Baixando %1$s</string>
     <string name="action_copy_link">Copiar URL</string>
     <string name="action_share_as">Compartilhar como…</string>
@@ -465,7 +464,7 @@
     <string name="filter_expiration_format">%s (%s)</string>
     <string name="failed_to_pin">Falha ao fixar</string>
     <string name="failed_to_unpin">Falha ao desafixar</string>
-    <string name="compose_save_draft_loses_media">Salvar rascunho\? (Os anexos serão reenviados assim que você restaurar o rascunho.)</string>
+    <string name="compose_save_draft_loses_media">Salvar rascunho? (Os anexos serão reenviados assim que você restaurar o rascunho.)</string>
     <string name="status_created_info">%1$s publicou</string>
     <string name="title_edits">Edições</string>
     <string name="pref_default_post_language">Idioma padrão dos Toots</string>
@@ -557,7 +556,6 @@
     <string name="notification_unknown_name">Desconhecido</string>
     <string name="total_usage">Uso total</string>
     <string name="pref_update_notification_frequency_always">Sempre</string>
-    <string name="error_media_upload_sending_fmt">O carregamento falhou: %s</string>
     <string name="pref_update_notification_frequency_never">Nunca</string>
     <string name="filter_keyword_display_format">%s (palavra inteira)</string>
     <string name="filter_keyword_addition_title">Adicionar palavra-chave</string>
@@ -588,7 +586,6 @@
     <string name="notification_update_description">Notificações quando Toots com os quais interagiu são editados</string>
     <string name="notification_listenable_worker_description">Notificações quando Pachli está trabalhando em segundo plano</string>
     <string name="status_filtered_show_anyway">Mostrar mesmo assim</string>
-    <string name="error_list_load">Erro ao carregar as listas</string>
     <string name="ui_error_accept_follow_request">Falha ao aceitar a solicitação de seguir: %s</string>
     <string name="ui_success_rejected_follow_request">Pedido para seguir bloqueado</string>
     <string name="notification_sign_up_format">%s se inscreveu</string>

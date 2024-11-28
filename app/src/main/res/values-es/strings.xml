@@ -259,7 +259,6 @@
     <string name="conversation_2_recipients">%1$s y %2$s</string>
     <string name="conversation_more_recipients">%1$s, %2$s y %3$d más</string>
     <string name="action_open_faved_by">Mostrar favoritos</string>
-    <string name="title_mentions_dialog">Menciones</string>
     <string name="download_media">Descargar multimedia</string>
     <string name="pref_title_language">Idioma</string>
     <string name="action_unreblog">Dejar de impulsar</string>
@@ -454,7 +453,7 @@
     <string name="notification_update_format">%s editó su publicación</string>
     <string name="delete_scheduled_post_warning">¿Eliminar publicación programada\?</string>
     <string name="set_focus_description">Toca o arrastra el círculo para centrar el foco de la imagen, que será visible en las miniaturas.</string>
-    <string name="compose_save_draft_loses_media">¿Guardar este borrador\? (Los adjuntos se subirán de nuevo cuando vuelvas a él.)</string>
+    <string name="compose_save_draft_loses_media">Los adjuntos se subirán de nuevo cuando vuelvas al borrador.</string>
     <string name="pref_title_show_self_username">Mostrar nombre de usuario en la barra de herramientas</string>
     <string name="account_date_joined">Se unió %1$s</string>
     <string name="duration_14_days">14 días</string>
@@ -545,7 +544,6 @@
     <string name="help_empty_home">Esta es tu <b> cronología de inicio</b>. Muestra las publicaciones recientes de las cuentas que sigues. \n \nPara encontrar cuentas, puedes mirar en alguna de las otras cronologías; por ejemplo, la cronología local de tu instancia [iconics gmd_group]. O puedes buscarlas por nombre [iconics gmd_search]; por ejemplo, busca Pachli para encontrar nuestra cuenta de Mastodon.</string>
     <string name="ui_error_bookmark_fmt">Fallo al añadir a marcadores: %1$s</string>
     <string name="select_list_manage">Gestionar listas</string>
-    <string name="error_list_load">Error al cargar listas</string>
     <string name="ui_error_favourite_fmt">Fallo al favoritear publicación: %1$s</string>
     <string name="ui_error_clear_notifications">Fallo al limpiar notificaciones: %s</string>
     <string name="ui_error_accept_follow_request">Fallo al aceptar solicitud de seguimiento: %s</string>
@@ -592,7 +590,6 @@
     <string name="load_newest_statuses">Cargar las publicaciones más nuevas</string>
     <string name="dialog_save_profile_changes_message">¿Quieres guardar tus cambios de perfil?</string>
     <string name="pref_update_notification_frequency_always">Siempre</string>
-    <string name="error_media_upload_sending_fmt">La carga falló: %s</string>
     <string name="pref_update_notification_frequency_never">Nunca</string>
     <string name="pref_title_show_self_boosts_description">Alguien impulsa su propia publicación</string>
     <string name="ui_error_filter_v1_load_fmt">La carga de filtros falló: %1$s</string>
@@ -627,17 +624,10 @@
     <string name="notification_severed_relationships_account_suspension_body">Un moderador suspendió la cuenta</string>
     <string name="notification_severed_relationships_unknown_body">Motivo desconocido</string>
     <string name="notification_severed_relationships_format">Se rompió la relación con <b>%1$s</b></string>
-    <plurals name="notification_severed_relationships_summary_report_fmt">
-        <item quantity="one">Se rompió %1$d relación</item>
-        <item quantity="many">Se rompieron %1$d relaciones</item>
-        <item quantity="other">Se rompieron %1$d relaciones</item>
-    </plurals>
     <string name="notification_severed_relationships_name">Relaciones rotas</string>
     <string name="notification_severed_relationships_description">Notificaciones de relaciones rotas</string>
     <string name="poll_show_votes">Mostrar votos</string>
     <string name="manage_lists">Gestionar listas</string>
-    <string name="title_lists_loading">Listas - cargando…</string>
-    <string name="title_lists_failed">Listas - falló en cargar</string>
     <string name="error_filter_missing_keyword">Por lo menos se necesita una palabra clave o frase</string>
     <string name="error_filter_missing_context">Por lo menos se necesita un contexto para el filtro</string>
     <string name="error_filter_missing_title">Se necesita el título</string>
@@ -655,7 +645,6 @@
     <string name="compose_warn_language_dialog_fmt">El idioma de la publicación está configurado en %1$s, pero es posible que la hayas escrito en %2$s.</string>
     <string name="error_prepare_media_unsupported_mime_type_fmt">el servidor no es compatible con el tipo de archivo: %1$s</string>
     <string name="error_pick_media_fmt">No se pudo adjuntar el archivo a la publicación: %1$s</string>
-    <string name="error_media_uploader_throwable_fmt">%1$s</string>
     <string name="error_prepare_media_content_resolver_missing_path_fmt">al agente de resolución de contenido le faltó una ruta: %1$s</string>
     <string name="error_prepare_media_content_resolver_unsupported_scheme_fmt">el agente de resolución de contenido tiene un esquema no compatible: %1$s</string>
     <string name="error_prepare_media_file_is_too_large_fmt">el tamaño del archivo es %1$s, el máximo permitido es %2$s</string>
@@ -791,4 +780,19 @@
     <string name="conversation_0_recipients">Ningún participante más</string>
     <string name="pref_title_confirm_status_language">Revisar idioma de la publicación antes de publicar</string>
     <string name="compose_warn_language_dialog_accept_and_dont_ask_fmt">Publicar como está (%1$s) y no volver a preguntar</string>
+    <string name="upload_failed_msg_fmt">Se intentará subir nuevamente cuando envíes la publicación. Si vuelve a fallar, la publicación se guardará en tus borradores.\n\nEl error fue: %1$s</string>
+    <plurals name="notification_severed_relationships_summary_followers_fmt">
+        <item quantity="one">%1$s seguidor eliminado</item>
+        <item quantity="many">%1$s seguidores eliminados</item>
+        <item quantity="other">%1$s seguidores eliminados</item>
+    </plurals>
+    <plurals name="notification_severed_relationships_summary_following_fmt">
+        <item quantity="one">Se eliminó %1$s cuenta que seguías</item>
+        <item quantity="many">Se eliminaron %1$s cuentas que seguías</item>
+        <item quantity="other">Se eliminaron %1$s cuentas que seguías</item>
+    </plurals>
+    <string name="upload_failed_modify_attachment">Modificar adjunto</string>
+    <string name="main_viewmodel_error_set_active_account">El inicio de sesión falló con el siguiente error:\n\n%1$s</string>
+    <string name="main_viewmodel_error_refresh_account">La actualización de la cuenta falló con el siguiente error:\n\n%1$s\n\nPuedes continuar, pero tus listas y filtros pueden estar incompletos.</string>
+    <string name="action_relogin">Volver a iniciar sesión</string>
 </resources>

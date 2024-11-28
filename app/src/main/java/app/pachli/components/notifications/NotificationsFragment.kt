@@ -47,6 +47,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
 import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.components.preference.AccountNotificationFiltersPreferencesDialogFragment
 import app.pachli.components.timeline.TimelineLoadStateAdapter
 import app.pachli.core.activity.ReselectableFragment
 import app.pachli.core.activity.extensions.TransitionKind
@@ -82,6 +83,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlin.properties.Delegates
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -91,6 +93,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -104,7 +107,13 @@ class NotificationsFragment :
     MenuProvider,
     ReselectableFragment {
 
-    private val viewModel: NotificationsViewModel by viewModels()
+    private val viewModel: NotificationsViewModel by viewModels(
+        extrasProducer = {
+            defaultViewModelCreationExtras.withCreationCallback<NotificationsViewModel.Factory> { factory ->
+                factory.create(requireArguments().getLong(ARG_PACHLI_ACCOUNT_ID))
+            }
+        },
+    )
 
     private val binding by viewBinding(FragmentTimelineNotificationsBinding::bind)
 
@@ -116,20 +125,20 @@ class NotificationsFragment :
 
     override var pachliAccountId by Delegates.notNull<Long>()
 
+    // Update post timestamps
+    private val updateTimestampFlow = flow {
+        while (true) {
+            delay(60000)
+            emit(Unit)
+        }
+    }.onEach {
+        adapter.notifyItemRangeChanged(0, adapter.itemCount, listOf(StatusBaseViewHolder.Key.KEY_CREATED))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         pachliAccountId = requireArguments().getLong(ARG_PACHLI_ACCOUNT_ID)
-
-        adapter = NotificationsPagingAdapter(
-            notificationDiffCallback,
-            pachliAccountId,
-            accountId = viewModel.account.accountId,
-            statusActionListener = this,
-            notificationActionListener = this,
-            accountActionListener = this,
-            statusDisplayOptions = viewModel.statusDisplayOptions.value,
-        )
     }
 
     override fun onCreateView(
@@ -160,33 +169,9 @@ class NotificationsFragment :
         binding.recyclerView.setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
-        binding.recyclerView.setAccessibilityDelegateCompat(
-            ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this) { pos: Int ->
-                if (pos in 0 until adapter.itemCount) {
-                    adapter.peek(pos)
-                } else {
-                    null
-                }
-            },
-        )
         binding.recyclerView.addItemDecoration(
             MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
         )
-
-        val saveIdListener = object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (newState != SCROLL_STATE_IDLE) return
-
-                // Save the ID of the first notification visible in the list, so the user's
-                // reading position is always restorable.
-                layoutManager.findFirstVisibleItemPosition().takeIf { it != NO_POSITION }?.let { position ->
-                    adapter.snapshot().getOrNull(position)?.id?.let { id ->
-                        viewModel.accept(InfallibleUiAction.SaveVisibleId(visibleId = id))
-                    }
-                }
-            }
-        }
-        binding.recyclerView.addOnScrollListener(saveIdListener)
 
         (activity as? ActionButtonActivity)?.actionButton?.let { actionButton ->
             actionButton.show()
@@ -203,25 +188,62 @@ class NotificationsFragment :
             }
         }
 
-        binding.recyclerView.adapter = adapter.withLoadStateHeaderAndFooter(
-            header = TimelineLoadStateAdapter { adapter.retry() },
-            footer = TimelineLoadStateAdapter { adapter.retry() },
-        )
-
         (binding.recyclerView.itemAnimator as SimpleItemAnimator?)!!.supportsChangeAnimations =
             false
 
-        // Update post timestamps
-        val updateTimestampFlow = flow {
-            while (true) {
-                delay(60000)
-                emit(Unit)
-            }
-        }.onEach {
-            adapter.notifyItemRangeChanged(0, adapter.itemCount, listOf(StatusBaseViewHolder.Key.KEY_CREATED))
-        }
-
         viewLifecycleOwner.lifecycleScope.launch {
+            // The adapter needs to know the domain of the logged in account,
+            // the rest of the setup happens after this is known.
+            //
+            // TODO: This isn't great, as it opens up the potential for crashes
+            // if other code tries to access `adapter` before it's assigned here.
+            // This is because NotificationViewData embeds a TimelineAccount, which
+            // is the network representation. It would be better NotificationViewData
+            // used a core.model class that represented an account, and when that
+            // core.model class is created the domain is explicitly set. Then the
+            // domain (account.entity.domain) wouldn't need to be passed here.
+            viewModel.accountFlow.take(1).collect { account ->
+                adapter = NotificationsPagingAdapter(
+                    notificationDiffCallback,
+                    pachliAccountId,
+                    account.entity.domain,
+                    statusActionListener = this@NotificationsFragment,
+                    notificationActionListener = this@NotificationsFragment,
+                    accountActionListener = this@NotificationsFragment,
+                    statusDisplayOptions = viewModel.statusDisplayOptions.value,
+                )
+
+                binding.recyclerView.setAccessibilityDelegateCompat(
+                    ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this@NotificationsFragment) { pos: Int ->
+                        if (pos in 0 until adapter.itemCount) {
+                            adapter.peek(pos)
+                        } else {
+                            null
+                        }
+                    },
+                )
+
+                val saveIdListener = object : RecyclerView.OnScrollListener() {
+                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                        if (newState != SCROLL_STATE_IDLE) return
+
+                        // Save the ID of the first notification visible in the list, so the user's
+                        // reading position is always restorable.
+                        layoutManager.findFirstVisibleItemPosition().takeIf { it != NO_POSITION }?.let { position ->
+                            adapter.snapshot().getOrNull(position)?.id?.let { id ->
+                                viewModel.accept(InfallibleUiAction.SaveVisibleId(pachliAccountId, visibleId = id))
+                            }
+                        }
+                    }
+                }
+                binding.recyclerView.addOnScrollListener(saveIdListener)
+
+                binding.recyclerView.adapter = adapter.withLoadStateHeaderAndFooter(
+                    header = TimelineLoadStateAdapter { adapter.retry() },
+                    footer = TimelineLoadStateAdapter { adapter.retry() },
+                )
+            }
+
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.pagingData.collectLatest { pagingData ->
@@ -317,10 +339,13 @@ class NotificationsFragment :
                             val status = when (it) {
                                 is StatusActionSuccess.Bookmark ->
                                     statusViewData.status.copy(bookmarked = it.action.state)
+
                                 is StatusActionSuccess.Favourite ->
                                     statusViewData.status.copy(favourited = it.action.state)
+
                                 is StatusActionSuccess.Reblog ->
                                     statusViewData.status.copy(reblogged = it.action.state)
+
                                 is StatusActionSuccess.VoteInPoll ->
                                     statusViewData.status.copy(
                                         poll = it.action.poll.votedCopy(it.action.choices),
@@ -340,6 +365,7 @@ class NotificationsFragment :
                         when (it) {
                             is UiSuccess.Block, is UiSuccess.Mute, is UiSuccess.MuteConversation ->
                                 adapter.refresh()
+
                             else -> {
                                 /* nothing to do */
                             }
@@ -413,7 +439,10 @@ class NotificationsFragment :
                                 }
                                 peeked = true
                             }
-                            else -> { /* nothing to do */ }
+
+                            else -> {
+                                /* nothing to do */
+                            }
                         }
                     }
                 }
@@ -430,11 +459,15 @@ class NotificationsFragment :
                                     binding.progressBar.show()
                                 }
                             }
+
                             UserRefreshState.COMPLETE, UserRefreshState.ERROR -> {
                                 binding.progressBar.hide()
                                 binding.swipeRefreshLayout.isRefreshing = false
                             }
-                            else -> { /* nothing to do */ }
+
+                            else -> {
+                                /* nothing to do */
+                            }
                         }
                     }
                 }
@@ -499,7 +532,7 @@ class NotificationsFragment :
     override fun onRefresh() {
         binding.progressBar.isVisible = false
         adapter.refresh()
-        clearNotificationsForAccount(requireContext(), viewModel.account)
+        clearNotificationsForAccount(requireContext(), pachliAccountId)
     }
 
     override fun onPause() {
@@ -509,7 +542,7 @@ class NotificationsFragment :
         val position = layoutManager.findFirstVisibleItemPosition()
         if (position >= 0) {
             adapter.snapshot().getOrNull(position)?.id?.let { id ->
-                viewModel.accept(InfallibleUiAction.SaveVisibleId(visibleId = id))
+                viewModel.accept(InfallibleUiAction.SaveVisibleId(pachliAccountId, visibleId = id))
             }
         }
     }
@@ -517,18 +550,20 @@ class NotificationsFragment :
     override fun onResume() {
         super.onResume()
 
-        val a11yManager = ContextCompat.getSystemService(requireContext(), AccessibilityManager::class.java)
-        val wasEnabled = talkBackWasEnabled
-        talkBackWasEnabled = a11yManager?.isEnabled == true
-        if (talkBackWasEnabled && !wasEnabled) {
-            adapter.notifyItemRangeChanged(0, adapter.itemCount)
+        if (::adapter.isInitialized) {
+            val a11yManager = ContextCompat.getSystemService(requireContext(), AccessibilityManager::class.java)
+            val wasEnabled = talkBackWasEnabled
+            talkBackWasEnabled = a11yManager?.isEnabled == true
+            if (talkBackWasEnabled && !wasEnabled) {
+                adapter.notifyItemRangeChanged(0, adapter.itemCount)
+            }
         }
 
-        clearNotificationsForAccount(requireContext(), viewModel.account)
+        clearNotificationsForAccount(requireContext(), pachliAccountId)
     }
 
-    override fun onReply(viewData: NotificationViewData) {
-        super.reply(viewData.statusViewData!!.actionable)
+    override fun onReply(pachliAccountId: Long, viewData: NotificationViewData) {
+        super.reply(pachliAccountId, viewData.statusViewData!!.actionable)
     }
 
     override fun onReblog(viewData: NotificationViewData, reblog: Boolean) {
@@ -615,14 +650,27 @@ class NotificationsFragment :
         onContentCollapsedChange(pachliAccountId, viewData, isCollapsed)
     }
 
-    override fun clearWarningAction(pachliAccountId: Long, viewData: NotificationViewData) {
+    override fun clearContentFilter(pachliAccountId: Long, viewData: NotificationViewData) {
         adapter.snapshot().withIndex().filter { it.value?.statusViewData?.actionableId == viewData.statusViewData!!.actionableId }
             .map {
                 it.value?.statusViewData = it.value?.statusViewData?.copy(
-                    filterAction = FilterAction.NONE,
+                    contentFilterAction = FilterAction.NONE,
                 )
                 adapter.notifyItemChanged(it.index)
             }
+    }
+
+    override fun clearAccountFilter(viewData: NotificationViewData) {
+        adapter.snapshot().withIndex().filter { it.value?.id == viewData.id }
+            .map {
+                it.value?.accountFilterDecision = null
+                adapter.notifyItemChanged(it.index)
+            }
+    }
+
+    override fun editAccountNotificationFilter() {
+        AccountNotificationFiltersPreferencesDialogFragment.newInstance(pachliAccountId)
+            .show(parentFragmentManager, null)
     }
 
     private fun clearNotifications() {
@@ -634,7 +682,7 @@ class NotificationsFragment :
     private fun showFilterDialog() {
         FilterDialogFragment(viewModel.uiState.value.activeFilter) { filter ->
             if (viewModel.uiState.value.activeFilter != filter) {
-                viewModel.accept(InfallibleUiAction.ApplyFilter(filter))
+                viewModel.accept(InfallibleUiAction.ApplyFilter(pachliAccountId, filter))
             }
         }.show(parentFragmentManager, "dialogFilter")
     }

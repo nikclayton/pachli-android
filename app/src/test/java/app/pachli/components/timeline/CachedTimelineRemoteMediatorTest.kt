@@ -22,10 +22,12 @@ import app.pachli.core.database.model.TimelineStatusWithAccount
 import app.pachli.core.network.json.BooleanIfNull
 import app.pachli.core.network.json.DefaultIfNull
 import app.pachli.core.network.json.Guarded
+import app.pachli.core.network.json.InstantJsonAdapter
+import app.pachli.core.network.json.LenientRfc3339DateJsonAdapter
 import com.google.common.truth.Truth.assertThat
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import java.io.IOException
+import java.time.Instant
 import java.util.Date
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -63,7 +65,8 @@ class CachedTimelineRemoteMediatorTest {
     private lateinit var pagingSourceFactory: InvalidatingPagingSourceFactory<Int, TimelineStatusWithAccount>
 
     private val moshi: Moshi = Moshi.Builder()
-        .add(Date::class.java, Rfc3339DateJsonAdapter())
+        .add(Date::class.java, LenientRfc3339DateJsonAdapter())
+        .add(Instant::class.java, InstantJsonAdapter())
         .add(Guarded.Factory())
         .add(DefaultIfNull.Factory())
         .add(BooleanIfNull.Factory())
@@ -92,15 +95,14 @@ class CachedTimelineRemoteMediatorTest {
     fun `should return error when network call returns error code`() {
         val remoteMediator = CachedTimelineRemoteMediator(
             initialKey = null,
-            pachliAccountId = activeAccount.id,
             api = mock {
                 onBlocking { homeTimeline(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()) } doReturn Response.error(500, "".toResponseBody())
             },
+            pachliAccountId = activeAccount.id,
             factory = pagingSourceFactory,
             transactionProvider = transactionProvider,
             timelineDao = db.timelineDao(),
             remoteKeyDao = db.remoteKeyDao(),
-            moshi = moshi,
         )
 
         val result = runBlocking { remoteMediator.load(LoadType.REFRESH, state()) }
@@ -115,15 +117,14 @@ class CachedTimelineRemoteMediatorTest {
     fun `should return error when network call fails`() {
         val remoteMediator = CachedTimelineRemoteMediator(
             initialKey = null,
-            pachliAccountId = activeAccount.id,
             api = mock {
                 onBlocking { homeTimeline(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()) } doThrow IOException()
             },
+            pachliAccountId = activeAccount.id,
             factory = pagingSourceFactory,
             transactionProvider = transactionProvider,
             timelineDao = db.timelineDao(),
             remoteKeyDao = db.remoteKeyDao(),
-            moshi = moshi,
         )
 
         val result = runBlocking { remoteMediator.load(LoadType.REFRESH, state()) }
@@ -137,13 +138,12 @@ class CachedTimelineRemoteMediatorTest {
     fun `should not prepend statuses`() {
         val remoteMediator = CachedTimelineRemoteMediator(
             initialKey = null,
-            pachliAccountId = activeAccount.id,
             api = mock(),
+            pachliAccountId = activeAccount.id,
             factory = pagingSourceFactory,
             transactionProvider = transactionProvider,
             timelineDao = db.timelineDao(),
             remoteKeyDao = db.remoteKeyDao(),
-            moshi = moshi,
         )
 
         val state = state(
@@ -169,7 +169,6 @@ class CachedTimelineRemoteMediatorTest {
     fun `should not try to refresh already cached statuses when db is empty`() {
         val remoteMediator = CachedTimelineRemoteMediator(
             initialKey = null,
-            pachliAccountId = activeAccount.id,
             api = mock {
                 onBlocking { homeTimeline(limit = 20) } doReturn Response.success(
                     listOf(
@@ -179,11 +178,11 @@ class CachedTimelineRemoteMediatorTest {
                     ),
                 )
             },
+            pachliAccountId = activeAccount.id,
             factory = pagingSourceFactory,
             transactionProvider = transactionProvider,
             timelineDao = db.timelineDao(),
             remoteKeyDao = db.remoteKeyDao(),
-            moshi = moshi,
         )
 
         val state = state(
@@ -224,7 +223,6 @@ class CachedTimelineRemoteMediatorTest {
 
         val remoteMediator = CachedTimelineRemoteMediator(
             initialKey = null,
-            pachliAccountId = activeAccount.id,
             api = mock {
                 onBlocking { homeTimeline(limit = 20) } doReturn Response.success(
                     listOf(
@@ -233,11 +231,11 @@ class CachedTimelineRemoteMediatorTest {
                     ),
                 )
             },
+            pachliAccountId = activeAccount.id,
             factory = pagingSourceFactory,
             transactionProvider = transactionProvider,
             timelineDao = db.timelineDao(),
             remoteKeyDao = db.remoteKeyDao(),
-            moshi = moshi,
         )
 
         val state = state(
@@ -281,7 +279,6 @@ class CachedTimelineRemoteMediatorTest {
 
         val remoteMediator = CachedTimelineRemoteMediator(
             initialKey = null,
-            pachliAccountId = activeAccount.id,
             api = mock {
                 onBlocking { homeTimeline(maxId = "5", limit = 20) } doReturn Response.success(
                     listOf(
@@ -294,11 +291,11 @@ class CachedTimelineRemoteMediatorTest {
                     ).build(),
                 )
             },
+            pachliAccountId = activeAccount.id,
             factory = pagingSourceFactory,
             transactionProvider = transactionProvider,
             timelineDao = db.timelineDao(),
             remoteKeyDao = db.remoteKeyDao(),
-            moshi = moshi,
         )
 
         val state = state(

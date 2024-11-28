@@ -17,9 +17,6 @@
 package app.pachli.components.account
 
 import android.animation.ArgbEvaluator
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -54,7 +51,6 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.MarginPageTransformer
 import app.pachli.R
-import app.pachli.core.activity.AccountSelectionListener
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.ReselectableFragment
 import app.pachli.core.activity.emojify
@@ -67,7 +63,6 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.util.unsafeLazy
-import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.AccountListActivityIntent
@@ -83,6 +78,7 @@ import app.pachli.core.network.model.Relationship
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.preferences.AppTheme
 import app.pachli.core.preferences.PrefKeys
+import app.pachli.core.ui.ClipboardUseCase
 import app.pachli.core.ui.LinkListener
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.core.ui.getDomain
@@ -110,6 +106,7 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import java.text.NumberFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -129,7 +126,16 @@ class AccountActivity :
     @Inject
     lateinit var draftsAlert: DraftsAlert
 
-    private val viewModel: AccountViewModel by viewModels()
+    @Inject
+    lateinit var clipboard: ClipboardUseCase
+
+    private val viewModel: AccountViewModel by viewModels(
+        extrasProducer = {
+            defaultViewModelCreationExtras.withCreationCallback<AccountViewModel.Factory> { factory ->
+                factory.create(intent.pachliAccountId)
+            }
+        },
+    )
 
     private val binding: ActivityAccountBinding by viewBinding(ActivityAccountBinding::inflate)
 
@@ -498,10 +504,7 @@ class AccountActivity :
             view.setOnLongClickListener {
                 loadedAccount?.let { loadedAccount ->
                     val fullUsername = getFullUsername(loadedAccount)
-                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    clipboard.setPrimaryClip(ClipData.newPlainText(null, fullUsername))
-                    Snackbar.make(binding.root, getString(R.string.account_username_copied), Snackbar.LENGTH_SHORT)
-                        .show()
+                    clipboard.copyTextTo(fullUsername, R.string.account_username_copied)
                 }
                 true
             }
@@ -968,7 +971,7 @@ class AccountActivity :
                     kind = ComposeOptions.ComposeKind.NEW,
                 )
             }
-            val intent = ComposeActivityIntent(this, options)
+            val intent = ComposeActivityIntent(this, intent.pachliAccountId, options)
             startActivity(intent)
         }
     }
@@ -999,15 +1002,9 @@ class AccountActivity :
             }
             R.id.action_open_as -> {
                 loadedAccount?.let { loadedAccount ->
-                    showAccountChooserDialog(
-                        item.title,
-                        false,
-                        object : AccountSelectionListener {
-                            override fun onAccountSelected(account: AccountEntity) {
-                                openAsAccount(loadedAccount.url, account)
-                            }
-                        },
-                    )
+                    showAccountChooserDialog(item.title, false) { account ->
+                        openAsAccount(loadedAccount.url, account)
+                    }
                 }
             }
             R.id.action_share_account_link -> {

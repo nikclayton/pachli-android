@@ -72,7 +72,6 @@
     <string name="action_copy_link">Chép URL</string>
     <string name="download_image">Đang tải %1$s</string>
     <string name="action_open_media_n">Mở tập tin #%d</string>
-    <string name="title_mentions_dialog">Lượt nhắc tới</string>
     <string name="action_open_faved_by">Xem lượt thích</string>
     <string name="action_open_reblogged_by">Xem lượt đăng lại</string>
     <string name="action_open_reblogger">Xem lượt đăng lại</string>
@@ -445,7 +444,7 @@
     <string name="set_focus_description">Nhấn hoặc kéo vòng tròn để chọn tiêu điểm sẽ hiển thị trong hình thu nhỏ.</string>
     <string name="pref_title_show_self_username">Hiện URL của tôi trên tab</string>
     <string name="delete_scheduled_post_warning">Bạn có chắc muốn xóa tút đã lên lịch\?</string>
-    <string name="compose_save_draft_loses_media">Lưu bản nháp\? (Bạn sẽ cần tải lên lại file đính kèm)</string>
+    <string name="compose_save_draft_loses_media">Lưu bản nháp? (Bạn sẽ cần tải lên lại file đính kèm)</string>
     <string name="failed_to_unpin">Không thể bỏ ghim</string>
     <string name="failed_to_pin">Không thể ghim</string>
     <string name="action_add_reaction">biểu cảm</string>
@@ -539,7 +538,6 @@
     <string name="hint_description">Mô tả</string>
     <string name="post_media_image">Hình ảnh</string>
     <string name="select_list_manage">Quản lý danh sách</string>
-    <string name="error_list_load">Xảy ra lỗi khi tải danh sách</string>
     <string name="select_list_empty">Bạn chưa có danh sách</string>
     <string name="load_newest_notifications">Tải những thông báo mới nhất</string>
     <string name="compose_delete_draft">Xóa bản nháp\?</string>
@@ -551,7 +549,6 @@
     <string name="notification_listenable_worker_description">Thông báo khi Pachli hoạt động ngầm</string>
     <string name="notification_notification_worker">Đang nạp thông báo…</string>
     <string name="notification_prune_cache">Bảo trì bộ nhớ đệm…</string>
-    <string name="error_media_upload_sending_fmt">Không thể tải lên: %s</string>
     <string name="error_media_playback">Không thể phát: %s</string>
     <string name="dialog_delete_filter_text">Xóa bộ lọc \'%1$s\'\?</string>
     <string name="dialog_delete_filter_positive_action">Xóa</string>
