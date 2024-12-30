@@ -181,6 +181,8 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -253,6 +255,9 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     private val listDrawerItems = mutableListOf<PrimaryDrawerItem>()
 
     private var pachliAccountId by Delegates.notNull<Long>()
+
+    /** Mutex to protect modifications to the drawer's items. */
+    private val drawerMutex = Mutex()
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -477,7 +482,9 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     override fun onPrepareMenu(menu: Menu) {
         super<BottomSheetActivity>.onPrepareMenu(menu)
 
-        menu.findItem(R.id.action_remove_tab).isVisible = tabAdapter.tabs.getOrNull(binding.viewPager.currentItem)?.timeline != Timeline.Home
+        menu.findItem(R.id.action_remove_tab).isVisible = tabAdapter.tabs.getOrNull(binding.viewPager.currentItem)?.let {
+            it.timeline != Timeline.Home
+        } ?: false
 
         // If the main toolbar is hidden then there's no space in the top/bottomNav to show
         // the menu items as icons, so forceably disable them
@@ -761,7 +768,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
      * (because the top toolbar is hidden), false if any existing search item should be
      * removed.
      */
-    private fun bindMainDrawerSearch(context: Context, pachliAccountId: Long, showSearchItem: Boolean) {
+    private suspend fun bindMainDrawerSearch(context: Context, pachliAccountId: Long, showSearchItem: Boolean) = drawerMutex.withLock {
         val searchItemPosition = binding.mainDrawer.getPosition(DRAWER_ITEM_SEARCH)
         val showing = searchItemPosition != -1
 
@@ -802,7 +809,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
      * @param showSchedulePosts True if a "Scheduled posts" menu item should be added
      * to the list, false if any existing item should be removed.
      */
-    private fun bindMainDrawerScheduledPosts(context: Context, pachliAccountId: Long, showSchedulePosts: Boolean) {
+    private suspend fun bindMainDrawerScheduledPosts(context: Context, pachliAccountId: Long, showSchedulePosts: Boolean) = drawerMutex.withLock {
         val existingPosition = binding.mainDrawer.getPosition(DRAWER_ITEM_SCHEDULED_POSTS)
         val showing = existingPosition != -1
 
@@ -834,7 +841,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     }
 
     /** Binds [lists] to the "Lists" section in the main drawer. */
-    private fun bindMainDrawerLists(pachliAccountId: Long, lists: List<MastodonList>) {
+    private suspend fun bindMainDrawerLists(pachliAccountId: Long, lists: List<MastodonList>) = drawerMutex.withLock {
         binding.mainDrawer.removeItems(*listDrawerItems.toTypedArray())
 
         listDrawerItems.clear()
@@ -868,7 +875,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
      *
      * See [bindMainDrawerLists] and [bindMainDrawerSearch].
      */
-    private fun bindMainDrawerItems(pachliAccount: PachliAccount, savedInstanceState: Bundle?) {
+    private suspend fun bindMainDrawerItems(pachliAccount: PachliAccount, savedInstanceState: Bundle?) = drawerMutex.withLock {
         val pachliAccountId = pachliAccount.id
 
         binding.mainDrawer.apply {
@@ -1398,7 +1405,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
      *
      * Shows/clears a badge showing the number of unread announcements.
      */
-    private fun bindMainDrawerAnnouncements(announcements: List<Announcement>) {
+    private suspend fun bindMainDrawerAnnouncements(announcements: List<Announcement>) = drawerMutex.withLock {
         val unread = announcements.count { !it.read }
         binding.mainDrawer.updateBadge(DRAWER_ITEM_ANNOUNCEMENTS, StringHolder(if (unread <= 0) null else unread.toString()))
     }

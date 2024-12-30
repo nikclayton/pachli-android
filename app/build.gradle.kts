@@ -32,8 +32,8 @@ android {
 
     defaultConfig {
         applicationId = "app.pachli"
-        versionCode = 23
-        versionName = "2.8.3"
+        versionCode = 24
+        versionName = "2.9.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -169,7 +169,6 @@ dependencies {
 
     implementation(libs.bundles.filemojicompat)
 
-    implementation(libs.bouncycastle)
     implementation(libs.unified.push)
 
     implementation(libs.bundles.xmldiff)
