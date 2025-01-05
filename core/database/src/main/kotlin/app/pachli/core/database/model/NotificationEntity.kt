@@ -26,6 +26,177 @@ import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.FilterAction
 import java.time.Instant
 
+// This is maybe all model class
+// - Not yet, since some of the properties are entity types. Those should also be
+// model classes before that can happen.
+sealed interface INotification {
+    val id: String
+    val createdAt: Instant
+
+    // TODO: Should be a model class, not an entity
+    val account: TimelineAccountEntity
+
+    data class Unknown(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+    ) : INotification
+
+    data class Follow(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+    ) : INotification
+
+    data class FollowRequest(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+    ) : INotification
+
+    data class AdminSignup(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+    ) : INotification
+
+    data class AdminReport(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+        // TODO: Should be model class
+        val report: NotificationReportEntity,
+    ) : INotification
+
+    data class SeveredRelationship(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+        // TODO: Should be model class
+        val event: NotificationRelationshipSeveranceEventEntity,
+    ) : INotification
+
+    /** Notifications that carry an associated status. */
+    sealed interface NotificationWithStatus {
+        val status: TimelineStatusWithAccount
+    }
+
+    data class Mention(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+        override val status: TimelineStatusWithAccount,
+    ) : INotification, NotificationWithStatus
+
+    data class Reblog(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+        override val status: TimelineStatusWithAccount,
+    ) : INotification, NotificationWithStatus
+
+    data class Favourite(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+        override val status: TimelineStatusWithAccount,
+    ) : INotification, NotificationWithStatus
+
+    data class Status(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+        override val status: TimelineStatusWithAccount,
+    ) : INotification, NotificationWithStatus
+
+    data class Poll(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+        override val status: TimelineStatusWithAccount,
+    ) : INotification, NotificationWithStatus
+
+    data class Update(
+        override val id: String,
+        override val createdAt: Instant,
+        override val account: TimelineAccountEntity,
+        override val status: TimelineStatusWithAccount,
+    ) : INotification, NotificationWithStatus
+
+    companion object {
+        fun from(n: NotificationData) = when (n.notification.type) {
+            NotificationEntity.Type.UNKNOWN -> Unknown(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+            )
+            NotificationEntity.Type.MENTION -> Mention(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+                n.status!!,
+            )
+            NotificationEntity.Type.REBLOG -> Reblog(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+                n.status!!,
+            )
+            NotificationEntity.Type.FAVOURITE -> Favourite(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+                n.status!!,
+            )
+            NotificationEntity.Type.FOLLOW -> Follow(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+            )
+            NotificationEntity.Type.FOLLOW_REQUEST -> FollowRequest(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+            )
+            NotificationEntity.Type.POLL -> Poll(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+                n.status!!,
+            )
+            NotificationEntity.Type.STATUS -> Status(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+                n.status!!,
+            )
+            NotificationEntity.Type.SIGN_UP -> AdminSignup(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+            )
+            NotificationEntity.Type.UPDATE -> Update(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+                n.status!!,
+            )
+            NotificationEntity.Type.REPORT -> AdminReport(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+                n.report!!,
+            )
+            NotificationEntity.Type.SEVERED_RELATIONSHIPS -> SeveredRelationship(
+                n.notification.serverId,
+                n.notification.createdAt,
+                n.account,
+                n.relationshipSeveranceEvent!!,
+            )
+        }
+    }
+}
+
 // TOOD: Move to core.data? No, it's returned by dao method pagingSource()
 // TOOD: Sealed class, by type? Get rid of the NotificationType enum, and the
 // nullable properties which are non-null depending on the type.
