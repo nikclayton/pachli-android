@@ -124,18 +124,16 @@ SELECT
     tr.attachments AS 't_attachments',
     tr.provider AS 't_provider'
 FROM TimelineStatusEntity AS t
-LEFT JOIN
-    StatusEntity AS s
-    ON (t.pachliAccountId = :account AND (s.timelineUserId = :account AND t.statusId = s.serverId))
-LEFT JOIN TimelineAccountEntity AS a ON (s.timelineUserId = a.timelineUserId AND s.authorServerId = a.serverId)
-LEFT JOIN TimelineAccountEntity AS rb ON (s.timelineUserId = rb.timelineUserId AND s.reblogAccountId = rb.serverId)
+LEFT JOIN StatusEntity AS s ON (t.pachliAccountId = s.timelineUserId AND t.statusId = s.serverId)
+LEFT JOIN TimelineAccountEntity AS a ON (a.timelineUserId = t.pachliAccountId AND s.authorServerId = a.serverId)
+LEFT JOIN TimelineAccountEntity AS rb ON (rb.timelineUserId = t.pachliAccountId AND s.reblogAccountId = rb.serverId)
 LEFT JOIN
     StatusViewDataEntity AS svd
-    ON (s.timelineUserId = svd.timelineUserId AND (s.serverId = svd.serverId OR s.reblogServerId = svd.serverId))
+    ON (svd.timelineUserId = t.pachliAccountId AND (s.serverId = svd.serverId OR s.reblogServerId = svd.serverId))
 LEFT JOIN
     TranslatedStatusEntity AS tr
-    ON (s.timelineUserId = tr.timelineUserId AND (s.serverId = tr.serverId OR s.reblogServerId = tr.serverId))
-WHERE t.kind = :timelineKind AND t.pachliAccountId = :account --AND s.timelineUserId = :account
+    ON (tr.timelineUserId = t.pachliAccountId AND (s.serverId = tr.serverId OR s.reblogServerId = tr.serverId))
+WHERE t.kind = :timelineKind AND t.pachliAccountId = :account
 ORDER BY LENGTH(s.serverId) DESC, s.serverId DESC
 """,
     )
@@ -143,6 +141,101 @@ ORDER BY LENGTH(s.serverId) DESC, s.serverId DESC
         account: Long,
         timelineKind: TimelineStatusEntity.Kind = TimelineStatusEntity.Kind.Home,
     ): PagingSource<Int, TimelineStatusWithAccount>
+
+    data class L(val length: Int, val t: String)
+    @Query(
+        """
+SELECT LENGTH(serverId) AS length, serverId AS t FROM (
+            SELECT
+    s.serverId,
+    s.url,
+    s.timelineUserId,
+    s.authorServerId,
+    s.inReplyToId,
+    s.inReplyToAccountId,
+    s.createdAt,
+    s.editedAt,
+    s.emojis,
+    s.reblogsCount,
+    s.favouritesCount,
+    s.repliesCount,
+    s.reblogged,
+    s.favourited,
+    s.bookmarked,
+    s.sensitive,
+    s.spoilerText,
+    s.visibility,
+    s.mentions,
+    s.tags,
+    s.application,
+    s.reblogServerId,
+    s.reblogAccountId,
+    s.content,
+    s.attachments,
+    s.poll,
+    s.card,
+    s.muted,
+    s.pinned,
+    s.language,
+    s.filtered,
+    a.serverId AS 'a_serverId',
+    a.timelineUserId AS 'a_timelineUserId',
+    a.localUsername AS 'a_localUsername',
+    a.username AS 'a_username',
+    a.displayName AS 'a_displayName',
+    a.url AS 'a_url',
+    a.avatar AS 'a_avatar',
+    a.emojis AS 'a_emojis',
+    a.bot AS 'a_bot',
+    a.createdAt AS 'a_createdAt',
+    a.limited AS 'a_limited',
+    a.note AS 'a_note',
+    rb.serverId AS 'rb_serverId',
+    rb.timelineUserId AS 'rb_timelineUserId',
+    rb.localUsername AS 'rb_localUsername',
+    rb.username AS 'rb_username',
+    rb.displayName AS 'rb_displayName',
+    rb.url AS 'rb_url',
+    rb.avatar AS 'rb_avatar',
+    rb.emojis AS 'rb_emojis',
+    rb.bot AS 'rb_bot',
+    rb.createdAt AS 'rb_createdAt',
+    rb.limited AS 'rb_limited',
+    rb.note AS 'rb_note',
+    svd.serverId AS 'svd_serverId',
+    svd.timelineUserId AS 'svd_timelineUserId',
+    svd.expanded AS 'svd_expanded',
+    svd.contentShowing AS 'svd_contentShowing',
+    svd.contentCollapsed AS 'svd_contentCollapsed',
+    svd.translationState AS 'svd_translationState',
+    tr.serverId AS 't_serverId',
+    tr.timelineUserId AS 't_timelineUserId',
+    tr.content AS 't_content',
+    tr.spoilerText AS 't_spoilerText',
+    tr.poll AS 't_poll',
+    tr.attachments AS 't_attachments',
+    tr.provider AS 't_provider'
+FROM TimelineStatusEntity AS t
+LEFT JOIN
+    StatusEntity AS s
+    ON (t.pachliAccountId = s.timelineUserId AND t.statusId = s.serverId)
+LEFT JOIN TimelineAccountEntity AS a ON (s.timelineUserId = a.timelineUserId AND s.authorServerId = a.serverId)
+LEFT JOIN TimelineAccountEntity AS rb ON (t.pachliAccountId = rb.timelineUserId AND s.reblogAccountId = rb.serverId)
+LEFT JOIN
+    StatusViewDataEntity AS svd
+    ON (s.timelineUserId = svd.timelineUserId AND (s.serverId = svd.serverId OR s.reblogServerId = svd.serverId))
+LEFT JOIN
+    TranslatedStatusEntity AS tr
+    ON (s.timelineUserId = tr.timelineUserId AND (s.serverId = tr.serverId OR s.reblogServerId = tr.serverId))
+WHERE t.kind = :timelineKind AND t.pachliAccountId = :account
+ORDER BY LENGTH(s.serverId) DESC, s.serverId DESC
+)
+        """
+    )
+    abstract  fun getLengths(
+        account: Long,
+        timelineKind: TimelineStatusEntity.Kind = TimelineStatusEntity.Kind.Home,
+        ): PagingSource<Int, L>
 
     @Query(
 """
@@ -234,18 +327,16 @@ SELECT
     tr.attachments AS 't_attachments',
     tr.provider AS 't_provider'
 FROM TimelineStatusEntity AS t
-LEFT JOIN
-    StatusEntity AS s
-    ON (t.pachliAccountId = :account AND (s.timelineUserId = :account AND t.statusId = s.serverId))
-LEFT JOIN TimelineAccountEntity AS a ON (s.timelineUserId = a.timelineUserId AND s.authorServerId = a.serverId)
-LEFT JOIN TimelineAccountEntity AS rb ON (s.timelineUserId = rb.timelineUserId AND s.reblogAccountId = rb.serverId)
+LEFT JOIN StatusEntity AS s ON (t.pachliAccountId = s.timelineUserId AND t.statusId = s.serverId)
+LEFT JOIN TimelineAccountEntity AS a ON (a.timelineUserId = t.pachliAccountId AND s.authorServerId = a.serverId)
+LEFT JOIN TimelineAccountEntity AS rb ON (rb.timelineUserId = t.pachliAccountId AND s.reblogAccountId = rb.serverId)
 LEFT JOIN
     StatusViewDataEntity AS svd
-    ON (s.timelineUserId = svd.timelineUserId AND (s.serverId = svd.serverId OR s.reblogServerId = svd.serverId))
+    ON (svd.timelineUserId = t.pachliAccountId AND (s.serverId = svd.serverId OR s.reblogServerId = svd.serverId))
 LEFT JOIN
     TranslatedStatusEntity AS tr
-    ON (s.timelineUserId = tr.timelineUserId AND (s.serverId = tr.serverId OR s.reblogServerId = tr.serverId))
-WHERE t.kind = :timelineKind AND t.pachliAccountId = :account --AND s.timelineUserId = :account
+    ON (tr.timelineUserId = t.pachliAccountId AND (s.serverId = tr.serverId OR s.reblogServerId = tr.serverId))
+WHERE t.kind = :timelineKind AND t.pachliAccountId = :account
 ORDER BY LENGTH(s.serverId) DESC, s.serverId DESC
 """,
     )

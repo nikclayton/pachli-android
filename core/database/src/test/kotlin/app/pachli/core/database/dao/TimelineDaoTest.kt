@@ -17,7 +17,11 @@
 
 package app.pachli.core.database.dao
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
+import androidx.paging.flatMap
+import androidx.paging.map
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.pachli.core.database.AppDatabase
 import app.pachli.core.database.model.AccountEntity
@@ -29,9 +33,15 @@ import app.pachli.core.network.model.Card
 import app.pachli.core.network.model.Emoji
 import app.pachli.core.network.model.PreviewCardKind
 import app.pachli.core.network.model.Status
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -91,6 +101,66 @@ class TimelineDaoTest {
     @After
     fun tearDown() {
         db.close()
+    }
+
+    @Test
+    fun demoBug() = runTest {
+        // Populate the database with a collection of statuses associated with
+        // different accounts.
+        //
+        // Statuses can be inserted in any order. The query is supposed to order
+        // them by their string ID, first by length, and then by value. I.e.,
+        // "100" < "10" < "8", etc.
+        val initialStatuses = listOf(
+            makeStatus(statusId = 8, reblog = true, authorServerId = "10"),
+            makeStatus(statusId = 10, authorServerId = "3"),
+            makeStatus(statusId = 100),
+            makeStatus(statusId = 3, authorServerId = "4"),
+            makeStatus(statusId = 5),
+            makeStatus(statusId = 1, authorServerId = "5"),
+        )
+
+        for ((status, author, reblogAuthor) in initialStatuses) {
+            timelineDao.insertAccount(author)
+            reblogAuthor?.let { timelineDao.insertAccount(it) }
+            statusDao.insertStatus(status)
+            timelineDao.upsertStatuses(
+                listOf(
+                    TimelineStatusEntity(
+                        pachliAccountId = status.timelineUserId,
+                        kind = TimelineStatusEntity.Kind.Home,
+                        statusId = status.serverId,
+                    )
+                )
+            )
+        }
+
+        // Database is now populated. Perform two variants of an identical query.
+        // The first query returns a List<TimelineStatusWithAccount>. The second
+        // query returns a PagingSource<Int, TimelineStatusWithAccount>.
+        //
+        // Because the queries are identical, including the ORDER BY clauses,
+        // these should return the same results in the same order.
+
+        val asList = timelineDao.getStatusesAsList(1)
+
+        println("Results from getStatusesAsList()")
+        println("serverId should be in order 100, 10, 8, 5, 3, 1")
+        asList.withIndex().forEach {
+            println("${it.index}: ${it.value}")
+        }
+
+        val lp: PagingSource.LoadParams<Int> = PagingSource.LoadParams.Refresh(null, 100, true)
+        val asPagingSource = (timelineDao.getStatuses(1).load(lp) as PagingSource.LoadResult.Page).data
+
+        println("Results from getStatuses()")
+        println("Bug: Should be in identical order to previous result, but is actually")
+        println("in order 10, 100, 8, 5, 3, 1.")
+        asPagingSource.withIndex().forEach {
+            println("${it.index}: ${it.value}")
+        }
+//        assert(false)
+        assertThat(asList).containsExactlyElementsIn(asPagingSource).inOrder()
     }
 
     @Test
@@ -157,19 +227,16 @@ class TimelineDaoTest {
         }
 
         val l: PagingSource.LoadParams<Int> = PagingSource.LoadParams.Refresh(null, 100, true)
-//        val x = (timelineDao.c(1).load(l) as PagingSource.LoadResult.Page).data
-//        x.withIndex().forEach {
-//            println("${it.index}: ${it.value}")
-//        }
-//
-//        val y = timelineDao.c2(1)
-//        y.withIndex().forEach {
-//            println("${it.index}: ${it.value}")
-//        }
 
         val getStatusesBeforeCleanup = (timelineDao.getStatuses(1).load(l) as PagingSource.LoadResult.Page).data
         println("getStatuses() before calling cleanup()")
         getStatusesBeforeCleanup.withIndex().forEach {
+            println("${it.index}: ${it.value}")
+        }
+
+        println("Lengths")
+//        timelineDao.getLengths(1).withIndex().forEach {
+        (timelineDao.getLengths(1).load(l) as PagingSource.LoadResult.Page).data.withIndex().forEach {
             println("${it.index}: ${it.value}")
         }
 
