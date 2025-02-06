@@ -26,6 +26,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Attachment
 import app.pachli.core.network.model.NewPoll
 import app.pachli.core.network.model.Status
@@ -49,7 +50,7 @@ import kotlinx.parcelize.Parcelize
 @TypeConverters(Converters::class)
 data class DraftEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val accountId: Long,
+    val accountId: PachliAccountId.Id,
     val inReplyToId: String?,
     val content: String?,
     val contentWarning: String?,

@@ -22,6 +22,7 @@ import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Upsert
 import app.pachli.core.database.model.TranslatedStatusEntity
+import app.pachli.core.model.PachliAccountId
 
 @Dao
 interface TranslatedStatusDao {
@@ -41,7 +42,7 @@ WHERE
 """,
     )
     suspend fun getTranslations(
-        accountId: Long,
+        accountId: PachliAccountId.Id,
         serverIds: List<String>,
     ): Map<
         @MapColumn(columnName = "serverId")

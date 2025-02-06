@@ -22,6 +22,7 @@ import app.pachli.core.common.PachliError
 import app.pachli.core.data.R
 import app.pachli.core.model.ContentFilter
 import app.pachli.core.model.NewContentFilter
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.retrofit.apiresult.ApiResponse
 import com.github.michaelbull.result.Result
 import kotlinx.coroutines.flow.Flow
@@ -63,11 +64,11 @@ sealed interface ContentFiltersError : PachliError {
 
 interface ContentFiltersRepository {
     /** @return Known content filters for [pachliAccountId]. */
-    suspend fun getContentFilters(pachliAccountId: Long): ContentFilters
+    suspend fun getContentFilters(pachliAccountId: PachliAccountId.Id): ContentFilters
 
     /** @return Flow of known content filters for [pachliAccountId]. */
     fun getContentFiltersFlow(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
     ): Flow<ContentFilters>
 
     /**
@@ -75,7 +76,7 @@ interface ContentFiltersRepository {
      * null if no such content filter exists.
      */
     suspend fun getContentFilter(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         contentFilterId: String,
     ): ContentFilter?
 
@@ -86,7 +87,7 @@ interface ContentFiltersRepository {
      * @return The latest set of content filters, or an error.
      */
     suspend fun refresh(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
     ): Result<ContentFilters, ContentFiltersError>
 
     /**
@@ -97,7 +98,7 @@ interface ContentFiltersRepository {
      * @return The newly created filter, or an error.
      */
     suspend fun createContentFilter(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         filter: NewContentFilter,
     ): Result<ContentFilter, ContentFiltersError>
 
@@ -110,7 +111,7 @@ interface ContentFiltersRepository {
      * @return
      */
     suspend fun updateContentFilter(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         originalContentFilter: ContentFilter,
         contentFilterEdit: ContentFilterEdit,
     ): Result<ContentFilter, ContentFiltersError>
@@ -123,7 +124,7 @@ interface ContentFiltersRepository {
      * @return Unit, or an error.
      */
     suspend fun deleteContentFilter(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         contentFilterId: String,
     ): Result<ApiResponse<Unit>, ContentFiltersError>
 }

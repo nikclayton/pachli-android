@@ -23,6 +23,7 @@ import androidx.room.TypeConverters
 import androidx.room.Upsert
 import app.pachli.core.database.Converters
 import app.pachli.core.database.model.AnnouncementEntity
+import app.pachli.core.model.PachliAccountId
 
 @Dao
 @TypeConverters(Converters::class)
@@ -34,7 +35,7 @@ FROM AnnouncementEntity
 WHERE accountId = :accountId
 """,
     )
-    suspend fun deleteAllForAccount(accountId: Long)
+    suspend fun deleteAllForAccount(accountId: PachliAccountId.Id)
 
     @Upsert
     suspend fun upsert(announcement: AnnouncementEntity)
@@ -49,7 +50,7 @@ FROM AnnouncementEntity
 WHERE accountId = :pachliAccountId AND announcementId = :announcementId
 """,
     )
-    suspend fun deleteForAccount(pachliAccountId: Long, announcementId: String)
+    suspend fun deleteForAccount(pachliAccountId: PachliAccountId.Id, announcementId: String)
 
     @Query(
         """
@@ -58,5 +59,5 @@ FROM AnnouncementEntity
 WHERE accountId = :pachliAccountId
 """,
     )
-    suspend fun loadAllForAccount(pachliAccountId: Long): List<AnnouncementEntity>
+    suspend fun loadAllForAccount(pachliAccountId: PachliAccountId.Id): List<AnnouncementEntity>
 }

@@ -24,6 +24,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import app.pachli.core.common.extensions.MiB
 import app.pachli.core.database.Converters
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Emoji
 import app.pachli.core.network.model.InstanceV1
 import app.pachli.core.network.model.InstanceV2
@@ -141,6 +142,6 @@ data class InstanceInfoEntity(
 )
 @TypeConverters(Converters::class)
 data class EmojisEntity(
-    val accountId: Long,
+    val accountId: PachliAccountId.Id,
     val emojiList: List<Emoji>,
 )

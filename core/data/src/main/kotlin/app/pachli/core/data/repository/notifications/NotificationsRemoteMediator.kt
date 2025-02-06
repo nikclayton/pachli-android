@@ -36,6 +36,7 @@ import app.pachli.core.database.model.RemoteKeyEntity.RemoteKeyKind
 import app.pachli.core.database.model.StatusEntity
 import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Links
 import app.pachli.core.network.model.Notification
 import app.pachli.core.network.model.RelationshipSeveranceEvent
@@ -57,7 +58,7 @@ import timber.log.Timber
 
 @OptIn(ExperimentalPagingApi::class)
 class NotificationsRemoteMediator(
-    private val pachliAccountId: Long,
+    private val pachliAccountId: PachliAccountId.Id,
     private val mastodonApi: MastodonApi,
     private val transactionProvider: TransactionProvider,
     private val timelineDao: TimelineDao,
@@ -200,7 +201,7 @@ class NotificationsRemoteMediator(
      * @param pachliAccountId
      * @param notifications Notifications to upsert.
      */
-    private suspend fun upsertNotifications(pachliAccountId: Long, notifications: List<Notification>) {
+    private suspend fun upsertNotifications(pachliAccountId: PachliAccountId.Id, notifications: List<Notification>) {
         check(transactionProvider.inTransaction())
 
         /** Unique accounts referenced in this batch of notifications. */
@@ -247,7 +248,7 @@ class NotificationsRemoteMediator(
 /**
  * @return A [NotificationData] from a network [Notification] for [pachliAccountId].
  */
-fun NotificationData.Companion.from(pachliAccountId: Long, notification: Notification) = NotificationData(
+fun NotificationData.Companion.from(pachliAccountId: PachliAccountId.Id, notification: Notification) = NotificationData(
     notification = NotificationEntity.from(pachliAccountId, notification),
     account = TimelineAccountEntity.from(notification.account, pachliAccountId),
     status = notification.status?.let { status ->
@@ -264,7 +265,7 @@ fun NotificationData.Companion.from(pachliAccountId: Long, notification: Notific
 /**
  * @return A [NotificationEntity] from a network [Notification] for [pachliAccountId].
  */
-fun NotificationEntity.Companion.from(pachliAccountId: Long, notification: Notification) = NotificationEntity(
+fun NotificationEntity.Companion.from(pachliAccountId: PachliAccountId.Id, notification: Notification) = NotificationEntity(
     pachliAccountId = pachliAccountId,
     serverId = notification.id,
     type = NotificationEntity.Type.from(notification.type),
@@ -277,7 +278,7 @@ fun NotificationEntity.Companion.from(pachliAccountId: Long, notification: Notif
  * @return A [NotificationReportEntity] from a network [Notification] for [pachliAccountId].
  */
 fun NotificationReportEntity.Companion.from(
-    pachliAccountId: Long,
+    pachliAccountId: PachliAccountId.Id,
     notification: Notification,
 ): NotificationReportEntity? {
     val report = notification.report ?: return null
@@ -307,7 +308,7 @@ fun NotificationReportEntity.Companion.from(
  * for [pachliAccountId].
  */
 fun NotificationRelationshipSeveranceEventEntity.Companion.from(
-    pachliAccountId: Long,
+    pachliAccountId: PachliAccountId.Id,
     notification: Notification,
 ): NotificationRelationshipSeveranceEventEntity? {
     val rse = notification.relationshipSeveranceEvent ?: return null

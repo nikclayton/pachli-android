@@ -19,6 +19,7 @@ package app.pachli.core.data.source
 
 import app.pachli.core.data.repository.ListsError
 import app.pachli.core.data.repository.ListsError.GetListsWithAccount
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.UserListRepliesPolicy
 import app.pachli.core.network.retrofit.MastodonApi
 import com.github.michaelbull.result.mapEither
@@ -33,34 +34,34 @@ class ListsRemoteDataSource @Inject constructor(
     suspend fun getLists() = mastodonApi.getLists()
         .mapEither({ it.body }, { ListsError.Retrieve(it) })
 
-    suspend fun createList(pachliAccountId: Long, title: String, exclusive: Boolean, repliesPolicy: UserListRepliesPolicy) =
+    suspend fun createList(pachliAccountId: PachliAccountId.Id, title: String, exclusive: Boolean, repliesPolicy: UserListRepliesPolicy) =
         mastodonApi.createList(title, exclusive, repliesPolicy)
             .mapEither({ it.body }, { ListsError.Create(it) })
 
-    suspend fun updateList(pachliAccountId: Long, listId: String, title: String, exclusive: Boolean, repliesPolicy: UserListRepliesPolicy) =
+    suspend fun updateList(pachliAccountId: PachliAccountId.Id, listId: String, title: String, exclusive: Boolean, repliesPolicy: UserListRepliesPolicy) =
         mastodonApi.updateList(listId, title, exclusive, repliesPolicy)
             .mapEither({ it.body }, { ListsError.Update(it) })
 
-    suspend fun deleteList(pachliAccountId: Long, listId: String) =
+    suspend fun deleteList(pachliAccountId: PachliAccountId.Id, listId: String) =
         mastodonApi.deleteList(listId)
             .mapError { ListsError.Delete(it) }
 
     /**
      * @return Lists owned by [pachliAccountId] that contain [accountId].
      */
-    suspend fun getListsWithAccount(pachliAccountId: Long, accountId: String) =
+    suspend fun getListsWithAccount(pachliAccountId: PachliAccountId.Id, accountId: String) =
         mastodonApi.getListsIncludesAccount(accountId)
             .mapEither({ it.body }, { GetListsWithAccount(accountId, it) })
 
-    suspend fun getAccountsInList(pachliAccountId: Long, listId: String) =
+    suspend fun getAccountsInList(pachliAccountId: PachliAccountId.Id, listId: String) =
         mastodonApi.getAccountsInList(listId, 0)
             .mapEither({ it.body }, { ListsError.GetAccounts(listId, it) })
 
-    suspend fun addAccountsToList(pachliAccountId: Long, listId: String, accountIds: List<String>) =
+    suspend fun addAccountsToList(pachliAccountId: PachliAccountId.Id, listId: String, accountIds: List<String>) =
         mastodonApi.addAccountToList(listId, accountIds)
             .mapError { ListsError.AddAccounts(listId, it) }
 
-    suspend fun deleteAccountsFromList(pachliAccountId: Long, listId: String, accountIds: List<String>) =
+    suspend fun deleteAccountsFromList(pachliAccountId: PachliAccountId.Id, listId: String, accountIds: List<String>) =
         mastodonApi.deleteAccountFromList(listId, accountIds)
             .mapError { ListsError.DeleteAccounts(listId, it) }
 }

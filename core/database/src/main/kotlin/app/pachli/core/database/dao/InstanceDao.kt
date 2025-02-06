@@ -25,6 +25,7 @@ import androidx.room.Upsert
 import app.pachli.core.database.model.EmojisEntity
 import app.pachli.core.database.model.InstanceInfoEntity
 import app.pachli.core.database.model.ServerEntity
+import app.pachli.core.model.PachliAccountId
 
 @Dao
 interface InstanceDao {
@@ -55,7 +56,7 @@ FROM ServerEntity
 WHERE accountId = :pachliAccountId
 """,
     )
-    suspend fun getServer(pachliAccountId: Long): ServerEntity?
+    suspend fun getServer(pachliAccountId: PachliAccountId.Id): ServerEntity?
 
     @RewriteQueriesToDropUnusedColumns
     @Query(
@@ -65,5 +66,5 @@ FROM EmojisEntity
 WHERE accountId = :pachliAccountId
 """,
     )
-    suspend fun getEmojiInfo(pachliAccountId: Long): EmojisEntity?
+    suspend fun getEmojiInfo(pachliAccountId: PachliAccountId.Id): EmojisEntity?
 }

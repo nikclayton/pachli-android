@@ -21,6 +21,7 @@ import app.pachli.core.database.dao.ContentFiltersDao
 import app.pachli.core.database.di.TransactionProvider
 import app.pachli.core.database.model.ContentFiltersEntity
 import app.pachli.core.model.ContentFilter
+import app.pachli.core.model.PachliAccountId
 import javax.inject.Inject
 
 /**
@@ -41,7 +42,7 @@ class ContentFiltersLocalDataSource @Inject constructor(
      *
      * @return The content filter, or null if no filter exists with [contentFilterId].
      */
-    suspend fun getContentFilter(pachliAccountId: Long, contentFilterId: String) =
+    suspend fun getContentFilter(pachliAccountId: PachliAccountId.Id, contentFilterId: String) =
         contentFiltersDao.getByAccount(pachliAccountId)?.contentFilters?.find { it.id == contentFilterId }
 
     /**
@@ -49,17 +50,17 @@ class ContentFiltersLocalDataSource @Inject constructor(
      *
      * @return The content filter, or null if no filters exist.
      */
-    suspend fun getContentFilters(pachliAccountId: Long) = contentFiltersDao.getByAccount(pachliAccountId)
+    suspend fun getContentFilters(pachliAccountId: PachliAccountId.Id) = contentFiltersDao.getByAccount(pachliAccountId)
 
     /**
      * @return Flow of content filters for [pachliAccountId].
      */
-    fun getContentFiltersFlow(pachliAccountId: Long) = contentFiltersDao.flowByAccount(pachliAccountId)
+    fun getContentFiltersFlow(pachliAccountId: PachliAccountId.Id) = contentFiltersDao.flowByAccount(pachliAccountId)
 
     /**
      * Saves [contentFilter] to [pachliAccountId].
      */
-    suspend fun saveContentFilter(pachliAccountId: Long, contentFilter: ContentFilter) {
+    suspend fun saveContentFilter(pachliAccountId: PachliAccountId.Id, contentFilter: ContentFilter) {
         transactionProvider {
             val contentFilters = contentFiltersDao.getByAccount(pachliAccountId) ?: return@transactionProvider
             val newContentFilters = contentFilters.copy(
@@ -73,7 +74,7 @@ class ContentFiltersLocalDataSource @Inject constructor(
      * Updates the content filters in [pachliAccountId], the existing content filter with
      * [contentFilter.id][ContentFilter.id] is replaced with [contentFilter].
      */
-    suspend fun updateContentFilter(pachliAccountId: Long, contentFilter: ContentFilter) {
+    suspend fun updateContentFilter(pachliAccountId: PachliAccountId.Id, contentFilter: ContentFilter) {
         transactionProvider {
             val contentFilters = contentFiltersDao.getByAccount(pachliAccountId) ?: return@transactionProvider
             val newContentFilters = contentFilters.copy(
@@ -88,7 +89,7 @@ class ContentFiltersLocalDataSource @Inject constructor(
     /**
      * Deletes the content filter with [contentFilterId] from [pachliAccountId].
      */
-    suspend fun deleteContentFilter(pachliAccountId: Long, contentFilterId: String) {
+    suspend fun deleteContentFilter(pachliAccountId: PachliAccountId.Id, contentFilterId: String) {
         transactionProvider {
             val contentFilters = contentFiltersDao.getByAccount(pachliAccountId) ?: return@transactionProvider
             val newContentFilters = contentFilters.copy(

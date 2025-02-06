@@ -25,6 +25,7 @@ import app.pachli.core.database.dao.InstanceDao
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.EmojisEntity
 import app.pachli.core.database.model.InstanceInfoEntity
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Emoji
 import app.pachli.core.network.retrofit.MastodonApi
 import com.github.michaelbull.result.mapBoth
@@ -107,7 +108,7 @@ class InstanceInfoRepository @Inject constructor(
      * Will always try to fetch them from the api, falls back to cached Emojis in case it is not available.
      * Never throws, returns empty list in case of error.
      */
-    private suspend fun getEmojis(accountId: Long): List<Emoji> = withContext(Dispatchers.IO) {
+    private suspend fun getEmojis(accountId: PachliAccountId.Id): List<Emoji> = withContext(Dispatchers.IO) {
         return@withContext api.getCustomEmojis().mapBoth(
             { emojiList ->
                 instanceDao.upsert(EmojisEntity(accountId, emojiList.body))

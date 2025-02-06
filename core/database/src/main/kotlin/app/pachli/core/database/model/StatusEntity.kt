@@ -24,6 +24,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Attachment
 import app.pachli.core.network.model.Card
 import app.pachli.core.network.model.Emoji
@@ -67,7 +68,7 @@ data class StatusEntity(
     val serverId: String,
     val url: String?,
     // our local id for the logged in user in case there are multiple accounts per instance
-    val timelineUserId: Long,
+    val timelineUserId: PachliAccountId.Id,
     val authorServerId: String,
     val inReplyToId: String?,
     val inReplyToAccountId: String?,
@@ -99,7 +100,7 @@ data class StatusEntity(
     val filtered: List<FilterResult>?,
 ) {
     companion object {
-        fun from(status: Status, timelineUserId: Long) = StatusEntity(
+        fun from(status: Status, timelineUserId: PachliAccountId.Id) = StatusEntity(
             serverId = status.id,
             url = status.actionableStatus.url,
             timelineUserId = timelineUserId,
@@ -168,7 +169,7 @@ data class StatusEntity(
 @TypeConverters(Converters::class)
 data class TimelineAccountEntity(
     val serverId: String,
-    val timelineUserId: Long,
+    val timelineUserId: PachliAccountId.Id,
     val localUsername: String,
     val username: String,
     val displayName: String,
@@ -199,7 +200,7 @@ data class TimelineAccountEntity(
     }
 
     companion object {
-        fun from(timelineAccount: TimelineAccount, accountId: Long) = TimelineAccountEntity(
+        fun from(timelineAccount: TimelineAccount, accountId: PachliAccountId.Id) = TimelineAccountEntity(
             serverId = timelineAccount.id,
             timelineUserId = accountId,
             localUsername = timelineAccount.localUsername,

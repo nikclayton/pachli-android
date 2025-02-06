@@ -19,6 +19,7 @@ package app.pachli.core.database.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.MastoList
 import app.pachli.core.network.model.UserListRepliesPolicy
 
@@ -43,14 +44,14 @@ import app.pachli.core.network.model.UserListRepliesPolicy
     ],
 )
 data class MastodonListEntity(
-    val accountId: Long,
+    val accountId: PachliAccountId.Id,
     val listId: String,
     val title: String,
     val repliesPolicy: UserListRepliesPolicy,
     val exclusive: Boolean,
 ) {
     companion object {
-        fun make(pachliAccountId: Long, networkList: MastoList) = MastodonListEntity(
+        fun make(pachliAccountId: PachliAccountId.Id, networkList: MastoList) = MastodonListEntity(
             pachliAccountId,
             networkList.id,
             networkList.title,
@@ -58,7 +59,7 @@ data class MastodonListEntity(
             networkList.exclusive ?: false,
         )
 
-        fun make(pachliAccountId: Long, networkLists: List<MastoList>) = networkLists.map {
+        fun make(pachliAccountId: PachliAccountId.Id, networkLists: List<MastoList>) = networkLists.map {
             make(pachliAccountId, it)
         }
     }

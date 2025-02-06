@@ -20,6 +20,7 @@ package app.pachli.core.database.model
 import androidx.room.Entity
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
+import app.pachli.core.model.PachliAccountId
 import com.squareup.moshi.JsonClass
 import dev.zacsweers.moshix.sealed.annotations.DefaultNull
 import dev.zacsweers.moshix.sealed.annotations.TypeLabel
@@ -34,7 +35,7 @@ import dev.zacsweers.moshix.sealed.annotations.TypeLabel
 @TypeConverters(Converters::class)
 data class TimelineStatusEntity(
     val kind: Kind,
-    val pachliAccountId: Long,
+    val pachliAccountId: PachliAccountId.Id,
     val statusId: String,
 ) {
     /**

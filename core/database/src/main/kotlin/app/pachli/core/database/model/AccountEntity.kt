@@ -24,6 +24,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Emoji
 import app.pachli.core.network.model.Status
@@ -38,7 +39,7 @@ import app.pachli.core.network.model.Status
 )
 @TypeConverters(Converters::class)
 data class AccountEntity(
-    @field:PrimaryKey(autoGenerate = true) var id: Long,
+    @field:PrimaryKey(autoGenerate = true) var id: PachliAccountId.Id = PachliAccountId.Id(0L),
     val domain: String,
     val accessToken: String,
     val clientId: String,

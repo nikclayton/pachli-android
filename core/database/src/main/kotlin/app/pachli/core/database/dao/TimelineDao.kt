@@ -33,6 +33,7 @@ import app.pachli.core.database.model.StatusViewDataEntity
 import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.database.model.TimelineStatusEntity
 import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.model.PachliAccountId
 
 @Dao
 @TypeConverters(Converters::class)
@@ -140,7 +141,7 @@ ORDER BY LENGTH(s.serverId) DESC, s.serverId DESC
 """,
     )
     abstract fun getStatuses(
-        account: Long,
+        account: PachliAccountId.Id,
         timelineKind: TimelineStatusEntity.Kind = TimelineStatusEntity.Kind.Home,
     ): PagingSource<Int, TimelineStatusWithAccount>
 
@@ -182,7 +183,7 @@ WHERE serverId = :statusId
 """,
     )
     abstract suspend fun getStatusRowNumber(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         statusId: String,
         timelineKind: TimelineStatusEntity.Kind = TimelineStatusEntity.Kind.Home,
     ): Int
@@ -286,7 +287,7 @@ WHERE timelineUserId = :accountId
 """,
     )
     // TODO: Needs to use TimelineStatus, only used in developer tools
-    abstract suspend fun deleteRange(accountId: Long, minId: String, maxId: String): Int
+    abstract suspend fun deleteRange(accountId: PachliAccountId.Id, minId: String, maxId: String): Int
 
     @Query(
         """
@@ -305,7 +306,7 @@ WHERE
 """,
     )
     abstract suspend fun removeAllByUser(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         userId: String,
         timelineKind: TimelineStatusEntity.Kind = TimelineStatusEntity.Kind.Home,
     )
@@ -322,7 +323,7 @@ WHERE
     AND kind = :timelineKind
 """,
     )
-    abstract suspend fun deleteAllStatusesForAccountOnTimeline(accountId: Long, timelineKind: TimelineStatusEntity.Kind = TimelineStatusEntity.Kind.Home)
+    abstract suspend fun deleteAllStatusesForAccountOnTimeline(accountId: PachliAccountId.Id, timelineKind: TimelineStatusEntity.Kind = TimelineStatusEntity.Kind.Home)
 
     @Query(
         """
@@ -331,7 +332,7 @@ FROM StatusViewDataEntity
 WHERE timelineUserId = :accountId
 """,
     )
-    abstract suspend fun removeAllStatusViewData(accountId: Long)
+    abstract suspend fun removeAllStatusViewData(accountId: PachliAccountId.Id)
 
     @Query(
         """
@@ -340,7 +341,7 @@ FROM TranslatedStatusEntity
 WHERE timelineUserId = :accountId
 """,
     )
-    abstract suspend fun removeAllTranslatedStatus(accountId: Long)
+    abstract suspend fun removeAllTranslatedStatus(accountId: PachliAccountId.Id)
 
     /**
      * Removes cached data that is not part of any timeline.
@@ -348,7 +349,7 @@ WHERE timelineUserId = :accountId
      * @param accountId id of the account for which to clean tables
      */
     @Transaction
-    open suspend fun cleanup(accountId: Long) {
+    open suspend fun cleanup(accountId: PachliAccountId.Id) {
         cleanupStatuses(accountId)
         cleanupAccounts(accountId)
         cleanupStatusViewData(accountId)
@@ -375,7 +376,7 @@ WHERE timelineUserId = :accountId AND serverId NOT IN (
 )
 """,
     )
-    abstract suspend fun cleanupStatuses(accountId: Long)
+    abstract suspend fun cleanupStatuses(accountId: PachliAccountId.Id)
 
     /**
      * Cleans the TimelineAccountEntity table from accounts that are no longer referenced in the StatusEntity table
@@ -404,7 +405,7 @@ WHERE
     )
 """,
     )
-    abstract suspend fun cleanupAccounts(accountId: Long)
+    abstract suspend fun cleanupAccounts(accountId: PachliAccountId.Id)
 
     /**
      * Removes rows from StatusViewDataEntity that reference statuses are that not
@@ -427,7 +428,7 @@ WHERE
     )
 """,
     )
-    abstract suspend fun cleanupStatusViewData(accountId: Long)
+    abstract suspend fun cleanupStatusViewData(accountId: PachliAccountId.Id)
 
     /**
      * Removes rows from TranslatedStatusEntity that reference statuses that are not
@@ -450,7 +451,7 @@ WHERE
     )
 """,
     )
-    abstract suspend fun cleanupTranslatedStatus(accountId: Long)
+    abstract suspend fun cleanupTranslatedStatus(accountId: PachliAccountId.Id)
 
     @Upsert
     abstract suspend fun upsertStatusViewData(svd: StatusViewDataEntity)

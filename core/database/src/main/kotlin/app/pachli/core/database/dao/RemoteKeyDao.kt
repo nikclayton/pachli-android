@@ -21,6 +21,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import app.pachli.core.database.model.RemoteKeyEntity
+import app.pachli.core.model.PachliAccountId
 
 @Dao
 interface RemoteKeyDao {
@@ -34,7 +35,7 @@ FROM RemoteKeyEntity
 WHERE accountId = :accountId AND timelineId = :timelineId AND kind = :kind
 """,
     )
-    suspend fun remoteKeyForKind(accountId: Long, timelineId: String, kind: RemoteKeyEntity.RemoteKeyKind): RemoteKeyEntity?
+    suspend fun remoteKeyForKind(accountId: PachliAccountId.Id, timelineId: String, kind: RemoteKeyEntity.RemoteKeyKind): RemoteKeyEntity?
 
     @Query(
         """
@@ -43,7 +44,7 @@ FROM RemoteKeyEntity
 WHERE accountId = :accountId AND timelineId = :timelineId
 """,
     )
-    suspend fun delete(accountId: Long, timelineId: String)
+    suspend fun delete(accountId: PachliAccountId.Id, timelineId: String)
 
     @Query(
         """
@@ -55,7 +56,7 @@ WHERE
     AND (kind = 'PREV' OR kind = 'NEXT')
 """,
     )
-    suspend fun deletePrevNext(accountId: Long, timelineId: String)
+    suspend fun deletePrevNext(accountId: PachliAccountId.Id, timelineId: String)
 
     /** @return The remote key ID to use when refreshing. */
     @Query(
@@ -68,7 +69,7 @@ WHERE
     AND kind = 'REFRESH'
 """,
     )
-    suspend fun getRefreshKey(pachliAccountId: Long, timelineId: String): String?
+    suspend fun getRefreshKey(pachliAccountId: PachliAccountId.Id, timelineId: String): String?
 
     /** @return All remote keys for [pachliAccountId]. */
     @Query(
@@ -78,5 +79,5 @@ FROM RemoteKeyEntity
 WHERE accountId = :pachliAccountId
 """,
     )
-    suspend fun loadAllForAccount(pachliAccountId: Long): List<RemoteKeyEntity>
+    suspend fun loadAllForAccount(pachliAccountId: PachliAccountId.Id): List<RemoteKeyEntity>
 }

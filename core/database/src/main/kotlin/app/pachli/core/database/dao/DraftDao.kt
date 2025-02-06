@@ -24,6 +24,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import app.pachli.core.database.model.DraftEntity
+import app.pachli.core.model.PachliAccountId
 
 @Dao
 interface DraftDao {
@@ -39,7 +40,7 @@ WHERE accountId = :accountId
 ORDER BY id ASC
 """,
     )
-    fun draftsPagingSource(accountId: Long): PagingSource<Int, DraftEntity>
+    fun draftsPagingSource(accountId: PachliAccountId.Id): PagingSource<Int, DraftEntity>
 
     @Query(
         """
@@ -48,7 +49,7 @@ FROM DraftEntity
 WHERE accountId = :accountId AND failedToSendNew = 1
 """,
     )
-    fun draftsNeedUserAlert(accountId: Long): LiveData<Int>
+    fun draftsNeedUserAlert(accountId: PachliAccountId.Id): LiveData<Int>
 
     @Query(
         """
@@ -58,7 +59,7 @@ SET
 WHERE accountId = :accountId AND failedToSendNew = 1
 """,
     )
-    suspend fun draftsClearNeedUserAlert(accountId: Long)
+    suspend fun draftsClearNeedUserAlert(accountId: PachliAccountId.Id)
 
     @Query(
         """
@@ -67,7 +68,7 @@ FROM DraftEntity
 WHERE accountId = :accountId
 """,
     )
-    suspend fun loadDrafts(accountId: Long): List<DraftEntity>
+    suspend fun loadDrafts(accountId: PachliAccountId.Id): List<DraftEntity>
 
     @Query(
         """

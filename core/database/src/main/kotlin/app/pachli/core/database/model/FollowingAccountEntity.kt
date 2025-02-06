@@ -19,6 +19,7 @@ package app.pachli.core.database.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.TimelineAccount
 
 /**
@@ -41,11 +42,11 @@ import app.pachli.core.network.model.TimelineAccount
     ],
 )
 data class FollowingAccountEntity(
-    val pachliAccountId: Long,
+    val pachliAccountId: PachliAccountId.Id,
     val serverId: String,
 ) {
     companion object {
-        fun from(pachliAccountId: Long, timelineAccount: TimelineAccount) = FollowingAccountEntity(
+        fun from(pachliAccountId: PachliAccountId.Id, timelineAccount: TimelineAccount) = FollowingAccountEntity(
             pachliAccountId = pachliAccountId,
             serverId = timelineAccount.id,
         )

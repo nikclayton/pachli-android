@@ -23,6 +23,7 @@ import androidx.room.TypeConverters
 import androidx.room.Upsert
 import app.pachli.core.database.Converters
 import app.pachli.core.database.model.ContentFiltersEntity
+import app.pachli.core.model.PachliAccountId
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,7 +36,7 @@ FROM ContentFiltersEntity
 WHERE accountId = :pachliAccountId
 """,
     )
-    suspend fun getByAccount(pachliAccountId: Long): ContentFiltersEntity?
+    suspend fun getByAccount(pachliAccountId: PachliAccountId.Id): ContentFiltersEntity?
 
     @Query(
         """
@@ -44,7 +45,7 @@ FROM ContentFiltersEntity
 WHERE accountId = :pachliAccountId
 """,
     )
-    fun flowByAccount(pachliAccountId: Long): Flow<ContentFiltersEntity?>
+    fun flowByAccount(pachliAccountId: PachliAccountId.Id): Flow<ContentFiltersEntity?>
 
     @Upsert
     suspend fun upsert(contentFiltersEntity: ContentFiltersEntity)

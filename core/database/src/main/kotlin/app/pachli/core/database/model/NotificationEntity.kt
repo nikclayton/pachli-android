@@ -24,6 +24,7 @@ import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.PachliAccountId
 import java.time.Instant
 
 /**
@@ -74,7 +75,7 @@ data class NotificationData(
 )
 @TypeConverters(Converters::class)
 data class NotificationViewDataEntity(
-    val pachliAccountId: Long,
+    val pachliAccountId: PachliAccountId.Id,
     val serverId: String,
     val contentFilterAction: FilterAction? = null,
     val accountFilterDecision: AccountFilterDecision? = null,
@@ -85,7 +86,7 @@ data class NotificationViewDataEntity(
  */
 @Entity
 data class FilterActionUpdate(
-    val pachliAccountId: Long,
+    val pachliAccountId: PachliAccountId.Id,
     val serverId: String,
     val contentFilterAction: FilterAction?,
 )
@@ -95,7 +96,7 @@ data class FilterActionUpdate(
  */
 @Entity
 data class AccountFilterDecisionUpdate(
-    val pachliAccountId: Long,
+    val pachliAccountId: PachliAccountId.Id,
     val serverId: String,
     val accountFilterDecision: AccountFilterDecision?,
 )
@@ -133,7 +134,7 @@ data class AccountFilterDecisionUpdate(
 )
 @TypeConverters(Converters::class)
 data class NotificationEntity(
-    val pachliAccountId: Long,
+    val pachliAccountId: PachliAccountId.Id,
     val serverId: String,
     val type: Type,
     val createdAt: Instant,
@@ -218,7 +219,7 @@ data class NotificationEntity(
 )
 @TypeConverters(Converters::class)
 data class NotificationReportEntity(
-    val pachliAccountId: Long,
+    val pachliAccountId: PachliAccountId.Id,
     val serverId: String,
     val reportId: String,
     val actionTaken: Boolean,
@@ -273,7 +274,7 @@ data class NotificationReportEntity(
 )
 @TypeConverters(Converters::class)
 data class NotificationRelationshipSeveranceEventEntity(
-    val pachliAccountId: Long,
+    val pachliAccountId: PachliAccountId.Id,
     val serverId: String,
     val eventId: String,
     val type: Type,

@@ -21,6 +21,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.ServerKind
 import app.pachli.core.model.ServerOperation
 import io.github.z4kn4fein.semver.Version
@@ -45,7 +46,7 @@ import io.github.z4kn4fein.semver.Version
 )
 @TypeConverters(Converters::class)
 data class ServerEntity(
-    val accountId: Long,
+    val accountId: PachliAccountId.Id,
     val serverKind: ServerKind,
     val version: Version,
     val capabilities: Map<ServerOperation, Version>,

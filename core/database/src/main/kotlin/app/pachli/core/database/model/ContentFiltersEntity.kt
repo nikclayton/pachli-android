@@ -23,6 +23,7 @@ import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
 import app.pachli.core.model.ContentFilter
 import app.pachli.core.model.ContentFilterVersion
+import app.pachli.core.model.PachliAccountId
 
 // TODO: Redo this. Would be better as one ContentFilter per row,
 
@@ -40,7 +41,7 @@ import app.pachli.core.model.ContentFilterVersion
 )
 @TypeConverters(Converters::class)
 data class ContentFiltersEntity(
-    val accountId: Long,
+    val accountId: PachliAccountId.Id,
     val version: ContentFilterVersion,
     val contentFilters: List<ContentFilter>,
 )

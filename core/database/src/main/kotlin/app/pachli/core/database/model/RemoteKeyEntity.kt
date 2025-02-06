@@ -19,6 +19,7 @@ package app.pachli.core.database.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import app.pachli.core.model.PachliAccountId
 
 /**
  * The remote keys for the given timeline, see [RemoteKeyKind].
@@ -37,7 +38,7 @@ import androidx.room.ForeignKey
 )
 data class RemoteKeyEntity(
     /** User account these keys relate to. */
-    val accountId: Long,
+    val accountId: PachliAccountId.Id,
     /**
      * Identifier for the timeline these keys relate to.
      *

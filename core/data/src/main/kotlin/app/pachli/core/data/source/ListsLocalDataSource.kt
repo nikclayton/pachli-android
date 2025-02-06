@@ -20,6 +20,7 @@ package app.pachli.core.data.source
 import app.pachli.core.database.dao.ListsDao
 import app.pachli.core.database.di.TransactionProvider
 import app.pachli.core.database.model.MastodonListEntity
+import app.pachli.core.model.PachliAccountId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,14 +29,14 @@ class ListsLocalDataSource @Inject constructor(
     private val transactionProvider: TransactionProvider,
     private val listsDao: ListsDao,
 ) {
-    suspend fun replace(pachliAccountId: Long, lists: List<MastodonListEntity>) {
+    suspend fun replace(pachliAccountId: PachliAccountId.Id, lists: List<MastodonListEntity>) {
         transactionProvider {
             listsDao.deleteAllForAccount(pachliAccountId)
             listsDao.upsert(lists)
         }
     }
 
-    fun getLists(pachliAccountId: Long) = listsDao.flowByAccount(pachliAccountId)
+    fun getLists(pachliAccountId: PachliAccountId.Id) = listsDao.flowByAccount(pachliAccountId)
 
     fun getAllLists() = listsDao.flowAll()
 

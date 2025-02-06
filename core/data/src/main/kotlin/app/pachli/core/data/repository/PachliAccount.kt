@@ -22,6 +22,7 @@ import app.pachli.core.data.model.MastodonList
 import app.pachli.core.data.model.Server
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.FollowingAccountEntity
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.ServerKind
 import app.pachli.core.network.model.Announcement
 import app.pachli.core.network.model.Emoji
@@ -44,7 +45,7 @@ import io.github.z4kn4fein.semver.Version
 // or provide dedicated functions that return specific flows for the different
 // things, parameterised by the account ID.
 data class PachliAccount(
-    val id: Long,
+    val id: PachliAccountId.Id,
     // TODO: Should be a core.data type
     val entity: AccountEntity,
     val instanceInfo: InstanceInfo,

@@ -22,6 +22,7 @@ import app.pachli.core.data.model.MastodonList
 import app.pachli.core.data.source.ListsLocalDataSource
 import app.pachli.core.data.source.ListsRemoteDataSource
 import app.pachli.core.database.model.MastodonListEntity
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.UserListRepliesPolicy
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map
@@ -47,26 +48,26 @@ internal class OfflineFirstListRepository @Inject constructor(
     private val localDataSource: ListsLocalDataSource,
     private val remoteDataSource: ListsRemoteDataSource,
 ) : ListsRepository {
-    override suspend fun refresh(pachliAccountId: Long): Result<List<MastodonList>, ListsError.Retrieve> = externalScope.async {
+    override suspend fun refresh(pachliAccountId: PachliAccountId.Id): Result<List<MastodonList>, ListsError.Retrieve> = externalScope.async {
         remoteDataSource.getLists().map { MastodonListEntity.make(pachliAccountId, it) }
             .onSuccess { localDataSource.replace(pachliAccountId, it) }
             .map { MastodonList.from(it) }
     }.await()
 
-    override fun getLists(pachliAccountId: Long) = localDataSource.getLists(pachliAccountId).map {
+    override fun getLists(pachliAccountId: PachliAccountId.Id) = localDataSource.getLists(pachliAccountId).map {
         MastodonList.from(it)
     }
 
     override fun getListsFlow() = localDataSource.getAllLists().map { MastodonList.from(it) }
 
-    override suspend fun createList(pachliAccountId: Long, title: String, exclusive: Boolean, repliesPolicy: UserListRepliesPolicy) = externalScope.async {
+    override suspend fun createList(pachliAccountId: PachliAccountId.Id, title: String, exclusive: Boolean, repliesPolicy: UserListRepliesPolicy) = externalScope.async {
         remoteDataSource.createList(pachliAccountId, title, exclusive, repliesPolicy)
             .map { MastodonListEntity.make(pachliAccountId, it) }
             .onSuccess { localDataSource.saveList(it) }
             .map { MastodonList.from(it) }
     }.await()
 
-    override suspend fun updateList(pachliAccountId: Long, listId: String, title: String, exclusive: Boolean, repliesPolicy: UserListRepliesPolicy) = externalScope.async {
+    override suspend fun updateList(pachliAccountId: PachliAccountId.Id, listId: String, title: String, exclusive: Boolean, repliesPolicy: UserListRepliesPolicy) = externalScope.async {
         remoteDataSource.updateList(pachliAccountId, listId, title, exclusive, repliesPolicy)
             .map { MastodonListEntity.make(pachliAccountId, it) }
             .onSuccess { localDataSource.updateList(it) }
@@ -79,18 +80,18 @@ internal class OfflineFirstListRepository @Inject constructor(
             .map { }
     }.await()
 
-    override suspend fun getListsWithAccount(pachliAccountId: Long, accountId: String) =
+    override suspend fun getListsWithAccount(pachliAccountId: PachliAccountId.Id, accountId: String) =
         remoteDataSource.getListsWithAccount(pachliAccountId, accountId)
             .map { MastodonList.make(pachliAccountId, it) }
 
-    override suspend fun getAccountsInList(pachliAccountId: Long, listId: String) =
+    override suspend fun getAccountsInList(pachliAccountId: PachliAccountId.Id, listId: String) =
         remoteDataSource.getAccountsInList(pachliAccountId, listId)
 
-    override suspend fun addAccountsToList(pachliAccountId: Long, listId: String, accountIds: List<String>): Result<Unit, ListsError.AddAccounts> = externalScope.async {
+    override suspend fun addAccountsToList(pachliAccountId: PachliAccountId.Id, listId: String, accountIds: List<String>): Result<Unit, ListsError.AddAccounts> = externalScope.async {
         remoteDataSource.addAccountsToList(pachliAccountId, listId, accountIds).map { }
     }.await()
 
-    override suspend fun deleteAccountsFromList(pachliAccountId: Long, listId: String, accountIds: List<String>): Result<Unit, ListsError.DeleteAccounts> = externalScope.async {
+    override suspend fun deleteAccountsFromList(pachliAccountId: PachliAccountId.Id, listId: String, accountIds: List<String>): Result<Unit, ListsError.DeleteAccounts> = externalScope.async {
         remoteDataSource.deleteAccountsFromList(pachliAccountId, listId, accountIds).map { }
     }.await()
 }

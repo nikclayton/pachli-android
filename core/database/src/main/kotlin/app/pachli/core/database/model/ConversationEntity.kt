@@ -23,6 +23,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Attachment
 import app.pachli.core.network.model.Conversation
 import app.pachli.core.network.model.Emoji
@@ -49,7 +50,7 @@ import java.util.Date
 )
 @TypeConverters(Converters::class)
 data class ConversationEntity(
-    val accountId: Long,
+    val accountId: PachliAccountId.Id,
     val id: String,
     val order: Int,
     val accounts: List<ConversationAccountEntity>,
@@ -60,7 +61,7 @@ data class ConversationEntity(
         fun from(
             conversation: Conversation,
             /** Pachli account ID (timelineUserId in other entities) */
-            accountId: Long,
+            accountId: PachliAccountId.Id,
             order: Int,
             expanded: Boolean,
             contentShowing: Boolean,

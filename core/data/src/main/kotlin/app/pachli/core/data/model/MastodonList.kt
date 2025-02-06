@@ -18,11 +18,12 @@
 package app.pachli.core.data.model
 
 import app.pachli.core.database.model.MastodonListEntity
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.MastoList
 import app.pachli.core.network.model.UserListRepliesPolicy
 
 data class MastodonList(
-    val accountId: Long,
+    val accountId: PachliAccountId.Id,
     val listId: String,
     val title: String,
     val repliesPolicy: UserListRepliesPolicy,
@@ -46,7 +47,7 @@ data class MastodonList(
 
         fun from(entities: List<MastodonListEntity>) = entities.map { from(it) }
 
-        fun make(pachliAccountId: Long, networkList: MastoList) = MastodonList(
+        fun make(pachliAccountId: PachliAccountId.Id, networkList: MastoList) = MastodonList(
             accountId = pachliAccountId,
             listId = networkList.id,
             title = networkList.title,
@@ -54,7 +55,7 @@ data class MastodonList(
             exclusive = networkList.exclusive ?: false,
         )
 
-        fun make(pachliAccountId: Long, networkLists: List<MastoList>) =
+        fun make(pachliAccountId: PachliAccountId.Id, networkLists: List<MastoList>) =
             networkLists.map { make(pachliAccountId, it) }
     }
 }

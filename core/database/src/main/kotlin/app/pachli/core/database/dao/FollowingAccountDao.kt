@@ -24,6 +24,7 @@ import androidx.room.Query
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
 import app.pachli.core.database.model.FollowingAccountEntity
+import app.pachli.core.model.PachliAccountId
 
 @Dao
 @TypeConverters(Converters::class)
@@ -35,7 +36,7 @@ FROM FollowingAccountEntity
 WHERE pachliAccountId = :accountId
 """,
     )
-    suspend fun deleteAllForAccount(accountId: Long)
+    suspend fun deleteAllForAccount(accountId: PachliAccountId.Id)
 
     @Insert
     suspend fun insert(accounts: List<FollowingAccountEntity>)
@@ -53,5 +54,5 @@ FROM FollowingAccountEntity
 WHERE pachliAccountId = :pachliAccountId
 """,
     )
-    suspend fun loadAllForAccount(pachliAccountId: Long): List<FollowingAccountEntity>
+    suspend fun loadAllForAccount(pachliAccountId: PachliAccountId.Id): List<FollowingAccountEntity>
 }

@@ -41,6 +41,7 @@ class AndroidRoomConventionPlugin : Plugin<Project> {
                     // See https://developer.android.com/reference/kotlin/androidx/room/AutoMigration.
                     arg(RoomSchemaArgProvider(File(projectDir, "schemas")))
                     arg("room.incremental", "true")
+                    arg("room.generateKotlin", "true")
                 }
             }
 

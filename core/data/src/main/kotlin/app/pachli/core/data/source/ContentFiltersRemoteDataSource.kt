@@ -32,6 +32,7 @@ import app.pachli.core.data.repository.canFilterV2
 import app.pachli.core.model.ContentFilter
 import app.pachli.core.model.ContentFilterVersion
 import app.pachli.core.model.NewContentFilter
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.FilterAction
 import app.pachli.core.network.model.FilterContext
 import app.pachli.core.network.retrofit.MastodonApi
@@ -48,7 +49,7 @@ import javax.inject.Inject
 class ContentFiltersRemoteDataSource @Inject constructor(
     private val mastodonApi: MastodonApi,
 ) {
-    suspend fun getContentFilters(pachliAccountId: Long, server: Server) = when {
+    suspend fun getContentFilters(pachliAccountId: PachliAccountId.Id, server: Server) = when {
         server.canFilterV2() -> mastodonApi.getContentFilters().map {
             ContentFilters(
                 contentFilters = it.body.map { ContentFilter.from(it) },
@@ -70,7 +71,7 @@ class ContentFiltersRemoteDataSource @Inject constructor(
      * filters then multiple content filters may have been created (one per keyword)
      * and the return value is the last content filter created.
      */
-    suspend fun createContentFilter(pachliAccountId: Long, server: Server, filter: NewContentFilter) = binding {
+    suspend fun createContentFilter(pachliAccountId: PachliAccountId.Id, server: Server, filter: NewContentFilter) = binding {
         val expiresInSeconds = when (val expiresIn = filter.expiresIn) {
             0 -> ""
             else -> expiresIn.toString()
@@ -99,7 +100,7 @@ class ContentFiltersRemoteDataSource @Inject constructor(
         }.mapError { CreateContentFilterError(it) }.bind()
     }
 
-    suspend fun deleteContentFilter(pachliAccountId: Long, server: Server, contentFilterId: String) = binding {
+    suspend fun deleteContentFilter(pachliAccountId: PachliAccountId.Id, server: Server, contentFilterId: String) = binding {
         when {
             server.canFilterV2() -> mastodonApi.deleteFilter(contentFilterId)
             server.canFilterV1() -> mastodonApi.deleteFilterV1(contentFilterId)

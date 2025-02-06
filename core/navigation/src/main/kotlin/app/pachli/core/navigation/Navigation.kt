@@ -23,6 +23,7 @@ import android.os.Parcelable
 import androidx.core.content.IntentCompat
 import app.pachli.core.database.model.DraftAttachment
 import app.pachli.core.model.ContentFilter
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.LoginActivityIntent.LoginMode
@@ -338,7 +339,7 @@ class LoginActivityIntent(context: Context, loginMode: LoginMode = LoginMode.Def
     }
 }
 
-class MainActivityIntent(context: Context, pachliAccountId: Long) : Intent() {
+class MainActivityIntent(context: Context, pachliAccountId: PachliAccountId.Id) : Intent() {
     init {
         setClassName(context, QuadrantConstants.MAIN_ACTIVITY)
         this.pachliAccountId = pachliAccountId
@@ -503,7 +504,7 @@ class MainActivityIntent(context: Context, pachliAccountId: Long) : Intent() {
          */
         fun redirect(
             context: Context,
-            pachliAccountId: Long,
+            pachliAccountId: PachliAccountId.Id,
             url: String,
         ) = MainActivityIntent(context, pachliAccountId).apply {
             putExtra(EXTRA_PAYLOAD, Payload.Redirect(url))

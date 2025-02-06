@@ -23,6 +23,7 @@ import androidx.room.TypeConverters
 import androidx.room.Upsert
 import app.pachli.core.database.Converters
 import app.pachli.core.database.model.StatusEntity
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Poll
 
 /**
@@ -46,7 +47,7 @@ SET
 WHERE timelineUserId = :pachliAccountId AND (serverId = :statusId OR reblogServerId = :statusId)
 """,
     )
-    abstract suspend fun setFavourited(pachliAccountId: Long, statusId: String, favourited: Boolean)
+    abstract suspend fun setFavourited(pachliAccountId: PachliAccountId.Id, statusId: String, favourited: Boolean)
 
     @Query(
         """
@@ -56,7 +57,7 @@ SET
 WHERE timelineUserId = :pachliAccountId AND (serverId = :statusId OR reblogServerId = :statusId)
 """,
     )
-    abstract suspend fun setBookmarked(pachliAccountId: Long, statusId: String, bookmarked: Boolean)
+    abstract suspend fun setBookmarked(pachliAccountId: PachliAccountId.Id, statusId: String, bookmarked: Boolean)
 
     @Query(
         """
@@ -66,7 +67,7 @@ SET
 WHERE timelineUserId = :pachliAccountId AND (serverId = :statusId OR reblogServerId = :statusId)
 """,
     )
-    abstract suspend fun setReblogged(pachliAccountId: Long, statusId: String, reblogged: Boolean)
+    abstract suspend fun setReblogged(pachliAccountId: PachliAccountId.Id, statusId: String, reblogged: Boolean)
 
     @Query(
         """
@@ -77,7 +78,7 @@ WHERE
     AND serverId = :statusId
 """,
     )
-    abstract suspend fun delete(accountId: Long, statusId: String)
+    abstract suspend fun delete(accountId: PachliAccountId.Id, statusId: String)
 
     @Query(
         """
@@ -87,7 +88,7 @@ SET
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)
 """,
     )
-    abstract suspend fun setVoted(accountId: Long, statusId: String, poll: Poll)
+    abstract suspend fun setVoted(accountId: PachliAccountId.Id, statusId: String, poll: Poll)
 
     @Query(
         """
@@ -97,7 +98,7 @@ SET
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)
 """,
     )
-    abstract suspend fun setPinned(accountId: Long, statusId: String, pinned: Boolean)
+    abstract suspend fun setPinned(accountId: PachliAccountId.Id, statusId: String, pinned: Boolean)
 
     @Query(
         """
@@ -107,5 +108,5 @@ SET
 WHERE timelineUserId = :accountId AND (serverId = :statusId OR reblogServerId = :statusId)
 """,
     )
-    abstract suspend fun clearWarning(accountId: Long, statusId: String): Int
+    abstract suspend fun clearWarning(accountId: PachliAccountId.Id, statusId: String): Int
 }

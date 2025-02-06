@@ -23,6 +23,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import app.pachli.core.database.model.ConversationEntity
+import app.pachli.core.model.PachliAccountId
 
 @Dao
 interface ConversationsDao {
@@ -39,7 +40,7 @@ FROM ConversationEntity
 WHERE id = :id AND accountId = :accountId
 """,
     )
-    suspend fun delete(id: String, accountId: Long)
+    suspend fun delete(id: String, accountId: PachliAccountId.Id)
 
     @Query(
         """
@@ -49,7 +50,7 @@ WHERE accountId = :accountId
 ORDER BY `order` ASC
 """,
     )
-    fun conversationsForAccount(accountId: Long): PagingSource<Int, ConversationEntity>
+    fun conversationsForAccount(accountId: PachliAccountId.Id): PagingSource<Int, ConversationEntity>
 
     @Deprecated("Use conversationsForAccount, this is only for use in tests")
     @Query(
@@ -59,7 +60,7 @@ FROM ConversationEntity
 WHERE accountId = :pachliAccountId
 """,
     )
-    suspend fun loadAllForAccount(pachliAccountId: Long): List<ConversationEntity>
+    suspend fun loadAllForAccount(pachliAccountId: PachliAccountId.Id): List<ConversationEntity>
 
     @Query(
         """
@@ -68,7 +69,7 @@ FROM ConversationEntity
 WHERE accountId = :accountId
 """,
     )
-    suspend fun deleteForAccount(accountId: Long)
+    suspend fun deleteForAccount(accountId: PachliAccountId.Id)
 
     @Query(
         """
@@ -78,7 +79,7 @@ SET
 WHERE accountId = :accountId AND s_id = :lastStatusId
 """,
     )
-    suspend fun setBookmarked(accountId: Long, lastStatusId: String, bookmarked: Boolean)
+    suspend fun setBookmarked(accountId: PachliAccountId.Id, lastStatusId: String, bookmarked: Boolean)
 
     @Query(
         """
@@ -88,7 +89,7 @@ SET
 WHERE accountId = :accountId AND s_id = :lastStatusId
 """,
     )
-    suspend fun setCollapsed(accountId: Long, lastStatusId: String, collapsed: Boolean)
+    suspend fun setCollapsed(accountId: PachliAccountId.Id, lastStatusId: String, collapsed: Boolean)
 
     @Query(
         """
@@ -98,7 +99,7 @@ SET
 WHERE accountId = :accountId AND s_id = :lastStatusId
 """,
     )
-    suspend fun setExpanded(accountId: Long, lastStatusId: String, expanded: Boolean)
+    suspend fun setExpanded(accountId: PachliAccountId.Id, lastStatusId: String, expanded: Boolean)
 
     @Query(
         """
@@ -108,7 +109,7 @@ SET
 WHERE accountId = :accountId AND s_id = :lastStatusId
 """,
     )
-    suspend fun setFavourited(accountId: Long, lastStatusId: String, favourited: Boolean)
+    suspend fun setFavourited(accountId: PachliAccountId.Id, lastStatusId: String, favourited: Boolean)
 
     @Query(
         """
@@ -118,7 +119,7 @@ SET
 WHERE accountId = :accountId AND s_id = :lastStatusId
 """,
     )
-    suspend fun setMuted(accountId: Long, lastStatusId: String, muted: Boolean)
+    suspend fun setMuted(accountId: PachliAccountId.Id, lastStatusId: String, muted: Boolean)
 
     @Query(
         """
@@ -128,7 +129,7 @@ SET
 WHERE accountId = :accountId AND s_id = :lastStatusId
 """,
     )
-    suspend fun setShowingHiddenContent(accountId: Long, lastStatusId: String, showingHiddenContent: Boolean)
+    suspend fun setShowingHiddenContent(accountId: PachliAccountId.Id, lastStatusId: String, showingHiddenContent: Boolean)
 
     @Query(
         """
@@ -138,5 +139,5 @@ SET
 WHERE accountId = :accountId AND s_id = :lastStatusId
 """,
     )
-    suspend fun setVoted(accountId: Long, lastStatusId: String, poll: String)
+    suspend fun setVoted(accountId: PachliAccountId.Id, lastStatusId: String, poll: String)
 }

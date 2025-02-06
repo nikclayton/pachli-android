@@ -44,6 +44,7 @@ import app.pachli.core.eventhub.PollVoteEvent
 import app.pachli.core.eventhub.ReblogEvent
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Notification
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.network.retrofit.apiresult.ApiError
@@ -103,7 +104,7 @@ class NotificationsRepository @Inject constructor(
      * @return Notifications for [pachliAccountId].
      */
     @OptIn(ExperimentalPagingApi::class)
-    suspend fun notifications(pachliAccountId: Long): Flow<PagingData<NotificationData>> {
+    suspend fun notifications(pachliAccountId: PachliAccountId.Id): Flow<PagingData<NotificationData>> {
         factory = InvalidatingPagingSourceFactory { notificationDao.pagingSource(pachliAccountId) }
 
         // Room is row-keyed, not item-keyed. Find the user's REFRESH key, then find the
@@ -140,7 +141,7 @@ class NotificationsRepository @Inject constructor(
      * @param key Notification ID to restore from. Null indicates the refresh should
      * refresh the newest notifications.
      */
-    suspend fun saveRefreshKey(pachliAccountId: Long, key: String?) = externalScope.async {
+    suspend fun saveRefreshKey(pachliAccountId: PachliAccountId.Id, key: String?) = externalScope.async {
         Timber.d("saveRefreshKey: $key")
         remoteKeyDao.upsert(
             RemoteKeyEntity(pachliAccountId, RKE_TIMELINE_ID, RemoteKeyKind.REFRESH, key),
@@ -152,7 +153,7 @@ class NotificationsRepository @Inject constructor(
      * @return The most recent saved refresh key. Null if not set, or the refresh
      * should fetch the latest notifications.
      */
-    suspend fun getRefreshKey(pachliAccountId: Long): String? = externalScope.async {
+    suspend fun getRefreshKey(pachliAccountId: PachliAccountId.Id): String? = externalScope.async {
         remoteKeyDao.getRefreshKey(pachliAccountId, RKE_TIMELINE_ID)
     }.await()
 
@@ -170,7 +171,7 @@ class NotificationsRepository @Inject constructor(
      * @param pachliAccountId
      * @param notificationId Notification's server ID.
      */
-    fun clearContentFilter(pachliAccountId: Long, notificationId: String) = externalScope.launch {
+    fun clearContentFilter(pachliAccountId: PachliAccountId.Id, notificationId: String) = externalScope.launch {
         notificationDao.upsert(FilterActionUpdate(pachliAccountId, notificationId, FilterAction.NONE))
     }
 
@@ -182,7 +183,7 @@ class NotificationsRepository @Inject constructor(
      * @param accountFilterDecision New [AccountFilterDecision].
      */
     fun setAccountFilterDecision(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         notificationId: String,
         accountFilterDecision: AccountFilterDecision,
     ) = externalScope.launch {
@@ -248,7 +249,7 @@ class NotificationsRepository @Inject constructor(
      * @param bookmarked New bookmark state.
      */
     suspend fun bookmark(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         statusId: String,
         bookmarked: Boolean,
     ): Result<Unit, StatusActionError.Bookmark> = externalScope.async {
@@ -284,7 +285,7 @@ class NotificationsRepository @Inject constructor(
      * @param favourited New favourite state.
      */
     suspend fun favourite(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         statusId: String,
         favourited: Boolean,
     ): Result<Unit, StatusActionError.Favourite> = externalScope.async {
@@ -320,7 +321,7 @@ class NotificationsRepository @Inject constructor(
      * @param reblogged New bookmark state.
      */
     suspend fun reblog(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         statusId: String,
         reblogged: Boolean,
     ): Result<Unit, StatusActionError.Reblog> = externalScope.async {
@@ -357,7 +358,7 @@ class NotificationsRepository @Inject constructor(
      * @param choices Array of indices of the poll options being voted for.
      */
     suspend fun voteInPoll(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         statusId: String,
         pollId: String,
         choices: List<Int>,

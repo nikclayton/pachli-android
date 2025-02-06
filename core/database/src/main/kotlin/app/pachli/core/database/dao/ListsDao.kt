@@ -23,6 +23,7 @@ import androidx.room.TypeConverters
 import androidx.room.Upsert
 import app.pachli.core.database.Converters
 import app.pachli.core.database.model.MastodonListEntity
+import app.pachli.core.model.PachliAccountId
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,7 +36,7 @@ FROM MastodonListEntity
 WHERE accountId = :pachliAccountId
 """,
     )
-    suspend fun deleteAllForAccount(pachliAccountId: Long)
+    suspend fun deleteAllForAccount(pachliAccountId: PachliAccountId.Id)
 
     @Query(
         """
@@ -44,7 +45,7 @@ FROM MastodonListEntity
 WHERE accountId = :pachliAccountId
 """,
     )
-    fun flowByAccount(pachliAccountId: Long): Flow<List<MastodonListEntity>>
+    fun flowByAccount(pachliAccountId: PachliAccountId.Id): Flow<List<MastodonListEntity>>
 
     @Query(
         """
@@ -53,7 +54,7 @@ FROM MastodonListEntity
 WHERE accountId = :pachliAccountId
 """,
     )
-    suspend fun get(pachliAccountId: Long): List<MastodonListEntity>
+    suspend fun get(pachliAccountId: PachliAccountId.Id): List<MastodonListEntity>
 
     @Query(
         """
@@ -76,5 +77,5 @@ FROM MastodonListEntity
 WHERE accountId = :pachliAccountId AND listId = :listId
 """,
     )
-    suspend fun deleteForAccount(pachliAccountId: Long, listId: String)
+    suspend fun deleteForAccount(pachliAccountId: PachliAccountId.Id, listId: String)
 }

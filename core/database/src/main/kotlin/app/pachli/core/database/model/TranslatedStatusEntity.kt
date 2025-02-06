@@ -20,6 +20,7 @@ package app.pachli.core.database.model
 import androidx.room.Entity
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.TranslatedAttachment
 import app.pachli.core.network.model.TranslatedPoll
 
@@ -39,7 +40,7 @@ data class TranslatedStatusEntity(
     val serverId: String,
 
     /** Pachli ID for the logged in user, in case there are multiple accounts per instance */
-    val timelineUserId: Long,
+    val timelineUserId: PachliAccountId.Id,
 
     /** The translated text of the status (HTML), equivalent to [Status.content] */
     val content: String,

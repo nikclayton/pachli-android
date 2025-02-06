@@ -28,6 +28,7 @@ import app.pachli.core.database.Converters
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.PachliAccount
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Status
 import kotlinx.coroutines.flow.Flow
@@ -43,7 +44,7 @@ FROM AccountEntity
 WHERE id = :accountId
 """,
     )
-    suspend fun getPachliAccount(accountId: Long): PachliAccount?
+    suspend fun getPachliAccount(accountId: PachliAccountId.Id): PachliAccount?
 
     @Transaction
     @Query(
@@ -53,7 +54,7 @@ FROM AccountEntity
 WHERE id = :accountId
 """,
     )
-    fun getPachliAccountFlow(accountId: Long): Flow<PachliAccount?>
+    fun getPachliAccountFlow(accountId: PachliAccountId.Id): Flow<PachliAccount?>
 
     @Transaction
     @Query(
@@ -159,7 +160,7 @@ FROM AccountEntity
 WHERE id = :id
 """,
     )
-    suspend fun getAccountById(id: Long): AccountEntity?
+    suspend fun getAccountById(id: PachliAccountId.Id): AccountEntity?
 
     @Query(
         """
@@ -192,7 +193,7 @@ WHERE id = :accountId
 """,
     )
     suspend fun setPushNotificationData(
-        accountId: Long,
+        accountId: PachliAccountId.Id,
         unifiedPushUrl: String,
         pushServerKey: String,
         pushAuth: String,
@@ -208,7 +209,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    suspend fun setAlwaysShowSensitiveMedia(accountId: Long, value: Boolean)
+    suspend fun setAlwaysShowSensitiveMedia(accountId: PachliAccountId.Id, value: Boolean)
 
     @Query(
         """
@@ -218,7 +219,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    suspend fun setAlwaysOpenSpoiler(accountId: Long, value: Boolean)
+    suspend fun setAlwaysOpenSpoiler(accountId: PachliAccountId.Id, value: Boolean)
 
     @Query(
         """
@@ -228,7 +229,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    suspend fun setMediaPreviewEnabled(accountId: Long, value: Boolean)
+    suspend fun setMediaPreviewEnabled(accountId: PachliAccountId.Id, value: Boolean)
 
     @Query(
         """
@@ -238,7 +239,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    suspend fun setTabPreferences(accountId: Long, value: List<Timeline>)
+    suspend fun setTabPreferences(accountId: PachliAccountId.Id, value: List<Timeline>)
 
     @Query(
         """
@@ -248,7 +249,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    suspend fun setNotificationMarkerId(accountId: Long, value: String)
+    suspend fun setNotificationMarkerId(accountId: PachliAccountId.Id, value: String)
 
     @Query(
         """
@@ -258,7 +259,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    suspend fun setNotificationsFilter(accountId: Long, value: String)
+    suspend fun setNotificationsFilter(accountId: PachliAccountId.Id, value: String)
 
     // TODO: Should be suspend
     @Query(
@@ -269,7 +270,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setDefaultPostPrivacy(accountId: Long, value: Status.Visibility)
+    fun setDefaultPostPrivacy(accountId: PachliAccountId.Id, value: Status.Visibility)
 
     // TODO: Should be suspend
     @Query(
@@ -280,7 +281,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setDefaultMediaSensitivity(accountId: Long, value: Boolean)
+    fun setDefaultMediaSensitivity(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -291,7 +292,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setDefaultPostLanguage(accountId: Long, value: String)
+    fun setDefaultPostLanguage(accountId: PachliAccountId.Id, value: String)
 
     // TODO: Should be suspend
     @Query(
@@ -302,7 +303,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsEnabled(accountId: Long, value: Boolean)
+    fun setNotificationsEnabled(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -313,7 +314,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsFollowed(accountId: Long, value: Boolean)
+    fun setNotificationsFollowed(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -324,7 +325,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsFollowRequested(accountId: Long, value: Boolean)
+    fun setNotificationsFollowRequested(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -335,7 +336,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsReblogged(accountId: Long, value: Boolean)
+    fun setNotificationsReblogged(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -346,7 +347,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsFavorited(accountId: Long, value: Boolean)
+    fun setNotificationsFavorited(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -357,7 +358,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsPolls(accountId: Long, value: Boolean)
+    fun setNotificationsPolls(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -368,7 +369,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsSubscriptions(accountId: Long, value: Boolean)
+    fun setNotificationsSubscriptions(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -379,7 +380,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsSignUps(accountId: Long, value: Boolean)
+    fun setNotificationsSignUps(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -390,7 +391,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsUpdates(accountId: Long, value: Boolean)
+    fun setNotificationsUpdates(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -401,7 +402,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsReports(accountId: Long, value: Boolean)
+    fun setNotificationsReports(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -412,7 +413,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationSound(accountId: Long, value: Boolean)
+    fun setNotificationSound(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -423,7 +424,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationVibration(accountId: Long, value: Boolean)
+    fun setNotificationVibration(accountId: PachliAccountId.Id, value: Boolean)
 
     // TODO: Should be suspend
     @Query(
@@ -434,7 +435,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationLight(accountId: Long, value: Boolean)
+    fun setNotificationLight(accountId: PachliAccountId.Id, value: Boolean)
 
     @Query(
         """
@@ -444,7 +445,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    suspend fun setNotificationAccountFilterNotFollowed(accountId: Long, value: FilterAction)
+    suspend fun setNotificationAccountFilterNotFollowed(accountId: PachliAccountId.Id, value: FilterAction)
 
     @Query(
         """
@@ -454,7 +455,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    suspend fun setNotificationAccountFilterYounger30d(accountId: Long, value: FilterAction)
+    suspend fun setNotificationAccountFilterYounger30d(accountId: PachliAccountId.Id, value: FilterAction)
 
     @Query(
         """
@@ -464,5 +465,5 @@ SET
 WHERE id = :accountId
 """,
     )
-    suspend fun setNotificationAccountFilterLimitedByServer(accountId: Long, value: FilterAction)
+    suspend fun setNotificationAccountFilterLimitedByServer(accountId: PachliAccountId.Id, value: FilterAction)
 }

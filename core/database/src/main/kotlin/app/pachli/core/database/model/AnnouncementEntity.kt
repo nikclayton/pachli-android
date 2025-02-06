@@ -21,6 +21,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Announcement
 
 /**
@@ -45,7 +46,7 @@ import app.pachli.core.network.model.Announcement
 )
 @TypeConverters(Converters::class)
 data class AnnouncementEntity(
-    val accountId: Long,
+    val accountId: PachliAccountId.Id,
     val announcementId: String,
     val announcement: Announcement,
 )

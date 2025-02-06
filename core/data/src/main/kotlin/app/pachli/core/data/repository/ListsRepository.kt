@@ -19,6 +19,7 @@ package app.pachli.core.data.repository
 
 import app.pachli.core.common.PachliError
 import app.pachli.core.data.model.MastodonList
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.TimelineAccount
 import app.pachli.core.network.model.UserListRepliesPolicy
 import app.pachli.core.network.retrofit.apiresult.ApiError
@@ -56,7 +57,7 @@ interface ListsError : PachliError {
 
 interface ListsRepository {
     /** @return Known lists for [pachliAccountId]. */
-    fun getLists(pachliAccountId: Long): Flow<List<MastodonList>>
+    fun getLists(pachliAccountId: PachliAccountId.Id): Flow<List<MastodonList>>
 
     /** @return All known lists for all accounts. */
     fun getListsFlow(): Flow<List<MastodonList>>
@@ -66,7 +67,7 @@ interface ListsRepository {
      *
      * @return Latests lists, or an error.
      */
-    suspend fun refresh(pachliAccountId: Long): Result<List<MastodonList>, ListsError.Retrieve>
+    suspend fun refresh(pachliAccountId: PachliAccountId.Id): Result<List<MastodonList>, ListsError.Retrieve>
 
     /**
      * Creates a new list
@@ -77,7 +78,7 @@ interface ListsRepository {
      * @return Details of the new list if successfuly, or an error.
      */
     suspend fun createList(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         title: String,
         exclusive: Boolean,
         repliesPolicy: UserListRepliesPolicy,
@@ -93,7 +94,7 @@ interface ListsRepository {
      * @return Amended list, or an error.
      */
     suspend fun updateList(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         listId: String,
         title: String,
         exclusive: Boolean,
@@ -115,7 +116,7 @@ interface ListsRepository {
      * @result List of Mastodon lists the account is a member of, or an error
      */
     suspend fun getListsWithAccount(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         accountId: String,
     ): Result<List<MastodonList>, ListsError.GetListsWithAccount>
 
@@ -126,7 +127,7 @@ interface ListsRepository {
      * @return List of [TimelineAccount] that are members of the list, or an error
      */
     suspend fun getAccountsInList(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         listId: String,
     ): Result<List<TimelineAccount>, ListsError.GetAccounts>
 
@@ -138,7 +139,7 @@ interface ListsRepository {
      * @return A successful result, or an error
      */
     suspend fun addAccountsToList(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         listId: String,
         accountIds: List<String>,
     ): Result<Unit, ListsError.AddAccounts>
@@ -151,7 +152,7 @@ interface ListsRepository {
      * @return A successful result, or an error
      */
     suspend fun deleteAccountsFromList(
-        pachliAccountId: Long,
+        pachliAccountId: PachliAccountId.Id,
         listId: String,
         accountIds: List<String>,
     ): Result<Unit, ListsError.DeleteAccounts>

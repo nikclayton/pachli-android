@@ -32,6 +32,7 @@ import app.pachli.core.database.model.NotificationEntity
 import app.pachli.core.database.model.NotificationRelationshipSeveranceEventEntity
 import app.pachli.core.database.model.NotificationReportEntity
 import app.pachli.core.database.model.NotificationViewDataEntity
+import app.pachli.core.model.PachliAccountId
 
 @Dao
 @TypeConverters(Converters::class)
@@ -150,6 +151,7 @@ SELECT
     -- NotificationReportEntity
     report.pachliAccountId AS 'report_pachliAccountId',
     report.serverId AS 'report_serverId',
+    report.reportId AS 'report_reportId',
     report.actionTaken AS 'report_actionTaken',
     report.actionTakenAt AS 'report_actionTakenAt',
     report.category AS 'report_category',
@@ -203,7 +205,7 @@ WHERE n.pachliAccountId = :pachliAccountId
 ORDER BY LENGTH(n.serverId) DESC, n.serverId DESC
 """,
     )
-    fun pagingSource(pachliAccountId: Long): PagingSource<Int, NotificationData>
+    fun pagingSource(pachliAccountId: PachliAccountId.Id): PagingSource<Int, NotificationData>
 
     /**
      * @return Row number (0-based) of the notification with ID [notificationId]
@@ -230,7 +232,7 @@ FROM (
 WHERE serverId = :notificationId
 """,
     )
-    suspend fun getNotificationRowNumber(pachliAccountId: Long, notificationId: String): Int
+    suspend fun getNotificationRowNumber(pachliAccountId: PachliAccountId.Id, notificationId: String): Int
 
     /** Remove all cached notifications for [pachliAccountId]. */
     @Query(
@@ -240,7 +242,7 @@ FROM NotificationEntity
 WHERE pachliAccountId = :pachliAccountId
 """,
     )
-    suspend fun deleteAllNotificationsForAccount(pachliAccountId: Long)
+    suspend fun deleteAllNotificationsForAccount(pachliAccountId: PachliAccountId.Id)
 
     @Upsert
     suspend fun upsertNotifications(notifications: Collection<NotificationEntity>)
@@ -265,7 +267,7 @@ FROM NotificationEntity
 WHERE pachliAccountId = :pachliAccountId
 """,
     )
-    suspend fun loadAllForAccount(pachliAccountId: Long): List<NotificationEntity>
+    suspend fun loadAllForAccount(pachliAccountId: PachliAccountId.Id): List<NotificationEntity>
 
     @Deprecated("Only present for use in tests")
     @Query(
@@ -277,7 +279,7 @@ WHERE
     AND serverId = :serverId
 """,
     )
-    suspend fun loadViewData(pachliAccountId: Long, serverId: String): NotificationViewDataEntity?
+    suspend fun loadViewData(pachliAccountId: PachliAccountId.Id, serverId: String): NotificationViewDataEntity?
 
     @Delete
     suspend fun deleteNotification(notification: NotificationEntity)
@@ -292,7 +294,7 @@ WHERE
     AND reportId = :reportId
 """,
     )
-    suspend fun loadReportById(pachliAccountId: Long, reportId: String): NotificationReportEntity?
+    suspend fun loadReportById(pachliAccountId: PachliAccountId.Id, reportId: String): NotificationReportEntity?
 
     @Deprecated("Only present for use in tests")
     @Query(
@@ -304,5 +306,5 @@ WHERE
     AND eventId = :eventId
 """,
     )
-    suspend fun loadRelationshipSeveranceeventById(pachliAccountId: Long, eventId: String): NotificationRelationshipSeveranceEventEntity?
+    suspend fun loadRelationshipSeveranceeventById(pachliAccountId: PachliAccountId.Id, eventId: String): NotificationRelationshipSeveranceEventEntity?
 }

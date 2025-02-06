@@ -41,6 +41,7 @@ import app.pachli.core.database.model.InstanceInfoEntity
 import app.pachli.core.database.model.ServerEntity
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.NodeInfo
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.HttpHeaderLink
@@ -102,7 +103,7 @@ sealed interface SetActiveAccountError : PachliError {
      */
     data class AccountDoesNotExist(
         override val fallbackAccount: AccountEntity?,
-        val accountId: Long,
+        val accountId: PachliAccountId,
     ) : SetActiveAccountError {
         override val resourceId = R.string.account_manager_error_account_does_not_exist
         override val formatArgs = null
@@ -256,13 +257,12 @@ class AccountManager @Inject constructor(
         }
     }
 
-    fun getPachliAccountFlow(pachliAccountId: Long): Flow<PachliAccount?> {
-        val accountFlow = if (pachliAccountId == -1L) {
-            accountDao.getActiveAccountId().flatMapLatest {
-                accountDao.getPachliAccountFlow(it)
+    fun getPachliAccountFlow(pachliAccountId: PachliAccountId): Flow<PachliAccount?> {
+        val accountFlow = when (pachliAccountId) {
+            PachliAccountId.Active -> accountDao.getActiveAccountId().flatMapLatest {
+                accountDao.getPachliAccountFlow(PachliAccountId.Id(it))
             }
-        } else {
-            accountDao.getPachliAccountFlow(pachliAccountId)
+            is PachliAccountId.Id -> accountDao.getPachliAccountFlow(pachliAccountId)
         }
 
         return accountFlow.map { it?.let { PachliAccount.make(it) } }
@@ -275,7 +275,7 @@ class AccountManager @Inject constructor(
      */
     // TODO: Should be `suspend`, accessed through a ViewModel, but not all the
     // calling code has been converted yet.
-    fun getAccountById(accountId: Long): AccountEntity? {
+    fun getAccountById(accountId: PachliAccountId.Id): AccountEntity? {
         return accounts.find { (id) ->
             id == accountId
         }
@@ -317,7 +317,6 @@ class AccountManager @Inject constructor(
                 clientSecret = clientSecret,
                 oauthScopes = oauthScopes,
             ) ?: AccountEntity(
-                id = 0L,
                 domain = domain.lowercase(Locale.ROOT),
                 accessToken = accessToken,
                 clientId = clientId,
@@ -333,7 +332,7 @@ class AccountManager @Inject constructor(
         }
     }
 
-    suspend fun clearPushNotificationData(accountId: Long) {
+    suspend fun clearPushNotificationData(accountId: PachliAccountId.Id) {
         setPushNotificationData(accountId, "", "", "", "", "")
     }
 
@@ -371,7 +370,7 @@ class AccountManager @Inject constructor(
      * @param accountId the database id of the new active account
      * @return The account entity for the new active account, or an error.
      */
-    suspend fun setActiveAccount(accountId: Long): Result<AccountEntity, SetActiveAccountError> {
+    suspend fun setActiveAccount(accountId: PachliAccountId): Result<AccountEntity, SetActiveAccountError> {
         /** Wrapper to pass an API error out of the transaction. */
         data class ApiErrorException(val apiError: ApiError) : Exception()
 
@@ -383,14 +382,12 @@ class AccountManager @Inject constructor(
 
         return try {
             transactionProvider {
-                Timber.d("setActiveAcccount(%d)", accountId)
+                Timber.d("setActiveAccount(%d)", accountId)
 
-                // Handle "-1" as the accountId.
                 val previousActiveAccount = accountDao.getActiveAccount()
-                val newActiveAccount = if (accountId == -1L) {
-                    previousActiveAccount
-                } else {
-                    accountDao.getAccountById(accountId)
+                val newActiveAccount = when (accountId) {
+                    PachliAccountId.Active -> previousActiveAccount
+                    is PachliAccountId.Id -> accountDao.getAccountById(accountId)
                 }
 
                 // Fall back to either the previous account (if known), or the first account
@@ -579,7 +576,7 @@ class AccountManager @Inject constructor(
      * - [profileHeaderPictureUrl][AccountEntity.profileHeaderPictureUrl]
      * - [locked][AccountEntity.locked]
      */
-    suspend fun updateAccount(pachliAccountId: Long, newAccount: Account) {
+    suspend fun updateAccount(pachliAccountId: PachliAccountId.Id, newAccount: Account) {
         transactionProvider {
             val existingAccount = accountDao.getAccountById(pachliAccountId) ?: return@transactionProvider
             val updatedAccount = existingAccount.copy(
@@ -606,7 +603,7 @@ class AccountManager @Inject constructor(
      * @param lists The account's latest lists
      * @return A list of new tab preferences for [pachliAccountId], or null if there are no changes.
      */
-    private suspend fun newTabPreferences(pachliAccountId: Long, lists: List<MastodonList>): List<Timeline>? {
+    private suspend fun newTabPreferences(pachliAccountId: PachliAccountId.Id, lists: List<MastodonList>): List<Timeline>? {
         val map = lists.associateBy { it.listId }
         val account = accountDao.getAccountById(pachliAccountId) ?: return null
         val oldTabPreferences = account.tabPreferences
@@ -687,33 +684,33 @@ class AccountManager @Inject constructor(
         return accounts.any { it.notificationsEnabled }
     }
 
-    suspend fun setAlwaysShowSensitiveMedia(accountId: Long, value: Boolean) {
+    suspend fun setAlwaysShowSensitiveMedia(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setAlwaysShowSensitiveMedia(accountId, value)
     }
 
-    suspend fun setAlwaysOpenSpoiler(accountId: Long, value: Boolean) {
+    suspend fun setAlwaysOpenSpoiler(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setAlwaysOpenSpoiler(accountId, value)
     }
 
-    suspend fun setMediaPreviewEnabled(accountId: Long, value: Boolean) {
+    suspend fun setMediaPreviewEnabled(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setMediaPreviewEnabled(accountId, value)
     }
 
-    suspend fun setTabPreferences(accountId: Long, value: List<Timeline>) {
+    suspend fun setTabPreferences(accountId: PachliAccountId.Id, value: List<Timeline>) {
         Timber.d("setTabPreferences: %d, %s", accountId, value)
         accountDao.setTabPreferences(accountId, value)
     }
 
-    suspend fun setNotificationMarkerId(accountId: Long, value: String) {
+    suspend fun setNotificationMarkerId(accountId: PachliAccountId.Id, value: String) {
         accountDao.setNotificationMarkerId(accountId, value)
     }
 
-    suspend fun setNotificationsFilter(accountId: Long, value: String) {
+    suspend fun setNotificationsFilter(accountId: PachliAccountId.Id, value: String) {
         accountDao.setNotificationsFilter(accountId, value)
     }
 
     suspend fun setPushNotificationData(
-        accountId: Long,
+        accountId: PachliAccountId.Id,
         unifiedPushUrl: String,
         pushServerKey: String,
         pushAuth: String,
@@ -730,93 +727,93 @@ class AccountManager @Inject constructor(
         )
     }
 
-    fun setDefaultPostPrivacy(accountId: Long, value: Status.Visibility) {
+    fun setDefaultPostPrivacy(accountId: PachliAccountId.Id, value: Status.Visibility) {
         accountDao.setDefaultPostPrivacy(accountId, value)
     }
 
-    fun setDefaultMediaSensitivity(accountId: Long, value: Boolean) {
+    fun setDefaultMediaSensitivity(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setDefaultMediaSensitivity(accountId, value)
     }
 
-    fun setDefaultPostLanguage(accountId: Long, value: String) {
+    fun setDefaultPostLanguage(accountId: PachliAccountId.Id, value: String) {
         accountDao.setDefaultPostLanguage(accountId, value)
     }
 
-    fun setNotificationsEnabled(accountId: Long, value: Boolean) {
+    fun setNotificationsEnabled(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationsEnabled(accountId, value)
     }
 
-    fun setNotificationsFollowed(accountId: Long, value: Boolean) {
+    fun setNotificationsFollowed(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationsFollowed(accountId, value)
     }
 
-    fun setNotificationsFollowRequested(accountId: Long, value: Boolean) {
+    fun setNotificationsFollowRequested(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationsFollowRequested(accountId, value)
     }
 
-    fun setNotificationsReblogged(accountId: Long, value: Boolean) {
+    fun setNotificationsReblogged(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationsReblogged(accountId, value)
     }
 
-    fun setNotificationsFavorited(accountId: Long, value: Boolean) {
+    fun setNotificationsFavorited(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationsFavorited(accountId, value)
     }
 
-    fun setNotificationsPolls(accountId: Long, value: Boolean) {
+    fun setNotificationsPolls(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationsPolls(accountId, value)
     }
 
-    fun setNotificationsSubscriptions(accountId: Long, value: Boolean) {
+    fun setNotificationsSubscriptions(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationsSubscriptions(accountId, value)
     }
 
-    fun setNotificationsSignUps(accountId: Long, value: Boolean) {
+    fun setNotificationsSignUps(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationsSignUps(accountId, value)
     }
 
-    fun setNotificationsUpdates(accountId: Long, value: Boolean) {
+    fun setNotificationsUpdates(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationsUpdates(accountId, value)
     }
 
-    fun setNotificationsReports(accountId: Long, value: Boolean) {
+    fun setNotificationsReports(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationsReports(accountId, value)
     }
 
-    fun setNotificationSound(accountId: Long, value: Boolean) {
+    fun setNotificationSound(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationSound(accountId, value)
     }
 
-    fun setNotificationVibration(accountId: Long, value: Boolean) {
+    fun setNotificationVibration(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationVibration(accountId, value)
     }
 
-    fun setNotificationLight(accountId: Long, value: Boolean) {
+    fun setNotificationLight(accountId: PachliAccountId.Id, value: Boolean) {
         accountDao.setNotificationLight(accountId, value)
     }
 
-    suspend fun setNotificationAccountFilterNotFollowed(accountId: Long, action: FilterAction) {
+    suspend fun setNotificationAccountFilterNotFollowed(accountId: PachliAccountId.Id, action: FilterAction) {
         accountDao.setNotificationAccountFilterNotFollowed(accountId, action)
     }
 
-    suspend fun setNotificationAccountFilterYounger30d(accountId: Long, action: FilterAction) {
+    suspend fun setNotificationAccountFilterYounger30d(accountId: PachliAccountId.Id, action: FilterAction) {
         accountDao.setNotificationAccountFilterYounger30d(accountId, action)
     }
 
-    suspend fun setNotificationAccountFilterLimitedByServer(accountId: Long, action: FilterAction) {
+    suspend fun setNotificationAccountFilterLimitedByServer(accountId: PachliAccountId.Id, action: FilterAction) {
         accountDao.setNotificationAccountFilterLimitedByServer(accountId, action)
     }
 
     // -- Announcements
-    suspend fun deleteAnnouncement(accountId: Long, announcementId: String) {
+    suspend fun deleteAnnouncement(accountId: PachliAccountId.Id, announcementId: String) {
         announcementsDao.deleteForAccount(accountId, announcementId)
     }
 
     // -- Following
-    suspend fun followAccount(pachliAccountId: Long, serverId: String) {
+    suspend fun followAccount(pachliAccountId: PachliAccountId.Id, serverId: String) {
         followingAccountDao.insert(FollowingAccountEntity(pachliAccountId, serverId))
     }
 
-    suspend fun unfollowAccount(pachliAccountId: Long, serverId: String) {
+    suspend fun unfollowAccount(pachliAccountId: PachliAccountId.Id, serverId: String) {
         followingAccountDao.delete(FollowingAccountEntity(pachliAccountId, serverId))
     }
 }
