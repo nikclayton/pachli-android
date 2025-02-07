@@ -63,6 +63,7 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.database.model.TranslationState
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
@@ -159,7 +160,7 @@ class TimelineFragment :
 
     private var isSwipeToRefreshEnabled = true
 
-    override var pachliAccountId by Delegates.notNull<Long>()
+    override var pachliAccountId by Delegates.notNull<PachliAccountId.Id>()
 
     /**
      * Collect this flow to notify the adapter that the timestamps of the visible items have
@@ -179,7 +180,7 @@ class TimelineFragment :
 
         val arguments = requireArguments()
 
-        pachliAccountId = arguments.getLong(ARG_PACHLI_ACCOUNT_ID)
+        pachliAccountId = arguments.getParcelable(ARG_PACHLI_ACCOUNT_ID)!! //arguments.getLong(ARG_PACHLI_ACCOUNT_ID)
 
         timeline = arguments.getParcelable(ARG_KIND)!!
 
@@ -752,13 +753,13 @@ class TimelineFragment :
         private const val ARG_ENABLE_SWIPE_TO_REFRESH = "app.pachli.ARG_ENABLE_SWIPE_TO_REFRESH"
 
         fun newInstance(
-            pachliAccountId: Long,
+            pachliAccountId: PachliAccountId.Id,
             timeline: Timeline,
             enableSwipeToRefresh: Boolean = true,
         ): TimelineFragment {
             val fragment = TimelineFragment()
             val arguments = Bundle(3)
-            arguments.putLong(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
+            arguments.putParcelable(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
             arguments.putParcelable(ARG_KIND, timeline)
             arguments.putBoolean(ARG_ENABLE_SWIPE_TO_REFRESH, enableSwipeToRefresh)
             fragment.arguments = arguments

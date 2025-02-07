@@ -27,6 +27,7 @@ import app.pachli.components.timeline.viewmodel.NetworkTimelinePagingSource
 import app.pachli.components.timeline.viewmodel.NetworkTimelineRemoteMediator
 import app.pachli.components.timeline.viewmodel.PageCache
 import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
@@ -100,7 +101,7 @@ class NetworkTimelineRepository @Inject constructor(
         ).flow
     }
 
-    override suspend fun invalidate(pachliAccountId: Long) = factory?.invalidate() ?: Unit
+    override suspend fun invalidate(pachliAccountId: PachliAccountId.Id) = factory?.invalidate() ?: Unit
 
     fun invalidate() = factory?.invalidate()
 

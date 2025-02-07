@@ -31,6 +31,7 @@ import app.pachli.core.database.model.StatusEntity
 import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.database.model.TimelineStatusEntity
 import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Links
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
@@ -49,7 +50,7 @@ import timber.log.Timber
 @OptIn(ExperimentalPagingApi::class)
 class CachedTimelineRemoteMediator(
     private val mastodonApi: MastodonApi,
-    private val pachliAccountId: Long,
+    private val pachliAccountId: PachliAccountId.Id,
     private val transactionProvider: TransactionProvider,
     private val timelineDao: TimelineDao,
     private val remoteKeyDao: RemoteKeyDao,
@@ -203,7 +204,7 @@ class CachedTimelineRemoteMediator(
      * Inserts `statuses` and the accounts referenced by those statuses in to the cache,
      * then adds references to them in the Home timeline.
      */
-    private suspend fun insertStatuses(pachliAccountId: Long, statuses: List<Status>) {
+    private suspend fun insertStatuses(pachliAccountId: PachliAccountId.Id, statuses: List<Status>) {
         check(transactionProvider.inTransaction())
 
         /** Unique accounts referenced in this batch of statuses. */

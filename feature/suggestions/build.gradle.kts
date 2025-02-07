@@ -44,4 +44,5 @@ dependencies {
     implementation(projects.core.network)
     implementation(projects.core.preferences)
     implementation(libs.bundles.androidx)
+    implementation(project(":core:model"))
 }

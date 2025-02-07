@@ -32,4 +32,5 @@ dependencies {
 
     implementation(libs.material.typeface)
     implementation(libs.material.iconics)
+    implementation(project(":core:model"))
 }

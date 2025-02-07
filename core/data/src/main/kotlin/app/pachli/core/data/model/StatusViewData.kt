@@ -25,6 +25,7 @@ import app.pachli.core.database.model.TimelineStatusWithAccount
 import app.pachli.core.database.model.TranslatedStatusEntity
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.network.replaceCrashingCharacters
@@ -36,7 +37,7 @@ import app.pachli.core.network.replaceCrashingCharacters
  */
 interface IStatusViewData {
     /** ID of the Pachli account that loaded this status. */
-    val pachliAccountId: Long
+    val pachliAccountId: PachliAccountId.Id
     val username: String
     val rebloggedAvatar: String?
 
@@ -119,7 +120,7 @@ interface IStatusViewData {
  * Data required to display a status.
  */
 data class StatusViewData(
-    override val pachliAccountId: Long,
+    override val pachliAccountId: PachliAccountId.Id,
     override var status: Status,
     override var translation: TranslatedStatusEntity? = null,
     override val isExpanded: Boolean,
@@ -199,7 +200,7 @@ data class StatusViewData(
 
     companion object {
         fun from(
-            pachliAccountId: Long,
+            pachliAccountId: PachliAccountId.Id,
             status: Status,
             isShowingContent: Boolean,
             isExpanded: Boolean,
@@ -233,7 +234,7 @@ data class StatusViewData(
             )
         }
 
-        fun from(pachliAccountId: Long, conversationStatusEntity: ConversationStatusEntity) = StatusViewData(
+        fun from(pachliAccountId: PachliAccountId.Id, conversationStatusEntity: ConversationStatusEntity) = StatusViewData(
             pachliAccountId = pachliAccountId,
             status = Status(
                 id = conversationStatusEntity.id,
@@ -287,7 +288,7 @@ data class StatusViewData(
          * the status viewdata is null.
          */
         fun from(
-            pachliAccountId: Long,
+            pachliAccountId: PachliAccountId.Id,
             timelineStatusWithAccount: TimelineStatusWithAccount,
             isExpanded: Boolean,
             isShowingContent: Boolean,

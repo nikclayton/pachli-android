@@ -199,7 +199,7 @@ class NotificationsRepository @Inject constructor(
     // Copied from CachedTimelineRepository
     // Status management probably belongs in a StatusRepository to hold these
     // functions, with separate repositories for timelines and notifications.
-    private suspend fun saveStatusViewData(pachliAccountId: Long, statusViewData: StatusViewData) =
+    private suspend fun saveStatusViewData(pachliAccountId: PachliAccountId.Id, statusViewData: StatusViewData) =
         externalScope.launch {
             timelineDao.upsertStatusViewData(
                 StatusViewDataEntity(
@@ -217,7 +217,7 @@ class NotificationsRepository @Inject constructor(
      * Saves a copy of [statusViewData] with [StatusViewData.isCollapsed] set to
      * [isCollapsed].
      */
-    fun setContentCollapsed(pachliAccountId: Long, statusViewData: StatusViewData, isCollapsed: Boolean) =
+    fun setContentCollapsed(pachliAccountId: PachliAccountId.Id, statusViewData: StatusViewData, isCollapsed: Boolean) =
         externalScope.launch {
             saveStatusViewData(pachliAccountId, statusViewData.copy(isCollapsed = isCollapsed))
         }
@@ -226,7 +226,7 @@ class NotificationsRepository @Inject constructor(
      * Saves a copy of [statusViewData] with [StatusViewData.isShowingContent] set to
      * [isShowingContent].
      */
-    fun setShowingContent(pachliAccountId: Long, statusViewData: StatusViewData, isShowingContent: Boolean) =
+    fun setShowingContent(pachliAccountId: PachliAccountId.Id, statusViewData: StatusViewData, isShowingContent: Boolean) =
         externalScope.launch {
             saveStatusViewData(pachliAccountId, statusViewData.copy(isShowingContent = isShowingContent))
         }
@@ -235,7 +235,7 @@ class NotificationsRepository @Inject constructor(
      * Saves a copy of [statusViewData] with [StatusViewData.isExpanded] set to
      * [isExpanded].
      */
-    fun setExpanded(pachliAccountId: Long, statusViewData: StatusViewData, isExpanded: Boolean) = externalScope.launch {
+    fun setExpanded(pachliAccountId: PachliAccountId.Id, statusViewData: StatusViewData, isExpanded: Boolean) = externalScope.launch {
         saveStatusViewData(pachliAccountId, statusViewData.copy(isExpanded = isExpanded))
     }
 

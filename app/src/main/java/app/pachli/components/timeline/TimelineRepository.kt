@@ -20,6 +20,7 @@ package app.pachli.components.timeline
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.Timeline
 import kotlinx.coroutines.flow.Flow
 
@@ -32,7 +33,7 @@ interface TimelineRepository<T : Any> {
     suspend fun getStatusStream(account: AccountEntity, kind: Timeline): Flow<PagingData<T>>
 
     /** Invalidate the active paging source for [pachliAccountId], see [PagingSource.invalidate] */
-    suspend fun invalidate(pachliAccountId: Long)
+    suspend fun invalidate(pachliAccountId: PachliAccountId.Id)
 
     companion object {
         /** Default page size when fetching remote items. */

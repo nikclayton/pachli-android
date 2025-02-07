@@ -39,6 +39,7 @@ import app.pachli.core.database.model.StatusViewDataEntity
 import app.pachli.core.database.model.TimelineStatusWithAccount
 import app.pachli.core.database.model.TranslatedStatusEntity
 import app.pachli.core.database.model.TranslationState
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Translation
 import app.pachli.core.network.retrofit.MastodonApi
@@ -107,7 +108,7 @@ class CachedTimelineRepository @Inject constructor(
     }
 
     /** Invalidate the active paging source, see [androidx.paging.PagingSource.invalidate] */
-    override suspend fun invalidate(pachliAccountId: Long) {
+    override suspend fun invalidate(pachliAccountId: PachliAccountId.Id) {
         // Invalidating when no statuses have been loaded can cause empty timelines because it
         // cancels the network load.
         if (timelineDao.getStatusCount(pachliAccountId) < 1) {
@@ -140,22 +141,22 @@ class CachedTimelineRepository @Inject constructor(
     /**
      * @return Map between statusIDs and any translations for them cached in the repository.
      */
-    suspend fun getStatusTranslations(pachliAccountId: Long, statusIds: List<String>): Map<String, TranslatedStatusEntity> {
+    suspend fun getStatusTranslations(pachliAccountId: PachliAccountId.Id, statusIds: List<String>): Map<String, TranslatedStatusEntity> {
         return translatedStatusDao.getTranslations(pachliAccountId, statusIds)
     }
 
     /** Remove all statuses authored/boosted by the given account, for the active account */
-    suspend fun removeAllByAccountId(pachliAccountId: Long, accountId: String) = externalScope.launch {
+    suspend fun removeAllByAccountId(pachliAccountId: PachliAccountId.Id, accountId: String) = externalScope.launch {
         timelineDao.removeAllByUser(pachliAccountId, accountId)
     }.join()
 
     /** Remove all statuses from the given instance, for the active account */
-    suspend fun removeAllByInstance(pachliAccountId: Long, instance: String) = externalScope.launch {
+    suspend fun removeAllByInstance(pachliAccountId: PachliAccountId.Id, instance: String) = externalScope.launch {
         timelineDao.deleteAllFromInstance(pachliAccountId, instance)
     }.join()
 
     /** Clear the warning (remove the "filtered" setting) for the given status, for the active account */
-    suspend fun clearStatusWarning(pachliAccountId: Long, statusId: String) = externalScope.launch {
+    suspend fun clearStatusWarning(pachliAccountId: PachliAccountId.Id, statusId: String) = externalScope.launch {
         statusDao.clearWarning(pachliAccountId, statusId)
     }.join()
 
@@ -198,7 +199,7 @@ class CachedTimelineRepository @Inject constructor(
      * @param key Status ID to restore from. Null indicates the refresh should
      * refresh the newest statuses.
      */
-    suspend fun saveRefreshKey(pachliAccountId: Long, key: String?) = externalScope.async {
+    suspend fun saveRefreshKey(pachliAccountId: PachliAccountId.Id, key: String?) = externalScope.async {
         Timber.d("saveRefreshKey: $key")
         remoteKeyDao.upsert(
             RemoteKeyEntity(pachliAccountId, RKE_TIMELINE_ID, RemoteKeyKind.REFRESH, key),
@@ -210,7 +211,7 @@ class CachedTimelineRepository @Inject constructor(
      * @return The most recent saved refresh key. Null if not set, or the refresh
      * should fetch the latest statuses.
      */
-    suspend fun getRefreshKey(pachliAccountId: Long): String? = externalScope.async {
+    suspend fun getRefreshKey(pachliAccountId: PachliAccountId.Id): String? = externalScope.async {
         remoteKeyDao.getRefreshKey(pachliAccountId, RKE_TIMELINE_ID)
     }.await()
 }

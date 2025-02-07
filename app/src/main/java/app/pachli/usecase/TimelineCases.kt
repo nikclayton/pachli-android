@@ -28,6 +28,7 @@ import app.pachli.core.eventhub.PinEvent
 import app.pachli.core.eventhub.PollVoteEvent
 import app.pachli.core.eventhub.ReblogEvent
 import app.pachli.core.eventhub.StatusDeletedEvent
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.DeletedStatus
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Relationship
@@ -138,11 +139,11 @@ class TimelineCases @Inject constructor(
         return cachedTimelineRepository.translate(statusViewData)
     }
 
-    suspend fun translateUndo(pachliAccountId: Long, statusViewData: StatusViewData) {
+    suspend fun translateUndo(pachliAccountId: PachliAccountId.Id, statusViewData: StatusViewData) {
         cachedTimelineRepository.translateUndo(statusViewData)
     }
 
-    suspend fun saveRefreshKey(pachliAccountId: Long, statusId: String?) {
+    suspend fun saveRefreshKey(pachliAccountId: PachliAccountId.Id, statusId: String?) {
         cachedTimelineRepository.saveRefreshKey(pachliAccountId, statusId)
     }
 }

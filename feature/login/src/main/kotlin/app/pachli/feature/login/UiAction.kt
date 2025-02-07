@@ -19,6 +19,7 @@ package app.pachli.feature.login
 
 import androidx.annotation.StringRes
 import app.pachli.core.common.PachliError
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.AccessToken
 import app.pachli.core.network.retrofit.apiresult.ApiError
 
@@ -43,7 +44,7 @@ internal sealed interface UiSuccess {
     /** @see [FallibleUiAction.VerifyAndAddAccount]. */
     data class VerifyAndAddAccount(
         override val action: FallibleUiAction.VerifyAndAddAccount,
-        val accountId: Long,
+        val accountId: PachliAccountId.Id,
     ) : UiSuccess
 }
 

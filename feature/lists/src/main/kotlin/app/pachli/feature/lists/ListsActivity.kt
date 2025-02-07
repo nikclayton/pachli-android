@@ -45,8 +45,9 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.data.model.MastodonList
 import app.pachli.core.data.repository.ListsRepository.Companion.compareByListTitle
+import app.pachli.core.model.PachliAccountId
+import app.pachli.core.navigation.ListsActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
-import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.network.model.UserListRepliesPolicy
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.extensions.await
@@ -61,6 +62,7 @@ import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
+import kotlin.properties.Delegates
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -72,7 +74,7 @@ class ListsActivity : BaseActivity(), MenuProvider {
     private val viewModel: ListsViewModel by viewModels(
         extrasProducer = {
             defaultViewModelCreationExtras.withCreationCallback<ListsViewModel.Factory> { factory ->
-                factory.create(intent.pachliAccountId)
+                factory.create((intent as ListsActivityIntent).pachliAccountId)
             }
         },
     )
@@ -81,8 +83,12 @@ class ListsActivity : BaseActivity(), MenuProvider {
 
     private val adapter = ListsAdapter()
 
+    var pachliAccountId by Delegates.notNull<PachliAccountId.Id>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        pachliAccountId = (intent as ListsActivityIntent).pachliAccountId
 
         setContentView(binding.root)
 
@@ -222,13 +228,13 @@ class ListsActivity : BaseActivity(), MenuProvider {
 
     private fun onListSelected(listId: String, listTitle: String) {
         startActivityWithDefaultTransition(
-            TimelineActivityIntent.list(this, intent.pachliAccountId, listId, listTitle),
+            TimelineActivityIntent.list(this, pachliAccountId, listId, listTitle),
         )
     }
 
     private fun openListSettings(list: MastodonList) {
         AccountsInListFragment.newInstance(
-            intent.pachliAccountId,
+            pachliAccountId,
             list.listId,
             list.title,
         ).show(supportFragmentManager, null)

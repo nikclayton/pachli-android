@@ -503,7 +503,7 @@ WHERE
 """,
     )
     abstract suspend fun deleteAllFromInstance(
-        accountId: Long,
+        accountId: PachliAccountId.Id,
         instanceDomain: String,
         timelineKind: TimelineStatusEntity.Kind = TimelineStatusEntity.Kind.Home,
     )
@@ -518,7 +518,7 @@ WHERE
 """,
     )
     abstract suspend fun getStatusCount(
-        accountId: Long,
+        accountId: PachliAccountId.Id,
         timelineKind: TimelineStatusEntity.Kind = TimelineStatusEntity.Kind.Home,
     ): Int
 

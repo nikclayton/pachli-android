@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pachli.core.data.repository.ListsError
 import app.pachli.core.data.repository.ListsRepository
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.TimelineAccount
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.network.retrofit.apiresult.ApiError
@@ -61,7 +62,7 @@ sealed interface Accounts {
 class AccountsInListViewModel @AssistedInject constructor(
     private val api: MastodonApi,
     private val listsRepository: ListsRepository,
-    @Assisted val pachliAccountId: Long,
+    @Assisted val pachliAccountId: PachliAccountId.Id,
     @Assisted val listId: String,
 ) : ViewModel() {
 

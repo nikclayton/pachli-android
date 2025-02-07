@@ -17,9 +17,20 @@
 
 package app.pachli.core.model
 
-sealed interface PachliAccountId {
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+sealed interface PachliAccountId : Parcelable {
+    @Parcelize
     data object Active: PachliAccountId
 
+    @Parcelize
     @JvmInline
-    value class Id(val l: Long): PachliAccountId
+    value class Id(val l: Long): PachliAccountId {
+        init {
+            if (l < 0) {
+                throw IllegalStateException("Constructed PachliAccountId.Id with negative ID")
+            }
+        }
+    }
 }

@@ -34,6 +34,7 @@ import app.pachli.core.eventhub.FavoriteEvent
 import app.pachli.core.eventhub.PinEvent
 import app.pachli.core.eventhub.ReblogEvent
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.preferences.SharedPreferencesRepository
@@ -128,13 +129,13 @@ class NetworkTimelineViewModel @Inject constructor(
         repository.invalidate()
     }
 
-    override fun removeAllByAccountId(pachliAccountId: Long, accountId: String) {
+    override fun removeAllByAccountId(pachliAccountId: PachliAccountId.Id, accountId: String) {
         viewModelScope.launch {
             repository.removeAllByAccountId(accountId)
         }
     }
 
-    override fun removeAllByInstance(pachliAccountId: Long, instance: String) {
+    override fun removeAllByInstance(pachliAccountId: PachliAccountId.Id, instance: String) {
         viewModelScope.launch {
             repository.removeAllByInstance(instance)
         }

@@ -27,6 +27,8 @@ import androidx.lifecycle.lifecycleScope
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.activity.extensions.startActivityWithTransition
+import app.pachli.core.data.repository.PachliAccount
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.ViewThreadActivityIntent
 import app.pachli.core.network.retrofit.MastodonApi
@@ -72,7 +74,7 @@ abstract class BottomSheetActivity : BaseActivity() {
         )
     }
 
-    open fun viewUrl(pachliAccountId: Long, url: String, lookupFallbackBehavior: PostLookupFallbackBehavior = PostLookupFallbackBehavior.OPEN_IN_BROWSER) {
+    open fun viewUrl(pachliAccountId: PachliAccountId.Id, url: String, lookupFallbackBehavior: PostLookupFallbackBehavior = PostLookupFallbackBehavior.OPEN_IN_BROWSER) {
         if (!looksLikeMastodonUrl(url)) {
             openLink(url)
             return
@@ -108,14 +110,14 @@ abstract class BottomSheetActivity : BaseActivity() {
         }
     }
 
-    open fun viewThread(pachliAccountId: Long, statusId: String, url: String?) {
+    open fun viewThread(pachliAccountId: PachliAccountId.Id, statusId: String, url: String?) {
         if (!isSearching()) {
             val intent = ViewThreadActivityIntent(this, pachliAccountId, statusId, url)
             startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
         }
     }
 
-    open fun viewAccount(pachliAccountId: Long, id: String) {
+    open fun viewAccount(pachliAccountId: PachliAccountId.Id, id: String) {
         val intent = AccountActivityIntent(this, pachliAccountId, id)
         startActivityWithDefaultTransition(intent)
     }

@@ -11,6 +11,7 @@ import app.pachli.adapter.FilterableStatusViewHolder
 import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.core.activity.openLink
 import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.Status.Companion.MAX_MEDIA_ATTACHMENTS
 import app.pachli.core.ui.accessibility.PachliRecyclerViewAccessibilityDelegate
 import app.pachli.interfaces.StatusActionListener
@@ -23,7 +24,7 @@ fun interface StatusProvider<T> {
 }
 
 class ListStatusAccessibilityDelegate<T : IStatusViewData>(
-    private val pachliAccountId: Long,
+    private val pachliAccountId: PachliAccountId.Id,
     private val recyclerView: RecyclerView,
     private val statusActionListener: StatusActionListener<T>,
     private val statusProvider: StatusProvider<T>,

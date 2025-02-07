@@ -24,6 +24,7 @@ import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.data.model.MastodonList
 import app.pachli.core.data.repository.ListsError
 import app.pachli.core.data.repository.ListsRepository
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.UserListRepliesPolicy
 import app.pachli.core.ui.OperationCounter
 import com.github.michaelbull.result.onFailure
@@ -55,7 +56,7 @@ sealed class Error(
 @HiltViewModel(assistedFactory = ListsViewModel.Factory::class)
 internal class ListsViewModel @AssistedInject constructor(
     private val listsRepository: ListsRepository,
-    @Assisted val pachliAccountId: Long,
+    @Assisted val pachliAccountId: PachliAccountId.Id,
 ) : ViewModel() {
     private val _errors = Channel<Error>()
     val errors = _errors.receiveAsFlow()
@@ -98,6 +99,6 @@ internal class ListsViewModel @AssistedInject constructor(
         /**
          * Creates [ListsViewModel] with [pachliAccountId] as the active account.
          */
-        fun create(pachliAccountId: Long): ListsViewModel
+        fun create(pachliAccountId: PachliAccountId.Id): ListsViewModel
     }
 }

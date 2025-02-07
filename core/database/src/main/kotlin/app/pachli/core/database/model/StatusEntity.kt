@@ -250,7 +250,7 @@ enum class TranslationState {
 )
 data class StatusViewDataEntity(
     val serverId: String,
-    val timelineUserId: Long,
+    val timelineUserId: PachliAccountId.Id,
     /** Corresponds to [app.pachli.viewdata.IStatusViewData.isExpanded] */
     val expanded: Boolean,
     /** Corresponds to [app.pachli.viewdata.IStatusViewData.isShowingContent] */

@@ -44,4 +44,5 @@ dependencies {
 
     // Loading the logo
     implementation(libs.bundles.glide)
+    implementation(project(":core:model"))
 }

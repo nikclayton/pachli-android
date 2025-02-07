@@ -47,6 +47,7 @@ import app.pachli.core.data.repository.ServerRepository
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.domain.DownloadUrlUseCase
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.ComposeActivityIntent
@@ -96,7 +97,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
 
     private var serverCanTranslate = false
 
-    protected abstract var pachliAccountId: Long
+    protected abstract var pachliAccountId: PachliAccountId.Id
 
     override fun startActivity(intent: Intent) {
         if (intent.component?.className?.startsWith("app.pachli.") == true) {
@@ -169,7 +170,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
         bottomSheetActivity.viewUrl(pachliAccountId, url, PostLookupFallbackBehavior.OPEN_IN_BROWSER)
     }
 
-    protected fun reply(pachliAccountId: Long, status: Status) {
+    protected fun reply(pachliAccountId: PachliAccountId.Id, status: Status) {
         val actionableStatus = status.actionableStatus
         val account = actionableStatus.account
         var loggedInUsername: String? = null

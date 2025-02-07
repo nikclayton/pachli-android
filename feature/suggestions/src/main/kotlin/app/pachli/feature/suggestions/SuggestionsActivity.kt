@@ -22,7 +22,7 @@ import androidx.fragment.app.commit
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.ReselectableFragment
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.navigation.pachliAccountId
+import app.pachli.core.navigation.SuggestionsActivityIntent
 import app.pachli.feature.suggestions.databinding.ActivitySuggestionsBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -49,7 +49,7 @@ class SuggestionsActivity : BottomSheetActivity() {
             (binding.fragmentContainer.getFragment<SuggestionsFragment>() as? ReselectableFragment)?.onReselect()
         }
 
-        val pachliAccountId = intent.pachliAccountId
+        val pachliAccountId = (intent as SuggestionsActivityIntent).pachliAccountId
 
         val fragment =
             supportFragmentManager.findFragmentByTag(FRAGMENT_TAG + pachliAccountId) as SuggestionsFragment?

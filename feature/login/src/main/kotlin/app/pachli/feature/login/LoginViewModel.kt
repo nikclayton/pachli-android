@@ -20,6 +20,7 @@ package app.pachli.feature.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.model.PachliAccountId
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapEither
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,7 +61,7 @@ internal class LoginViewModel @Inject constructor(
             uiAction.clientSecret,
             uiAction.oAuthScopes,
         ).mapEither(
-            { UiSuccess.VerifyAndAddAccount(uiAction, it) },
+            { UiSuccess.VerifyAndAddAccount(uiAction, PachliAccountId.Id(it)) },
             { UiError.VerifyAndAddAccount(uiAction, it) },
         )
     }

@@ -42,6 +42,7 @@ import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.ListsError
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.network.model.TimelineAccount
 import app.pachli.core.network.retrofit.apiresult.ApiError
 import app.pachli.core.preferences.SharedPreferencesRepository
@@ -310,9 +311,9 @@ class AccountsInListFragment : DialogFragment() {
         private const val ARG_LIST_NAME = "app.pachli.ARG_LIST_NAME"
 
         @JvmStatic
-        fun newInstance(pachliAccountId: Long, listId: String, listName: String): AccountsInListFragment {
+        fun newInstance(pachliAccountId: PachliAccountId.Id, listId: String, listName: String): AccountsInListFragment {
             val args = Bundle().apply {
-                putLong(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
+                putParcelable(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
                 putString(ARG_LIST_ID, listId)
                 putString(ARG_LIST_NAME, listName)
             }

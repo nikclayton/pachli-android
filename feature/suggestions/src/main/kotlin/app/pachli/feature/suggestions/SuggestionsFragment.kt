@@ -26,6 +26,7 @@ import android.view.View
 import android.view.accessibility.AccessibilityManager
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.core.os.ParcelableCompat
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -52,6 +53,7 @@ import app.pachli.core.data.model.SuggestionSources.MOST_FOLLOWED
 import app.pachli.core.data.model.SuggestionSources.MOST_INTERACTIONS
 import app.pachli.core.data.model.SuggestionSources.SIMILAR_TO_RECENTLY_FOLLOWED
 import app.pachli.core.data.model.SuggestionSources.UNKNOWN
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.ui.BackgroundMessage
@@ -104,7 +106,7 @@ class SuggestionsFragment :
     /** The active snackbar */
     private var snackbar: Snackbar? = null
 
-    private var pachliAccountId by Delegates.notNull<Long>()
+    private var pachliAccountId by Delegates.notNull<PachliAccountId.Id>()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -113,7 +115,7 @@ class SuggestionsFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pachliAccountId = requireArguments().getLong(ARG_PACHLI_ACCOUNT_ID)
+        pachliAccountId = requireArguments().getParcelable(ARG_PACHLI_ACCOUNT_ID)!!
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -297,10 +299,10 @@ class SuggestionsFragment :
     companion object {
         private const val ARG_PACHLI_ACCOUNT_ID = "app.pachli.ARG_PACHLI_ACCOUNT_ID"
 
-        fun newInstance(pachliAccountId: Long): SuggestionsFragment {
+        fun newInstance(pachliAccountId: PachliAccountId.Id): SuggestionsFragment {
             val fragment = SuggestionsFragment()
             fragment.arguments = Bundle(1).apply {
-                putLong(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
+                putParcelable(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
             }
             return fragment
         }

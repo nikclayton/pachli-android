@@ -50,6 +50,7 @@ import app.pachli.core.eventhub.UnfollowEvent
 import app.pachli.core.model.ContentFilterVersion
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
+import app.pachli.core.model.PachliAccountId
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
@@ -115,7 +116,7 @@ sealed interface InfallibleUiAction : UiAction {
      * can do.
      */
     data class SaveVisibleId(
-        val pachliAccountId: Long,
+        val pachliAccountId: PachliAccountId.Id,
         val visibleId: String,
     ) : InfallibleUiAction
 
@@ -476,9 +477,9 @@ abstract class TimelineViewModel<T : Any>(
 
     abstract fun changeContentCollapsed(isCollapsed: Boolean, status: StatusViewData)
 
-    abstract fun removeAllByAccountId(pachliAccountId: Long, accountId: String)
+    abstract fun removeAllByAccountId(pachliAccountId: PachliAccountId.Id, accountId: String)
 
-    abstract fun removeAllByInstance(pachliAccountId: Long, instance: String)
+    abstract fun removeAllByInstance(pachliAccountId: PachliAccountId.Id, instance: String)
 
     abstract fun removeStatusWithId(id: String)
 
