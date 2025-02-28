@@ -127,7 +127,7 @@ fun getChangelogHighlights(changelog: File, nextVersionName: String): Changes {
                 continue
             }
 
-            if (line.startsWith("Translations")) {
+            if (line.startsWith("### Translations")) {
                 section = Section.Translations
                 continue
             }
@@ -177,7 +177,8 @@ fun createFastlaneFromChangelog(t: Terminal, changelog: File, fastlane: File, ne
                 // Strip out the Markdown formatting and the links at the end
                 it
                     .replace("**", "")
-                    .replace(", \\[.*".toRegex(), ""),
+                    .replace(", \\[.*".toRegex(), "")
+                    .trim(),
             )
         }
     }
@@ -195,7 +196,8 @@ fun createFastlaneFromChangelog(t: Terminal, changelog: File, fastlane: File, ne
                 // Strip out the Markdown formatting and the links at the end
                 it
                     .replace("**", "")
-                    .replace(", \\[.*".toRegex(), ""),
+                    .replace(", \\[.*".toRegex(), "")
+                    .trim(),
             )
         }
     }
@@ -208,12 +210,11 @@ fun createFastlaneFromChangelog(t: Terminal, changelog: File, fastlane: File, ne
 
             """.trimIndent(),
         )
-        changes.translations.forEach {
-            // Strip out the Markdown formatting and the links at the end
-            it
-                .replace("**", "")
-                .replace(", \\[.*".toRegex(), "")
-        }
+        val s = changes.translations
+            .map { it.replace("- Update ", "") }
+            .map { it.replace(" translations", "") }
+            .joinToString(", ") { it.trim() }
+        w.println("- $s")
     }
     w.close()
 
