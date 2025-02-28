@@ -11,6 +11,7 @@ import app.pachli.R
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.data.model.StatusDisplayOptions
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.preferences.CardViewMode
 import app.pachli.core.ui.NoUnderlineURLSpan
 import app.pachli.core.ui.createClickableText
@@ -18,7 +19,6 @@ import app.pachli.databinding.ItemStatusDetailedBinding
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.description
 import app.pachli.util.icon
-import app.pachli.viewdata.StatusViewData
 import java.text.DateFormat
 import java.util.Locale
 
@@ -106,26 +106,24 @@ class StatusDetailedViewHolder(
     }
 
     override fun setupWithStatus(
-        pachliAccountId: Long,
         viewData: StatusViewData,
         listener: StatusActionListener<StatusViewData>,
         statusDisplayOptions: StatusDisplayOptions,
         payloads: Any?,
     ) {
         // We never collapse statuses in the detail view
-        val uncollapsedStatus =
+        val uncollapsedViewdata =
             if (viewData.isCollapsible && viewData.isCollapsed) viewData.copy(isCollapsed = false) else viewData
-        super.setupWithStatus(pachliAccountId, uncollapsedStatus, listener, statusDisplayOptions, payloads)
+        super.setupWithStatus(uncollapsedViewdata, listener, statusDisplayOptions, payloads)
         setupCard(
-            pachliAccountId,
-            uncollapsedStatus,
+            uncollapsedViewdata,
             viewData.isExpanded,
             CardViewMode.FULL_WIDTH,
             statusDisplayOptions,
             listener,
         ) // Always show card for detailed status
         if (payloads == null) {
-            val (_, _, _, _, _, _, _, _, _, _, reblogsCount, favouritesCount) = uncollapsedStatus.actionable
+            val (_, _, _, _, _, _, _, _, _, _, reblogsCount, favouritesCount) = uncollapsedViewdata.actionable
             if (!statusDisplayOptions.hideStats) {
                 setReblogAndFavCount(viewData, reblogsCount, favouritesCount, listener)
             } else {

@@ -17,6 +17,7 @@
 
 package app.pachli.core.data.repository
 
+import android.database.sqlite.SQLiteException
 import app.pachli.core.common.PachliError
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.data.R
@@ -119,6 +120,23 @@ sealed interface SetActiveAccountError : PachliError {
         val wantedAccount: AccountEntity,
         val apiError: ApiError,
     ) : SetActiveAccountError, PachliError by apiError
+
+    /**
+     * A DAO exception occurred while logging in.
+     *
+     * @param fallbackAccount See [SetActiveAccountError.fallbackAccount]
+     * @param wantedAccount The account entity that could not be made active
+     * (if known)
+     */
+    data class Dao(
+        override val fallbackAccount: AccountEntity?,
+        val wantedAccount: AccountEntity?,
+        val sqlException: SQLiteException,
+    ) : SetActiveAccountError {
+        override val resourceId = R.string.account_manager_error_dao
+        override val formatArgs: Array<String> = arrayOf(sqlException.localizedMessage ?: "unknown")
+        override val cause = null
+    }
 
     /**
      * Catch-all for unexpected exceptions when logging in.
@@ -320,8 +338,8 @@ class AccountManager @Inject constructor(
     }
 
     /**
-     * Logs out the active account by deleting all data of the account, sets the
-     * next active account, and returns the active account.
+     * Deletes all data for the active account, sets the next active account, and
+     * returns the active account.
      *
      * @return The new active account, or null if there are no more accounts (the
      * user logged out of the last account).
@@ -330,9 +348,6 @@ class AccountManager @Inject constructor(
         return transactionProvider {
             val activeAccount = accountDao.getActiveAccount() ?: return@transactionProvider Err(NoActiveAccount)
             Timber.d("logout: Logging out %d", activeAccount.id)
-
-            // Deleting credentials so they cannot be used again
-            accountDao.clearLoginCredentials(activeAccount.id)
 
             accountDao.delete(activeAccount)
 
@@ -438,6 +453,8 @@ class AccountManager @Inject constructor(
             }
         } catch (e: ApiErrorException) {
             Err(SetActiveAccountError.Api(fallbackAccount, accountEntity!!, e.apiError))
+        } catch (e: SQLiteException) {
+            Err(SetActiveAccountError.Dao(fallbackAccount, accountEntity, e))
         } catch (e: Throwable) {
             currentCoroutineContext().ensureActive()
             Err(SetActiveAccountError.Unexpected(fallbackAccount, accountEntity!!, e))
@@ -695,10 +712,6 @@ class AccountManager @Inject constructor(
         accountDao.setNotificationsFilter(accountId, value)
     }
 
-    suspend fun setLastNotificationId(accountId: Long, value: String) {
-        accountDao.setLastNotificationId(accountId, value)
-    }
-
     suspend fun setPushNotificationData(
         accountId: Long,
         unifiedPushUrl: String,
@@ -781,6 +794,18 @@ class AccountManager @Inject constructor(
         accountDao.setNotificationLight(accountId, value)
     }
 
+    suspend fun setConversationAccountFilterNotFollowed(accountId: Long, action: FilterAction) {
+        accountDao.setConversationAccountFilterNotFollowed(accountId, action)
+    }
+
+    suspend fun setConversationAccountFilterYounger30d(accountId: Long, action: FilterAction) {
+        accountDao.setConversationAccountFilterYounger30d(accountId, action)
+    }
+
+    suspend fun setConversationAccountFilterLimitedByServer(accountId: Long, action: FilterAction) {
+        accountDao.setConversationAccountFilterLimitedByServer(accountId, action)
+    }
+
     suspend fun setNotificationAccountFilterNotFollowed(accountId: Long, action: FilterAction) {
         accountDao.setNotificationAccountFilterNotFollowed(accountId, action)
     }
@@ -791,11 +816,6 @@ class AccountManager @Inject constructor(
 
     suspend fun setNotificationAccountFilterLimitedByServer(accountId: Long, action: FilterAction) {
         accountDao.setNotificationAccountFilterLimitedByServer(accountId, action)
-    }
-
-    suspend fun setLastVisibleHomeTimelineStatusId(accountId: Long, value: String?) {
-        Timber.d("setLastVisibleHomeTimelineStatusId: %d, %s", accountId, value)
-        accountDao.setLastVisibleHomeTimelineStatusId(accountId, value)
     }
 
     // -- Announcements

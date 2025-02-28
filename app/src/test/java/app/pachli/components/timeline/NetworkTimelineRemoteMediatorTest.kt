@@ -31,10 +31,11 @@ import app.pachli.components.timeline.viewmodel.PageCache
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Status
+import app.pachli.core.testing.failure
+import app.pachli.core.testing.fakes.fakeStatus
+import app.pachli.core.testing.success
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
-import okhttp3.Headers
-import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.IOException
 import org.junit.Before
 import org.junit.Test
@@ -45,7 +46,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.robolectric.annotation.Config
 import retrofit2.HttpException
-import retrofit2.Response
 
 @Config(sdk = [29])
 @RunWith(AndroidJUnit4::class)
@@ -71,7 +71,7 @@ class NetworkTimelineRemoteMediatorTest {
     fun `should return error when network call returns error code`() = runTest {
         // Given
         val remoteMediator = NetworkTimelineRemoteMediator(
-            api = mock(defaultAnswer = { Response.error<String>(500, "".toResponseBody()) }),
+            api = mock(defaultAnswer = { failure<Unit>(code = 500) }),
             activeAccount = activeAccount,
             factory = pagingSourceFactory,
             pageCache = PageCache(),
@@ -114,9 +114,9 @@ class NetworkTimelineRemoteMediatorTest {
         val pages = PageCache()
         val remoteMediator = NetworkTimelineRemoteMediator(
             api = mock {
-                onBlocking { homeTimeline(maxId = anyOrNull(), minId = anyOrNull(), limit = anyOrNull(), sinceId = anyOrNull()) } doReturn Response.success(
-                    listOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
-                    Headers.headersOf(
+                onBlocking { homeTimeline(maxId = anyOrNull(), minId = anyOrNull(), limit = anyOrNull(), sinceId = anyOrNull()) } doReturn success(
+                    listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")),
+                    headers = arrayOf(
                         "Link",
                         "<https://mastodon.example/api/v1/timelines/home?max_id=5>; rel=\"next\", <https://mastodon.example/api/v1/timelines/homefavourites?min_id=7>; rel=\"prev\"",
                     ),
@@ -145,7 +145,7 @@ class NetworkTimelineRemoteMediatorTest {
         val expectedPages = PageCache().apply {
             add(
                 Page(
-                    data = mutableListOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
+                    data = mutableListOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")),
                     prevKey = "7",
                     nextKey = "5",
                 ),
@@ -168,7 +168,7 @@ class NetworkTimelineRemoteMediatorTest {
         val pages = PageCache().apply {
             add(
                 Page(
-                    data = mutableListOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
+                    data = mutableListOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")),
                     prevKey = "7",
                     nextKey = "5",
                 ),
@@ -178,9 +178,9 @@ class NetworkTimelineRemoteMediatorTest {
 
         val remoteMediator = NetworkTimelineRemoteMediator(
             api = mock {
-                onBlocking { homeTimeline(maxId = anyOrNull(), minId = anyOrNull(), limit = anyOrNull(), sinceId = anyOrNull()) } doReturn Response.success(
-                    listOf(mockStatus("10"), mockStatus("9"), mockStatus("8")),
-                    Headers.headersOf(
+                onBlocking { homeTimeline(maxId = anyOrNull(), minId = anyOrNull(), limit = anyOrNull(), sinceId = anyOrNull()) } doReturn success(
+                    listOf(fakeStatus("10"), fakeStatus("9"), fakeStatus("8")),
+                    headers = arrayOf(
                         "Link",
                         "<https://mastodon.example/api/v1/timelines/home?max_id=8>; rel=\"next\", <https://mastodon.example/api/v1/timelines/homefavourites?min_id=10>; rel=\"prev\"",
                     ),
@@ -195,7 +195,7 @@ class NetworkTimelineRemoteMediatorTest {
         val state = state(
             listOf(
                 PagingSource.LoadResult.Page(
-                    data = listOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
+                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")),
                     prevKey = "7",
                     nextKey = "5",
                 ),
@@ -209,7 +209,7 @@ class NetworkTimelineRemoteMediatorTest {
         val expectedPages = PageCache().apply {
             add(
                 Page(
-                    data = mutableListOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
+                    data = mutableListOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")),
                     prevKey = "7",
                     nextKey = "5",
                 ),
@@ -217,7 +217,7 @@ class NetworkTimelineRemoteMediatorTest {
             )
             add(
                 Page(
-                    data = mutableListOf(mockStatus("10"), mockStatus("9"), mockStatus("8")),
+                    data = mutableListOf(fakeStatus("10"), fakeStatus("9"), fakeStatus("8")),
                     prevKey = "10",
                     nextKey = "8",
                 ),
@@ -240,7 +240,7 @@ class NetworkTimelineRemoteMediatorTest {
         val pages = PageCache().apply {
             add(
                 Page(
-                    data = mutableListOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
+                    data = mutableListOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")),
                     prevKey = "7",
                     nextKey = "5",
                 ),
@@ -250,9 +250,9 @@ class NetworkTimelineRemoteMediatorTest {
 
         val remoteMediator = NetworkTimelineRemoteMediator(
             api = mock {
-                onBlocking { homeTimeline(maxId = anyOrNull(), minId = anyOrNull(), limit = anyOrNull(), sinceId = anyOrNull()) } doReturn Response.success(
-                    listOf(mockStatus("4"), mockStatus("3"), mockStatus("2")),
-                    Headers.headersOf(
+                onBlocking { homeTimeline(maxId = anyOrNull(), minId = anyOrNull(), limit = anyOrNull(), sinceId = anyOrNull()) } doReturn success(
+                    listOf(fakeStatus("4"), fakeStatus("3"), fakeStatus("2")),
+                    headers = arrayOf(
                         "Link",
                         "<https://mastodon.example/api/v1/timelines/home?max_id=2>; rel=\"next\", <https://mastodon.example/api/v1/timelines/homefavourites?min_id=4>; rel=\"prev\"",
                     ),
@@ -267,7 +267,7 @@ class NetworkTimelineRemoteMediatorTest {
         val state = state(
             listOf(
                 PagingSource.LoadResult.Page(
-                    data = listOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
+                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")),
                     prevKey = "7",
                     nextKey = "5",
                 ),
@@ -281,7 +281,7 @@ class NetworkTimelineRemoteMediatorTest {
         val expectedPages = PageCache().apply {
             add(
                 Page(
-                    data = mutableListOf(mockStatus("7"), mockStatus("6"), mockStatus("5")),
+                    data = mutableListOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")),
                     prevKey = "7",
                     nextKey = "5",
                 ),
@@ -289,7 +289,7 @@ class NetworkTimelineRemoteMediatorTest {
             )
             add(
                 Page(
-                    data = mutableListOf(mockStatus("4"), mockStatus("3"), mockStatus("2")),
+                    data = mutableListOf(fakeStatus("4"), fakeStatus("3"), fakeStatus("2")),
                     prevKey = "4",
                     nextKey = "2",
                 ),

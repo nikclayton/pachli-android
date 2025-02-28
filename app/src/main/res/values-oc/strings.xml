@@ -183,7 +183,6 @@
     <string name="follows_you">Vos sèc</string>
     <string name="pref_title_alway_show_sensitive_media">Mostrar lo contengut sensible (NSFW)</string>
     <string name="title_media">Mèdia</string>
-    <string name="replying_to">En responsa a @%s</string>
     <string name="add_account_name">Apondre un compte</string>
     <string name="add_account_description">Apondre un nòu compte Mastodon</string>
     <string name="compose_active_account_description">Publicar coma %1$s</string>
@@ -259,12 +258,12 @@
         <item quantity="other">Descriure los contenguts pels mal vesents (%d caractèrs maximum)</item>
     </plurals>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Favorit</item>
-        <item quantity="other"><b>%1$s</b> Favorits</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Favorit</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Favorits</item>
     </plurals>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> Partatge</item>
-        <item quantity="other"><b>%s</b> Partatges</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Partatge</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Partatges</item>
     </plurals>
     <string name="title_reblogged_by">Partejat per</string>
     <string name="title_favourited_by">Aimat per</string>

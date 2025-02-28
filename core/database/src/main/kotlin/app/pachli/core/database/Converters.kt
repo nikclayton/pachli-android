@@ -18,8 +18,10 @@ package app.pachli.core.database
 
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import app.pachli.core.database.model.ConversationAccountEntity
+import app.pachli.core.database.model.ConversationAccount
 import app.pachli.core.database.model.DraftAttachment
+import app.pachli.core.database.model.TimelineStatusEntity
+import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.ContentFilter
 import app.pachli.core.model.ServerOperation
 import app.pachli.core.model.Timeline
@@ -116,23 +118,23 @@ class Converters @Inject constructor(
     }
 
     @TypeConverter
-    fun accountToJson(account: ConversationAccountEntity?): String {
-        return moshi.adapter<ConversationAccountEntity>().toJson(account)
+    fun accountToJson(account: ConversationAccount?): String {
+        return moshi.adapter<ConversationAccount>().toJson(account)
     }
 
     @TypeConverter
-    fun jsonToAccount(accountJson: String?): ConversationAccountEntity? {
-        return accountJson?.let { moshi.adapter<ConversationAccountEntity>().fromJson(it) }
+    fun jsonToAccount(accountJson: String?): ConversationAccount? {
+        return accountJson?.let { moshi.adapter<ConversationAccount>().fromJson(it) }
     }
 
     @TypeConverter
-    fun accountListToJson(accountList: List<ConversationAccountEntity>?): String {
-        return moshi.adapter<List<ConversationAccountEntity>>().toJson(accountList)
+    fun accountListToJson(accountList: List<ConversationAccount>?): String {
+        return moshi.adapter<List<ConversationAccount>>().toJson(accountList)
     }
 
     @TypeConverter
-    fun jsonToAccountList(accountListJson: String?): List<ConversationAccountEntity>? {
-        return accountListJson?.let { moshi.adapter<List<ConversationAccountEntity>?>().fromJson(it) }
+    fun jsonToAccountList(accountListJson: String?): List<ConversationAccount>? {
+        return accountListJson?.let { moshi.adapter<List<ConversationAccount>?>().fromJson(it) }
     }
 
     @TypeConverter
@@ -297,4 +299,22 @@ class Converters @Inject constructor(
 
     @TypeConverter
     fun jsonToCard(s: String?) = s?.let { moshi.adapter<Card>().fromJson(it) }
+
+    @TypeConverter
+    fun listStringToJson(l: List<String>): String = moshi.adapter<List<String>>().toJson(l)
+
+    @TypeConverter
+    fun stringToListString(s: String?) = s?.let { moshi.adapter<List<String>>().fromJson(it) }
+
+    @TypeConverter
+    fun accountFilterDecisionToJson(accountFilterDecision: AccountFilterDecision): String = moshi.adapter<AccountFilterDecision>().toJson(accountFilterDecision)
+
+    @TypeConverter
+    fun jsonToAccountFilterDecision(s: String?) = s?.let { moshi.adapter<AccountFilterDecision>().fromJson(it) }
+
+    @TypeConverter
+    fun timelineKindToJson(kind: TimelineStatusEntity.Kind): String = moshi.adapter<TimelineStatusEntity.Kind>().toJson(kind)
+
+    @TypeConverter
+    fun jsonToTimelineKind(s: String?) = s?.let { moshi.adapter<TimelineStatusEntity.Kind>().fromJson(s) }
 }

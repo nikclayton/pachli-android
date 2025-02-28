@@ -33,9 +33,11 @@ import app.pachli.components.search.SearchOperator.IsSensitiveOperator
 import app.pachli.components.search.SearchOperator.LanguageOperator
 import app.pachli.components.search.SearchOperator.WhereOperator
 import app.pachli.components.search.adapter.SearchPagingSourceFactory
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.Loadable
 import app.pachli.core.data.repository.ServerRepository
+import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_FROM
@@ -55,14 +57,13 @@ import app.pachli.core.network.model.DeletedStatus
 import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.network.retrofit.apiresult.ApiResult
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
-import app.pachli.viewdata.StatusViewData
-import at.connyduck.calladapter.networkresult.NetworkResult
-import at.connyduck.calladapter.networkresult.fold
-import at.connyduck.calladapter.networkresult.onFailure
 import com.github.michaelbull.result.mapBoth
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.z4kn4fein.semver.constraints.toConstraint
 import javax.inject.Inject
@@ -83,7 +84,8 @@ class SearchViewModel @Inject constructor(
     private val mastodonApi: MastodonApi,
     private val timelineCases: TimelineCases,
     private val accountManager: AccountManager,
-    private val serverRepository: ServerRepository,
+    private val statusRepository: StatusRepository,
+    serverRepository: ServerRepository,
 ) : ViewModel() {
 
     var currentQuery: String = ""
@@ -204,6 +206,7 @@ class SearchViewModel @Inject constructor(
     private val statusesPagingSourceFactory = SearchPagingSourceFactory(mastodonApi, SearchType.Status, loadedStatuses) {
         it.statuses.map { status ->
             StatusViewData.from(
+                pachliAccountId = activeAccount!!.id,
                 status,
                 isShowingContent = alwaysShowSensitiveMedia || !status.actionableStatus.sensitive,
                 isExpanded = alwaysOpenSpoiler,
@@ -258,11 +261,12 @@ class SearchViewModel @Inject constructor(
 
     fun removeItem(statusViewData: StatusViewData) {
         viewModelScope.launch {
-            if (timelineCases.delete(statusViewData.id).isSuccess) {
-                if (loadedStatuses.remove(statusViewData)) {
-                    statusesPagingSourceFactory.invalidate()
+            timelineCases.delete(statusViewData.id)
+                .onSuccess {
+                    if (loadedStatuses.remove(statusViewData)) {
+                        statusesPagingSourceFactory.invalidate()
+                    }
                 }
-            }
         }
     }
 
@@ -272,16 +276,17 @@ class SearchViewModel @Inject constructor(
 
     fun reblog(statusViewData: StatusViewData, reblog: Boolean) {
         viewModelScope.launch {
-            timelineCases.reblog(statusViewData.id, reblog).fold({
-                updateStatus(
-                    statusViewData.status.copy(
-                        reblogged = reblog,
-                        reblog = statusViewData.status.reblog?.copy(reblogged = reblog),
-                    ),
-                )
-            }, { t ->
-                Timber.d(t, "Failed to reblog status %s", statusViewData.id)
-            })
+            updateStatus(
+                statusViewData.status.copy(
+                    reblogged = reblog,
+                    reblog = statusViewData.status.reblog?.copy(reblogged = reblog),
+                ),
+            )
+            statusRepository.reblog(statusViewData.pachliAccountId, statusViewData.id, reblog)
+                .onFailure {
+                    updateStatus(statusViewData.status)
+                    Timber.d("Failed to reblog status %s: %s", statusViewData.id, it)
+                }
         }
     }
 
@@ -297,22 +302,27 @@ class SearchViewModel @Inject constructor(
         val votedPoll = poll.votedCopy(choices)
         updateStatus(statusViewData.status.copy(poll = votedPoll))
         viewModelScope.launch {
-            timelineCases.voteInPoll(statusViewData.id, votedPoll.id, choices)
-                .onFailure { t -> Timber.d(t, "Failed to vote in poll: %s", statusViewData.id) }
+            statusRepository.voteInPoll(statusViewData.pachliAccountId, statusViewData.id, votedPoll.id, choices)
+                .onFailure {
+                    updateStatus(statusViewData.status)
+                    Timber.d("Failed to vote in poll: %s: %s", statusViewData.id, it)
+                }
         }
     }
 
     fun favorite(statusViewData: StatusViewData, isFavorited: Boolean) {
         updateStatus(statusViewData.status.copy(favourited = isFavorited))
         viewModelScope.launch {
-            timelineCases.favourite(statusViewData.id, isFavorited)
+            statusRepository.favourite(statusViewData.pachliAccountId, statusViewData.id, isFavorited)
+                .onFailure { updateStatus(statusViewData.status) }
         }
     }
 
     fun bookmark(statusViewData: StatusViewData, isBookmarked: Boolean) {
         updateStatus(statusViewData.status.copy(bookmarked = isBookmarked))
         viewModelScope.launch {
-            timelineCases.bookmark(statusViewData.id, isBookmarked)
+            statusRepository.bookmark(statusViewData.pachliAccountId, statusViewData.id, isBookmarked)
+                .onFailure { updateStatus(statusViewData.status) }
         }
     }
 
@@ -322,9 +332,9 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun pinAccount(status: Status, isPin: Boolean) {
+    fun pinStatus(statusViewData: StatusViewData, isPin: Boolean) {
         viewModelScope.launch {
-            timelineCases.pin(status.id, isPin)
+            statusRepository.pin(statusViewData.pachliAccountId, statusViewData.id, isPin)
         }
     }
 
@@ -334,7 +344,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun deleteStatusAsync(id: String): Deferred<NetworkResult<DeletedStatus>> {
+    fun deleteStatusAsync(id: String): Deferred<ApiResult<DeletedStatus>> {
         return viewModelScope.async {
             timelineCases.delete(id)
         }
@@ -353,10 +363,10 @@ class SearchViewModel @Inject constructor(
         // knows about, therefore the accounts that posted those statuses will definitely
         // be known by the server and there is no need to resolve them further.
         return mastodonApi.search(query = token, resolve = false, type = SearchType.Account.apiParameter, limit = 10)
-            .fold(
-                { it.accounts.map { ComposeAutoCompleteAdapter.AutocompleteResult.AccountResult(it) } },
+            .mapBoth(
+                { it.body.accounts.map { ComposeAutoCompleteAdapter.AutocompleteResult.AccountResult(it) } },
                 {
-                    Timber.e(it, "Autocomplete search for %s failed.", token)
+                    Timber.e("Autocomplete search for %s failed: %s", token, it)
                     emptyList()
                 },
             )

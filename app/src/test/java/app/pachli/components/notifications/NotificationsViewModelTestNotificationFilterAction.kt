@@ -19,7 +19,10 @@ package app.pachli.components.notifications
 
 import app.cash.turbine.test
 import app.pachli.core.network.model.Relationship
-import at.connyduck.calladapter.networkresult.NetworkResult
+import app.pachli.core.testing.failure
+import app.pachli.core.testing.success
+import com.github.michaelbull.result.get
+import com.github.michaelbull.result.getError
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.runTest
@@ -27,7 +30,6 @@ import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.stub
 import org.mockito.kotlin.verify
 
@@ -68,17 +70,16 @@ class NotificationsViewModelTestNotificationFilterAction : NotificationsViewMode
     fun `accepting follow request succeeds && emits UiSuccess`() = runTest {
         // Given
         timelineCases.stub {
-            onBlocking { acceptFollowRequest(any()) } doReturn NetworkResult.success(relationship)
+            onBlocking { acceptFollowRequest(any()) } doReturn success(relationship)
         }
 
-        viewModel.uiSuccess.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(acceptAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(NotificationActionSuccess::class.java)
-            assertThat((item as NotificationActionSuccess).action).isEqualTo(acceptAction)
+            val item = awaitItem().get() as? NotificationActionSuccess.AcceptFollowRequest
+            assertThat(item?.action).isEqualTo(acceptAction)
         }
 
         // Then
@@ -91,32 +92,30 @@ class NotificationsViewModelTestNotificationFilterAction : NotificationsViewMode
     @Test
     fun `accepting follow request fails && emits UiError`() = runTest {
         // Given
-        timelineCases.stub { onBlocking { acceptFollowRequest(any()) } doThrow httpException }
+        timelineCases.stub { onBlocking { acceptFollowRequest(any()) } doReturn failure() }
 
-        viewModel.uiError.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(acceptAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(UiError.AcceptFollowRequest::class.java)
-            assertThat(item.action).isEqualTo(acceptAction)
+            val item = awaitItem().getError() as? UiError.AcceptFollowRequest
+            assertThat(item?.action).isEqualTo(acceptAction)
         }
     }
 
     @Test
     fun `rejecting follow request succeeds && emits UiSuccess`() = runTest {
         // Given
-        timelineCases.stub { onBlocking { rejectFollowRequest(any()) } doReturn NetworkResult.success(relationship) }
+        timelineCases.stub { onBlocking { rejectFollowRequest(any()) } doReturn success(relationship) }
 
-        viewModel.uiSuccess.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(rejectAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(NotificationActionSuccess::class.java)
-            assertThat((item as NotificationActionSuccess).action).isEqualTo(rejectAction)
+            val item = awaitItem().get() as? NotificationActionSuccess.RejectFollowRequest
+            assertThat(item?.action).isEqualTo(rejectAction)
         }
 
         // Then
@@ -129,16 +128,15 @@ class NotificationsViewModelTestNotificationFilterAction : NotificationsViewMode
     @Test
     fun `rejecting follow request fails && emits UiError`() = runTest {
         // Given
-        timelineCases.stub { onBlocking { rejectFollowRequest(any()) } doThrow httpException }
+        timelineCases.stub { onBlocking { rejectFollowRequest(any()) } doReturn failure() }
 
-        viewModel.uiError.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(rejectAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(UiError.RejectFollowRequest::class.java)
-            assertThat(item.action).isEqualTo(rejectAction)
+            val item = awaitItem().getError() as? UiError.RejectFollowRequest
+            assertThat(item?.action).isEqualTo(rejectAction)
         }
     }
 }

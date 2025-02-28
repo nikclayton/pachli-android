@@ -199,7 +199,6 @@
     <string name="follows_you">Folgt dir</string>
     <string name="pref_title_alway_show_sensitive_media">Mediendateien mit Inhaltswarnung immer anzeigen</string>
     <string name="title_media">Medien</string>
-    <string name="replying_to">Antworten an @%s</string>
     <string name="pref_title_thread_filter_keywords">Themen</string>
     <string name="filter_addition_title">Filter hinzufügen</string>
     <string name="filter_edit_title">Filter bearbeiten</string>
@@ -261,8 +260,8 @@
     <string name="action_open_reblogger">Autor*in des geteilten Beitrags öffnen</string>
     <string name="pref_title_public_filter_keywords">Öffentliche Timelines</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Favorit</item>
-        <item quantity="other"><b>%1$s</b> Favoriten</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Favorit</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Favoriten</item>
     </plurals>
     <string name="title_reblogged_by">Geteilt von</string>
     <string name="description_post_media">Medien: %s</string>
@@ -380,8 +379,8 @@
     <string name="pref_title_gradient_for_media">Farbverlauf für verborgene Medien anzeigen</string>
     <string name="action_unmute_domain">%s nicht mehr stummschalten</string>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b>-mal geteilt</item>
-        <item quantity="other"><b>%s</b>-mal geteilt</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt;-mal geteilt</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt;-mal geteilt</item>
     </plurals>
     <string name="pref_main_nav_position">Position der Hauptnavigation</string>
     <string name="dialog_mute_hide_notifications">Benachrichtigungen ausblenden</string>
@@ -600,4 +599,5 @@
     <string name="reaction_name_and_count">%1$s %2$d</string>
     <string name="announcement_date">%1$s %2$s</string>
     <string name="announcement_date_updated">(Aktualisiert: %1$s)</string>
+    <string name="notification_severed_relationships_user_domain_block_body">Du hast die Domain blockiert</string>
 </resources>

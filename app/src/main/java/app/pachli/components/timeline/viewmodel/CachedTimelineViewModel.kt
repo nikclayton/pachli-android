@@ -23,25 +23,29 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
-import app.pachli.appstore.BookmarkEvent
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.FavoriteEvent
-import app.pachli.appstore.PinEvent
-import app.pachli.appstore.ReblogEvent
 import app.pachli.components.timeline.CachedTimelineRepository
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
+import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.eventhub.BookmarkEvent
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.FavoriteEvent
+import app.pachli.core.eventhub.PinEvent
+import app.pachli.core.eventhub.ReblogEvent
 import app.pachli.core.model.FilterAction
 import app.pachli.core.network.model.Poll
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.usecase.TimelineCases
-import app.pachli.viewdata.StatusViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -59,64 +63,49 @@ class CachedTimelineViewModel @Inject constructor(
     accountManager: AccountManager,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     sharedPreferencesRepository: SharedPreferencesRepository,
-) : TimelineViewModel(
+    statusRepository: StatusRepository,
+) : TimelineViewModel<TimelineStatusWithAccount>(
     savedStateHandle,
     timelineCases,
     eventHub,
     accountManager,
+    repository,
     statusDisplayOptionsRepository,
     sharedPreferencesRepository,
+    statusRepository,
 ) {
-    override var statuses: Flow<PagingData<StatusViewData>>
-
-    init {
-        readingPositionId = activeAccount.lastVisibleHomeTimelineStatusId
-
-        statuses = refreshFlow.flatMapLatest {
-            getStatuses(it.second, initialKey = getInitialKey())
-        }.cachedIn(viewModelScope)
+    val initialRefreshKey = accountFlow.flatMapLatest {
+        flow { emit(repository.getRefreshKey(it.data!!.id)) }
     }
 
+    override var statuses = accountFlow
+        .distinctUntilChangedBy { it.data!!.id }
+        .flatMapLatest { getStatuses(it.data!!) }
+        .cachedIn(viewModelScope)
+
     /** @return Flow of statuses that make up the timeline of [timeline] for [account]. */
-    private fun getStatuses(
+    private suspend fun getStatuses(
         account: AccountEntity,
-        initialKey: String? = null,
     ): Flow<PagingData<StatusViewData>> {
-        Timber.d("getStatuses: kind: %s, initialKey: %s", timeline, initialKey)
-        return repository.getStatusStream(account, kind = timeline, initialKey = initialKey)
+        Timber.d("getStatuses: kind: %s", timeline)
+        return repository.getStatusStream(account, timeline)
             .map { pagingData ->
                 pagingData
                     .map {
                         StatusViewData.from(
+                            pachliAccountId = account.id,
                             it,
                             isExpanded = activeAccount.alwaysOpenSpoiler,
                             isShowingContent = activeAccount.alwaysShowSensitiveMedia,
+                            contentFilterAction = shouldFilterStatus(it.toStatus()),
                         )
                     }
-                    .filter { shouldFilterStatus(it) != FilterAction.HIDE }
+                    .filter { it.contentFilterAction != FilterAction.HIDE }
             }
     }
 
     override fun updatePoll(newPoll: Poll, status: StatusViewData) {
         // handled by CacheUpdater
-    }
-
-    override fun changeExpanded(pachliAccountId: Long, expanded: Boolean, status: StatusViewData) {
-        viewModelScope.launch {
-            repository.saveStatusViewData(pachliAccountId, status.copy(isExpanded = expanded))
-        }
-    }
-
-    override fun changeContentShowing(pachliAccountId: Long, isShowing: Boolean, status: StatusViewData) {
-        viewModelScope.launch {
-            repository.saveStatusViewData(pachliAccountId, status.copy(isShowingContent = isShowing))
-        }
-    }
-
-    override fun changeContentCollapsed(pachliAccountId: Long, isCollapsed: Boolean, status: StatusViewData) {
-        viewModelScope.launch {
-            repository.saveStatusViewData(pachliAccountId, status.copy(isCollapsed = isCollapsed))
-        }
     }
 
     override fun removeAllByAccountId(pachliAccountId: Long, accountId: String) {
@@ -131,9 +120,9 @@ class CachedTimelineViewModel @Inject constructor(
         }
     }
 
-    override fun clearWarning(pachliAccountId: Long, statusViewData: StatusViewData) {
+    override fun clearWarning(statusViewData: StatusViewData) {
         viewModelScope.launch {
-            repository.clearStatusWarning(pachliAccountId, statusViewData.actionableId)
+            repository.clearStatusWarning(statusViewData.pachliAccountId, statusViewData.actionableId)
         }
     }
 
@@ -155,20 +144,6 @@ class CachedTimelineViewModel @Inject constructor(
 
     override fun handlePinEvent(pinEvent: PinEvent) {
         // handled by CacheUpdater
-    }
-
-    override fun reloadKeepingReadingPosition(pachliAccountId: Long) {
-        super.reloadKeepingReadingPosition(pachliAccountId)
-        viewModelScope.launch {
-            repository.clearAndReload(pachliAccountId)
-        }
-    }
-
-    override fun reloadFromNewest(pachliAccountId: Long) {
-        super.reloadFromNewest(pachliAccountId)
-        viewModelScope.launch {
-            repository.clearAndReloadFromNewest(pachliAccountId)
-        }
     }
 
     override suspend fun invalidate(pachliAccountId: Long) {

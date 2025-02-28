@@ -191,7 +191,6 @@
     <string name="follows_you">Jarraitzen zaitu</string>
     <string name="pref_title_alway_show_sensitive_media">Eduki mingarria erakutsi</string>
     <string name="title_media">Multimedia</string>
-    <string name="replying_to">\@%s-(r)i erantzuten</string>
     <string name="add_account_name">Gehitu kontua</string>
     <string name="add_account_description">Mastodon kontua gehitu</string>
     <string name="compose_active_account_description">%1$s kontuarekin tut egiten</string>
@@ -278,12 +277,12 @@
     <string name="filter_dialog_whole_word_description">Gako-hitza edo esaldia alfanumerikoa denean bakarrik, hitz osoarekin bat datorrenean bakarrik aplikatuko da</string>
     <string name="filter_add_description">Iragazteko esaldia</string>
     <plurals name="favs">
-        <item quantity="one">Gogoko <b>%1$s</b></item>
-        <item quantity="other"><b>%1$s</b> Gogoko</item>
+        <item quantity="one">Gogoko &lt;b&gt;%1$s&lt;/b&gt;</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Gogoko</item>
     </plurals>
     <plurals name="reblogs">
-        <item quantity="one">Bultzada <b>%s</b></item>
-        <item quantity="other"><b>%s</b> Bultzada</item>
+        <item quantity="one">Bultzada &lt;b&gt;%s&lt;/b&gt;</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Bultzada</item>
     </plurals>
     <string name="title_reblogged_by">Bultzatuta</string>
     <string name="title_favourited_by">Gogokoa</string>

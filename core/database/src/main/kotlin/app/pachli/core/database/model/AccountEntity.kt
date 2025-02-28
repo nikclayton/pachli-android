@@ -82,13 +82,6 @@ data class AccountEntity(
      */
     val mediaPreviewEnabled: Boolean = true,
     /**
-     * ID of the last notification the user read on the Notification list, and should be restored
-     * to view when the user returns to the list.
-     *
-     * May not be the ID of the most recent notification if the user has scrolled down the list.
-     */
-    val lastNotificationId: String = "0",
-    /**
      *  ID of the most recent Mastodon notification that Pachli has fetched to show as an
      *  Android notification.
      */
@@ -106,12 +99,6 @@ data class AccountEntity(
     val pushAuth: String = "",
     val pushServerKey: String = "",
 
-    /**
-     * ID of the status at the top of the visible list in the home timeline when the
-     * user navigated away.
-     */
-    val lastVisibleHomeTimelineStatusId: String? = null,
-
     /** True if the connected Mastodon account is locked (has to manually approve all follow requests **/
     @ColumnInfo(defaultValue = "0")
     val locked: Boolean = false,
@@ -127,6 +114,19 @@ data class AccountEntity(
     /** [FilterAction] for notifications from account limited by the server. */
     @ColumnInfo(defaultValue = "NONE")
     var notificationAccountFilterLimitedByServer: FilterAction = FilterAction.NONE,
+
+    /** [FilterAction] for conversations from accounts this account does not follow. */
+    @ColumnInfo(defaultValue = "NONE")
+    var conversationAccountFilterNotFollowed: FilterAction = FilterAction.NONE,
+
+    /** [FilterAction] for conversations from accounts younger than 30 days. */
+    @ColumnInfo(defaultValue = "NONE")
+    var conversationAccountFilterYounger30d: FilterAction = FilterAction.NONE,
+
+    /** [FilterAction] for conversations from account limited by the server. */
+    @ColumnInfo(defaultValue = "NONE")
+    var conversationAccountFilterLimitedByServer: FilterAction = FilterAction.NONE,
+
 ) {
 
     val identifier: String

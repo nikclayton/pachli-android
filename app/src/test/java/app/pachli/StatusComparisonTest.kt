@@ -1,6 +1,7 @@
 package app.pachli
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.network.json.BooleanIfNull
 import app.pachli.core.network.json.DefaultIfNull
@@ -8,7 +9,6 @@ import app.pachli.core.network.json.Guarded
 import app.pachli.core.network.json.InstantJsonAdapter
 import app.pachli.core.network.json.LenientRfc3339DateJsonAdapter
 import app.pachli.core.network.model.Status
-import app.pachli.viewdata.StatusViewData
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
 import java.time.Instant
@@ -54,6 +54,7 @@ class StatusComparisonTest {
     @Test
     fun `two equal status view data - should be equal`() {
         val viewdata1 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
             isShowingContent = false,
@@ -61,6 +62,7 @@ class StatusComparisonTest {
             translationState = TranslationState.SHOW_ORIGINAL,
         )
         val viewdata2 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
             isShowingContent = false,
@@ -73,6 +75,7 @@ class StatusComparisonTest {
     @Test
     fun `status view data with different isExpanded - should not be equal`() {
         val viewdata1 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = true,
             isShowingContent = false,
@@ -80,6 +83,7 @@ class StatusComparisonTest {
             translationState = TranslationState.SHOW_ORIGINAL,
         )
         val viewdata2 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
             isShowingContent = false,
@@ -92,6 +96,7 @@ class StatusComparisonTest {
     @Test
     fun `status view data with different statuses- should not be equal`() {
         val viewdata1 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(content = "whatever"),
             isExpanded = true,
             isShowingContent = false,
@@ -99,6 +104,7 @@ class StatusComparisonTest {
             translationState = TranslationState.SHOW_ORIGINAL,
         )
         val viewdata2 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
             isShowingContent = false,

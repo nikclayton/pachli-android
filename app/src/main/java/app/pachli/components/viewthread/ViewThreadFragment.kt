@@ -40,6 +40,7 @@ import app.pachli.core.activity.openLink
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData.Companion.list
@@ -51,7 +52,6 @@ import app.pachli.databinding.FragmentViewThreadBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.ListStatusAccessibilityDelegate
-import app.pachli.viewdata.StatusViewData
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
@@ -74,9 +74,6 @@ class ViewThreadFragment :
     private lateinit var adapter: ThreadAdapter
     private lateinit var thisThreadsStatusId: String
 
-    private var alwaysShowSensitiveMedia = false
-    private var alwaysOpenSpoiler = false
-
     override var pachliAccountId by Delegates.notNull<Long>()
 
     /**
@@ -95,8 +92,7 @@ class ViewThreadFragment :
         thisThreadsStatusId = requireArguments().getString(ARG_ID)!!
 
         lifecycleScope.launch {
-            val statusDisplayOptions = viewModel.statusDisplayOptions.value
-            adapter = ThreadAdapter(pachliAccountId, statusDisplayOptions, this@ViewThreadFragment)
+            adapter = ThreadAdapter(viewModel.statusDisplayOptions.value, this@ViewThreadFragment)
         }
     }
 
@@ -128,8 +124,6 @@ class ViewThreadFragment :
             MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
         )
         binding.recyclerView.addItemDecoration(ConversationLineItemDecoration(requireContext()))
-        alwaysShowSensitiveMedia = accountManager.activeAccount!!.alwaysShowSensitiveMedia
-        alwaysOpenSpoiler = accountManager.activeAccount!!.alwaysOpenSpoiler
 
         binding.recyclerView.adapter = adapter
 
@@ -279,8 +273,8 @@ class ViewThreadFragment :
         viewModel.refresh(thisThreadsStatusId)
     }
 
-    override fun onReply(pachliAccountId: Long, viewData: StatusViewData) {
-        super.reply(pachliAccountId, viewData.actionable)
+    override fun onReply(viewData: StatusViewData) {
+        super.reply(viewData.pachliAccountId, viewData.actionable)
     }
 
     override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
@@ -303,7 +297,7 @@ class ViewThreadFragment :
         super.viewMedia(
             viewData.username,
             attachmentIndex,
-            list(viewData.actionable, alwaysShowSensitiveMedia),
+            list(viewData.actionable, viewModel.statusDisplayOptions.value.showSensitiveMedia),
             view,
         )
     }
@@ -339,12 +333,12 @@ class ViewThreadFragment :
         )
     }
 
-    override fun onExpandedChange(pachliAccountId: Long, viewData: StatusViewData, expanded: Boolean) {
+    override fun onExpandedChange(viewData: StatusViewData, expanded: Boolean) {
         viewModel.changeExpanded(expanded, viewData)
     }
 
-    override fun onContentHiddenChange(pachliAccountId: Long, viewData: StatusViewData, isShowing: Boolean) {
-        viewModel.changeContentShowing(isShowing, viewData)
+    override fun onContentHiddenChange(viewData: StatusViewData, isShowingContent: Boolean) {
+        viewModel.changeContentShowing(isShowingContent, viewData)
     }
 
     override fun onShowReblogs(statusId: String) {
@@ -357,7 +351,7 @@ class ViewThreadFragment :
         activity?.startActivityWithDefaultTransition(intent)
     }
 
-    override fun onContentCollapsedChange(pachliAccountId: Long, viewData: StatusViewData, isCollapsed: Boolean) {
+    override fun onContentCollapsedChange(viewData: StatusViewData, isCollapsed: Boolean) {
         viewModel.changeContentCollapsed(isCollapsed, viewData)
     }
 
@@ -397,7 +391,7 @@ class ViewThreadFragment :
         }
     }
 
-    override fun clearContentFilter(pachliAccountId: Long, viewData: StatusViewData) {
+    override fun clearContentFilter(viewData: StatusViewData) {
         viewModel.clearWarning(viewData)
     }
 

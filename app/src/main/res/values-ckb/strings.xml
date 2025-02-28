@@ -287,12 +287,12 @@
     <string name="title_favourited_by">پەسەندکراوە لەلایەن</string>
     <string name="title_reblogged_by">پۆست کراوەتەوە لەلایەن</string>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> پۆستکردنەوە</item>
-        <item quantity="other"><b>%s</b> پۆستکردنەوە</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; پۆستکردنەوە</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; پۆستکردنەوە</item>
     </plurals>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> دڵخواز</item>
-        <item quantity="other"><b>%1$s</b> دڵخواز</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; دڵخواز</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; دڵخواز</item>
     </plurals>
     <string name="pin_action">Pin</string>
     <string name="unpin_action">لابردن</string>
@@ -342,7 +342,6 @@
     <string name="filter_addition_title">زیادکردنی فلتەر</string>
     <string name="pref_title_thread_filter_keywords">گفتوگۆکان</string>
     <string name="pref_title_public_filter_keywords">هێڵی کاتی گشتی</string>
-    <string name="replying_to">وەڵام دانەوە بۆ @%s</string>
     <string name="title_media">میدیا</string>
     <string name="pref_title_alway_open_spoiler">هەمیشە ئەو توتانەی کە بە ئاگادارکردنەوەکانی ناوەڕۆکەوە نیشانەکراون فراوان بکە</string>
     <string name="pref_title_alway_show_sensitive_media">هەمیشە ناوەڕۆکی هەستیار نیشان بدە</string>

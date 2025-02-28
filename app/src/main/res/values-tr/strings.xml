@@ -240,12 +240,12 @@
     <string name="unpin_action">Sabitlemeyi kaldır</string>
     <string name="pin_action">Sabitle</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Gözde</item>
-        <item quantity="other"><b>%1$s</b> Gözdeler</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Gözde</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Gözdeler</item>
     </plurals>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> Yeniden Paylaşan</item>
-        <item quantity="other"><b>%s</b> Yeniden Paylaşanlar</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Yeniden Paylaşan</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Yeniden Paylaşanlar</item>
     </plurals>
     <string name="title_reblogged_by">tarafından paylaşıldı</string>
     <string name="title_favourited_by">Tarafından gözdelendi</string>
@@ -358,7 +358,6 @@
     <string name="add_poll_choice">Seçenek ekle</string>
     <string name="poll_allow_multiple_choices">Çoklu seçim</string>
     <string name="edit_poll">Düzenle</string>
-    <string name="replying_to">Yanıtlanıyor: %s</string>
     <string name="confirmation_domain_unmuted">%s alan adını gizleme</string>
     <string name="mute_domain_warning_dialog_ok">Alan adından her şeyi gizle</string>
     <string name="pref_title_alway_open_spoiler">Her zaman içerik uyarılarıyla işaretlenmiş alanları genişlet</string>

@@ -31,13 +31,19 @@ android {
 
 dependencies {
     implementation(projects.core.common)
+    implementation(projects.core.data)
     implementation(projects.core.database)
+    implementation(projects.core.model)
     implementation(projects.core.network)
 
     implementation(libs.hilt.android.testing)
 
     implementation(libs.moshi)
     implementation(libs.moshi.adapters)
+    implementation(libs.okhttp.core)
+        ?.because("Includes testing utilities for ApiResult")
+    implementation(libs.retrofit.core)
+        ?.because("Includes testing utilities for ApiResult")
 
     api(libs.kotlinx.coroutines.test)
     api(libs.androidx.test.junit)

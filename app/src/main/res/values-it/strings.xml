@@ -224,7 +224,6 @@
     <string name="follows_you">Ti segue</string>
     <string name="pref_title_alway_show_sensitive_media">Mostra sempre i contenuti sensibili</string>
     <string name="title_media">Media</string>
-    <string name="replying_to">Rispondendo a @%s</string>
     <string name="pref_title_public_filter_keywords">Timeline pubbliche</string>
     <string name="pref_title_thread_filter_keywords">Conversazioni</string>
     <string name="filter_addition_title">Aggiungi filtro</string>
@@ -277,14 +276,14 @@
     <string name="unpin_action">Non fissare in cima</string>
     <string name="pin_action">Fissa</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Preferito</item>
-        <item quantity="many"><b>%1$s</b> Preferiti</item>
-        <item quantity="other"><b>%1$s</b> Preferiti</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Preferito</item>
+        <item quantity="many">&lt;b&gt;%1$s&lt;/b&gt; Preferiti</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Preferiti</item>
     </plurals>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> ricondivisione</item>
-        <item quantity="many"><b>%s</b> ricondivisioni</item>
-        <item quantity="other"><b>%s</b> ricondivisioni</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; ricondivisione</item>
+        <item quantity="many">&lt;b&gt;%s&lt;/b&gt; ricondivisioni</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; ricondivisioni</item>
     </plurals>
     <string name="title_reblogged_by">Condiviso da</string>
     <string name="title_favourited_by">Aggiunto ai post apprezzati da</string>

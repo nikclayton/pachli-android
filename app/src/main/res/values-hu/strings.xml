@@ -244,7 +244,6 @@
     <string name="abbreviated_hours_ago">%dó</string>
     <string name="abbreviated_minutes_ago">%dp</string>
     <string name="abbreviated_seconds_ago">%dmp</string>
-    <string name="replying_to">Válasz @%s részére</string>
     <string name="pref_title_public_filter_keywords">Nyilvános idővonalak</string>
     <string name="pref_title_thread_filter_keywords">Beszélgetések</string>
     <string name="filter_addition_title">Szűrő hozzáadása</string>
@@ -280,8 +279,8 @@
     <string name="unpin_action">Kitűzés eltávolítása</string>
     <string name="pin_action">Kitűzés</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Kedvenc</item>
-        <item quantity="other"><b>%1$s</b> Kedvenc</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Kedvenc</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Kedvenc</item>
     </plurals>
     <plurals name="reblogs">
         <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Megtolás</item>

@@ -23,20 +23,22 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
-import app.pachli.appstore.BookmarkEvent
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.FavoriteEvent
-import app.pachli.appstore.PinEvent
-import app.pachli.appstore.ReblogEvent
 import app.pachli.components.timeline.NetworkTimelineRepository
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
+import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.eventhub.BookmarkEvent
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.FavoriteEvent
+import app.pachli.core.eventhub.PinEvent
+import app.pachli.core.eventhub.ReblogEvent
 import app.pachli.core.model.FilterAction
 import app.pachli.core.network.model.Poll
+import app.pachli.core.network.model.Status
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.usecase.TimelineCases
-import app.pachli.viewdata.StatusViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -59,43 +61,43 @@ class NetworkTimelineViewModel @Inject constructor(
     accountManager: AccountManager,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     sharedPreferencesRepository: SharedPreferencesRepository,
-) : TimelineViewModel(
+    statusRepository: StatusRepository,
+) : TimelineViewModel<Status>(
     savedStateHandle,
     timelineCases,
     eventHub,
     accountManager,
+    repository,
     statusDisplayOptionsRepository,
     sharedPreferencesRepository,
+    statusRepository,
 ) {
     private val modifiedViewData = mutableMapOf<String, StatusViewData>()
 
     override var statuses: Flow<PagingData<StatusViewData>>
 
     init {
-        statuses = refreshFlow
-            .flatMapLatest {
-                getStatuses(it.second, initialKey = getInitialKey())
-            }.cachedIn(viewModelScope)
+        statuses = accountFlow
+            .flatMapLatest { getStatuses(it.data!!) }.cachedIn(viewModelScope)
     }
 
     /** @return Flow of statuses that make up the timeline of [timeline] for [account]. */
-    private fun getStatuses(
+    private suspend fun getStatuses(
         account: AccountEntity,
-        initialKey: String? = null,
     ): Flow<PagingData<StatusViewData>> {
-        Timber.d("getStatuses: kind: %s, initialKey: %s", timeline, initialKey)
-        return repository.getStatusStream(account, kind = timeline, initialKey = initialKey)
+        Timber.d("getStatuses: kind: %s", timeline)
+        return repository.getStatusStream(account, kind = timeline)
             .map { pagingData ->
                 pagingData.map {
                     modifiedViewData[it.id] ?: StatusViewData.from(
+                        pachliAccountId = account.id,
                         it,
                         isShowingContent = statusDisplayOptions.value.showSensitiveMedia || !it.actionableStatus.sensitive,
                         isExpanded = statusDisplayOptions.value.openSpoiler,
                         isCollapsed = true,
+                        contentFilterAction = shouldFilterStatus(it),
                     )
-                }.filter {
-                    shouldFilterStatus(it) != FilterAction.HIDE
-                }
+                }.filter { it.contentFilterAction != FilterAction.HIDE }
             }
     }
 
@@ -106,27 +108,25 @@ class NetworkTimelineViewModel @Inject constructor(
         repository.invalidate()
     }
 
-    override fun changeExpanded(pachliAccountId: Long, expanded: Boolean, status: StatusViewData) {
+    override fun changeExpanded(expanded: Boolean, status: StatusViewData) {
         modifiedViewData[status.id] = status.copy(
             isExpanded = expanded,
         )
-        repository.invalidate()
+        super.changeExpanded(expanded, status)
     }
 
-    override fun changeContentShowing(pachliAccountId: Long, isShowing: Boolean, status: StatusViewData) {
+    override fun changeContentShowing(isShowing: Boolean, status: StatusViewData) {
         modifiedViewData[status.id] = status.copy(
             isShowingContent = isShowing,
         )
-        repository.invalidate()
+        super.changeContentShowing(isShowing, status)
     }
 
-    override fun changeContentCollapsed(pachliAccountId: Long, isCollapsed: Boolean, status: StatusViewData) {
-        Timber.d("changeContentCollapsed: %s", isCollapsed)
-        Timber.d("   %s", status.content)
+    override fun changeContentCollapsed(isCollapsed: Boolean, status: StatusViewData) {
         modifiedViewData[status.id] = status.copy(
             isCollapsed = isCollapsed,
         )
-        repository.invalidate()
+        super.changeContentCollapsed(isCollapsed, status)
     }
 
     override fun removeAllByAccountId(pachliAccountId: Long, accountId: String) {
@@ -182,19 +182,7 @@ class NetworkTimelineViewModel @Inject constructor(
         repository.invalidate()
     }
 
-    override fun reloadKeepingReadingPosition(pachliAccountId: Long) {
-        super.reloadKeepingReadingPosition(pachliAccountId)
-        viewModelScope.launch {
-            repository.reload()
-        }
-    }
-
-    override fun reloadFromNewest(pachliAccountId: Long) {
-        super.reloadFromNewest(pachliAccountId)
-        reloadKeepingReadingPosition(pachliAccountId)
-    }
-
-    override fun clearWarning(pachliAccountId: Long, statusViewData: StatusViewData) {
+    override fun clearWarning(statusViewData: StatusViewData) {
         viewModelScope.launch {
             repository.updateActionableStatusById(statusViewData.actionableId) {
                 it.copy(filtered = null)

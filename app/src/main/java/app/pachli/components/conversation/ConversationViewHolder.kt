@@ -19,40 +19,32 @@ package app.pachli.components.conversation
 import android.text.InputFilter
 import android.text.TextUtils
 import android.view.View
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
 import app.pachli.R
 import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.core.activity.loadAvatar
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
+import app.pachli.core.common.util.SmartLengthInputFilter
 import app.pachli.core.data.model.StatusDisplayOptions
-import app.pachli.core.database.model.ConversationAccountEntity
+import app.pachli.core.database.model.ConversationAccount
+import app.pachli.databinding.ItemConversationBinding
 import app.pachli.interfaces.StatusActionListener
-import app.pachli.util.SmartLengthInputFilter
 
 class ConversationViewHolder internal constructor(
-    itemView: View,
-    private val statusDisplayOptions: StatusDisplayOptions,
+    private val binding: ItemConversationBinding,
     private val listener: StatusActionListener<ConversationViewData>,
-) : StatusBaseViewHolder<ConversationViewData>(itemView) {
-    private val conversationNameTextView: TextView = itemView.findViewById(R.id.conversation_name)
-    private val contentCollapseButton: Button = itemView.findViewById(R.id.button_toggle_content)
+) : ConversationAdapter.ViewHolder, StatusBaseViewHolder<ConversationViewData>(binding.root) {
     private val avatars: Array<ImageView> = arrayOf(
         avatar,
-        itemView.findViewById(R.id.status_avatar_1),
-        itemView.findViewById(R.id.status_avatar_2),
+        binding.statusAvatar1,
+        binding.statusAvatar2,
     )
 
-    fun setupWithConversation(
-        pachliAccountId: Long,
-        viewData: ConversationViewData,
-        payloads: Any?,
-    ) {
+    override fun bind(viewData: ConversationViewData, payloads: List<*>?, statusDisplayOptions: StatusDisplayOptions) {
         val (_, _, account, inReplyToId, _, _, _, _, _, _, _, _, _, _, favourited, bookmarked, sensitive, _, _, attachments) = viewData.status
-        if (payloads == null) {
-            setupCollapsedState(pachliAccountId, viewData, listener)
+        if (payloads.isNullOrEmpty()) {
+            setupCollapsedState(viewData, listener)
             setDisplayName(account.name, account.emojis, statusDisplayOptions)
             setUsername(account.username)
             setMetaData(viewData, statusDisplayOptions, listener)
@@ -61,7 +53,6 @@ class ConversationViewHolder internal constructor(
             setBookmarked(bookmarked)
             if (statusDisplayOptions.mediaPreviewEnabled && hasPreviewableAttachment(attachments)) {
                 setMediaPreviews(
-                    pachliAccountId,
                     viewData,
                     attachments,
                     sensitive,
@@ -77,21 +68,20 @@ class ConversationViewHolder internal constructor(
                     mediaLabel.visibility = View.GONE
                 }
             } else {
-                setMediaLabel(pachliAccountId, viewData, attachments, sensitive, listener, viewData.isShowingContent)
+                setMediaLabel(viewData, attachments, sensitive, listener, viewData.isShowingContent)
                 // Hide all unused views.
                 mediaPreview.visibility = View.GONE
                 hideSensitiveMediaWarning()
             }
             setupButtons(
-                pachliAccountId,
                 viewData,
                 listener,
                 account.id,
                 statusDisplayOptions,
             )
-            setSpoilerAndContent(pachliAccountId, viewData, statusDisplayOptions, listener)
+            setSpoilerAndContent(viewData, statusDisplayOptions, listener)
             setConversationName(viewData.accounts)
-            setAvatars(viewData.accounts)
+            setAvatars(viewData.accounts, statusDisplayOptions.animateAvatars)
         } else {
             if (payloads is List<*>) {
                 for (item in payloads) {
@@ -103,8 +93,8 @@ class ConversationViewHolder internal constructor(
         }
     }
 
-    private fun setConversationName(accounts: List<ConversationAccountEntity>) {
-        conversationNameTextView.text = when (accounts.size) {
+    private fun setConversationName(accounts: List<ConversationAccount>) {
+        binding.conversationName.text = when (accounts.size) {
             0 -> context.getString(R.string.conversation_0_recipients)
             1 -> context.getString(
                 R.string.conversation_1_recipients,
@@ -124,14 +114,14 @@ class ConversationViewHolder internal constructor(
         }
     }
 
-    private fun setAvatars(accounts: List<ConversationAccountEntity>) {
+    private fun setAvatars(accounts: List<ConversationAccount>, animateAvatars: Boolean) {
         avatars.withIndex().forEach { views ->
             accounts.getOrNull(views.index)?.also { account ->
                 loadAvatar(
                     account.avatar,
                     views.value,
                     avatarRadius48dp,
-                    statusDisplayOptions.animateAvatars,
+                    animateAvatars,
                 )
                 views.value.show()
             } ?: views.value.hide()
@@ -139,25 +129,24 @@ class ConversationViewHolder internal constructor(
     }
 
     private fun setupCollapsedState(
-        pachliAccountId: Long,
         viewData: ConversationViewData,
         listener: StatusActionListener<ConversationViewData>,
     ) {
         /* input filter for TextViews have to be set before text */
         if (viewData.isCollapsible && (viewData.isExpanded || TextUtils.isEmpty(viewData.spoilerText))) {
-            contentCollapseButton.setOnClickListener {
-                listener.onContentCollapsedChange(pachliAccountId, viewData, !viewData.isCollapsed)
+            binding.buttonToggleContent.setOnClickListener {
+                listener.onContentCollapsedChange(viewData, !viewData.isCollapsed)
             }
-            contentCollapseButton.show()
+            binding.buttonToggleContent.show()
             if (viewData.isCollapsed) {
-                contentCollapseButton.setText(R.string.post_content_warning_show_more)
+                binding.buttonToggleContent.setText(R.string.post_content_warning_show_more)
                 content.filters = COLLAPSE_INPUT_FILTER
             } else {
-                contentCollapseButton.setText(R.string.post_content_warning_show_less)
+                binding.buttonToggleContent.setText(R.string.post_content_warning_show_less)
                 content.filters = NO_INPUT_FILTER
             }
         } else {
-            contentCollapseButton.visibility = View.GONE
+            binding.buttonToggleContent.visibility = View.GONE
             content.filters = NO_INPUT_FILTER
         }
     }

@@ -41,8 +41,10 @@ import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.PostLookupFallbackBehavior
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.activity.openLink
+import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.ServerRepository
+import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.domain.DownloadUrlUseCase
@@ -50,6 +52,7 @@ import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InReplyTo
 import app.pachli.core.navigation.ReportActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.ViewMediaActivityIntent
@@ -58,13 +61,9 @@ import app.pachli.core.network.model.Status
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.ui.ClipboardUseCase
-import app.pachli.core.ui.extensions.getErrorString
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.usecase.TimelineCases
 import app.pachli.view.showMuteAccountDialog
-import app.pachli.viewdata.IStatusViewData
-import at.connyduck.calladapter.networkresult.fold
-import at.connyduck.calladapter.networkresult.onFailure
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import com.google.android.material.snackbar.Snackbar
@@ -83,6 +82,9 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
 
     @Inject
     lateinit var accountManager: AccountManager
+
+    @Inject
+    lateinit var statusRepository: StatusRepository
 
     @Inject
     lateinit var timelineCases: TimelineCases
@@ -184,12 +186,10 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
         ).apply { remove(loggedInUsername) }
 
         val composeOptions = ComposeOptions(
-            inReplyToId = status.actionableId,
+            inReplyTo = InReplyTo.Status.from(status.actionableStatus),
             replyVisibility = actionableStatus.visibility,
             contentWarning = actionableStatus.spoilerText,
             mentionedUsernames = mentionedUsernames,
-            replyingStatusAuthor = account.localUsername,
-            replyingStatusContent = actionableStatus.content.parseAsMastodonHtml().toString(),
             language = actionableStatus.language,
             kind = ComposeOptions.ComposeKind.NEW,
         )
@@ -342,8 +342,8 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                 }
                 R.id.pin -> {
                     lifecycleScope.launch {
-                        timelineCases.pin(status.id, !status.isPinned()).onFailure { e: Throwable ->
-                            val message = e.getErrorString(requireContext())
+                        statusRepository.pin(pachliAccountId, status.id, !status.isPinned()).onFailure { e ->
+                            val message = e.fmt(requireContext())
                             Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()
                         }
                     }
@@ -443,9 +443,8 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
             .setMessage(R.string.dialog_delete_post_warning)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 lifecycleScope.launch {
-                    val result = timelineCases.delete(viewData.status.id).exceptionOrNull()
-                    if (result != null) {
-                        Timber.w(result, "error deleting status")
+                    timelineCases.delete(viewData.status.id).onFailure {
+                        Timber.w("error deleting status: %s", it)
                         Toast.makeText(context, app.pachli.core.ui.R.string.error_generic, Toast.LENGTH_SHORT).show()
                     }
                     // XXX: Removes the item even if there was an error. This is probably not
@@ -468,34 +467,33 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
             .setMessage(R.string.dialog_redraft_post_warning)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 lifecycleScope.launch {
-                    timelineCases.delete(statusViewData.status.id).fold(
-                        { deletedStatus ->
-                            removeItem(statusViewData)
-                            val sourceStatus = if (deletedStatus.isEmpty()) {
-                                statusViewData.status.toDeletedStatus()
-                            } else {
-                                deletedStatus
-                            }
-                            val composeOptions = ComposeOptions(
-                                content = sourceStatus.text,
-                                inReplyToId = sourceStatus.inReplyToId,
-                                visibility = sourceStatus.visibility,
-                                contentWarning = sourceStatus.spoilerText,
-                                mediaAttachments = sourceStatus.attachments,
-                                sensitive = sourceStatus.sensitive,
-                                modifiedInitialState = true,
-                                language = sourceStatus.language,
-                                poll = sourceStatus.poll?.toNewPoll(sourceStatus.createdAt),
-                                kind = ComposeOptions.ComposeKind.NEW,
-                            )
-                            startActivity(ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions))
-                        },
-                        { error: Throwable? ->
-                            Timber.w(error, "error deleting status")
+                    timelineCases.delete(statusViewData.status.id).onSuccess {
+                        val deletedStatus = it.body
+                        removeItem(statusViewData)
+                        val sourceStatus = if (deletedStatus.isEmpty()) {
+                            statusViewData.status.toDeletedStatus()
+                        } else {
+                            deletedStatus
+                        }
+                        val composeOptions = ComposeOptions(
+                            content = sourceStatus.text,
+                            inReplyTo = statusViewData.status.inReplyToId?.let { InReplyTo.Id(it) },
+                            visibility = sourceStatus.visibility,
+                            contentWarning = sourceStatus.spoilerText,
+                            mediaAttachments = sourceStatus.attachments,
+                            sensitive = sourceStatus.sensitive,
+                            modifiedInitialState = true,
+                            language = sourceStatus.language,
+                            poll = sourceStatus.poll?.toNewPoll(sourceStatus.createdAt),
+                            kind = ComposeOptions.ComposeKind.NEW,
+                        )
+                        startActivity(ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions))
+                    }
+                        .onFailure {
+                            Timber.w("error deleting status: %s", it)
                             Toast.makeText(context, app.pachli.core.ui.R.string.error_generic, Toast.LENGTH_SHORT)
                                 .show()
-                        },
-                    )
+                        }
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -504,30 +502,29 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
 
     private fun editStatus(id: String, status: Status) {
         lifecycleScope.launch {
-            mastodonApi.statusSource(id).fold(
-                { source ->
-                    val composeOptions = ComposeOptions(
-                        content = source.text,
-                        inReplyToId = status.inReplyToId,
-                        visibility = status.visibility,
-                        contentWarning = source.spoilerText,
-                        mediaAttachments = status.attachments,
-                        sensitive = status.sensitive,
-                        language = status.language,
-                        statusId = source.id,
-                        poll = status.poll?.toNewPoll(status.createdAt),
-                        kind = ComposeOptions.ComposeKind.EDIT_POSTED,
-                    )
-                    startActivity(ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions))
-                },
-                {
+            mastodonApi.statusSource(id).onSuccess {
+                val source = it.body
+                val composeOptions = ComposeOptions(
+                    content = source.text,
+                    inReplyTo = InReplyTo.Status.from(status),
+                    visibility = status.visibility,
+                    contentWarning = source.spoilerText,
+                    mediaAttachments = status.attachments,
+                    sensitive = status.sensitive,
+                    language = status.language,
+                    statusId = source.id,
+                    poll = status.poll?.toNewPoll(status.createdAt),
+                    kind = ComposeOptions.ComposeKind.EDIT_POSTED,
+                )
+                startActivity(ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions))
+            }
+                .onFailure {
                     Snackbar.make(
                         requireView(),
                         getString(R.string.error_status_source_load),
                         Snackbar.LENGTH_SHORT,
                     ).show()
-                },
-            )
+                }
         }
     }
 

@@ -211,7 +211,6 @@
     <string name="follows_you">Vous suit</string>
     <string name="pref_title_alway_show_sensitive_media">Toujours afficher les contenus sensibles</string>
     <string name="title_media">Média</string>
-    <string name="replying_to">Réponse à @%s</string>
     <string name="pref_title_public_filter_keywords">Fils publics</string>
     <string name="pref_title_thread_filter_keywords">Conversations</string>
     <string name="filter_addition_title">Ajouter un filtre</string>
@@ -261,14 +260,14 @@
     <string name="unpin_action">Détacher</string>
     <string name="pin_action">Épingler</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Favori</item>
-        <item quantity="many"><b>%1$s</b> de favoris</item>
-        <item quantity="other"><b>%1$s</b> Favoris</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Favori</item>
+        <item quantity="many">&lt;b&gt;%1$s&lt;/b&gt; de favoris</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Favoris</item>
     </plurals>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> Partage</item>
-        <item quantity="many"><b>%s</b> de partages</item>
-        <item quantity="other"><b>%s</b> Partages</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Partage</item>
+        <item quantity="many">&lt;b&gt;%s&lt;/b&gt; de partages</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Partages</item>
     </plurals>
     <string name="title_reblogged_by">Partagé par</string>
     <string name="title_favourited_by">Mis en favoris par</string>

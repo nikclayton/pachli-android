@@ -232,7 +232,6 @@
     <string name="filter_addition_title">Thêm bộ lọc</string>
     <string name="pref_title_thread_filter_keywords">Thảo luận</string>
     <string name="pref_title_public_filter_keywords">Liên hợp</string>
-    <string name="replying_to">Trả lời @%s</string>
     <string name="title_media">Media</string>
     <string name="pref_title_alway_open_spoiler">Hiện nội dung ẩn</string>
     <string name="pref_title_alway_show_sensitive_media">Hiện nội dung nhạy cảm</string>
@@ -330,10 +329,10 @@
     <string name="title_favourited_by">Lượt thích tút này</string>
     <string name="title_reblogged_by">Lượt đăng lại tút này</string>
     <plurals name="reblogs">
-        <item quantity="other"><b>%s</b> Đăng lại</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Đăng lại</item>
     </plurals>
     <plurals name="favs">
-        <item quantity="other"><b>%1$s</b> Thích</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Thích</item>
     </plurals>
     <string name="pin_action">Ghim</string>
     <string name="unpin_action">Gỡ ghim</string>
@@ -550,6 +549,6 @@
     <string name="notification_notification_worker">Đang nạp thông báo…</string>
     <string name="notification_prune_cache">Bảo trì bộ nhớ đệm…</string>
     <string name="error_media_playback">Không thể phát: %s</string>
-    <string name="dialog_delete_filter_text">Xóa bộ lọc \'%1$s\'\?</string>
+    <string name="dialog_delete_filter_text">Xóa bộ lọc \'%1$s\'?</string>
     <string name="dialog_delete_filter_positive_action">Xóa</string>
 </resources>

@@ -236,7 +236,6 @@
     <string name="follows_you">Подписан(а) на вас</string>
     <string name="pref_title_alway_show_sensitive_media">Всегда показывать чувствительный контент</string>
     <string name="title_media">Медиа</string>
-    <string name="replying_to">Ответить @%s</string>
     <string name="pref_title_public_filter_keywords">Публичные ленты</string>
     <string name="pref_title_thread_filter_keywords">Разговоры</string>
     <string name="filter_addition_title">Добавить фильтр</string>
@@ -281,10 +280,10 @@
     <string name="unpin_action">Открепить</string>
     <string name="pin_action">Закрепить</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Понравился</item>
-        <item quantity="few"><b>%1$s</b> Понравилось</item>
-        <item quantity="many"><b>%1$s</b> Понравилось</item>
-        <item quantity="other"><b>%1$s</b> Понравилось</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Понравился</item>
+        <item quantity="few">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
+        <item quantity="many">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
     </plurals>
     <plurals name="reblogs">
         <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Продвинул(а)</item>

@@ -28,8 +28,9 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import app.pachli.BuildConfig
 import app.pachli.R
-import app.pachli.appstore.EventHub
 import app.pachli.components.notifications.activeAccountNeedsPushScope
+import app.pachli.components.preference.accountfilters.AccountConversationFiltersPreferenceDialogFragment
+import app.pachli.components.preference.accountfilters.AccountNotificationFiltersPreferencesDialogFragment
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.util.unsafeLazy
@@ -39,6 +40,8 @@ import app.pachli.core.data.repository.ContentFiltersRepository
 import app.pachli.core.data.repository.canFilterV1
 import app.pachli.core.data.repository.canFilterV2
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_GET
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.ContentFiltersActivityIntent
 import app.pachli.core.navigation.FollowedTagsActivityIntent
@@ -48,7 +51,6 @@ import app.pachli.core.navigation.LoginActivityIntent.LoginMode
 import app.pachli.core.navigation.PreferencesActivityIntent
 import app.pachli.core.navigation.PreferencesActivityIntent.PreferenceScreen
 import app.pachli.core.navigation.TabPreferenceActivityIntent
-import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.preferences.PrefKeys
@@ -62,17 +64,17 @@ import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
 import app.pachli.util.getPachliDisplayName
 import app.pachli.util.iconRes
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.z4kn4fein.semver.constraints.toConstraint
 import javax.inject.Inject
 import kotlin.properties.Delegates
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -101,6 +103,13 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
      */
     private lateinit var filterPreference: Preference
 
+    /**
+     * The conversation account filter preference.
+     *
+     * Is enabled/disabled at runtime.
+     */
+    private lateinit var conversationAccountFilterPreference: Preference
+
     private var pachliAccountId by Delegates.notNull<Long>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,6 +128,12 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                     .distinctUntilChangedBy { it.server }
                     .collect { account ->
                         filterPreference.isEnabled = account.server.canFilterV2() || account.server.canFilterV1()
+
+                        conversationAccountFilterPreference.isEnabled =
+                            account.server.can(
+                                ORG_JOINMASTODON_STATUSES_GET,
+                                ">=1.0.0".toConstraint(),
+                            )
                     }
             }
         }
@@ -217,9 +232,21 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 preference {
                     setTitle(R.string.pref_title_account_notification_filters)
                     setOnPreferenceClickListener {
-                        AccountNotificationFiltersPreferencesDialogFragment.newInstance(pachliAccountId)
+                        AccountNotificationFiltersPreferencesDialogFragment.Companion.newInstance(pachliAccountId)
                             .show(parentFragmentManager, null)
                         return@setOnPreferenceClickListener true
+                    }
+                }
+
+                conversationAccountFilterPreference = preference {
+                    setTitle(R.string.pref_title_account_conversation_filters)
+                    setOnPreferenceClickListener {
+                        AccountConversationFiltersPreferenceDialogFragment.Companion.newInstance(pachliAccountId)
+                            .show(parentFragmentManager, null)
+                        return@setOnPreferenceClickListener true
+                    }
+                    setSummaryProvider {
+                        if (it.isEnabled) "" else context.getString(R.string.pref_summary_account_conversation_filters)
                     }
                 }
             }
@@ -331,34 +358,25 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
     private fun syncWithServer(visibility: String? = null, sensitive: Boolean? = null, language: String? = null) {
         // TODO these could also be "datastore backed" preferences (a ServerPreferenceDataStore);
         //  follow-up of issue #3204
-
-        mastodonApi.accountUpdateSource(visibility, sensitive, language)
-            .enqueue(
-                object : Callback<Account> {
-                    override fun onResponse(call: Call<Account>, response: Response<Account>) {
-                        val account = response.body()
-                        if (response.isSuccessful && account != null) {
-                            accountManager.activeAccount?.let {
-                                accountManager.setDefaultPostPrivacy(
-                                    it.id,
-                                    account.source?.privacy
-                                        ?: Status.Visibility.PUBLIC,
-                                )
-                                accountManager.setDefaultMediaSensitivity(it.id, account.source?.sensitive ?: false)
-                                accountManager.setDefaultPostLanguage(it.id, language.orEmpty())
-                            }
-                        } else {
-                            Timber.e("failed updating settings on server")
-                            showErrorSnackbar(visibility, sensitive)
-                        }
+        lifecycleScope.launch {
+            mastodonApi.accountUpdateSource(visibility, sensitive, language)
+                .onSuccess {
+                    val account = it.body
+                    accountManager.activeAccount?.let {
+                        accountManager.setDefaultPostPrivacy(
+                            it.id,
+                            account.source?.privacy
+                                ?: Status.Visibility.PUBLIC,
+                        )
+                        accountManager.setDefaultMediaSensitivity(it.id, account.source?.sensitive ?: false)
+                        accountManager.setDefaultPostLanguage(it.id, language.orEmpty())
                     }
-
-                    override fun onFailure(call: Call<Account>, t: Throwable) {
-                        Timber.e(t, "failed updating settings on server")
-                        showErrorSnackbar(visibility, sensitive)
-                    }
-                },
-            )
+                }
+                .onFailure {
+                    Timber.e("failed updating settings on server: %s", it)
+                    showErrorSnackbar(visibility, sensitive)
+                }
+        }
     }
 
     private fun showErrorSnackbar(visibility: String?, sensitive: Boolean?) {

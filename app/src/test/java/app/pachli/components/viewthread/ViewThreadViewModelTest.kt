@@ -3,17 +3,16 @@ package app.pachli.components.viewthread
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import app.pachli.PachliApplication
-import app.pachli.appstore.BookmarkEvent
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.FavoriteEvent
-import app.pachli.appstore.ReblogEvent
 import app.pachli.components.compose.HiltTestApplication_Application
 import app.pachli.components.timeline.CachedTimelineRepository
-import app.pachli.components.timeline.mockStatus
-import app.pachli.components.timeline.mockStatusViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
+import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.dao.TimelineDao
+import app.pachli.core.eventhub.BookmarkEvent
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.FavoriteEvent
+import app.pachli.core.eventhub.ReblogEvent
 import app.pachli.core.network.di.test.DEFAULT_INSTANCE_V2
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.StatusContext
@@ -23,17 +22,17 @@ import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.network.retrofit.NodeInfoApi
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.testing.failure
+import app.pachli.core.testing.fakes.fakeStatus
+import app.pachli.core.testing.fakes.fakeStatusViewData
 import app.pachli.core.testing.rules.MainCoroutineRule
 import app.pachli.core.testing.success
 import app.pachli.usecase.TimelineCases
-import at.connyduck.calladapter.networkresult.NetworkResult
 import com.github.michaelbull.result.andThen
 import com.github.michaelbull.result.onSuccess
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.testing.CustomTestApplication
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.io.IOException
 import java.time.Instant
 import java.util.Date
 import javax.inject.Inject
@@ -93,6 +92,9 @@ class ViewThreadViewModelTest {
 
     @Inject
     lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
+
+    @Inject
+    lateinit var statusRepository: StatusRepository
 
     private lateinit var viewModel: ViewThreadViewModel
 
@@ -165,6 +167,7 @@ class ViewThreadViewModelTest {
             timelineDao,
             cachedTimelineRepository,
             statusDisplayOptionsRepository,
+            statusRepository,
         )
     }
 
@@ -183,15 +186,15 @@ class ViewThreadViewModelTest {
             assertEquals(
                 ThreadUiState.Success(
                     statusViewData = listOf(
-                        mockStatusViewData(id = "1", spoilerText = "Test"),
-                        mockStatusViewData(
+                        fakeStatusViewData(id = "1", spoilerText = "Test"),
+                        fakeStatusViewData(
                             id = "2",
                             inReplyToId = "1",
                             inReplyToAccountId = "1",
                             isDetailed = true,
                             spoilerText = "Test",
                         ),
-                        mockStatusViewData(
+                        fakeStatusViewData(
                             id = "3",
                             inReplyToId = "2",
                             inReplyToAccountId = "1",
@@ -209,8 +212,8 @@ class ViewThreadViewModelTest {
     @Test
     fun `should emit status even if context fails to load`() = runTest {
         mastodonApi.stub {
-            onBlocking { status(threadId) } doReturn NetworkResult.success(mockStatus(id = "2", inReplyToId = "1", inReplyToAccountId = "1"))
-            onBlocking { statusContext(threadId) } doReturn NetworkResult.failure(IOException())
+            onBlocking { status(threadId) } doReturn success(fakeStatus(id = "2", inReplyToId = "1", inReplyToAccountId = "1"))
+            onBlocking { statusContext(threadId) } doReturn failure()
         }
 
         viewModel.uiState.test {
@@ -224,7 +227,7 @@ class ViewThreadViewModelTest {
             assertEquals(
                 ThreadUiState.Success(
                     statusViewData = listOf(
-                        mockStatusViewData(
+                        fakeStatusViewData(
                             id = "2",
                             inReplyToId = "1",
                             inReplyToAccountId = "1",
@@ -242,8 +245,8 @@ class ViewThreadViewModelTest {
     @Test
     fun `should emit error when status and context fail to load`() = runTest {
         mastodonApi.stub {
-            onBlocking { status(threadId) } doReturn NetworkResult.failure(IOException())
-            onBlocking { statusContext(threadId) } doReturn NetworkResult.failure(IOException())
+            onBlocking { status(threadId) } doReturn failure()
+            onBlocking { statusContext(threadId) } doReturn failure()
         }
 
         viewModel.uiState.test {
@@ -264,11 +267,11 @@ class ViewThreadViewModelTest {
     @Test
     fun `should emit error when status fails to load`() = runTest {
         mastodonApi.stub {
-            onBlocking { status(threadId) } doReturn NetworkResult.failure(IOException())
-            onBlocking { statusContext(threadId) } doReturn NetworkResult.success(
+            onBlocking { status(threadId) } doReturn failure()
+            onBlocking { statusContext(threadId) } doReturn success(
                 StatusContext(
-                    ancestors = listOf(mockStatus(id = "1")),
-                    descendants = listOf(mockStatus(id = "3", inReplyToId = "2", inReplyToAccountId = "1")),
+                    ancestors = listOf(fakeStatus(id = "1")),
+                    descendants = listOf(fakeStatus(id = "3", inReplyToId = "2", inReplyToAccountId = "1")),
                 ),
             )
         }
@@ -301,8 +304,8 @@ class ViewThreadViewModelTest {
             assertEquals(
                 ThreadUiState.Success(
                     statusViewData = listOf(
-                        mockStatusViewData(id = "1", spoilerText = "Test", isExpanded = true),
-                        mockStatusViewData(
+                        fakeStatusViewData(id = "1", spoilerText = "Test", isExpanded = true),
+                        fakeStatusViewData(
                             id = "2",
                             inReplyToId = "1",
                             inReplyToAccountId = "1",
@@ -310,7 +313,7 @@ class ViewThreadViewModelTest {
                             spoilerText = "Test",
                             isExpanded = true,
                         ),
-                        mockStatusViewData(
+                        fakeStatusViewData(
                             id = "3",
                             inReplyToId = "2",
                             inReplyToAccountId = "1",
@@ -339,15 +342,15 @@ class ViewThreadViewModelTest {
             assertEquals(
                 ThreadUiState.Success(
                     statusViewData = listOf(
-                        mockStatusViewData(id = "1", spoilerText = "Test", favourited = false),
-                        mockStatusViewData(
+                        fakeStatusViewData(id = "1", spoilerText = "Test", favourited = false),
+                        fakeStatusViewData(
                             id = "2",
                             inReplyToId = "1",
                             inReplyToAccountId = "1",
                             isDetailed = true,
                             spoilerText = "Test",
                         ),
-                        mockStatusViewData(
+                        fakeStatusViewData(
                             id = "3",
                             inReplyToId = "2",
                             inReplyToAccountId = "1",
@@ -375,8 +378,8 @@ class ViewThreadViewModelTest {
             assertEquals(
                 ThreadUiState.Success(
                     statusViewData = listOf(
-                        mockStatusViewData(id = "1", spoilerText = "Test"),
-                        mockStatusViewData(
+                        fakeStatusViewData(id = "1", spoilerText = "Test"),
+                        fakeStatusViewData(
                             id = "2",
                             inReplyToId = "1",
                             inReplyToAccountId = "1",
@@ -384,7 +387,7 @@ class ViewThreadViewModelTest {
                             spoilerText = "Test",
                             reblogged = true,
                         ),
-                        mockStatusViewData(
+                        fakeStatusViewData(
                             id = "3",
                             inReplyToId = "2",
                             inReplyToAccountId = "1",
@@ -412,15 +415,15 @@ class ViewThreadViewModelTest {
             assertEquals(
                 ThreadUiState.Success(
                     statusViewData = listOf(
-                        mockStatusViewData(id = "1", spoilerText = "Test"),
-                        mockStatusViewData(
+                        fakeStatusViewData(id = "1", spoilerText = "Test"),
+                        fakeStatusViewData(
                             id = "2",
                             inReplyToId = "1",
                             inReplyToAccountId = "1",
                             isDetailed = true,
                             spoilerText = "Test",
                         ),
-                        mockStatusViewData(
+                        fakeStatusViewData(
                             id = "3",
                             inReplyToId = "2",
                             inReplyToAccountId = "1",
@@ -444,13 +447,13 @@ class ViewThreadViewModelTest {
             viewModel.loadThread(threadId)
             while (awaitItem() !is ThreadUiState.Success) {
             }
-            viewModel.removeStatus(mockStatusViewData(id = "3", inReplyToId = "2", inReplyToAccountId = "1", spoilerText = "Test"))
+            viewModel.removeStatus(fakeStatusViewData(id = "3", inReplyToId = "2", inReplyToAccountId = "1", spoilerText = "Test"))
 
             assertEquals(
                 ThreadUiState.Success(
                     statusViewData = listOf(
-                        mockStatusViewData(id = "1", spoilerText = "Test"),
-                        mockStatusViewData(
+                        fakeStatusViewData(id = "1", spoilerText = "Test"),
+                        fakeStatusViewData(
                             id = "2",
                             inReplyToId = "1",
                             inReplyToAccountId = "1",
@@ -476,14 +479,14 @@ class ViewThreadViewModelTest {
             }
             viewModel.changeExpanded(
                 true,
-                mockStatusViewData(id = "2", inReplyToId = "1", inReplyToAccountId = "1", isDetailed = true, spoilerText = "Test"),
+                fakeStatusViewData(id = "2", inReplyToId = "1", inReplyToAccountId = "1", isDetailed = true, spoilerText = "Test"),
             )
 
             assertEquals(
                 ThreadUiState.Success(
                     statusViewData = listOf(
-                        mockStatusViewData(id = "1", spoilerText = "Test"),
-                        mockStatusViewData(
+                        fakeStatusViewData(id = "1", spoilerText = "Test"),
+                        fakeStatusViewData(
                             id = "2",
                             inReplyToId = "1",
                             inReplyToAccountId = "1",
@@ -491,7 +494,7 @@ class ViewThreadViewModelTest {
                             spoilerText = "Test",
                             isExpanded = true,
                         ),
-                        mockStatusViewData(
+                        fakeStatusViewData(
                             id = "3",
                             inReplyToId = "2",
                             inReplyToAccountId = "1",
@@ -516,14 +519,14 @@ class ViewThreadViewModelTest {
             }
             viewModel.changeContentCollapsed(
                 true,
-                mockStatusViewData(id = "2", inReplyToId = "1", inReplyToAccountId = "1", isDetailed = true, spoilerText = "Test"),
+                fakeStatusViewData(id = "2", inReplyToId = "1", inReplyToAccountId = "1", isDetailed = true, spoilerText = "Test"),
             )
 
             assertEquals(
                 ThreadUiState.Success(
                     statusViewData = listOf(
-                        mockStatusViewData(id = "1", spoilerText = "Test"),
-                        mockStatusViewData(
+                        fakeStatusViewData(id = "1", spoilerText = "Test"),
+                        fakeStatusViewData(
                             id = "2",
                             inReplyToId = "1",
                             inReplyToAccountId = "1",
@@ -531,7 +534,7 @@ class ViewThreadViewModelTest {
                             spoilerText = "Test",
                             isCollapsed = true,
                         ),
-                        mockStatusViewData(
+                        fakeStatusViewData(
                             id = "3",
                             inReplyToId = "2",
                             inReplyToAccountId = "1",
@@ -556,14 +559,14 @@ class ViewThreadViewModelTest {
             }
             viewModel.changeContentShowing(
                 true,
-                mockStatusViewData(id = "2", inReplyToId = "1", inReplyToAccountId = "1", isDetailed = true, spoilerText = "Test"),
+                fakeStatusViewData(id = "2", inReplyToId = "1", inReplyToAccountId = "1", isDetailed = true, spoilerText = "Test"),
             )
 
             assertEquals(
                 ThreadUiState.Success(
                     statusViewData = listOf(
-                        mockStatusViewData(id = "1", spoilerText = "Test"),
-                        mockStatusViewData(
+                        fakeStatusViewData(id = "1", spoilerText = "Test"),
+                        fakeStatusViewData(
                             id = "2",
                             inReplyToId = "1",
                             inReplyToAccountId = "1",
@@ -571,7 +574,7 @@ class ViewThreadViewModelTest {
                             spoilerText = "Test",
                             isShowingContent = true,
                         ),
-                        mockStatusViewData(
+                        fakeStatusViewData(
                             id = "3",
                             inReplyToId = "2",
                             inReplyToAccountId = "1",
@@ -588,11 +591,11 @@ class ViewThreadViewModelTest {
 
     private fun mockSuccessResponses() {
         mastodonApi.stub {
-            onBlocking { status(threadId) } doReturn NetworkResult.success(mockStatus(id = "2", inReplyToId = "1", inReplyToAccountId = "1", spoilerText = "Test"))
-            onBlocking { statusContext(threadId) } doReturn NetworkResult.success(
+            onBlocking { status(threadId) } doReturn success(fakeStatus(id = "2", inReplyToId = "1", inReplyToAccountId = "1", spoilerText = "Test"))
+            onBlocking { statusContext(threadId) } doReturn success(
                 StatusContext(
-                    ancestors = listOf(mockStatus(id = "1", spoilerText = "Test")),
-                    descendants = listOf(mockStatus(id = "3", inReplyToId = "2", inReplyToAccountId = "1", spoilerText = "Test")),
+                    ancestors = listOf(fakeStatus(id = "1", spoilerText = "Test")),
+                    descendants = listOf(fakeStatus(id = "3", inReplyToId = "2", inReplyToAccountId = "1", spoilerText = "Test")),
                 ),
             )
         }

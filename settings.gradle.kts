@@ -31,7 +31,7 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    id("com.gradle.develocity") version "3.19"
+    id("com.gradle.develocity") version "3.19.2"
     id("org.gradle.toolchains.foojay-resolver-convention") version("0.9.0")
 }
 
@@ -58,6 +58,7 @@ include(":core:data")
 include(":core:database")
 include(":core:designsystem")
 include(":core:domain")
+include(":core:eventhub")
 include(":core:model")
 include(":core:preferences")
 include(":core:navigation")
@@ -70,6 +71,7 @@ include(":feature:lists")
 include(":feature:login")
 include(":feature:suggestions")
 include(":tools")
+include(":tools:fmtsql")
 include(":tools:mklanguages")
 include(":tools:mkrelease")
 include(":tools:mkserverversions")

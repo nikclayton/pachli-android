@@ -34,6 +34,8 @@ dependencies {
     api(projects.core.database)
 
     implementation(projects.core.common)
+    implementation(projects.core.eventhub)
+        ?.because("NotificationRepository sends events")
     implementation(projects.core.model)
     implementation(projects.core.network)
     implementation(projects.core.preferences)
@@ -44,12 +46,13 @@ dependencies {
     // ServerRepository
     implementation(libs.semver)
 
+    implementation(libs.moshi)
+        ?.because("Notifications serialise using JSON")
+
     testImplementation(projects.core.networkTest)
     testImplementation(libs.bundles.mockito)
 
     testImplementation(libs.moshi)
     testImplementation(libs.moshi.adapters)
     ksp(libs.moshi.codegen)
-
-    testImplementation(projects.core.networkTest)
 }

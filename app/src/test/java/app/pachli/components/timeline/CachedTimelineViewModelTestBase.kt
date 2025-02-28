@@ -20,12 +20,13 @@ package app.pachli.components.timeline
 import androidx.lifecycle.SavedStateHandle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.pachli.PachliApplication
-import app.pachli.appstore.EventHub
 import app.pachli.components.timeline.viewmodel.CachedTimelineViewModel
 import app.pachli.components.timeline.viewmodel.TimelineViewModel
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.ContentFiltersRepository
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
+import app.pachli.core.data.repository.StatusRepository
+import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.di.test.DEFAULT_INSTANCE_V2
 import app.pachli.core.network.model.Account
@@ -48,8 +49,6 @@ import java.time.Instant
 import java.util.Date
 import javax.inject.Inject
 import kotlinx.coroutines.test.runTest
-import okhttp3.ResponseBody
-import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -60,8 +59,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.stub
 import org.robolectric.annotation.Config
-import retrofit2.HttpException
-import retrofit2.Response
 
 open class PachliHiltApplication : PachliApplication()
 
@@ -100,18 +97,15 @@ abstract class CachedTimelineViewModelTestBase {
     lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
 
     @Inject
+    lateinit var statusRepository: StatusRepository
+
+    @Inject
     lateinit var moshi: Moshi
 
     protected lateinit var timelineCases: TimelineCases
-    protected lateinit var viewModel: TimelineViewModel
+    protected lateinit var viewModel: CachedTimelineViewModel
 
     private val eventHub = EventHub()
-
-    /** Empty error response, for API calls that return one */
-    private var emptyError: Response<ResponseBody> = Response.error(404, "".toResponseBody())
-
-    /** Exception to throw when testing errors */
-    protected val httpException = HttpException(emptyError)
 
     val account = Account(
         id = "1",
@@ -178,6 +172,7 @@ abstract class CachedTimelineViewModelTestBase {
             accountManager,
             statusDisplayOptionsRepository,
             sharedPreferencesRepository,
+            statusRepository,
         )
     }
 }

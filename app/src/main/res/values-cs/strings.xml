@@ -211,7 +211,6 @@
     <string name="follows_you">Sleduje vás</string>
     <string name="pref_title_alway_show_sensitive_media">Vždy zobrazovat citlivý obsah</string>
     <string name="title_media">Média</string>
-    <string name="replying_to">Odpověď uživateli @%s</string>
     <string name="pref_title_public_filter_keywords">Veřejné časové osy</string>
     <string name="pref_title_thread_filter_keywords">Konverzace</string>
     <string name="filter_addition_title">Přidat filtr</string>
@@ -264,14 +263,14 @@
     <string name="unpin_action">Odepnout</string>
     <string name="pin_action">Připnout</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> oblíbení</item>
-        <item quantity="few"><b>%1$s</b> oblíbení</item>
-        <item quantity="other"><b>%1$s</b> oblíbení</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; oblíbení</item>
+        <item quantity="few">&lt;b&gt;%1$s&lt;/b&gt; oblíbení</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; oblíbení</item>
     </plurals>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> boost</item>
-        <item quantity="few"><b>%s</b> boosty</item>
-        <item quantity="other"><b>%s</b> boostů</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; boost</item>
+        <item quantity="few">&lt;b&gt;%s&lt;/b&gt; boosty</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; boostů</item>
     </plurals>
     <string name="title_reblogged_by">Boostnuto uživatelem</string>
     <string name="title_favourited_by">Oblíbeno uživatelem</string>

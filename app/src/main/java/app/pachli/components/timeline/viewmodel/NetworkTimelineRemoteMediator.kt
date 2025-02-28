@@ -27,9 +27,10 @@ import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
-import java.io.IOException
-import retrofit2.HttpException
-import retrofit2.Response
+import app.pachli.core.network.retrofit.apiresult.ApiResult
+import com.github.michaelbull.result.getOrElse
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import timber.log.Timber
 
 /** Remote mediator for accessing timelines that are not backed by the database. */
@@ -76,8 +77,8 @@ class NetworkTimelineRemoteMediator(
 
             Timber.d("- load(), type = %s, key = %s", loadType, key)
 
-            val response = fetchStatusPageByKind(loadType, key, state.config.initialLoadSize)
-            val page = Page.tryFrom(response).getOrElse { return MediatorResult.Error(it) }
+            val page = Page.tryFrom(fetchStatusPageByKind(loadType, key, state.config.initialLoadSize))
+                .getOrElse { return MediatorResult.Error(it.throwable) }
 
             val endOfPaginationReached = page.data.isEmpty()
             if (!endOfPaginationReached) {
@@ -97,13 +98,13 @@ class NetworkTimelineRemoteMediator(
 
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
         } catch (e: Exception) {
+            currentCoroutineContext().ensureActive()
             Timber.e(e, "Error loading, LoadType = %s", loadType)
             MediatorResult.Error(e)
         }
     }
 
-    @Throws(IOException::class, HttpException::class, IllegalStateException::class)
-    private suspend fun fetchStatusPageByKind(loadType: LoadType, key: String?, loadSize: Int): Response<List<Status>> {
+    private suspend fun fetchStatusPageByKind(loadType: LoadType, key: String?, loadSize: Int): ApiResult<List<Status>> {
         val (maxId, minId) = when (loadType) {
             // When refreshing fetch a page of statuses that are immediately *newer* than the key
             // This is so that the user's reading position is not lost.

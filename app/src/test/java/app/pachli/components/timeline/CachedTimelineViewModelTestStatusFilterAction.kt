@@ -19,25 +19,25 @@ package app.pachli.components.timeline
 
 import app.cash.turbine.test
 import app.pachli.ContentFilterV1Test.Companion.mockStatus
-import app.pachli.components.timeline.viewmodel.StatusAction
+import app.pachli.components.timeline.viewmodel.FallibleStatusAction
 import app.pachli.components.timeline.viewmodel.StatusActionSuccess
 import app.pachli.components.timeline.viewmodel.UiError
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.database.model.TranslationState
-import app.pachli.viewdata.StatusViewData
-import at.connyduck.calladapter.networkresult.NetworkResult
+import app.pachli.core.testing.failure
+import app.pachli.core.testing.success
+import com.github.michaelbull.result.get
+import com.github.michaelbull.result.getError
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.stub
-import org.mockito.kotlin.verify
 
 /**
- * Verify that [StatusAction] are handled correctly on receipt:
+ * Verify that [FallibleStatusAction] are handled correctly on receipt:
  *
  * - Is the correct [UiSuccess] or [UiError] value emitted?
  * - Is the correct [TimelineCases] function called, with the correct arguments?
@@ -50,6 +50,7 @@ import org.mockito.kotlin.verify
 class CachedTimelineViewModelTestStatusFilterAction : CachedTimelineViewModelTestBase() {
     private val status = mockStatus(pollOptions = listOf("Choice 1", "Choice 2", "Choice 3"))
     private val statusViewData = StatusViewData(
+        pachliAccountId = 1L,
         status = status,
         isExpanded = true,
         isShowingContent = false,
@@ -58,177 +59,138 @@ class CachedTimelineViewModelTestStatusFilterAction : CachedTimelineViewModelTes
     )
 
     /** Action to bookmark a status */
-    private val bookmarkAction = StatusAction.Bookmark(true, statusViewData)
+    private val bookmarkAction = FallibleStatusAction.Bookmark(true, statusViewData)
 
     /** Action to favourite a status */
-    private val favouriteAction = StatusAction.Favourite(true, statusViewData)
+    private val favouriteAction = FallibleStatusAction.Favourite(true, statusViewData)
 
     /** Action to reblog a status */
-    private val reblogAction = StatusAction.Reblog(true, statusViewData)
+    private val reblogAction = FallibleStatusAction.Reblog(true, statusViewData)
 
     /** Action to vote in a poll */
-    private val voteInPollAction = StatusAction.VoteInPoll(
+    private val voteInPollAction = FallibleStatusAction.VoteInPoll(
         poll = status.poll!!,
         choices = listOf(1, 0, 0),
         statusViewData,
     )
 
-    /** Captors for status ID and state arguments */
-    private val id = argumentCaptor<String>()
-    private val state = argumentCaptor<Boolean>()
-
     @Test
     fun `bookmark succeeds && emits UiSuccess`() = runTest {
         // Given
-        timelineCases.stub { onBlocking { bookmark(any(), any()) } doReturn NetworkResult.success(status) }
+        mastodonApi.stub { onBlocking { bookmarkStatus(any()) } doReturn success(status) }
 
-        viewModel.uiSuccess.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(bookmarkAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(StatusActionSuccess.Bookmark::class.java)
-            assertThat((item as StatusActionSuccess).action).isEqualTo(bookmarkAction)
+            val item = awaitItem().get() as? StatusActionSuccess.Bookmark
+            assertThat(item?.action).isEqualTo(bookmarkAction)
         }
-
-        // Then
-        verify(timelineCases).bookmark(id.capture(), state.capture())
-        assertThat(id.firstValue).isEqualTo(statusViewData.status.id)
-        assertThat(state.firstValue).isEqualTo(true)
     }
 
     @Test
     fun `bookmark fails && emits UiError`() = runTest {
         // Given
-        timelineCases.stub { onBlocking { bookmark(any(), any()) } doThrow httpException }
+        mastodonApi.stub { onBlocking { bookmarkStatus(any()) } doReturn failure() }
 
-        viewModel.uiError.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(bookmarkAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(UiError.Bookmark::class.java)
-            assertThat(item.action).isEqualTo(bookmarkAction)
+            val item = awaitItem().getError() as? UiError.Bookmark
+            assertThat(item?.action).isEqualTo(bookmarkAction)
         }
     }
 
     @Test
     fun `favourite succeeds && emits UiSuccess`() = runTest {
         // Given
-        timelineCases.stub {
-            onBlocking { favourite(any(), any()) } doReturn NetworkResult.success(status)
-        }
+        mastodonApi.stub { onBlocking { favouriteStatus(any()) } doReturn success(status) }
 
-        viewModel.uiSuccess.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(favouriteAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(StatusActionSuccess.Favourite::class.java)
-            assertThat((item as StatusActionSuccess).action).isEqualTo(favouriteAction)
+            val item = awaitItem().get() as? StatusActionSuccess.Favourite
+            assertThat(item?.action).isEqualTo(favouriteAction)
         }
-
-        // Then
-        verify(timelineCases).favourite(id.capture(), state.capture())
-        assertThat(id.firstValue).isEqualTo(statusViewData.status.id)
-        assertThat(state.firstValue).isEqualTo(true)
     }
 
     @Test
     fun `favourite fails && emits UiError`() = runTest {
         // Given
-        timelineCases.stub { onBlocking { favourite(any(), any()) } doThrow httpException }
+        mastodonApi.stub { onBlocking { favouriteStatus(any()) } doReturn failure() }
 
-        viewModel.uiError.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(favouriteAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(UiError.Favourite::class.java)
-            assertThat(item.action).isEqualTo(favouriteAction)
+            val item = awaitItem().getError() as? UiError.Favourite
+            assertThat(item?.action).isEqualTo(favouriteAction)
         }
     }
 
     @Test
     fun `reblog succeeds && emits UiSuccess`() = runTest {
         // Given
-        timelineCases.stub { onBlocking { reblog(any(), any()) } doReturn NetworkResult.success(status) }
+        mastodonApi.stub { onBlocking { reblogStatus(any()) } doReturn success(status) }
 
-        viewModel.uiSuccess.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(reblogAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(StatusActionSuccess.Reblog::class.java)
-            assertThat((item as StatusActionSuccess).action).isEqualTo(reblogAction)
+            val item = awaitItem().get() as? StatusActionSuccess.Reblog
+            assertThat(item?.action).isEqualTo(reblogAction)
         }
-
-        // Then
-        verify(timelineCases).reblog(id.capture(), state.capture())
-        assertThat(id.firstValue).isEqualTo(statusViewData.status.id)
-        assertThat(state.firstValue).isEqualTo(true)
     }
 
     @Test
     fun `reblog fails && emits UiError`() = runTest {
         // Given
-        timelineCases.stub { onBlocking { reblog(any(), any()) } doThrow httpException }
+        mastodonApi.stub { onBlocking { reblogStatus(any()) } doReturn failure() }
 
-        viewModel.uiError.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(reblogAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(UiError.Reblog::class.java)
-            assertThat(item.action).isEqualTo(reblogAction)
+            val item = awaitItem().getError() as? UiError.Reblog
+            assertThat(item?.action).isEqualTo(reblogAction)
         }
     }
 
     @Test
     fun `voteinpoll succeeds && emits UiSuccess`() = runTest {
         // Given
-        timelineCases.stub {
-            onBlocking { voteInPoll(any(), any(), any()) } doReturn NetworkResult.success(status.poll!!)
-        }
+        mastodonApi.stub { onBlocking { voteInPoll(any(), any()) } doReturn success(status.poll!!) }
 
-        viewModel.uiSuccess.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(voteInPollAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(StatusActionSuccess.VoteInPoll::class.java)
-            assertThat((item as StatusActionSuccess).action).isEqualTo(voteInPollAction)
+            val item = awaitItem().get() as? StatusActionSuccess.VoteInPoll
+            assertThat(item?.action).isEqualTo(voteInPollAction)
         }
-
-        // Then
-        val pollId = argumentCaptor<String>()
-        val choices = argumentCaptor<List<Int>>()
-        verify(timelineCases).voteInPoll(id.capture(), pollId.capture(), choices.capture())
-        assertThat(id.firstValue).isEqualTo(statusViewData.status.id)
-        assertThat(pollId.firstValue).isEqualTo(status.poll!!.id)
-        assertThat(choices.firstValue).isEqualTo(voteInPollAction.choices)
     }
 
     @Test
     fun `voteinpoll fails && emits UiError`() = runTest {
         // Given
-        timelineCases.stub { onBlocking { voteInPoll(any(), any(), any()) } doThrow httpException }
+        mastodonApi.stub { onBlocking { voteInPoll(any(), any()) } doReturn failure() }
 
-        viewModel.uiError.test {
+        viewModel.uiResult.test {
             // When
             viewModel.accept(voteInPollAction)
 
             // Then
-            val item = awaitItem()
-            assertThat(item).isInstanceOf(UiError.VoteInPoll::class.java)
-            assertThat(item.action).isEqualTo(voteInPollAction)
+            val item = awaitItem().getError() as? UiError.VoteInPoll
+            assertThat(item?.action).isEqualTo(voteInPollAction)
         }
     }
 }

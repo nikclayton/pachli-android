@@ -207,7 +207,6 @@
     <string name="follows_you">Volgt jou</string>
     <string name="pref_title_alway_show_sensitive_media">Altijd gevoelige inhoud (nsfw) tonen</string>
     <string name="title_media">Media</string>
-    <string name="replying_to">Aan het reageren op @%s</string>
     <string name="add_account_name">Account toevoegen</string>
     <string name="add_account_description">Een nieuw Mastodonaccount toevoegen</string>
     <string name="compose_active_account_description">Berichten plaatsen als %1$s</string>
@@ -549,7 +548,7 @@
     <string name="notification_listenable_worker_description">Meldingen als Pachli werkt op de achtergrond</string>
     <string name="socket_timeout_exception">Contact zoeken met je server duurde te lang</string>
     <string name="dialog_delete_filter_positive_action">Verwijder</string>
-    <string name="dialog_delete_filter_text">Verwijder filter \'%1$s\'\?</string>
+    <string name="dialog_delete_filter_text">Verwijder filter \'%1$s\'?</string>
     <string name="ui_error_translate_status_fmt">Vertaling faalde: %1$s</string>
     <string name="update_dialog_negative">Herinner mij nooit</string>
     <string name="translating">Vertalen…</string>

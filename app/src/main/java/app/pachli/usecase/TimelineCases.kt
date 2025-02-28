@@ -16,28 +16,21 @@
 
 package app.pachli.usecase
 
-import app.pachli.appstore.BlockEvent
-import app.pachli.appstore.BookmarkEvent
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.FavoriteEvent
-import app.pachli.appstore.MuteConversationEvent
-import app.pachli.appstore.MuteEvent
-import app.pachli.appstore.PinEvent
-import app.pachli.appstore.PollVoteEvent
-import app.pachli.appstore.ReblogEvent
-import app.pachli.appstore.StatusDeletedEvent
 import app.pachli.components.timeline.CachedTimelineRepository
+import app.pachli.core.data.model.StatusViewData
+import app.pachli.core.eventhub.BlockEvent
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.MuteConversationEvent
+import app.pachli.core.eventhub.MuteEvent
+import app.pachli.core.eventhub.StatusDeletedEvent
 import app.pachli.core.network.model.DeletedStatus
-import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Relationship
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.model.Translation
 import app.pachli.core.network.retrofit.MastodonApi
-import app.pachli.viewdata.StatusViewData
-import at.connyduck.calladapter.networkresult.NetworkResult
-import at.connyduck.calladapter.networkresult.fold
-import at.connyduck.calladapter.networkresult.onFailure
-import at.connyduck.calladapter.networkresult.onSuccess
+import app.pachli.core.network.retrofit.apiresult.ApiResult
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import javax.inject.Inject
 import timber.log.Timber
 
@@ -46,38 +39,7 @@ class TimelineCases @Inject constructor(
     private val eventHub: EventHub,
     private val cachedTimelineRepository: CachedTimelineRepository,
 ) {
-
-    suspend fun reblog(statusId: String, reblog: Boolean): NetworkResult<Status> {
-        return if (reblog) {
-            mastodonApi.reblogStatus(statusId)
-        } else {
-            mastodonApi.unreblogStatus(statusId)
-        }.onSuccess {
-            eventHub.dispatch(ReblogEvent(statusId, reblog))
-        }
-    }
-
-    suspend fun favourite(statusId: String, favourite: Boolean): NetworkResult<Status> {
-        return if (favourite) {
-            mastodonApi.favouriteStatus(statusId)
-        } else {
-            mastodonApi.unfavouriteStatus(statusId)
-        }.onSuccess {
-            eventHub.dispatch(FavoriteEvent(statusId, favourite))
-        }
-    }
-
-    suspend fun bookmark(statusId: String, bookmark: Boolean): NetworkResult<Status> {
-        return if (bookmark) {
-            mastodonApi.bookmarkStatus(statusId)
-        } else {
-            mastodonApi.unbookmarkStatus(statusId)
-        }.onSuccess {
-            eventHub.dispatch(BookmarkEvent(statusId, bookmark))
-        }
-    }
-
-    suspend fun muteConversation(statusId: String, mute: Boolean): NetworkResult<Status> {
+    suspend fun muteConversation(statusId: String, mute: Boolean): ApiResult<Status> {
         return if (mute) {
             mastodonApi.muteConversation(statusId)
         } else {
@@ -96,58 +58,38 @@ class TimelineCases @Inject constructor(
         }
     }
 
-    suspend fun block(statusId: String) {
+    suspend fun block(accountId: String) {
         try {
-            mastodonApi.blockAccount(statusId)
-            eventHub.dispatch(BlockEvent(statusId))
+            mastodonApi.blockAccount(accountId)
+            eventHub.dispatch(BlockEvent(accountId))
         } catch (t: Throwable) {
             Timber.w(t, "Failed to block account")
         }
     }
 
-    suspend fun delete(statusId: String): NetworkResult<DeletedStatus> {
+    suspend fun delete(statusId: String): ApiResult<DeletedStatus> {
         return mastodonApi.deleteStatus(statusId)
             .onSuccess { eventHub.dispatch(StatusDeletedEvent(statusId)) }
-            .onFailure { Timber.w(it, "Failed to delete status") }
+            .onFailure { Timber.w("Failed to delete status: %s", it) }
     }
 
-    suspend fun pin(statusId: String, pin: Boolean): NetworkResult<Status> {
-        return if (pin) {
-            mastodonApi.pinStatus(statusId)
-        } else {
-            mastodonApi.unpinStatus(statusId)
-        }.fold({ status ->
-            eventHub.dispatch(PinEvent(statusId, pin))
-            NetworkResult.success(status)
-        }, { e ->
-            Timber.w(e, "Failed to change pin state")
-            NetworkResult.failure(e)
-        })
-    }
-
-    suspend fun voteInPoll(statusId: String, pollId: String, choices: List<Int>): NetworkResult<Poll> {
-        if (choices.isEmpty()) {
-            return NetworkResult.failure(IllegalStateException())
-        }
-
-        return mastodonApi.voteInPoll(pollId, choices).onSuccess { poll ->
-            eventHub.dispatch(PollVoteEvent(statusId, poll))
-        }
-    }
-
-    suspend fun acceptFollowRequest(accountId: String): NetworkResult<Relationship> {
+    suspend fun acceptFollowRequest(accountId: String): ApiResult<Relationship> {
         return mastodonApi.authorizeFollowRequest(accountId)
     }
 
-    suspend fun rejectFollowRequest(accountId: String): NetworkResult<Relationship> {
+    suspend fun rejectFollowRequest(accountId: String): ApiResult<Relationship> {
         return mastodonApi.rejectFollowRequest(accountId)
     }
 
-    suspend fun translate(pachliAccountId: Long, statusViewData: StatusViewData): NetworkResult<Translation> {
-        return cachedTimelineRepository.translate(pachliAccountId, statusViewData)
+    suspend fun translate(statusViewData: StatusViewData): ApiResult<Translation> {
+        return cachedTimelineRepository.translate(statusViewData)
     }
 
     suspend fun translateUndo(pachliAccountId: Long, statusViewData: StatusViewData) {
-        cachedTimelineRepository.translateUndo(pachliAccountId, statusViewData)
+        cachedTimelineRepository.translateUndo(statusViewData)
+    }
+
+    suspend fun saveRefreshKey(pachliAccountId: Long, statusId: String?) {
+        cachedTimelineRepository.saveRefreshKey(pachliAccountId, statusId)
     }
 }

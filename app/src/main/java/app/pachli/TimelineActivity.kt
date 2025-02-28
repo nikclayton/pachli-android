@@ -25,7 +25,6 @@ import android.widget.Toast
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
-import app.pachli.appstore.EventHub
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
@@ -33,6 +32,7 @@ import app.pachli.core.data.repository.ContentFilterEdit
 import app.pachli.core.data.repository.ContentFiltersRepository
 import app.pachli.core.data.repository.canFilterV1
 import app.pachli.core.data.repository.canFilterV2
+import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.ContentFilter
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
@@ -44,7 +44,6 @@ import app.pachli.core.navigation.pachliAccountId
 import app.pachli.databinding.ActivityTimelineBinding
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.AppBarLayoutHost
-import at.connyduck.calladapter.networkresult.fold
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import com.google.android.material.appbar.AppBarLayout
@@ -135,21 +134,19 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
 
         hashtag?.let { tag ->
             lifecycleScope.launch {
-                mastodonApi.tag(tag).fold(
-                    { tagEntity ->
-                        menuInflater.inflate(R.menu.view_hashtag_toolbar, menu)
-                        followTagItem = menu.findItem(R.id.action_follow_hashtag)
-                        unfollowTagItem = menu.findItem(R.id.action_unfollow_hashtag)
-                        muteTagItem = menu.findItem(R.id.action_mute_hashtag)
-                        unmuteTagItem = menu.findItem(R.id.action_unmute_hashtag)
-                        followTagItem?.isVisible = tagEntity.following == false
-                        unfollowTagItem?.isVisible = tagEntity.following == true
-                        updateMuteTagMenuItems(tag)
-                    },
-                    {
-                        Timber.w(it, "Failed to query tag #%s", tag)
-                    },
-                )
+                mastodonApi.tag(tag).onSuccess {
+                    val tagEntity = it.body
+                    menuInflater.inflate(R.menu.view_hashtag_toolbar, menu)
+                    followTagItem = menu.findItem(R.id.action_follow_hashtag)
+                    unfollowTagItem = menu.findItem(R.id.action_unfollow_hashtag)
+                    muteTagItem = menu.findItem(R.id.action_mute_hashtag)
+                    unmuteTagItem = menu.findItem(R.id.action_unmute_hashtag)
+                    followTagItem?.isVisible = tagEntity.following == false
+                    unfollowTagItem?.isVisible = tagEntity.following == true
+                    updateMuteTagMenuItems(tag)
+                }.onFailure {
+                    Timber.w("Failed to query tag #%s: %s", tag, it)
+                }
             }
         }
 
@@ -205,16 +202,13 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
         val tag = hashtag
         if (tag != null) {
             lifecycleScope.launch {
-                mastodonApi.followTag(tag).fold(
-                    {
-                        followTagItem?.isVisible = false
-                        unfollowTagItem?.isVisible = true
-                    },
-                    {
-                        Snackbar.make(binding.root, getString(R.string.error_following_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
-                        Timber.e(it, "Failed to follow #%s", tag)
-                    },
-                )
+                mastodonApi.followTag(tag).onSuccess {
+                    followTagItem?.isVisible = false
+                    unfollowTagItem?.isVisible = true
+                }.onFailure {
+                    Snackbar.make(binding.root, getString(R.string.error_following_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
+                    Timber.e("Failed to follow #%s: %s", tag, it)
+                }
             }
         }
 
@@ -225,16 +219,13 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
         val tag = hashtag
         if (tag != null) {
             lifecycleScope.launch {
-                mastodonApi.unfollowTag(tag).fold(
-                    {
-                        followTagItem?.isVisible = true
-                        unfollowTagItem?.isVisible = false
-                    },
-                    {
-                        Snackbar.make(binding.root, getString(R.string.error_unfollowing_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
-                        Timber.e(it, "Failed to unfollow #%s", tag)
-                    },
-                )
+                mastodonApi.unfollowTag(tag).onSuccess {
+                    followTagItem?.isVisible = true
+                    unfollowTagItem?.isVisible = false
+                }.onFailure {
+                    Snackbar.make(binding.root, getString(R.string.error_unfollowing_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
+                    Timber.e("Failed to unfollow #%s: %s", tag, it)
+                }
             }
         }
 

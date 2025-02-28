@@ -23,8 +23,11 @@ import androidx.annotation.WorkerThread
 import app.pachli.core.activity.NotificationConfig
 import app.pachli.core.common.string.isLessThan
 import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.notifications.NotificationsRepository
+import app.pachli.core.data.repository.notifications.from
 import app.pachli.core.database.model.AccountEntity
-import app.pachli.core.model.FilterAction
+import app.pachli.core.database.model.NotificationData
+import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.network.model.Links
 import app.pachli.core.network.model.Marker
 import app.pachli.core.network.model.Notification
@@ -32,6 +35,7 @@ import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.worker.NotificationWorker
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -40,7 +44,9 @@ import javax.inject.Inject
 import kotlin.collections.set
 import kotlin.math.min
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import timber.log.Timber
@@ -57,6 +63,7 @@ import timber.log.Timber
 class NotificationFetcher @Inject constructor(
     private val mastodonApi: MastodonApi,
     private val accountManager: AccountManager,
+    private val notificationsRepository: NotificationsRepository,
     @ApplicationContext private val context: Context,
 ) {
     suspend fun fetchAndShow(pachliAccountId: Long) {
@@ -85,8 +92,8 @@ class NotificationFetcher @Inject constructor(
                     val notifications = fetchNewNotifications(entity)
                         .filter { filterNotification(notificationManager, entity, it.type) }
                         .filter {
-                            val decision = filterNotificationByAccount(pachliAccount, it)
-                            decision == null || decision.action == FilterAction.NONE
+                            val decision = filterNotificationByAccount(pachliAccount, NotificationData.from(pachliAccountId, it))
+                            decision is AccountFilterDecision.None
                         }
                         .sortedWith(compareBy({ it.id.length }, { it.id })) // oldest notifications first
                         .toMutableList()
@@ -140,6 +147,7 @@ class NotificationFetcher @Inject constructor(
                         entity,
                     )
                 } catch (e: Exception) {
+                    currentCoroutineContext().ensureActive()
                     Timber.e(e, "Error while fetching notifications")
                 }
             }
@@ -154,29 +162,25 @@ class NotificationFetcher @Inject constructor(
      *
      * The "water mark" for Mastodon Notification IDs are stored in three places.
      *
-     * - acccount.lastNotificationId -- the ID of the top-most notification when the user last
+     * - Notification refresh key -- the ID of the top-most notification when the user last
      *   left the Notifications tab.
      * - The Mastodon "marker" API -- the ID of the most recent notification fetched here.
      * - account.notificationMarkerId -- local version of the value from the Mastodon marker
      *   API, in case the Mastodon server does not implement that API.
      *
      * The user may have refreshed the "Notifications" tab and seen notifications newer than the
-     * ones that were last fetched here. So `lastNotificationId` takes precedence if it is greater
+     * ones that were last fetched here. So the refresh key takes precedence if it is greater
      * than the marker.
      */
     private suspend fun fetchNewNotifications(account: AccountEntity): List<Notification> {
         Timber.d("fetchNewNotifications(%s)", account.fullName)
 
-        // Figure out where to read from. Choose the most recent notification ID from:
-        //
-        // - The Mastodon marker API (if the server supports it)
-        // - account.notificationMarkerId
-        // - account.lastNotificationId
+        // Figure out which water mark to use.
         Timber.d("getting notification marker for %s", account.fullName)
         val remoteMarkerId = fetchMarker(account)?.lastReadId ?: "0"
         val localMarkerId = account.notificationMarkerId
         val markerId = if (remoteMarkerId.isLessThan(localMarkerId)) localMarkerId else remoteMarkerId
-        val readingPosition = account.lastNotificationId
+        val readingPosition = notificationsRepository.getRefreshKey(account.id) ?: "0"
 
         var minId: String? = if (readingPosition.isLessThan(markerId)) markerId else readingPosition
         Timber.d("  remoteMarkerId: %s", remoteMarkerId)
@@ -232,25 +236,28 @@ class NotificationFetcher @Inject constructor(
                 notificationsLastReadId = newMarkerId,
             )
             accountManager.setNotificationMarkerId(account.id, newMarkerId)
+            Timber.d("Updated notification marker for %s to: %s", account.fullName, newMarkerId)
         }
 
         return notifications
     }
 
     private suspend fun fetchMarker(account: AccountEntity): Marker? {
-        return try {
-            val allMarkers = mastodonApi.markersWithAuth(
-                account.authHeader,
-                account.domain,
-                listOf("notifications"),
-            )
-            val notificationMarker = allMarkers["notifications"]
-            Timber.d("Fetched marker for %s: %s", account.fullName, notificationMarker)
-            notificationMarker
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to fetch marker")
-            null
-        }
+        return mastodonApi.markersWithAuth(
+            account.authHeader,
+            account.domain,
+            listOf("notifications"),
+        ).mapBoth(
+            {
+                val notificationMarker = it.body["notifications"]
+                Timber.d("Fetched marker for %s: %s", account.fullName, notificationMarker)
+                notificationMarker
+            },
+            {
+                Timber.e("Failed to fetch marker: %s", it)
+                null
+            },
+        )
     }
 
     companion object {

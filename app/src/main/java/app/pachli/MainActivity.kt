@@ -58,7 +58,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.MarginPageTransformer
 import app.pachli.appstore.CacheUpdater
-import app.pachli.appstore.EventHub
 import app.pachli.components.compose.ComposeActivity.Companion.canHandleMimeType
 import app.pachli.components.notifications.createNotificationChannelsForAccount
 import app.pachli.components.notifications.domain.AndroidNotificationsAreEnabledUseCase
@@ -76,11 +75,13 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.model.MastodonList
+import app.pachli.core.data.repository.ListsRepository.Companion.compareByListTitle
 import app.pachli.core.data.repository.PachliAccount
 import app.pachli.core.data.repository.SetActiveAccountError
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.EmbeddedFontFamily
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.AboutActivityIntent
 import app.pachli.core.navigation.AccountActivityIntent
@@ -254,6 +255,10 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
      */
     private val listDrawerItems = mutableListOf<PrimaryDrawerItem>()
 
+    /**
+     * Version of [intent.pachliAccountId] where `-1` has been resolved to the
+     * actual active account value.
+     */
     private var pachliAccountId by Delegates.notNull<Long>()
 
     /** Mutex to protect modifications to the drawer's items. */
@@ -659,6 +664,20 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                             }
                         }
 
+                        // Database errors are not retryable. Display the error, offer to
+                        // switch back to the fall back account.
+                        //
+                        // If these occur it's a bug in Pachli, the database should never
+                        // get to a bad state.
+                        is SetActiveAccountError.Dao -> {
+                            uiError.cause.wantedAccount?.let { builder.setTitle(it.fullName) }
+                            val button = builder.await(android.R.string.ok)
+                            if (button == AlertDialog.BUTTON_POSITIVE && uiError.cause.fallbackAccount != null) {
+                                viewModel.accept(FallibleUiAction.SetActiveAccount(uiError.cause.fallbackAccount!!.id))
+                            }
+                            return
+                        }
+
                         // Other errors are retryable.
                         is SetActiveAccountError.Unexpected -> {
                             builder.setTitle(uiError.cause.wantedAccount.fullName)
@@ -810,19 +829,25 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
      * to the list, false if any existing item should be removed.
      */
     private suspend fun bindMainDrawerScheduledPosts(context: Context, pachliAccountId: Long, showSchedulePosts: Boolean) = drawerMutex.withLock {
-        val existingPosition = binding.mainDrawer.getPosition(DRAWER_ITEM_SCHEDULED_POSTS)
-        val showing = existingPosition != -1
+        // Can't use binding.mainDrawer.getPosition() here, as that returns -1 if the
+        // account list is open (https://github.com/mikepenz/MaterialDrawer/issues/2826).
+        // Instead, pull the position from the adapter for primary items. This is offset
+        // by 1 in the adapter that wraps all the items.
+        val existingPosition = binding.mainDrawer.itemAdapter.getAdapterPosition(DRAWER_ITEM_SCHEDULED_POSTS)
 
+        val showing = existingPosition != -1
         if (showing == showSchedulePosts) return
 
         if (!showSchedulePosts) {
-            binding.mainDrawer.removeItemByPosition(existingPosition)
+            binding.mainDrawer.itemAdapter.removeByIdentifier(DRAWER_ITEM_SCHEDULED_POSTS)
             return
         }
 
         // Add the "Scheduled posts" item immediately after "Drafts"
-        binding.mainDrawer.addItemAtPosition(
-            binding.mainDrawer.getPosition(DRAWER_ITEM_DRAFTS) + 1,
+        val relativeDraftsPosition = binding.mainDrawer.itemAdapter.getAdapterPosition(DRAWER_ITEM_DRAFTS)
+        val globalDraftsPosition = binding.mainDrawer.itemAdapter.getGlobalPosition(relativeDraftsPosition)
+        binding.mainDrawer.itemAdapter.add(
+            globalDraftsPosition + 1,
             primaryDrawerItem {
                 identifier = DRAWER_ITEM_SCHEDULED_POSTS
                 nameRes = R.string.action_access_scheduled_posts
@@ -842,10 +867,17 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
 
     /** Binds [lists] to the "Lists" section in the main drawer. */
     private suspend fun bindMainDrawerLists(pachliAccountId: Long, lists: List<MastodonList>) = drawerMutex.withLock {
+        // Can't use binding.mainDrawer.getPosition() here, as that returns -1 if the
+        // account list is open (https://github.com/mikepenz/MaterialDrawer/issues/2826).
+        // Instead, pull the position from the adapter for primary items. This is offset
+        // by 1 in the adapter that wraps all the items.
+        val headerPosition = binding.mainDrawer.itemAdapter.getAdapterPosition(DRAWER_ITEM_LISTS) + 1
+        if (headerPosition == 0) return@withLock
+
         binding.mainDrawer.removeItems(*listDrawerItems.toTypedArray())
 
         listDrawerItems.clear()
-        lists.forEach { list ->
+        lists.sortedWith(compareByListTitle).forEach { list ->
             listDrawerItems.add(
                 primaryDrawerItem {
                     nameText = list.title
@@ -863,7 +895,9 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                 },
             )
         }
-        val headerPosition = binding.mainDrawer.getPosition(DRAWER_ITEM_LISTS)
+
+        // Insert items after the "Lists" header. Again, use the itemAdapter directly
+        // instead of addItemsAtPosition.
         binding.mainDrawer.addItemsAtPosition(headerPosition + 1, *listDrawerItems.toTypedArray())
         updateMainDrawerTypeface(
             EmbeddedFontFamily.from(sharedPreferencesRepository.getString(FONT_FAMILY, "default")),

@@ -26,25 +26,29 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import app.pachli.R
-import app.pachli.appstore.BlockEvent
-import app.pachli.appstore.BookmarkEvent
-import app.pachli.appstore.DomainMuteEvent
-import app.pachli.appstore.Event
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.FavoriteEvent
-import app.pachli.appstore.MuteConversationEvent
-import app.pachli.appstore.MuteEvent
-import app.pachli.appstore.PinEvent
-import app.pachli.appstore.ReblogEvent
-import app.pachli.appstore.StatusComposedEvent
-import app.pachli.appstore.StatusDeletedEvent
-import app.pachli.appstore.StatusEditedEvent
-import app.pachli.appstore.UnfollowEvent
+import app.pachli.components.timeline.TimelineRepository
+import app.pachli.core.common.PachliError
 import app.pachli.core.common.extensions.throttleFirst
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.Loadable
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
+import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.eventhub.BlockEvent
+import app.pachli.core.eventhub.BookmarkEvent
+import app.pachli.core.eventhub.DomainMuteEvent
+import app.pachli.core.eventhub.Event
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.FavoriteEvent
+import app.pachli.core.eventhub.MuteConversationEvent
+import app.pachli.core.eventhub.MuteEvent
+import app.pachli.core.eventhub.PinEvent
+import app.pachli.core.eventhub.ReblogEvent
+import app.pachli.core.eventhub.StatusComposedEvent
+import app.pachli.core.eventhub.StatusDeletedEvent
+import app.pachli.core.eventhub.StatusEditedEvent
+import app.pachli.core.eventhub.UnfollowEvent
 import app.pachli.core.model.ContentFilterVersion
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
@@ -56,23 +60,21 @@ import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.preferences.TabTapBehaviour
 import app.pachli.network.ContentFilterModel
 import app.pachli.usecase.TimelineCases
-import app.pachli.viewdata.StatusViewData
-import at.connyduck.calladapter.networkresult.getOrThrow
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.mapEither
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -114,15 +116,16 @@ sealed interface InfallibleUiAction : UiAction {
      * Infallible because if it fails there's nowhere to show the error, and nothing the user
      * can do.
      */
-    data class SaveVisibleId(val visibleId: String) : InfallibleUiAction
+    data class SaveVisibleId(
+        val pachliAccountId: Long,
+        val visibleId: String,
+    ) : InfallibleUiAction
 
     /** Ignore the saved reading position, load the page with the newest items */
     // Resets the account's reading position, which can't fail, which is why this is
     // infallible. Reloading the data may fail, but that's handled by the paging system /
     // adapter refresh logic.
     data object LoadNewest : InfallibleUiAction
-
-    data class TranslateUndo(val statusViewData: StatusViewData) : InfallibleUiAction
 }
 
 sealed interface UiSuccess {
@@ -145,58 +148,72 @@ sealed interface UiSuccess {
 
     /** A status the user wrote was successfully edited */
     data class StatusEdited(val status: Status) : UiSuccess
+
+    /**
+     * Resetting the reading position completed, the UI should refresh the adapter
+     * to load content at the new position.
+     */
+    data object LoadNewest : UiSuccess
+}
+
+sealed interface StatusAction
+
+sealed interface InfallibleStatusAction : InfallibleUiAction, StatusAction {
+    val statusViewData: StatusViewData
+
+    data class TranslateUndo(override val statusViewData: StatusViewData) : InfallibleStatusAction
 }
 
 /** Actions the user can trigger on an individual status */
-sealed interface StatusAction : FallibleUiAction {
+sealed interface FallibleStatusAction : FallibleUiAction, StatusAction {
     // TODO: Include a property for the PachliAccountId the action is being performed as.
 
     val statusViewData: StatusViewData
 
     /** Set the bookmark state for a status */
     data class Bookmark(val state: Boolean, override val statusViewData: StatusViewData) :
-        StatusAction
+        FallibleStatusAction
 
     /** Set the favourite state for a status */
     data class Favourite(val state: Boolean, override val statusViewData: StatusViewData) :
-        StatusAction
+        FallibleStatusAction
 
     /** Set the reblog state for a status */
     data class Reblog(val state: Boolean, override val statusViewData: StatusViewData) :
-        StatusAction
+        FallibleStatusAction
 
     /** Vote in a poll */
     data class VoteInPoll(
         val poll: Poll,
         val choices: List<Int>,
         override val statusViewData: StatusViewData,
-    ) : StatusAction
+    ) : FallibleStatusAction
 
     /** Translate a status */
-    data class Translate(override val statusViewData: StatusViewData) : StatusAction
+    data class Translate(override val statusViewData: StatusViewData) : FallibleStatusAction
 }
 
 /** Changes to a status' visible state after API calls */
 sealed interface StatusActionSuccess : UiSuccess {
-    val action: StatusAction
+    val action: FallibleStatusAction
 
-    data class Bookmark(override val action: StatusAction.Bookmark) : StatusActionSuccess
+    data class Bookmark(override val action: FallibleStatusAction.Bookmark) : StatusActionSuccess
 
-    data class Favourite(override val action: StatusAction.Favourite) : StatusActionSuccess
+    data class Favourite(override val action: FallibleStatusAction.Favourite) : StatusActionSuccess
 
-    data class Reblog(override val action: StatusAction.Reblog) : StatusActionSuccess
+    data class Reblog(override val action: FallibleStatusAction.Reblog) : StatusActionSuccess
 
-    data class VoteInPoll(override val action: StatusAction.VoteInPoll) : StatusActionSuccess
+    data class VoteInPoll(override val action: FallibleStatusAction.VoteInPoll) : StatusActionSuccess
 
-    data class Translate(override val action: StatusAction.Translate) : StatusActionSuccess
+    data class Translate(override val action: FallibleStatusAction.Translate) : StatusActionSuccess
 
     companion object {
-        fun from(action: StatusAction) = when (action) {
-            is StatusAction.Bookmark -> Bookmark(action)
-            is StatusAction.Favourite -> Favourite(action)
-            is StatusAction.Reblog -> Reblog(action)
-            is StatusAction.VoteInPoll -> VoteInPoll(action)
-            is StatusAction.Translate -> Translate(action)
+        fun from(action: FallibleStatusAction) = when (action) {
+            is FallibleStatusAction.Bookmark -> Bookmark(action)
+            is FallibleStatusAction.Favourite -> Favourite(action)
+            is FallibleStatusAction.Reblog -> Reblog(action)
+            is FallibleStatusAction.VoteInPoll -> VoteInPoll(action)
+            is FallibleStatusAction.Translate -> Translate(action)
         }
     }
 }
@@ -212,7 +229,7 @@ sealed interface StatusActionSuccess : UiSuccess {
 /** Errors from fallible view model actions that the UI will need to show */
 sealed interface UiError {
     /** The throwable associated with the error */
-    val throwable: Throwable
+    val error: PachliError
 
     /** The action that failed. Can be resent to retry the action */
     val action: UiAction?
@@ -222,59 +239,61 @@ sealed interface UiError {
     val message: Int
 
     data class Bookmark(
-        override val throwable: Throwable,
-        override val action: StatusAction.Bookmark,
+        override val error: PachliError,
+        override val action: FallibleStatusAction.Bookmark,
         override val message: Int = R.string.ui_error_bookmark_fmt,
     ) : UiError
 
     data class Favourite(
-        override val throwable: Throwable,
-        override val action: StatusAction.Favourite,
+        override val error: PachliError,
+        override val action: FallibleStatusAction.Favourite,
         override val message: Int = R.string.ui_error_favourite_fmt,
     ) : UiError
 
     data class Reblog(
-        override val throwable: Throwable,
-        override val action: StatusAction.Reblog,
+        override val error: PachliError,
+        override val action: FallibleStatusAction.Reblog,
         override val message: Int = R.string.ui_error_reblog_fmt,
     ) : UiError
 
     data class VoteInPoll(
-        override val throwable: Throwable,
-        override val action: StatusAction.VoteInPoll,
+        override val error: PachliError,
+        override val action: FallibleStatusAction.VoteInPoll,
         override val message: Int = R.string.ui_error_vote_fmt,
     ) : UiError
 
     data class TranslateStatus(
-        override val throwable: Throwable,
-        override val action: StatusAction.Translate,
+        override val error: PachliError,
+        override val action: FallibleStatusAction.Translate,
         override val message: Int = R.string.ui_error_translate_status_fmt,
     ) : UiError
 
     data class GetFilters(
-        override val throwable: Throwable,
+        override val error: PachliError,
         override val action: UiAction? = null,
         override val message: Int = R.string.ui_error_filter_v1_load_fmt,
     ) : UiError
 
     companion object {
-        fun make(throwable: Throwable, action: FallibleUiAction) = when (action) {
-            is StatusAction.Bookmark -> Bookmark(throwable, action)
-            is StatusAction.Favourite -> Favourite(throwable, action)
-            is StatusAction.Reblog -> Reblog(throwable, action)
-            is StatusAction.VoteInPoll -> VoteInPoll(throwable, action)
-            is StatusAction.Translate -> TranslateStatus(throwable, action)
+        fun make(error: PachliError, action: FallibleUiAction) = when (action) {
+            is FallibleStatusAction.Bookmark -> Bookmark(error, action)
+            is FallibleStatusAction.Favourite -> Favourite(error, action)
+            is FallibleStatusAction.Reblog -> Reblog(error, action)
+            is FallibleStatusAction.VoteInPoll -> VoteInPoll(error, action)
+            is FallibleStatusAction.Translate -> TranslateStatus(error, action)
         }
     }
 }
 
-abstract class TimelineViewModel(
+abstract class TimelineViewModel<T : Any>(
     savedStateHandle: SavedStateHandle,
     private val timelineCases: TimelineCases,
     private val eventHub: EventHub,
     protected val accountManager: AccountManager,
+    private val repository: TimelineRepository<T>,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     private val sharedPreferencesRepository: SharedPreferencesRepository,
+    private val statusRepository: StatusRepository,
 ) : ViewModel() {
     val uiState: StateFlow<UiState>
 
@@ -286,26 +305,8 @@ abstract class TimelineViewModel(
     /** Flow of user actions received from the UI */
     private val uiAction = MutableSharedFlow<UiAction>()
 
-    /** Flow that can be used to trigger a full reload */
-    protected val reload = MutableStateFlow(0)
-
-    /** Flow of successful action results */
-    // Note: This is a SharedFlow instead of a StateFlow because success state does not need to be
-    // retained. A message is shown once to a user and then dismissed. Re-collecting the flow
-    // (e.g., after a device orientation change) should not re-show the most recent success
-    // message, as it will be confusing to the user.
-    val uiSuccess = MutableSharedFlow<UiSuccess>()
-
-    @Suppress("ktlint:standard:property-naming")
-    /** Channel for error results */
-    // Errors are sent to a channel to ensure that any errors that occur *before* there are any
-    // subscribers are retained. If this was a SharedFlow any errors would be dropped, and if it
-    // was a StateFlow any errors would be retained, and there would need to be an explicit
-    // mechanism to dismiss them.
-    private val _uiErrorChannel = Channel<UiError>()
-
-    /** Expose UI errors as a flow */
-    val uiError = _uiErrorChannel.receiveAsFlow()
+    private val _uiResult = Channel<Result<UiSuccess, UiError>>()
+    val uiResult = _uiResult.receiveAsFlow()
 
     /** Accept UI actions in to actionStateFlow */
     val accept: (UiAction) -> Unit = { action ->
@@ -323,18 +324,10 @@ abstract class TimelineViewModel(
             return accountManager.activeAccount!!
         }
 
-    protected val refreshFlow = reload.combine(
-        accountManager.activeAccountFlow
-            .filterIsInstance<Loadable.Loaded<AccountEntity?>>()
-            .filter { it.data != null }
-            .distinctUntilChangedBy { it.data?.id!! },
-    ) { refresh, account -> Pair(refresh, account.data!!) }
-
-    /** The ID of the status to which the user's reading position should be restored */
-    // Not part of the UiState as it's only used once in the lifespan of the fragment.
-    // Subclasses should set this if they support restoring the reading position.
-    open var readingPositionId: String? = null
-        protected set
+    protected val accountFlow = accountManager.activeAccountFlow
+        .filterIsInstance<Loadable.Loaded<AccountEntity?>>()
+        .filter { it.data != null }
+        .distinctUntilChangedBy { it.data?.id!! }
 
     private var contentFilterModel: ContentFilterModel? = null
 
@@ -348,9 +341,7 @@ abstract class TimelineViewModel(
                             ContentFilterVersion.V2 -> ContentFilterModel(filterContext)
                             ContentFilterVersion.V1 -> ContentFilterModel(filterContext, account.contentFilters.contentFilters)
                         }
-                        if (reload) {
-                            reloadKeepingReadingPosition(account.id)
-                        }
+                        if (reload) repository.invalidate(account.id)
                         true
                     }
             }
@@ -358,40 +349,47 @@ abstract class TimelineViewModel(
 
         // Handle StatusAction.*
         viewModelScope.launch {
-            uiAction.filterIsInstance<StatusAction>()
+            uiAction.filterIsInstance<FallibleStatusAction>()
                 .throttleFirst() // avoid double-taps
                 .collect { action ->
-                    try {
-                        when (action) {
-                            is StatusAction.Bookmark ->
-                                timelineCases.bookmark(
-                                    action.statusViewData.actionableId,
-                                    action.state,
-                                )
-                            is StatusAction.Favourite ->
-                                timelineCases.favourite(
-                                    action.statusViewData.actionableId,
-                                    action.state,
-                                )
-                            is StatusAction.Reblog ->
-                                timelineCases.reblog(
-                                    action.statusViewData.actionableId,
-                                    action.state,
-                                )
-                            is StatusAction.VoteInPoll ->
-                                timelineCases.voteInPoll(
-                                    action.statusViewData.actionableId,
-                                    action.poll.id,
-                                    action.choices,
-                                )
-                            is StatusAction.Translate -> {
-                                timelineCases.translate(activeAccount.id, action.statusViewData)
-                            }
-                        }.getOrThrow()
-                        uiSuccess.emit(StatusActionSuccess.from(action))
-                    } catch (e: Exception) {
-                        _uiErrorChannel.send(UiError.make(e, action))
-                    }
+                    val result = when (action) {
+                        is FallibleStatusAction.Bookmark ->
+                            statusRepository.bookmark(
+                                action.statusViewData.pachliAccountId,
+                                action.statusViewData.actionableId,
+                                action.state,
+                            )
+
+                        is FallibleStatusAction.Favourite ->
+                            statusRepository.favourite(
+                                action.statusViewData.pachliAccountId,
+                                action.statusViewData.actionableId,
+                                action.state,
+                            )
+
+                        is FallibleStatusAction.Reblog ->
+                            statusRepository.reblog(
+                                action.statusViewData.pachliAccountId,
+                                action.statusViewData.actionableId,
+                                action.state,
+                            )
+
+                        is FallibleStatusAction.VoteInPoll ->
+                            statusRepository.voteInPoll(
+                                action.statusViewData.pachliAccountId,
+                                action.statusViewData.actionableId,
+                                action.poll.id,
+                                action.choices,
+                            )
+
+                        is FallibleStatusAction.Translate -> {
+                            timelineCases.translate(action.statusViewData)
+                        }
+                    }.mapEither(
+                        { StatusActionSuccess.from(action) },
+                        { UiError.make(it, action) },
+                    )
+                    _uiResult.send(result)
                 }
         }
 
@@ -399,11 +397,11 @@ abstract class TimelineViewModel(
         viewModelScope.launch {
             eventHub.events.collectLatest {
                 when (it) {
-                    is BlockEvent -> uiSuccess.emit(UiSuccess.Block)
-                    is MuteEvent -> uiSuccess.emit(UiSuccess.Mute)
-                    is MuteConversationEvent -> uiSuccess.emit(UiSuccess.MuteConversation)
-                    is StatusComposedEvent -> uiSuccess.emit(UiSuccess.StatusSent(it.status))
-                    is StatusEditedEvent -> uiSuccess.emit(UiSuccess.StatusEdited(it.status))
+                    is BlockEvent -> _uiResult.send(Ok(UiSuccess.Block))
+                    is MuteEvent -> _uiResult.send(Ok(UiSuccess.Mute))
+                    is MuteConversationEvent -> _uiResult.send(Ok(UiSuccess.MuteConversation))
+                    is StatusComposedEvent -> _uiResult.send(Ok(UiSuccess.StatusSent(it.status)))
+                    is StatusEditedEvent -> _uiResult.send(Ok(UiSuccess.StatusEdited(it.status)))
                 }
             }
         }
@@ -455,8 +453,7 @@ abstract class TimelineViewModel(
                     .distinctUntilChanged()
                     .collectLatest { action ->
                         Timber.d("setLastVisibleHomeTimelineStatusId: %d, %s", activeAccount.id, action.visibleId)
-                        accountManager.setLastVisibleHomeTimelineStatusId(activeAccount.id, action.visibleId)
-                        readingPositionId = action.visibleId
+                        timelineCases.saveRefreshKey(activeAccount.id, action.visibleId)
                     }
             }
         }
@@ -467,41 +464,69 @@ abstract class TimelineViewModel(
                 .filterIsInstance<InfallibleUiAction.LoadNewest>()
                 .collectLatest {
                     if (timeline == Timeline.Home) {
-                        accountManager.setLastVisibleHomeTimelineStatusId(activeAccount.id, null)
+                        timelineCases.saveRefreshKey(activeAccount.id, null)
                     }
                     Timber.d("Reload because InfallibleUiAction.LoadNewest")
-                    reloadFromNewest(activeAccount.id)
+                    _uiResult.send(Ok(UiSuccess.LoadNewest))
                 }
         }
 
         // Undo status translations
         viewModelScope.launch {
-            uiAction.filterIsInstance<InfallibleUiAction.TranslateUndo>().collectLatest {
+            uiAction.filterIsInstance<InfallibleStatusAction.TranslateUndo>().collectLatest {
                 timelineCases.translateUndo(activeAccount.id, it.statusViewData)
             }
         }
 
-        viewModelScope.launch {
-            eventHub.events
-                .collect { event -> handleEvent(event) }
-        }
-    }
-
-    fun getInitialKey(): String? {
-        if (timeline != Timeline.Home) {
-            return null
-        }
-
-        return activeAccount.lastVisibleHomeTimelineStatusId
+        viewModelScope.launch { eventHub.events.collect { handleEvent(it) } }
     }
 
     abstract fun updatePoll(newPoll: Poll, status: StatusViewData)
 
-    abstract fun changeExpanded(pachliAccountId: Long, expanded: Boolean, status: StatusViewData)
+    /**
+     * Sets the expanded state of [status] in [StatusRepository] to [expanded] and
+     * invalidates the repository.
+     *
+     * Subclasses should call through to this **after** changing any internal state
+     * to avoid invalidating the repository twice.
+     */
+    @CallSuper
+    open fun changeExpanded(expanded: Boolean, status: StatusViewData) {
+        viewModelScope.launch {
+            statusRepository.setExpanded(status.pachliAccountId, status.id, expanded)
+            repository.invalidate(status.pachliAccountId)
+        }
+    }
 
-    abstract fun changeContentShowing(pachliAccountId: Long, isShowing: Boolean, status: StatusViewData)
+    /**
+     * Sets the content-showing state of [status] in [StatusRepository] to
+     * [isShowing] and invalidates the repository.
+     *
+     * Subclasses should call through to this **after** changing any internal state
+     * to avoid invalidating the repository twice.
+     */
+    @CallSuper
+    open fun changeContentShowing(isShowing: Boolean, status: StatusViewData) {
+        viewModelScope.launch {
+            statusRepository.setContentShowing(status.pachliAccountId, status.id, isShowing)
+            repository.invalidate(status.pachliAccountId)
+        }
+    }
 
-    abstract fun changeContentCollapsed(pachliAccountId: Long, isCollapsed: Boolean, status: StatusViewData)
+    /**
+     * Sets the collapsed state of [status] in [StatusRepository] to [collapsed] and
+     * invalidates the repository.
+     *
+     * Subclasses should call through to this **after** changing any internal state
+     * to avoid invalidating the repository twice.
+     */
+    @CallSuper
+    open fun changeContentCollapsed(isCollapsed: Boolean, status: StatusViewData) {
+        viewModelScope.launch {
+            statusRepository.setContentCollapsed(status.pachliAccountId, status.id, isCollapsed)
+            repository.invalidate(status.pachliAccountId)
+        }
+    }
 
     abstract fun removeAllByAccountId(pachliAccountId: Long, accountId: String)
 
@@ -517,48 +542,26 @@ abstract class TimelineViewModel(
 
     abstract fun handlePinEvent(pinEvent: PinEvent)
 
-    /**
-     * Reload data for this timeline while preserving the user's reading position.
-     *
-     * Subclasses should call this, then start loading data.
-     */
-    @CallSuper
-    open fun reloadKeepingReadingPosition(pachliAccountId: Long) {
-        reload.getAndUpdate { it + 1 }
-    }
-
-    /**
-     * Load the most recent data for this timeline, ignoring the user's reading position.
-     *
-     * Subclasses should call this, then start loading data.
-     */
-    @CallSuper
-    open fun reloadFromNewest(pachliAccountId: Long) {
-        reload.getAndUpdate { it + 1 }
-    }
-
-    abstract fun clearWarning(pachliAccountId: Long, statusViewData: StatusViewData)
+    abstract fun clearWarning(statusViewData: StatusViewData)
 
     /** Triggered when currently displayed data must be reloaded. */
     protected abstract suspend fun invalidate(pachliAccountId: Long)
 
-    protected fun shouldFilterStatus(statusViewData: StatusViewData): FilterAction {
-        val status = statusViewData.status
+    protected fun shouldFilterStatus(status: Status): FilterAction {
         return if (
             (status.inReplyToId != null && filterRemoveReplies) ||
             (status.reblog != null && filterRemoveReblogs) ||
             // To determine if the boost is boosting your own toot
             ((status.account.id == status.reblog?.account?.id) && filterRemoveSelfReblogs)
         ) {
-            return FilterAction.HIDE
+            FilterAction.HIDE
         } else {
-            statusViewData.contentFilterAction = contentFilterModel?.filterActionFor(status.actionableStatus) ?: FilterAction.NONE
-            statusViewData.contentFilterAction
+            contentFilterModel?.filterActionFor(status) ?: FilterAction.NONE
         }
     }
 
     // TODO: Update this so that the list of UIPrefs is correct
-    private fun onPreferenceChanged(key: String) {
+    private suspend fun onPreferenceChanged(key: String) {
         when (key) {
             PrefKeys.TAB_FILTER_HOME_REPLIES -> {
                 val filter = sharedPreferencesRepository.getBoolean(PrefKeys.TAB_FILTER_HOME_REPLIES, true)
@@ -566,7 +569,7 @@ abstract class TimelineViewModel(
                 filterRemoveReplies = timeline is Timeline.Home && !filter
                 if (oldRemoveReplies != filterRemoveReplies) {
                     Timber.d("Reload because TAB_FILTER_HOME_REPLIES changed")
-                    reloadKeepingReadingPosition(activeAccount.id)
+                    repository.invalidate(activeAccount.id)
                 }
             }
             PrefKeys.TAB_FILTER_HOME_BOOSTS -> {
@@ -575,7 +578,7 @@ abstract class TimelineViewModel(
                 filterRemoveReblogs = timeline is Timeline.Home && !filter
                 if (oldRemoveReblogs != filterRemoveReblogs) {
                     Timber.d("Reload because TAB_FILTER_HOME_BOOSTS changed")
-                    reloadKeepingReadingPosition(activeAccount.id)
+                    repository.invalidate(activeAccount.id)
                 }
             }
             PrefKeys.TAB_SHOW_HOME_SELF_BOOSTS -> {
@@ -584,13 +587,13 @@ abstract class TimelineViewModel(
                 filterRemoveSelfReblogs = timeline is Timeline.Home && !filter
                 if (oldRemoveSelfReblogs != filterRemoveSelfReblogs) {
                     Timber.d("Reload because TAB_SHOW_SOME_SELF_BOOSTS changed")
-                    reloadKeepingReadingPosition(activeAccount.id)
+                    repository.invalidate(activeAccount.id)
                 }
             }
         }
     }
 
-    private fun handleEvent(event: Event) {
+    private suspend fun handleEvent(event: Event) {
         when (event) {
             is FavoriteEvent -> handleFavEvent(event)
             is ReblogEvent -> handleReblogEvent(event)
@@ -598,7 +601,7 @@ abstract class TimelineViewModel(
             is PinEvent -> handlePinEvent(event)
             is MuteConversationEvent -> {
                 Timber.d("Reload because MuteConversationEvent")
-                reloadKeepingReadingPosition(activeAccount.id)
+                repository.invalidate(activeAccount.id)
             }
             is UnfollowEvent -> {
                 if (timeline is Timeline.Home) {

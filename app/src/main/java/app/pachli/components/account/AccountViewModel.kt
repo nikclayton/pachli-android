@@ -3,13 +3,13 @@ package app.pachli.components.account
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.pachli.appstore.BlockEvent
-import app.pachli.appstore.DomainMuteEvent
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.MuteEvent
-import app.pachli.appstore.ProfileEditedEvent
-import app.pachli.appstore.UnfollowEvent
 import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.eventhub.BlockEvent
+import app.pachli.core.eventhub.DomainMuteEvent
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.MuteEvent
+import app.pachli.core.eventhub.ProfileEditedEvent
+import app.pachli.core.eventhub.UnfollowEvent
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Relationship
 import app.pachli.core.network.retrofit.MastodonApi
@@ -84,9 +84,9 @@ class AccountViewModel @AssistedInject constructor(
 
                         isFromOwnDomain = domain == activeAccount.domain
                     }
-                    .onFailure { t ->
-                        Timber.w("failed obtaining account: %s", t)
-                        accountData.postValue(Error(cause = t.throwable))
+                    .onFailure {
+                        Timber.w("failed obtaining account: %s", it)
+                        accountData.postValue(Error(cause = it.throwable))
                         isDataLoading = false
                         isRefreshing.postValue(false)
                     }
@@ -100,13 +100,13 @@ class AccountViewModel @AssistedInject constructor(
 
             viewModelScope.launch {
                 mastodonApi.relationships(listOf(accountId))
-                    .onSuccess { response ->
-                        val relationships = response.body
+                    .onSuccess {
+                        val relationships = it.body
                         relationshipData.postValue(if (relationships.isNotEmpty()) Success(relationships[0]) else Error())
                     }
-                    .onFailure { t ->
-                        Timber.w("failed obtaining relationships: %s", t)
-                        relationshipData.postValue(Error(cause = t.throwable))
+                    .onFailure {
+                        Timber.w("failed obtaining relationships: %s", it)
+                        relationshipData.postValue(Error(cause = it.throwable))
                     }
             }
         }

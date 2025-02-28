@@ -398,13 +398,12 @@
     <string name="restart_required">Nepieciešama lietotnes restartēšana</string>
     <string name="reblog_private">Pastiprināt sākotnējai auditorijai</string>
     <string name="description_post_reblogged">Pastiprināts</string>
-    <string name="replying_to">Atbildot @%s</string>
     <string name="lock_account_label_description">Prasa manuāli apstiprināt sekotājus</string>
     <string name="title_reblogged_by">Pastiprināja</string>
     <plurals name="reblogs">
-        <item quantity="zero"><b>%s</b> pastiprinājumi</item>
-        <item quantity="one"><b>%s</b> pastiprinājums</item>
-        <item quantity="other"><b>%s</b> pastiprinājumi</item>
+        <item quantity="zero">&lt;b&gt;%s&lt;/b&gt; pastiprinājumi</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; pastiprinājums</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; pastiprinājumi</item>
     </plurals>
     <string name="title_favourites">Izlases</string>
     <string name="notification_favourite_format">%s pievienoja tavu ierakstu izlasei</string>

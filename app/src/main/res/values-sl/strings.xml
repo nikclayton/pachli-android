@@ -193,7 +193,6 @@
     <string name="follows_you">Vam sledi</string>
     <string name="pref_title_alway_show_sensitive_media">Vedno prikaži občutljivo vsebino</string>
     <string name="title_media">Mediji</string>
-    <string name="replying_to">Odgovori @%s</string>
     <string name="pref_title_public_filter_keywords">Javne časovnice</string>
     <string name="pref_title_thread_filter_keywords">Pogovori</string>
     <string name="filter_addition_title">Dodaj filter</string>
@@ -363,9 +362,9 @@
     <string name="hashtags">Ključniki</string>
     <string name="notification_follow_request_name">Zahteve za Sledenje</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Priljubljena</item>
-        <item quantity="two"><b>%1$s</b> Priljubljeni</item>
-        <item quantity="few"><b>%1$s</b> Priljubljene</item>
-        <item quantity="other"><b>%1$s</b> Priljubljenih</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Priljubljena</item>
+        <item quantity="two">&lt;b&gt;%1$s&lt;/b&gt; Priljubljeni</item>
+        <item quantity="few">&lt;b&gt;%1$s&lt;/b&gt; Priljubljene</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Priljubljenih</item>
     </plurals>
 </resources>

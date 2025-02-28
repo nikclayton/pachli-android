@@ -129,7 +129,7 @@ class DraftHelper @Inject constructor(
             statusId = statusId,
         )
 
-        draftDao.insertOrReplace(draft)
+        draftDao.upsert(draft)
         Timber.d("saved draft to db")
     }
 
@@ -142,12 +142,6 @@ class DraftHelper @Inject constructor(
     private suspend fun deleteDraftAndAttachments(draft: DraftEntity) {
         deleteAttachments(draft)
         draftDao.delete(draft.id)
-    }
-
-    suspend fun deleteAllDraftsAndAttachmentsForAccount(pachliAccountId: Long) {
-        draftDao.loadDrafts(pachliAccountId).forEach { draft ->
-            deleteDraftAndAttachments(draft)
-        }
     }
 
     suspend fun deleteAttachments(draft: DraftEntity) = withContext(Dispatchers.IO) {

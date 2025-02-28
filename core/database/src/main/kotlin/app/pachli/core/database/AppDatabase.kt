@@ -26,6 +26,7 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.DeleteColumn
 import androidx.room.RenameColumn
+import androidx.room.RenameTable
 import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
@@ -39,21 +40,29 @@ import app.pachli.core.database.dao.FollowingAccountDao
 import app.pachli.core.database.dao.InstanceDao
 import app.pachli.core.database.dao.ListsDao
 import app.pachli.core.database.dao.LogEntryDao
+import app.pachli.core.database.dao.NotificationDao
 import app.pachli.core.database.dao.RemoteKeyDao
+import app.pachli.core.database.dao.StatusDao
 import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.database.dao.TranslatedStatusDao
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.AnnouncementEntity
 import app.pachli.core.database.model.ContentFiltersEntity
 import app.pachli.core.database.model.ConversationEntity
+import app.pachli.core.database.model.ConversationViewDataEntity
 import app.pachli.core.database.model.DraftEntity
 import app.pachli.core.database.model.EmojisEntity
 import app.pachli.core.database.model.FollowingAccountEntity
 import app.pachli.core.database.model.InstanceInfoEntity
 import app.pachli.core.database.model.LogEntryEntity
 import app.pachli.core.database.model.MastodonListEntity
+import app.pachli.core.database.model.NotificationEntity
+import app.pachli.core.database.model.NotificationRelationshipSeveranceEventEntity
+import app.pachli.core.database.model.NotificationReportEntity
+import app.pachli.core.database.model.NotificationViewDataEntity
 import app.pachli.core.database.model.RemoteKeyEntity
 import app.pachli.core.database.model.ServerEntity
+import app.pachli.core.database.model.StatusEntity
 import app.pachli.core.database.model.StatusViewDataEntity
 import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.database.model.TimelineStatusEntity
@@ -70,7 +79,7 @@ import java.util.TimeZone
         AccountEntity::class,
         InstanceInfoEntity::class,
         EmojisEntity::class,
-        TimelineStatusEntity::class,
+        StatusEntity::class,
         TimelineAccountEntity::class,
         ConversationEntity::class,
         RemoteKeyEntity::class,
@@ -82,8 +91,14 @@ import java.util.TimeZone
         ContentFiltersEntity::class,
         AnnouncementEntity::class,
         FollowingAccountEntity::class,
+        NotificationEntity::class,
+        NotificationReportEntity::class,
+        NotificationViewDataEntity::class,
+        NotificationRelationshipSeveranceEventEntity::class,
+        TimelineStatusEntity::class,
+        ConversationViewDataEntity::class,
     ],
-    version = 10,
+    version = 21,
     autoMigrations = [
         AutoMigration(from = 1, to = 2, spec = AppDatabase.MIGRATE_1_2::class),
         AutoMigration(from = 2, to = 3),
@@ -92,7 +107,19 @@ import java.util.TimeZone
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7, spec = AppDatabase.MIGRATE_6_7::class),
         AutoMigration(from = 7, to = 8, spec = AppDatabase.MIGRATE_7_8::class),
+        // 8 -> 9 is a custom migration
         AutoMigration(from = 9, to = 10),
+        AutoMigration(from = 10, to = 11),
+        AutoMigration(from = 11, to = 12, spec = AppDatabase.MIGRATE_11_12::class),
+        // 12 -> 13 is a custom migration
+        AutoMigration(from = 13, to = 14, spec = AppDatabase.MIGRATE_13_14::class),
+        AutoMigration(from = 14, to = 15, spec = AppDatabase.MIGRATE_14_15::class),
+        AutoMigration(from = 15, to = 16),
+        AutoMigration(from = 16, to = 17),
+        AutoMigration(from = 17, to = 18, spec = AppDatabase.MIGRATE_17_18::class),
+        // 18 -> 19 is a custom migration
+        AutoMigration(from = 19, to = 20, spec = AppDatabase.MIGRATE_19_20::class),
+        AutoMigration(from = 20, to = 21),
     ],
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -108,6 +135,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun listsDao(): ListsDao
     abstract fun announcementsDao(): AnnouncementsDao
     abstract fun followingAccountDao(): FollowingAccountDao
+    abstract fun notificationDao(): NotificationDao
+    abstract fun statusDao(): StatusDao
 
     @DeleteColumn("TimelineStatusEntity", "expanded")
     @DeleteColumn("TimelineStatusEntity", "contentCollapsed")
@@ -163,6 +192,59 @@ abstract class AppDatabase : RoomDatabase() {
     @DeleteColumn("DraftEntity", "scheduledAt")
     @RenameColumn("DraftEntity", "scheduledAtLong", "scheduledAt")
     class MIGRATE_7_8 : AutoMigrationSpec
+
+    // lastNotificationId removed in favour of the REFRESH key in RemoteKeyEntity.
+    @DeleteColumn("AccountEntity", "lastNotificationId")
+    class MIGRATE_11_12 : AutoMigrationSpec
+
+    // lastVisibleHomeTimelineStatusId removed in favour of the REFRESH key in RemoteKeyEntity.
+    @DeleteColumn("AccountEntity", "lastVisibleHomeTimelineStatusId")
+    class MIGRATE_13_14 : AutoMigrationSpec
+
+    @RenameTable("TimelineStatusEntity", "StatusEntity")
+    class MIGRATE_14_15 : AutoMigrationSpec
+
+    @RenameColumn("StatusViewDataEntity", "timelineUserId", "pachliAccountId")
+    class MIGRATE_17_18 : AutoMigrationSpec
+
+    // Rename for consistency with other code.
+    @RenameColumn("ConversationEntity", "accountId", "pachliAccountId")
+    // Conversations are now ordered by date of most recent status.
+    @DeleteColumn("ConversationEntity", "order")
+    // Removing the embedded status from ConversationStatusEntity, and joining
+    // on StatusEntity.
+    @DeleteColumn("ConversationEntity", "s_id")
+    @DeleteColumn("ConversationEntity", "s_url")
+    @DeleteColumn("ConversationEntity", "s_inReplyToId")
+    @DeleteColumn("ConversationEntity", "s_inReplyToAccountId")
+    @DeleteColumn("ConversationEntity", "s_account")
+    @DeleteColumn("ConversationEntity", "s_content")
+    @DeleteColumn("ConversationEntity", "s_createdAt")
+    @DeleteColumn("ConversationEntity", "s_editedAt")
+    @DeleteColumn("ConversationEntity", "s_emojis")
+    @DeleteColumn("ConversationEntity", "s_favouritesCount")
+    @DeleteColumn("ConversationEntity", "s_repliesCount")
+    @DeleteColumn("ConversationEntity", "s_favourited")
+    @DeleteColumn("ConversationEntity", "s_bookmarked")
+    @DeleteColumn("ConversationEntity", "s_sensitive")
+    @DeleteColumn("ConversationEntity", "s_spoilerText")
+    @DeleteColumn("ConversationEntity", "s_attachments")
+    @DeleteColumn("ConversationEntity", "s_mentions")
+    @DeleteColumn("ConversationEntity", "s_tags")
+    @DeleteColumn("ConversationEntity", "s_showingHiddenContent")
+    @DeleteColumn("ConversationEntity", "s_expanded")
+    @DeleteColumn("ConversationEntity", "s_collapsed")
+    @DeleteColumn("ConversationEntity", "s_muted")
+    @DeleteColumn("ConversationEntity", "s_poll")
+    @DeleteColumn("ConversationEntity", "s_language")
+    @DeleteColumn("ConversationEntity", "s_showingHiddenContent")
+    @DeleteColumn("ConversationEntity", "s_collapsed")
+    @DeleteColumn("ConversationEntity", "s_expanded")
+    class MIGRATE_19_20 : AutoMigrationSpec {
+        override fun onPostMigrate(db: SupportSQLiteDatabase) {
+            super.onPostMigrate(db)
+        }
+    }
 }
 
 val MIGRATE_8_9 = object : Migration(8, 9) {
@@ -232,5 +314,39 @@ val MIGRATE_8_9 = object : Migration(8, 9) {
                 db.insert("ContentFiltersEntity", CONFLICT_IGNORE, contentFiltersEntityValues)
             }
         }
+    }
+}
+
+/**
+ * Adds the FK constraint between NotificationEntity and TimelineAccountEntity.
+ *
+ * The relevant TimelineAccountEntity rows may not exist in the database, so
+ * recreate NotificationEntity with the new constraint but do not migrate the
+ * data. It's a cache, so the app will refetch notifications on launch.
+ */
+val MIGRATE_12_13 = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS `_new_NotificationEntity` (`pachliAccountId` INTEGER NOT NULL, `serverId` TEXT NOT NULL, `type` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `accountServerId` TEXT NOT NULL, `statusServerId` TEXT, PRIMARY KEY(`pachliAccountId`, `serverId`), FOREIGN KEY(`pachliAccountId`) REFERENCES `AccountEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`accountServerId`, `pachliAccountId`) REFERENCES `TimelineAccountEntity`(`serverId`, `timelineUserId`) ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)")
+        db.execSQL("DROP TABLE `NotificationEntity`")
+        db.execSQL("ALTER TABLE `_new_NotificationEntity` RENAME TO `NotificationEntity`")
+    }
+}
+
+/**
+ * Removes any StatusEntity that reference a non-existent [AccountEntity.id] in
+ * [StatusEntity.timelineUserId].
+ *
+ * Version 20 introduces that as an FK constraint, this ensures that any statuses
+ * in the cache that break that constraint are removed.
+ */
+val MIGRATE_18_19 = object : Migration(18, 19) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+DELETE
+FROM StatusEntity
+WHERE timelineUserId NOT IN (SELECT id FROM AccountEntity)
+            """.trimIndent(),
+        )
     }
 }

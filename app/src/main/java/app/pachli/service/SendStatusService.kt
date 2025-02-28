@@ -19,16 +19,16 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.IntentCompat
 import app.pachli.R
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.StatusComposedEvent
-import app.pachli.appstore.StatusEditedEvent
-import app.pachli.appstore.StatusScheduledEvent
 import app.pachli.components.compose.MediaUploader
 import app.pachli.components.drafts.DraftHelper
 import app.pachli.components.notifications.pendingIntentFlags
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.StatusComposedEvent
+import app.pachli.core.eventhub.StatusEditedEvent
+import app.pachli.core.eventhub.StatusScheduledEvent
 import app.pachli.core.navigation.MainActivityIntent
 import app.pachli.core.network.model.Attachment
 import app.pachli.core.network.model.MediaAttribute
@@ -36,7 +36,6 @@ import app.pachli.core.network.model.NewPoll
 import app.pachli.core.network.model.NewStatus
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
-import at.connyduck.calladapter.networkresult.fold
 import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
@@ -50,7 +49,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
@@ -179,6 +180,7 @@ class SendStatusService : Service() {
                     mediaCheckRetries++
                 }
             } catch (e: Exception) {
+                currentCoroutineContext().ensureActive()
                 Timber.w(e, "failed getting media status")
                 retrySending(statusId)
                 return@launch
@@ -246,33 +248,33 @@ class SendStatusService : Service() {
                 )
             }
 
-            sendResult.fold(
-                { sentStatus ->
-                    statusesToSend.remove(statusId)
-                    // If the status was loaded from a draft, delete the draft and associated media files.
-                    if (statusToSend.draftId != 0) {
-                        draftHelper.deleteDraftAndAttachments(statusToSend.draftId)
-                    }
+            sendResult.onSuccess {
+                val sentStatus = it.body
+                statusesToSend.remove(statusId)
+                // If the status was loaded from a draft, delete the draft and associated media files.
+                if (statusToSend.draftId != 0) {
+                    draftHelper.deleteDraftAndAttachments(statusToSend.draftId)
+                }
 
-                    mediaUploader.cancelUploadScope(*statusToSend.media.map { it.localId }.toIntArray())
+                mediaUploader.cancelUploadScope(*statusToSend.media.map { it.localId }.toIntArray())
 
-                    val scheduled = statusToSend.scheduledAt != null
+                val scheduled = statusToSend.scheduledAt != null
 
-                    if (scheduled) {
-                        eventHub.dispatch(StatusScheduledEvent)
-                    } else if (!isNew) {
-                        eventHub.dispatch(StatusEditedEvent(statusToSend.statusId!!, sentStatus as Status))
-                    } else {
-                        eventHub.dispatch(StatusComposedEvent(sentStatus as Status))
-                    }
+                if (scheduled) {
+                    eventHub.dispatch(StatusScheduledEvent)
+                } else if (!isNew) {
+                    eventHub.dispatch(StatusEditedEvent(statusToSend.statusId!!, sentStatus as Status))
+                } else {
+                    eventHub.dispatch(StatusComposedEvent(sentStatus as Status))
+                }
 
-                    notificationManager.cancel(statusId)
-                },
-                { throwable ->
-                    Timber.w(throwable, "failed sending status")
-                    failOrRetry(throwable, statusId)
-                },
-            )
+                notificationManager.cancel(statusId)
+            }
+                .onFailure {
+                    Timber.w("failed sending status: %s", it)
+                    failOrRetry(it.throwable, statusId)
+                }
+
             stopSelfWhenDone()
         }
     }

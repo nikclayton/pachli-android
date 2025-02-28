@@ -9,7 +9,6 @@
         <item quantity="many">%d novas interações</item>
         <item quantity="other">%d novas interações</item>
     </plurals>
-    <string name="replying_to">A responder a @%s</string>
     <string name="lock_account_label_description">Necessita de aprovar manualmente os seguidores</string>
     <string name="compose_save_draft">Guardar rascunho\?</string>
     <string name="later">Depois</string>
@@ -312,14 +311,14 @@
     <string name="label_remote_account">As informações abaixo podem refletir, de forma incompleta, o perfil do utilizador. Toque aqui para abrir o perfil completo no navegador.</string>
     <string name="pin_action">Fixar</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Favorito</item>
-        <item quantity="many"><b>%1$s</b> Favoritos</item>
-        <item quantity="other"><b>%1$s</b> Favoritos</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Favorito</item>
+        <item quantity="many">&lt;b&gt;%1$s&lt;/b&gt; Favoritos</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Favoritos</item>
     </plurals>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> Boost</item>
-        <item quantity="many"><b>%s</b> Boosts</item>
-        <item quantity="other"><b>%s</b> Boosts</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Boost</item>
+        <item quantity="many">&lt;b&gt;%s&lt;/b&gt; Boosts</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Boosts</item>
     </plurals>
     <string name="title_reblogged_by">Boost dado por</string>
     <string name="title_favourited_by">Adicionado aos favoritos por</string>

@@ -36,7 +36,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import app.pachli.adapter.ItemInteractionListener
 import app.pachli.adapter.TabAdapter
-import app.pachli.appstore.EventHub
 import app.pachli.core.activity.BaseActivity
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
@@ -46,6 +45,7 @@ import app.pachli.core.data.model.MastodonList
 import app.pachli.core.data.repository.ListsRepository
 import app.pachli.core.data.repository.ListsRepository.Companion.compareByListTitle
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.ListsActivityIntent
 import app.pachli.core.navigation.pachliAccountId
@@ -62,6 +62,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+/**
+ * Displays the user's list of tabs, and allows them:
+ *
+ * - Drag/drop tabs to re-order.
+ * - Add new tabs.
+ * - Remove existing tabs.
+ */
 @AndroidEntryPoint
 class TabPreferenceActivity : BaseActivity(), ItemInteractionListener {
     @Inject
