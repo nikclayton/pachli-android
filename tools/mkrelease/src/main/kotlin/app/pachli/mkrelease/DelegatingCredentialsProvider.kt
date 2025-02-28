@@ -17,14 +17,6 @@
 
 package app.pachli.mkrelease
 
-import org.eclipse.jgit.errors.UnsupportedCredentialItem
-import org.eclipse.jgit.transport.CredentialItem
-import org.eclipse.jgit.transport.CredentialsProvider
-import org.eclipse.jgit.transport.URIish
-import org.eclipse.jgit.util.FS
-import org.eclipse.jgit.util.TemporaryBuffer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -34,6 +26,14 @@ import java.util.Optional
 import java.util.function.Function
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import org.eclipse.jgit.errors.UnsupportedCredentialItem
+import org.eclipse.jgit.transport.CredentialItem
+import org.eclipse.jgit.transport.CredentialsProvider
+import org.eclipse.jgit.transport.URIish
+import org.eclipse.jgit.util.FS
+import org.eclipse.jgit.util.TemporaryBuffer
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class DelegatingCredentialsProvider(projectDir: Path) :
     CredentialsProvider() {
@@ -59,28 +59,8 @@ class DelegatingCredentialsProvider(projectDir: Path) :
         val credentialsPair: CredentialsPair = credentials.computeIfAbsent(
             uri,
             Function<URIish, CredentialsPair> { _ ->
-                try {
-                    lookupCredentials(uri)
-                } catch (e: IOException) {
-                    logger.warn(
-                        "Failed to look up credentials via 'git credential fill' for: $uri",
-                        e
-                    )
-                    null
-                } catch (e: InterruptedException) {
-                    logger.warn(
-                        "Failed to look up credentials via 'git credential fill' for: $uri",
-                        e
-                    )
-                    null
-                } catch (e: RuntimeException) {
-                    logger.warn(
-                        "Failed to look up credentials via 'git credential fill' for: $uri",
-                        e
-                    )
-                    null
-                }
-            }
+                lookupCredentials(uri)
+            },
         )
 
         // map extracted credentials to CredentialItems, see also: org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
@@ -97,7 +77,7 @@ class DelegatingCredentialsProvider(projectDir: Path) :
             } else {
                 throw UnsupportedCredentialItem(
                     uri,
-                    "${item.javaClass.name}:${item.promptText}"
+                    "${item.javaClass.name}:${item.promptText}",
                 )
             }
         }
@@ -135,7 +115,7 @@ class DelegatingCredentialsProvider(projectDir: Path) :
             throw IllegalStateException(
                 (
                     "Native Git invocation failed with return code " + result.rc
-                    ) + ". See previous log output for more details."
+                    ) + ". See previous log output for more details.",
             )
         }
         return extractCredentials(bufferToString(result.stdout))
@@ -178,7 +158,7 @@ class DelegatingCredentialsProvider(projectDir: Path) :
         val password: CharArray = matcher.group().toCharArray()
         return CredentialsPair(
             username = username,
-            password = password
+            password = password,
         )
     }
 
