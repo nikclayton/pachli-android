@@ -324,6 +324,17 @@ data object UpdateFilesForRelease : ReleaseStep() {
                 LogEntry(section, components[1], it.authorIdent)
             }
             .groupBy { it.section }
+            .toMutableMap()
+
+        changelogEntries[Translations] = changelogEntries[Translations].orEmpty()
+            .asSequence()
+            .filterNot { it.author.name == "Anonymous" }
+            .filterNot { it.author.name == "LibreTranslate" }
+            .filterNot { it.author.name == "Weblate Translation Memory" }
+            .filterNot { it.author.name == "Weblate (bot)" }
+            .distinctBy { it.author.emailAddress }
+            .sortedBy { it.text }
+            .toList()
 
         t.info(changelogEntries)
         // Add entry to CHANGELOG.md
