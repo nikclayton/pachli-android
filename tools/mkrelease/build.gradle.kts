@@ -32,7 +32,7 @@ dependencies {
     implementation("com.github.ajalt.mordant:mordant:2.2.0")
 
     // JSON
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
     // JGit with BouncyCastle (GPG) support
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.5.0.202303070854-r")
@@ -51,6 +51,13 @@ dependencies {
 
     // Gitlab API
     implementation("org.gitlab4j:gitlab4j-api:5.2.0")
+
+    // Ktor (for Weblate API)
+    implementation("io.ktor:ktor-client-core:3.1.1")
+    implementation("io.ktor:ktor-client-cio:3.1.1")
+    implementation("io.ktor:ktor-client-auth:3.1.1")
+    implementation("io.ktor:ktor-client-content-negotiation:3.1.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.1.1")
 }
 
 // Fixes:

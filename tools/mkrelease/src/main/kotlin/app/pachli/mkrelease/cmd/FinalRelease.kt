@@ -38,6 +38,8 @@ class FinalRelease : CliktCommand(name = "final") {
 
         val steps = listOf(
             EnsureCleanReleaseSpec,
+            EnsureEnvironmentHasTokens,
+            EnsureUpToDateTranslations,
             PreparePachliForkRepository,
             GetCurrentAppVersion,
 //            ConfirmCurrentVersionIsBeta,

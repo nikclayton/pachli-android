@@ -44,6 +44,13 @@ import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.mordant.rendering.TextColors
 import com.github.ajalt.mordant.terminal.Terminal
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
+import io.ktor.serialization.kotlinx.json.json
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -52,7 +59,10 @@ import kotlin.io.path.createTempFile
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.MergeCommand
@@ -82,6 +92,67 @@ data object EnsureCleanReleaseSpec : ReleaseStep() {
         spec.thisVersion?.let {
             throw UsageError("thisVersion is set in the release spec, there is an ongoing release process: $it")
         }
+
+        return null
+    }
+}
+
+/**
+ * Throws if the environment is missing mandatory API tokens:
+ *
+ * - GITHUB_TOKEN
+ * - WEBLATE_TOKEN
+ */
+@Serializable
+data object EnsureEnvironmentHasTokens : ReleaseStep() {
+    class NeedGithubToken : Exception("GITHUB_TOKEN not in environment")
+    class NeedWeblateToken : Exception("WEBLATE_TOKEN not in environment")
+
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        System.getenv("GITHUB_TOKEN") ?: throw NeedGithubToken()
+        System.getenv("WEBLATE_TOKEN") ?: throw NeedWeblateToken()
+        return null
+    }
+}
+
+/**
+ * Checks there are no outstanding changes at Weblate that need to be
+ * committed, merged, or pushed. Throws if there are.
+ */
+@Serializable
+data object EnsureUpToDateTranslations : ReleaseStep() {
+    @OptIn(ExperimentalSerializationApi::class)
+    @Serializable
+    @JsonIgnoreUnknownKeys
+    data class WeblateRepositoryResponse(
+        @SerialName("needs_commit")
+        val needsCommit: Boolean,
+
+        @SerialName("needs_merge")
+        val needsMerge: Boolean,
+
+        @SerialName("needs_push")
+        val needsPush: Boolean,
+    )
+
+    class WeblateNeedsCommit : Exception("Weblate has pending changes to commit")
+    class WeblateNeedsMerge : Exception("Weblate has upstream changes to merge")
+    class WeblateNeedsPush : Exception("Weblate has local changes to push")
+
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val client = HttpClient(CIO) {
+            install(ContentNegotiation) { json() }
+        }
+
+        val response: WeblateRepositoryResponse = runBlocking {
+            client.get("https://hosted.weblate.org/api/projects/pachli/repository/") {
+                bearerAuth(System.getenv("WEBLATE_TOKEN"))
+            }.body()
+        }
+
+        if (response.needsCommit) throw WeblateNeedsCommit()
+        if (response.needsMerge) throw WeblateNeedsMerge()
+        if (response.needsPush) throw WeblateNeedsPush()
 
         return null
     }
@@ -803,7 +874,7 @@ data object CreateGithubRelease : ReleaseStep() {
 @Serializable
 data object RunOrangeReleaseWorkflow : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        val releaseWorkflowName = "upload-orange-release-google-play.yml"
+        val releaseWorkflowName = "upload-orange-release.yml"
         val releaseTag = spec.releaseTag()
         t.info("Running orange release workflow with $releaseTag")
         t.info("Triggering https://github.com/pachli/pachli-android/actions/workflows/$releaseWorkflowName")
