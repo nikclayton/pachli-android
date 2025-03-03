@@ -89,7 +89,7 @@
     <string name="confirmation_unmuted">Cofnięto wyciszenie konta</string>
     <string name="post_sent">Wyślij!</string>
     <string name="post_sent_long">Odpowiedź wysłano pomyślnie.</string>
-    <string name="hint_compose">Co Ci chodzi po głowie?</string>
+    <string name="hint_compose">Co ci chodzi po głowie?</string>
     <string name="hint_content_warning">Ostrzeżenie o zawartości</string>
     <string name="hint_display_name">Nazwa wyświetlana</string>
     <string name="hint_note">Biogram</string>
@@ -257,7 +257,6 @@
     <string name="pref_failed_to_sync">Synchronizacja ustawień nie powiodła się</string>
     <string name="notification_poll_name">Ankiety</string>
     <string name="notification_poll_description">Powiadomienia o zakończeniu ankiet</string>
-    <string name="about_pachli_version">Pachli %s</string>
     <string name="pref_title_alway_open_spoiler">Zawsze rozwijaj wpisy z ostrzeżeniami o zawartości</string>
     <string name="pref_title_public_filter_keywords">Publiczne osi czasu</string>
     <string name="pref_title_thread_filter_keywords">Rozmowy</string>
@@ -582,7 +581,7 @@
     <string name="pref_title_content_filters">Filtry treści</string>
     <string name="notification_severed_relationships_name">Przerwane relacje</string>
     <string name="action_filter_search">Wyszukiwanie zaawansowane</string>
-    <string name="action_suggestions">Konta proponowane</string>
+    <string name="action_suggestions">Proponowane konta</string>
     <string name="action_translate">Przetłumacz</string>
     <string name="notification_severed_relationships_description">Powiadomienia o przerwanych relacjach</string>
     <string name="pref_title_show_self_boosts">Pokaż samopodbicia</string>
