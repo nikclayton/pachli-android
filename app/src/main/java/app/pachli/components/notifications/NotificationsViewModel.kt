@@ -583,7 +583,8 @@ class NotificationsViewModel @AssistedInject constructor(
                     account,
                     filters = deserialize(account.entity.notificationsFilter),
                 )
-            }.cachedIn(viewModelScope)
+            }
+            .cachedIn(viewModelScope)
 
         uiState =
             combine(accountFlow.distinctUntilChangedBy { it.entity.notificationsFilter }, getUiPrefs()) { account, _ ->
@@ -623,6 +624,7 @@ class NotificationsViewModel @AssistedInject constructor(
         filters: Set<Notification.Type>,
     ): Flow<PagingData<NotificationViewData>> {
         val activeFilters = filters.map { NotificationEntity.Type.from(it) }
+//        Timber.d("grouped: ${repository.groupedNotifications(pachliAccountId)}")
         return repository.notifications(pachliAccountId)
             .map { pagingData ->
                 pagingData

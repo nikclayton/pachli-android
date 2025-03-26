@@ -24,6 +24,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
+import app.pachli.core.database.model.NotificationEntity.Type
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.FilterAction
 import java.time.Instant
@@ -137,6 +138,8 @@ data class NotificationAccountFilterDecisionUpdate(
 data class NotificationEntity(
     val pachliAccountId: Long,
     val serverId: String,
+    @ColumnInfo(defaultValue = "")
+    val groupKey: String,
     val type: Type,
     val createdAt: Instant,
     val accountServerId: String,

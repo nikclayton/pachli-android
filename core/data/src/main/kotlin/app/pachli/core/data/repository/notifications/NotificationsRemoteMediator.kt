@@ -257,6 +257,7 @@ fun NotificationData.Companion.from(pachliAccountId: Long, notification: Notific
 fun NotificationEntity.Companion.from(pachliAccountId: Long, notification: Notification) = NotificationEntity(
     pachliAccountId = pachliAccountId,
     serverId = notification.id,
+    groupKey = notification.id,
     type = NotificationEntity.Type.from(notification.type),
     createdAt = notification.createdAt.toInstant(),
     accountServerId = notification.account.id,

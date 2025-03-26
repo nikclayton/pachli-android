@@ -95,7 +95,31 @@ class NotificationsRepository @Inject constructor(
         ).flow
     }
 
-    fun invalidate() = factory?.invalidate()
+//    @OptIn(ExperimentalPagingApi::class)
+//    suspend fun groupedNotifications(pachliAccountId: Long): Flow<PagingData<NotificationData>> {
+//        factory = InvalidatingPagingSourceFactory { notificationDao.loadGroupedNotifications(pachliAccountId) }
+//
+//        return Pager(
+//            config = PagingConfig(
+//                pageSize = PAGE_SIZE,
+//                enablePlaceholders = true,
+//            ),
+//            remoteMediator = NotificationsRemoteMediator(
+//                pachliAccountId,
+//                mastodonApi,
+//                transactionProvider,
+//                timelineDao,
+//                remoteKeyDao,
+//                notificationDao,
+//                statusDao,
+//            ),
+//            pagingSourceFactory = factory!!,
+//        ).flow
+//    }
+
+    fun invalidate() {
+        factory?.invalidate()
+    }
 
     /**
      * Saves the ID of the notification that future refreshes will try and restore
