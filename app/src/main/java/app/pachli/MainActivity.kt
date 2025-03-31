@@ -26,7 +26,6 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Animatable
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
@@ -47,6 +46,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuProvider
@@ -109,7 +109,6 @@ import app.pachli.core.network.model.Announcement
 import app.pachli.core.network.model.Notification
 import app.pachli.core.network.retrofit.apiresult.ClientError
 import app.pachli.core.preferences.MainNavigationPosition
-import app.pachli.core.preferences.PrefKeys.FONT_FAMILY
 import app.pachli.core.preferences.TabAlignment
 import app.pachli.core.preferences.TabContents
 import app.pachli.core.ui.AlignableTabLayoutAlignment
@@ -763,19 +762,21 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
 
         DrawerImageLoader.init(MainDrawerImageLoader(glide, viewModel.uiState.value.animateAvatars))
 
-        binding.mainDrawerLayout.addDrawerListener(object : DrawerListener {
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) { }
+        binding.mainDrawerLayout.addDrawerListener(
+            object : DrawerListener {
+                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
 
-            override fun onDrawerOpened(drawerView: View) {
-                onBackPressedCallback.isEnabled = true
-            }
+                override fun onDrawerOpened(drawerView: View) {
+                    onBackPressedCallback.isEnabled = true
+                }
 
-            override fun onDrawerClosed(drawerView: View) {
-                onBackPressedCallback.isEnabled = binding.tabLayout.selectedTabPosition > 0
-            }
+                override fun onDrawerClosed(drawerView: View) {
+                    onBackPressedCallback.isEnabled = binding.tabLayout.selectedTabPosition > 0
+                }
 
-            override fun onDrawerStateChanged(newState: Int) { }
-        })
+                override fun onDrawerStateChanged(newState: Int) {}
+            },
+        )
     }
 
     /**
@@ -815,9 +816,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                 }
             },
         )
-        updateMainDrawerTypeface(
-            EmbeddedFontFamily.from(sharedPreferencesRepository.getString(FONT_FAMILY, "default")),
-        )
+        updateMainDrawerTypeface(sharedPreferencesRepository.fontFamily)
     }
 
     /**
@@ -860,9 +859,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
             },
         )
 
-        updateMainDrawerTypeface(
-            EmbeddedFontFamily.from(sharedPreferencesRepository.getString(FONT_FAMILY, "default")),
-        )
+        updateMainDrawerTypeface(sharedPreferencesRepository.fontFamily)
     }
 
     /** Binds [lists] to the "Lists" section in the main drawer. */
@@ -899,9 +896,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         // Insert items after the "Lists" header. Again, use the itemAdapter directly
         // instead of addItemsAtPosition.
         binding.mainDrawer.addItemsAtPosition(headerPosition + 1, *listDrawerItems.toTypedArray())
-        updateMainDrawerTypeface(
-            EmbeddedFontFamily.from(sharedPreferencesRepository.getString(FONT_FAMILY, "default")),
-        )
+        updateMainDrawerTypeface(sharedPreferencesRepository.fontFamily)
     }
 
     /**
@@ -1106,10 +1101,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                 },
             )
         }
-
-        updateMainDrawerTypeface(
-            EmbeddedFontFamily.from(sharedPreferencesRepository.getString(FONT_FAMILY, "default")),
-        )
+        updateMainDrawerTypeface(sharedPreferencesRepository.fontFamily)
     }
 
     private fun buildDeveloperToolsDialog(): AlertDialog {
@@ -1418,7 +1410,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
 
                         override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                             activeToolbar.navigationIcon = FixedSizeDrawable(
-                                BitmapDrawable(resources, resource),
+                                resource.toDrawable(resources),
                                 navIconSize,
                                 navIconSize,
                             )

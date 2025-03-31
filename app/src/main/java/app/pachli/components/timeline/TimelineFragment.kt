@@ -50,7 +50,6 @@ import app.pachli.components.timeline.viewmodel.FallibleStatusAction
 import app.pachli.components.timeline.viewmodel.InfallibleStatusAction
 import app.pachli.components.timeline.viewmodel.InfallibleUiAction
 import app.pachli.components.timeline.viewmodel.NetworkTimelineViewModel
-import app.pachli.components.timeline.viewmodel.StatusActionSuccess
 import app.pachli.components.timeline.viewmodel.TimelineViewModel
 import app.pachli.components.timeline.viewmodel.UiError
 import app.pachli.components.timeline.viewmodel.UiSuccess
@@ -73,6 +72,8 @@ import app.pachli.core.network.model.Status
 import app.pachli.core.preferences.TabTapBehaviour
 import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.SetMarkdownContent
+import app.pachli.core.ui.SetMastodonHtmlContent
 import app.pachli.databinding.FragmentTimelineBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
@@ -185,8 +186,6 @@ class TimelineFragment :
         timeline = arguments.getParcelable(ARG_KIND)!!
 
         isSwipeToRefreshEnabled = arguments.getBoolean(ARG_ENABLE_SWIPE_TO_REFRESH, true)
-
-        adapter = TimelinePagingAdapter(this, viewModel.statusDisplayOptions.value)
     }
 
     override fun onCreateView(
@@ -200,6 +199,14 @@ class TimelineFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+        val setStatusContent = if (viewModel.statusDisplayOptions.value.renderMarkdown) {
+            SetMarkdownContent(requireContext())
+        } else {
+            SetMastodonHtmlContent
+        }
+
+        adapter = TimelinePagingAdapter(setStatusContent, this, viewModel.statusDisplayOptions.value)
 
         layoutManager = LinearLayoutManager(context)
 
@@ -319,40 +326,6 @@ class TimelineFragment :
         }
 
         uiResult.onSuccess {
-            // Update adapter data when status actions are successful, and re-bind to update
-            // the UI.
-            // TODO: No - this should be handled by the ViewModel updating the data
-            // and invalidating the paging source
-            if (it is StatusActionSuccess) {
-                val indexedViewData = adapter.snapshot()
-                    .withIndex()
-                    .firstOrNull { indexed ->
-                        indexed.value?.id == it.action.statusViewData.id
-                    } ?: return
-
-                val statusViewData = indexedViewData.value ?: return
-
-                val status = when (it) {
-                    is StatusActionSuccess.Bookmark ->
-                        statusViewData.status.copy(bookmarked = it.action.state)
-
-                    is StatusActionSuccess.Favourite ->
-                        statusViewData.status.copy(favourited = it.action.state)
-
-                    is StatusActionSuccess.Reblog ->
-                        statusViewData.status.copy(reblogged = it.action.state)
-
-                    is StatusActionSuccess.VoteInPoll ->
-                        statusViewData.status.copy(
-                            poll = it.action.poll.votedCopy(it.action.choices),
-                        )
-
-                    is StatusActionSuccess.Translate -> statusViewData.status
-                }
-                (indexedViewData.value as StatusViewData).status = status
-                adapter.notifyItemChanged(indexedViewData.index)
-            }
-
             // Refresh adapter on mutes and blocks
             when (it) {
                 is UiSuccess.Block, is UiSuccess.Mute, is UiSuccess.MuteConversation,
@@ -599,11 +572,11 @@ class TimelineFragment :
     }
 
     override fun onExpandedChange(viewData: StatusViewData, expanded: Boolean) {
-        viewModel.changeExpanded(expanded, viewData)
+        viewModel.onChangeExpanded(expanded, viewData)
     }
 
     override fun onContentHiddenChange(viewData: StatusViewData, isShowingContent: Boolean) {
-        viewModel.changeContentShowing(isShowingContent, viewData)
+        viewModel.onChangeContentShowing(isShowingContent, viewData)
     }
 
     override fun onShowReblogs(statusId: String) {
@@ -617,11 +590,10 @@ class TimelineFragment :
     }
 
     override fun onContentCollapsedChange(viewData: StatusViewData, isCollapsed: Boolean) {
-        viewModel.changeContentCollapsed(isCollapsed, viewData)
+        viewModel.onContentCollapsed(isCollapsed, viewData)
     }
 
-    // Can only translate the home timeline at the moment
-    override fun canTranslate() = timeline == Timeline.Home
+    override fun canTranslate() = true
 
     override fun onTranslate(statusViewData: StatusViewData) {
         viewModel.accept(FallibleStatusAction.Translate(statusViewData))

@@ -140,6 +140,10 @@
     <string name="action_continue_edit">Continue editing</string>
     <string name="action_send">TOOT</string>
     <string name="action_send_public">TOOT!</string>
+    <string name="action_send_public_content_description">Send public post</string>
+    <string name="action_send_unlisted_content_description">Send unlisted post</string>
+    <string name="action_send_private_content_description">Send followers-only post</string>
+    <string name="action_send_direct_content_description">Send direct message</string>
     <string name="action_view_preferences">Preferences</string>
     <string name="action_view_account_preferences">Account preferences</string>
     <string name="action_view_favourites">Favorites</string>
@@ -707,7 +711,7 @@
     <string name="pref_title_update_check_now">Check for update now</string>
     <string name="pref_update_check_no_updates">There are no updates available</string>
     <string name="pref_update_next_scheduled_check">Next scheduled check: %1$s</string>
-    <string name="error_media_download">Could not download %1$s: %2$d %3$s</string>
+    <string name="error_media_download">Could not download %1$s: %2$s</string>
     <string name="action_add_to_tab">Add to tab</string>
     <string name="action_add_to_tab_success">Added \'%1$s\' to tabs</string>
     <string name="action_remove_tab">Remove tab</string>
@@ -871,6 +875,9 @@
     <string name="pref_title_account_conversation_filters">Conversation filters</string>
     <string name="pref_summary_account_conversation_filters">Your server does not support conversation filters</string>
     <string name="pref_account_conversation_filters_subtitle">What should happen to conversations started by accounts…</string>
+    <string name="pref_account_conversation_filters_label_not_followed">… you don\'t follow</string>
+    <string name="pref_account_conversation_filters_label_younger_30d">… created in last 30 days</string>
+    <string name="pref_account_conversation_filters_label_limited_by_server">… limited by your moderators</string>
 
     <string name="account_filter_placeholder_type_favourite_fmt">A user @&lt;b>%1s&lt;/b> favorited your post</string>
     <string name="account_filter_placeholder_type_follow_fmt">A user @&lt;b>%1s&lt;/b> followed you</string>

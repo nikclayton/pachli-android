@@ -2,8 +2,6 @@ package app.pachli.adapter
 
 import android.content.Context
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.view.View
@@ -16,7 +14,9 @@ import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.text.HtmlCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.core.activity.decodeBlurHash
@@ -37,10 +37,11 @@ import app.pachli.core.network.model.Attachment
 import app.pachli.core.network.model.Emoji
 import app.pachli.core.network.model.PreviewCardKind
 import app.pachli.core.network.model.Status
+import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.preferences.CardViewMode
+import app.pachli.core.ui.SetStatusContent
 import app.pachli.core.ui.makeIcon
 import app.pachli.core.ui.setClickableMentions
-import app.pachli.core.ui.setClickableText
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.CompositeWithOpaqueBackground
 import app.pachli.util.aspectRatios
@@ -65,6 +66,7 @@ import java.util.Date
 
 abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
     itemView: View,
+    protected val setStatusContent: SetStatusContent,
 ) : RecyclerView.ViewHolder(itemView) {
     object Key {
         const val KEY_CREATED = "created"
@@ -110,10 +112,10 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
         val icon = makeIcon(context, GoogleMaterial.Icon.gmd_translate, textSize.toInt())
         setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null)
     }
-    protected val avatarRadius48dp: Int = context.resources.getDimensionPixelSize(DR.dimen.avatar_radius_48dp)
-    private val avatarRadius36dp: Int = context.resources.getDimensionPixelSize(DR.dimen.avatar_radius_36dp)
-    private val avatarRadius24dp: Int = context.resources.getDimensionPixelSize(DR.dimen.avatar_radius_24dp)
-    private val mediaPreviewUnloaded: Drawable = ColorDrawable(MaterialColors.getColor(itemView, android.R.attr.textColorLink))
+    protected val avatarRadius48dp = context.resources.getDimensionPixelSize(DR.dimen.avatar_radius_48dp)
+    private val avatarRadius36dp = context.resources.getDimensionPixelSize(DR.dimen.avatar_radius_36dp)
+    private val avatarRadius24dp = context.resources.getDimensionPixelSize(DR.dimen.avatar_radius_24dp)
+    private val mediaPreviewUnloaded = MaterialColors.getColor(itemView, android.R.attr.textColorLink).toDrawable()
 
     init {
         (itemView as ViewGroup).expandTouchSizeToFillRow(
@@ -160,7 +162,7 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
             contentWarningDescription.text = emojiSpoiler
             contentWarningDescription.visibility = View.VISIBLE
             contentWarningButton.visibility = View.VISIBLE
-            setContentWarningButtonText(expanded)
+            setContentWarningButtonText(viewData.isExpanded)
             contentWarningButton.setOnClickListener {
                 toggleExpandedState(
                     viewData,
@@ -170,7 +172,7 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
                     listener,
                 )
             }
-            setTextVisible(true, expanded, viewData, statusDisplayOptions, listener)
+            setTextVisible(true, viewData, statusDisplayOptions, listener)
             return
         }
 
@@ -178,7 +180,6 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
         contentWarningButton.visibility = View.GONE
         setTextVisible(
             sensitive = false,
-            expanded = true,
             viewData = viewData,
             statusDisplayOptions = statusDisplayOptions,
             listener = listener,
@@ -203,7 +204,7 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
         contentWarningDescription.invalidate()
         listener.onExpandedChange(viewData, expanded)
         setContentWarningButtonText(expanded)
-        setTextVisible(sensitive, expanded, viewData, statusDisplayOptions, listener)
+        setTextVisible(sensitive, viewData, statusDisplayOptions, listener)
         setupCard(
             viewData,
             expanded,
@@ -215,7 +216,6 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
 
     private fun setTextVisible(
         sensitive: Boolean,
-        expanded: Boolean,
         viewData: T,
         statusDisplayOptions: StatusDisplayOptions,
         listener: StatusActionListener<T>,
@@ -239,11 +239,17 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
             }
         }
 
-        val content = viewData.content
-        if (expanded) {
-            val emojifiedText =
-                content.emojify(emojis, this.content, statusDisplayOptions.animateEmojis)
-            setClickableText(this.content, emojifiedText, mentions, tags, listener)
+        if (!sensitive || viewData.isExpanded) {
+            setStatusContent(
+                this.content,
+                viewData.content,
+                statusDisplayOptions,
+                emojis,
+                mentions,
+                tags,
+                listener,
+            )
+
             for (i in mediaLabels.indices) {
                 updateMediaLabel(i, sensitive, true)
             }
@@ -422,7 +428,7 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
         bookmarkButton.isChecked = bookmarked
     }
 
-    private fun decodeBlurHash(blurhash: String): BitmapDrawable {
+    private fun decodeBlurHash(blurhash: String): BitmapDrawable? {
         return decodeBlurHash(context, blurhash)
     }
 
@@ -557,7 +563,7 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
         animateTransition: Boolean,
     ) {
         view.setOnClickListener { v: View? ->
-            if (sensitiveMediaWarning.visibility == View.VISIBLE) {
+            if (sensitiveMediaWarning.isVisible) {
                 listener.onContentHiddenChange(viewData, true)
             } else {
                 listener.onViewMedia(viewData, index, if (animateTransition) v else null)
@@ -791,7 +797,7 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
             // Content is optional, and hidden if there are spoilers or the status is
             // marked sensitive, and it has not been expanded.
             if (TextUtils.isEmpty(viewData.spoilerText) || !sensitive || viewData.isExpanded) {
-                append(viewData.content, ", ")
+                append(viewData.content.parseAsMastodonHtml(), ", ")
             }
 
             viewData.actionable.poll?.let {

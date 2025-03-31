@@ -41,6 +41,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.toColorInt
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -540,7 +541,7 @@ class AccountActivity :
                 account.createdAt?.let { createdAt ->
                     binding.accountDateJoined.text = resources.getString(
                         R.string.account_date_joined,
-                        SimpleDateFormat("MMMM, yyyy", Locale.getDefault()).format(createdAt),
+                        SimpleDateFormat("LLLL yyyy", Locale.getDefault()).format(createdAt),
                     )
                     binding.accountDateJoined.show()
                 } ?: binding.accountDateJoined.hide()
@@ -817,7 +818,7 @@ class AccountActivity :
         // so follow suit for the moment, https://github.com/mastodon/mastodon/issues/28327
         loadedAccount?.roles?.forEach { role ->
             val badgeColor = if (role.color.isNotBlank()) {
-                Color.parseColor(role.color)
+                role.color.toColorInt()
             } else {
                 MaterialColors.getColor(binding.accountBadgeContainer, android.R.attr.colorPrimary)
             }

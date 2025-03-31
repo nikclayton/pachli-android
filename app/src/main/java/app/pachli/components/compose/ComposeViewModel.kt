@@ -147,7 +147,7 @@ class ComposeViewModel @AssistedInject constructor(
             flow {
                 when (val i = composeOptions?.inReplyTo) {
                     is InReplyTo.Id -> {
-                        emit(Ok(Loadable.Loading<InReplyTo.Status>()))
+                        emit(Ok(Loadable.Loading))
                         api.status(i.statusId).mapEither(
                             { Loadable.Loaded(InReplyTo.Status.from(it.body)) },
                             { UiError.LoadInReplyToError(it) },
@@ -548,7 +548,14 @@ class ComposeViewModel @AssistedInject constructor(
     fun updateDescription(localId: Int, serverId: String?, description: String) {
         // If the image hasn't been uploaded then update the state locally.
         if (serverId == null) {
-            updateMediaItem(localId) { mediaItem -> mediaItem.copy(description = description) }
+            updateMediaItem(localId) { it.copy(description = description) }
+            return
+        }
+
+        // If editing an existing post the update must go through the status edit API
+        // when user presses the button, just update the local copy of the description.
+        if (editing) {
+            updateMediaItem(localId) { it.copy(description = description) }
             return
         }
 

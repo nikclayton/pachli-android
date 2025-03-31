@@ -58,6 +58,8 @@ import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.SetMarkdownContent
+import app.pachli.core.ui.SetMastodonHtmlContent
 import app.pachli.databinding.FragmentTimelineBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
@@ -167,7 +169,13 @@ class ConversationsFragment :
         viewLifecycleOwner.lifecycleScope.launch {
             val statusDisplayOptions = statusDisplayOptionsRepository.flow.value
 
-            adapter = ConversationAdapter(statusDisplayOptions, this@ConversationsFragment, accept)
+            val setStatusContent = if (statusDisplayOptions.renderMarkdown) {
+                SetMarkdownContent(requireContext())
+            } else {
+                SetMastodonHtmlContent
+            }
+
+            adapter = ConversationAdapter(statusDisplayOptions, setStatusContent, this@ConversationsFragment, accept)
 
             setupRecyclerView()
 
@@ -340,6 +348,9 @@ class ConversationsFragment :
         binding.statusView.hide()
         adapter.refresh()
     }
+
+    // Can't translate conversations because of Mastodon privacy settings.
+    override fun canTranslate() = false
 
     override fun onReblog(viewData: ConversationViewData, reblog: Boolean) {
         // its impossible to reblog private messages

@@ -45,7 +45,7 @@
     <string name="post_sent">Odoslané!</string>
     <string name="post_sent_long">Odpoveď bola úspešne odoslaná.</string>
     <string name="hint_display_name">Zobrazované meno</string>
-    <string name="hint_note">O vás</string>
+    <string name="hint_note">O tebe</string>
     <string name="hint_search">Hľadať…</string>
     <string name="search_no_results">Žiadne výsledky</string>
     <string name="label_quick_reply">Odpovedať…</string>
@@ -395,7 +395,7 @@
         <item quantity="few"><b>%1$s</b> obľúbenia</item>
         <item quantity="other"><b>%1$s</b> obľúbení</item>
     </plurals>
-    <string name="account_date_joined">Pripojil/a sa %1$s</string>
+    <string name="account_date_joined">Dátum registrácie %1$s</string>
     <string name="announcement_date_updated">(Aktualizované: %1$s)</string>
     <plurals name="reblogs">
         <item quantity="one"><b>%s</b> zdieľanie</item>
@@ -671,7 +671,7 @@
     <string name="search_operator_attachment_has_media_except_2_label_fmt">Všetky okrem %1$s, %2$s</string>
     <string name="search_operator_attachment_no_media_label">Žiadne médiá</string>
     <string name="server_repository_error">Nepodarilo sa načítať informácie o serveri pre %1$s: %2$s</string>
-    <string name="error_media_download">Nepodarilo sa stiahnuť %1$s: %2$d %3$s</string>
+    <string name="error_media_download">Nepodarilo sa stiahnuť %1$s: %2$s</string>
     <string name="compose_warn_language_dialog_accept_and_dont_ask_fmt">Uverejniť tak, ako je (%1$s) a viac sa nepýtať</string>
     <string name="error_prepare_media_unsupported_mime_type_fmt">server nepodporuje typ súboru: %1$s</string>
     <string name="search_operator_attachment_dialog_title">Obmedziť na príspevky s médiami?</string>
@@ -801,4 +801,7 @@
     <string name="pref_account_conversation_filters_subtitle">Čo sa má stať s konverzáciami začatými účtami…</string>
     <string name="pref_summary_account_conversation_filters">Tvoj server nepodporuje filtre konverzácií</string>
     <string name="pref_title_account_conversation_filters">Filtre konverzácií</string>
+    <string name="pref_account_conversation_filters_label_younger_30d">… ktoré boli vytvorené za posledných 30 dní</string>
+    <string name="pref_account_conversation_filters_label_limited_by_server">… ktoré boli obmedzené tvojimi moderátormi</string>
+    <string name="pref_account_conversation_filters_label_not_followed">… ktoré nesleduješ</string>
 </resources>

@@ -32,8 +32,8 @@ android {
 
     defaultConfig {
         applicationId = "app.pachli"
-        versionCode = 27
-        versionName = "2.10.0"
+        versionCode = 28
+        versionName = "2.10.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -108,6 +108,10 @@ configurations {
     // https://github.com/google/conscrypt/issues/649
     testImplementation {
         exclude(group = "org.conscrypt", module = "conscrypt-android")
+    }
+
+    implementation {
+        exclude(group = "org.jetbrains", module = "annotations")
     }
 }
 

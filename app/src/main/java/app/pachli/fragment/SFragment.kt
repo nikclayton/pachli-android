@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
@@ -30,6 +29,7 @@ import androidx.annotation.CallSuper
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -62,6 +62,7 @@ import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.ui.ClipboardUseCase
 import app.pachli.interfaces.StatusActionListener
+import app.pachli.translation.TranslationService
 import app.pachli.usecase.TimelineCases
 import app.pachli.view.showMuteAccountDialog
 import com.github.michaelbull.result.onFailure
@@ -97,6 +98,9 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
 
     @Inject
     lateinit var clipboard: ClipboardUseCase
+
+    @Inject
+    lateinit var translationService: TranslationService
 
     private var serverCanTranslate = false
 
@@ -233,7 +237,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
         } else {
             popup.inflate(R.menu.status_more)
             popup.menu.findItem(R.id.status_download_media).isVisible = status.attachments.isNotEmpty()
-            if (serverCanTranslate && canTranslate() && status.visibility != Status.Visibility.PRIVATE && status.visibility != Status.Visibility.DIRECT) {
+            if (serverCanTranslate && canTranslate() && translationService.canTranslate(viewData)) {
                 popup.menu.findItem(R.id.status_translate).isVisible = viewData.translationState == TranslationState.SHOW_ORIGINAL
                 popup.menu.findItem(R.id.status_translate_undo).isVisible = viewData.translationState == TranslationState.SHOW_TRANSLATION
             } else {
@@ -376,8 +380,14 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
      */
     open fun canTranslate() = false
 
+    /**
+     * Translate [statusViewData].
+     */
     open fun onTranslate(statusViewData: T) {}
 
+    /**
+     * Undo the translation of [statusViewData].
+     */
     open fun onTranslateUndo(statusViewData: T) {}
 
     private fun onMute(accountId: String, accountUsername: String) {
@@ -570,7 +580,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
     companion object {
         private fun accountIsInMentions(account: AccountEntity?, mentions: List<Status.Mention>): Boolean {
             return mentions.any { mention ->
-                account?.username == mention.username && account.domain == Uri.parse(mention.url)?.host
+                account?.username == mention.username && account.domain == mention.url.toUri().host
             }
         }
     }

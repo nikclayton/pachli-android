@@ -16,7 +16,6 @@
 
 package app.pachli.components.report.adapter
 
-import android.text.Spanned
 import android.text.TextUtils
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
@@ -33,9 +32,10 @@ import app.pachli.core.designsystem.R as DR
 import app.pachli.core.network.model.Emoji
 import app.pachli.core.network.model.HashTag
 import app.pachli.core.network.model.Status
+import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.ui.LinkListener
+import app.pachli.core.ui.SetStatusContent
 import app.pachli.core.ui.setClickableMentions
-import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ItemReportStatusBinding
 import app.pachli.util.StatusViewHelper
 import app.pachli.util.StatusViewHelper.Companion.COLLAPSE_INPUT_FILTER
@@ -46,6 +46,7 @@ import java.util.Date
 
 open class StatusViewHolder(
     private val binding: ItemReportStatusBinding,
+    private val setStatusContent: SetStatusContent,
     private val statusDisplayOptions: StatusDisplayOptions,
     private val viewState: StatusViewState,
     private val adapterHandler: AdapterHandler,
@@ -105,7 +106,7 @@ open class StatusViewHolder(
     private fun updateTextView() {
         viewdata()?.let { viewdata ->
             setupCollapsedState(
-                shouldTrimStatus(viewdata.content),
+                shouldTrimStatus(viewdata.content.parseAsMastodonHtml()),
                 viewState.isCollapsed(viewdata.id, true),
                 viewState.isContentShow(viewdata.id, viewdata.status.sensitive),
                 viewdata.spoilerText,
@@ -145,15 +146,14 @@ open class StatusViewHolder(
 
     private fun setTextVisible(
         expanded: Boolean,
-        content: Spanned,
+        content: CharSequence,
         mentions: List<Status.Mention>,
         tags: List<HashTag>?,
         emojis: List<Emoji>,
         listener: LinkListener,
     ) {
         if (expanded) {
-            val emojifiedText = content.emojify(emojis, binding.statusContent, statusDisplayOptions.animateEmojis)
-            setClickableText(binding.statusContent, emojifiedText, mentions, tags, listener)
+            setStatusContent(binding.statusContent, content, statusDisplayOptions, emojis, mentions, tags, listener)
         } else {
             setClickableMentions(binding.statusContent, mentions, listener)
         }

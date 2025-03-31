@@ -39,6 +39,7 @@ import android.view.MotionEvent.ACTION_UP
 import android.view.ViewConfiguration
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat.startActivity
+import androidx.core.graphics.withSave
 import androidx.core.view.doOnLayout
 import app.pachli.core.designsystem.R as DR
 import java.lang.Float.max
@@ -246,9 +247,17 @@ class ClickableSpanTextView @JvmOverloads constructor(
 
                 clickedSpan = span
                 val url = (span as URLSpan).url
-                val spanStart = (text as Spanned).getSpanStart(span)
-                val spanEnd = (text as Spanned).getSpanEnd(span)
-                val title = text.subSequence(spanStart + 1, spanEnd).toString()
+
+                // Get the text of the span, to possibly use as the title. Maybe null if
+                // getSpanStart or getSpanEnd return -1.
+                val title = let {
+                    val spanStart = (text as Spanned).getSpanStart(span)
+                    val spanEnd = (text as Spanned).getSpanEnd(span)
+
+                    if (spanStart == -1 || spanEnd == -1) return@let null
+
+                    text.subSequence(spanStart + 1, spanEnd).toString()
+                }
 
                 // Configure and launch the runnable that will act if this is a long-press.
                 // Opens the chooser with the link the user touched. If the text of the span
@@ -261,7 +270,7 @@ class ClickableSpanTextView @JvmOverloads constructor(
                         Intent().apply {
                             action = Intent.ACTION_SEND
                             putExtra(Intent.EXTRA_TEXT, url)
-                            if (title != url) putExtra(Intent.EXTRA_TITLE, title)
+                            if (title != null && title != url) putExtra(Intent.EXTRA_TITLE, title)
                             type = "text/plain"
                         },
                         null,
@@ -439,15 +448,15 @@ class ClickableSpanTextView @JvmOverloads constructor(
         // Paint span boundaries. Optimised out on release builds, or debug builds where
         // showSpanBoundaries is false.
         if (BuildConfig.DEBUG && showSpanBoundaries) {
-            canvas.save()
-            for (rect in delegateRects.keys) {
-                canvas.drawRect(rect, paddingDebugPaint)
-            }
+            canvas.withSave {
+                for (rect in delegateRects.keys) {
+                    drawRect(rect, paddingDebugPaint)
+                }
 
-            for (rect in spanRects.keys) {
-                canvas.drawRect(rect, spanDebugPaint)
+                for (rect in spanRects.keys) {
+                    drawRect(rect, spanDebugPaint)
+                }
             }
-            canvas.restore()
         }
     }
 

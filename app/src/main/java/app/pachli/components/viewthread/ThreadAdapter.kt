@@ -27,6 +27,7 @@ import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.model.FilterAction
+import app.pachli.core.ui.SetStatusContent
 import app.pachli.databinding.ItemStatusBinding
 import app.pachli.databinding.ItemStatusDetailedBinding
 import app.pachli.databinding.ItemStatusWrapperBinding
@@ -35,19 +36,29 @@ import app.pachli.interfaces.StatusActionListener
 class ThreadAdapter(
     private val statusDisplayOptions: StatusDisplayOptions,
     private val statusActionListener: StatusActionListener<StatusViewData>,
+    private val setStatusContent: SetStatusContent,
 ) : ListAdapter<StatusViewData, StatusBaseViewHolder<StatusViewData>>(ThreadDifferCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatusBaseViewHolder<StatusViewData> {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             VIEW_TYPE_STATUS -> {
-                StatusViewHolder(ItemStatusBinding.inflate(inflater, parent, false))
+                StatusViewHolder(
+                    ItemStatusBinding.inflate(inflater, parent, false),
+                    setStatusContent,
+                )
             }
             VIEW_TYPE_STATUS_FILTERED -> {
-                FilterableStatusViewHolder(ItemStatusWrapperBinding.inflate(inflater, parent, false))
+                FilterableStatusViewHolder(
+                    ItemStatusWrapperBinding.inflate(inflater, parent, false),
+                    setStatusContent,
+                )
             }
             VIEW_TYPE_STATUS_DETAILED -> {
-                StatusDetailedViewHolder(ItemStatusDetailedBinding.inflate(inflater, parent, false))
+                StatusDetailedViewHolder(
+                    ItemStatusDetailedBinding.inflate(inflater, parent, false),
+                    setStatusContent,
+                )
             }
             else -> error("Unknown item type: $viewType")
         }
@@ -60,10 +71,13 @@ class ThreadAdapter(
 
     override fun getItemViewType(position: Int): Int {
         val viewData = getItem(position)
-        return if (viewData.isDetailed) {
-            VIEW_TYPE_STATUS_DETAILED
-        } else if (viewData.contentFilterAction == FilterAction.WARN) {
+        // Check contentFilterAction first to ensure that detailed statuses are also
+        // filtered. This allows the user to view the thread and get more context to
+        // decide whether or not to view the detailed status.
+        return if (viewData.contentFilterAction == FilterAction.WARN) {
             VIEW_TYPE_STATUS_FILTERED
+        } else if (viewData.isDetailed) {
+            VIEW_TYPE_STATUS_DETAILED
         } else {
             VIEW_TYPE_STATUS
         }

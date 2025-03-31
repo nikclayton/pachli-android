@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Pachli Association
+ * Copyright 2025 Pachli Association
  *
  * This file is a part of Pachli.
  *
@@ -15,20 +15,21 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    versionCatalogs {
-        create("libs") {
-            from(files("../../gradle/libs.versions.toml"))
-        }
-    }
-}
+package app.pachli.di
 
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version ("0.9.0")
-}
+import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.translation.ServerTranslationService
+import app.pachli.translation.TranslationService
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-rootProject.name = "markdown2resource-plugin"
+@InstallIn(SingletonComponent::class)
+@Module
+object TranslationServiceModule {
+    @Provides
+    @Singleton
+    fun providesTranslationService(mastodonApi: MastodonApi): TranslationService = ServerTranslationService(mastodonApi)
+}

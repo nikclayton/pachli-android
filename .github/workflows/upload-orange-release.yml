@@ -77,7 +77,13 @@ jobs:
         id: generate-whatsnew
         run: |
           mkdir -p googleplay/whatsnew
-          git log -1 --pretty=format:"%s" > googleplay/whatsnew/whatsnew-en-US
+          commitid=$(curl -s https://api.github.com/repos/pachli/pachli-android-current/releases/latest | jq -r '.tag_name | split("-") | .[2]')
+          git log --pretty=format:"- %s" "${commitid}"..HEAD | awk '!x[$0]++' > googleplay/whatsnew/whatsnew-en-US
+          whatsnew_size=$(wc -c < googleplay/whatsnew/whatsnew-en-US)
+          if [ "$whatsnew_size" -gt "500" ]; then
+                  git log --pretty=format:"- %s" "${commitid}"..HEAD | awk '!x[$0]++' | awk '{i += (length() + 1); if (i <= 465) print $ALL}' > googleplay/whatsnew/whatsnew-en-US
+                  echo "... and more" >> googleplay/whatsnew/whatsnew-en-US
+          fi
 
       - name: Upload AAB to Google Play
         id: upload-release-asset-aab
@@ -92,7 +98,7 @@ jobs:
           mappingFile: app/build/outputs/mapping/orangeGoogleRelease/mapping.txt
 
       - name: Create release in pachli-android-current
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174 # v1
         with:
           token: ${{ secrets.PACHLI_ANDROID_CURRENT_CONTENTS_PAT }}
           artifactErrorsFailBuild: false
@@ -100,3 +106,4 @@ jobs:
           bodyFile: googleplay/whatsnew/whatsnew-en-US
           repo: pachli-android-current
           tag: pachli-current-${{ github.sha }}
+          makeLatest: true

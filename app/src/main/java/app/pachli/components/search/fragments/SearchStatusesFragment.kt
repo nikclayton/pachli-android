@@ -19,13 +19,13 @@ package app.pachli.components.search.fragments
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
@@ -54,6 +54,8 @@ import app.pachli.core.network.model.Poll
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.model.Status.Mention
 import app.pachli.core.ui.ClipboardUseCase
+import app.pachli.core.ui.SetMarkdownContent
+import app.pachli.core.ui.SetMastodonHtmlContent
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.view.showMuteAccountDialog
 import com.github.michaelbull.result.onFailure
@@ -83,11 +85,17 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
     override fun createAdapter(): PagingDataAdapter<StatusViewData, *> {
         val statusDisplayOptions = statusDisplayOptionsRepository.flow.value
 
+        val setStatusContent = if (statusDisplayOptions.renderMarkdown) {
+            SetMarkdownContent(requireContext())
+        } else {
+            SetMastodonHtmlContent
+        }
+
         binding.searchRecyclerView.addItemDecoration(
             MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
         )
         binding.searchRecyclerView.layoutManager = LinearLayoutManager(binding.searchRecyclerView.context)
-        return SearchStatusesAdapter(statusDisplayOptions, this)
+        return SearchStatusesAdapter(setStatusContent, statusDisplayOptions, this)
     }
 
     override fun onContentHiddenChange(viewData: StatusViewData, isShowingContent: Boolean) {
@@ -357,7 +365,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
 
     private fun accountIsInMentions(account: AccountEntity?, mentions: List<Mention>): Boolean {
         return mentions.firstOrNull {
-            account?.username == it.username && account.domain == Uri.parse(it.url)?.host
+            account?.username == it.username && account.domain == it.url.toUri().host
         } != null
     }
 

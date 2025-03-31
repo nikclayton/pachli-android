@@ -63,6 +63,8 @@ import app.pachli.core.network.model.Status
 import app.pachli.core.preferences.TabTapBehaviour
 import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.SetMarkdownContent
+import app.pachli.core.ui.SetMastodonHtmlContent
 import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.FragmentTimelineNotificationsBinding
 import app.pachli.fragment.SFragment
@@ -115,12 +117,7 @@ class NotificationsFragment :
 
     private val binding by viewBinding(FragmentTimelineNotificationsBinding::bind)
 
-    private val adapter = NotificationsPagingAdapter(
-        notificationDiffCallback,
-        statusActionListener = this,
-        notificationActionListener = this,
-        accountActionListener = this,
-    )
+    private lateinit var adapter: NotificationsPagingAdapter
 
     private lateinit var layoutManager: LinearLayoutManager
 
@@ -163,6 +160,20 @@ class NotificationsFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+        val setStatusContent = if (viewModel.statusDisplayOptions.value.renderMarkdown) {
+            SetMarkdownContent(requireContext())
+        } else {
+            SetMastodonHtmlContent
+        }
+
+        adapter = NotificationsPagingAdapter(
+            notificationDiffCallback,
+            setStatusContent,
+            statusActionListener = this,
+            notificationActionListener = this,
+            accountActionListener = this,
+        )
 
         // Setup the SwipeRefreshLayout.
         binding.swipeRefreshLayout.setOnRefreshListener(this)
@@ -469,23 +480,37 @@ class NotificationsFragment :
     }
 
     override fun onReblog(viewData: NotificationViewData, reblog: Boolean) {
-        viewModel.accept(StatusAction.Reblog(reblog, viewData.statusViewData!!))
+        viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData.statusViewData!!))
     }
 
     override fun onFavourite(viewData: NotificationViewData, favourite: Boolean) {
-        viewModel.accept(StatusAction.Favourite(favourite, viewData.statusViewData!!))
+        viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData.statusViewData!!))
     }
 
     override fun onBookmark(viewData: NotificationViewData, bookmark: Boolean) {
-        viewModel.accept(StatusAction.Bookmark(bookmark, viewData.statusViewData!!))
+        viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData.statusViewData!!))
     }
 
     override fun onVoteInPoll(viewData: NotificationViewData, poll: Poll, choices: List<Int>) {
-        viewModel.accept(StatusAction.VoteInPoll(poll, choices, viewData.statusViewData!!))
+        viewModel.accept(FallibleStatusAction.VoteInPoll(poll, choices, viewData.statusViewData!!))
     }
 
     override fun onMore(view: View, viewData: NotificationViewData) {
         super.more(view, viewData)
+    }
+
+    override fun canTranslate() = true
+
+    override fun onTranslate(statusViewData: NotificationViewData) {
+        statusViewData.statusViewData?.let {
+            viewModel.accept(FallibleStatusAction.Translate(it))
+        }
+    }
+
+    override fun onTranslateUndo(statusViewData: NotificationViewData) {
+        statusViewData.statusViewData?.let {
+            viewModel.accept(InfallibleStatusAction.TranslateUndo(it))
+        }
     }
 
     override fun onViewMedia(viewData: NotificationViewData, attachmentIndex: Int, view: View?) {

@@ -7,6 +7,7 @@ import android.text.method.LinkMovementMethod
 import android.text.style.DynamicDrawableSpan
 import android.text.style.ImageSpan
 import android.view.View
+import androidx.core.view.isGone
 import app.pachli.R
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
@@ -14,6 +15,7 @@ import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.preferences.CardViewMode
 import app.pachli.core.ui.NoUnderlineURLSpan
+import app.pachli.core.ui.SetStatusContent
 import app.pachli.core.ui.createClickableText
 import app.pachli.databinding.ItemStatusDetailedBinding
 import app.pachli.interfaces.StatusActionListener
@@ -24,7 +26,8 @@ import java.util.Locale
 
 class StatusDetailedViewHolder(
     private val binding: ItemStatusDetailedBinding,
-) : StatusBaseViewHolder<StatusViewData>(binding.root) {
+    setStatusContent: SetStatusContent,
+) : StatusBaseViewHolder<StatusViewData>(binding.root, setStatusContent) {
 
     override fun setMetaData(
         viewData: StatusViewData,
@@ -92,7 +95,7 @@ class StatusDetailedViewHolder(
         } else {
             binding.statusFavourites.hide()
         }
-        if (binding.statusReblogs.visibility == View.GONE && binding.statusFavourites.visibility == View.GONE) {
+        if (binding.statusReblogs.isGone && binding.statusFavourites.isGone) {
             binding.statusInfoDivider.hide()
         } else {
             binding.statusInfoDivider.show()
