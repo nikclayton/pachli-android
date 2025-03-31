@@ -35,11 +35,11 @@ import kotlin.io.path.div
 import kotlin.io.path.readText
 import kotlinx.serialization.Serializable
 
-val WEBSITE_DIR = Path("\\\\wsl.localhost\\Ubuntu\\home\\nik\\pachli\\website")
+val WEBSITE_DIR = Path("/home/nik/projects/pachli-website/website")
 
 private val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
 
-private const val INKSCAPE = "C:\\Program Files\\Inkscape\\bin\\inkscape.exe"
+private const val INKSCAPE = "inkscape"
 
 @Serializable
 sealed interface BlogStep {
@@ -62,14 +62,14 @@ class Blog : CliktCommand(name = "blog") {
             // Create release image
             CreateReleaseImage,
             // Create blog post
-            CreateBlogPost
+            CreateBlogPost,
         )
 
         for (step in steps) {
             terminal.println(stepStyle("-> ${step.desc()}"))
             runCatching {
                 step.run(terminal, config, releaseSpec)
-            }.onFailure { t->
+            }.onFailure { t ->
                 terminal.danger(t.message)
                 return
             }
@@ -101,7 +101,7 @@ data object EnsureAssetsDirectoryExists : BlogStep {
             assetsDir.toFile().mkdirs()
         } catch (e: Exception) {
             t.warning("Error: ${e.cause}")
-            t.confirm("Continue?", abort =true)
+            t.confirm("Continue?", abort = true)
         }
 
         return null
@@ -113,8 +113,10 @@ data object CreateReleaseImage : BlogStep {
         // Open image
         // Replace "2.6.0</tspan>" with new version number
         val releaseImageTemplateFile = WEBSITE_DIR / Path("pachli_release_header.svg")
-        val newReleaseImage = releaseImageTemplateFile.readText().replace("2.6.0</tspan>",
-            "${spec.prevVersion.versionName()}</tspan>")
+        val newReleaseImage = releaseImageTemplateFile.readText().replace(
+            "2.6.0</tspan>",
+            "${spec.prevVersion.versionName()}</tspan>",
+        )
 
         val newReleaseImageSvgPath = (getAssetDir(spec) / Path("og_image.svg"))
         val newReleaseImagePngPath = newReleaseImageSvgPath.parent / "og_image.png"
@@ -125,8 +127,12 @@ data object CreateReleaseImage : BlogStep {
         t.info(newReleaseImagePngPath)
 
         // Launch inkscape to convert the image to PNG
-        val result = ProcessBuilder(INKSCAPE, newReleaseImageSvgFile.absolutePath,
-            "-o", newReleaseImagePngPath.absolutePathString())
+        val result = ProcessBuilder(
+            INKSCAPE,
+            newReleaseImageSvgFile.absolutePath,
+            "-o",
+            newReleaseImagePngPath.absolutePathString(),
+        )
             .redirectOutput(ProcessBuilder.Redirect.INHERIT)
             .redirectError(ProcessBuilder.Redirect.INHERIT)
             .start()
@@ -159,7 +165,7 @@ title: "$title"
 date: "$date 09:00:00 +0200"
 categories: pachli
 image:
-  path: /assets/posts/${dir}/og_image.png
+  path: /assets/posts/$dir/og_image.png
 ---
 Pachli $version is now available. This release TODO
 
@@ -203,8 +209,6 @@ Thank you to everyone who took the time to report issues and provide additional 
         return null
     }
 }
-
-
 
 fun createBlogFromChangelog(t: Terminal, changeLogEntries: Map<Section, List<LogEntry>>, nextVersionName: String) {
     val blog = File(".", "blog.md")

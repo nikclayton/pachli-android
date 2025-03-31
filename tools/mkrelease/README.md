@@ -10,11 +10,10 @@ Automates much of the work of creating a new release.
 - [x] Merging approved changes from `develop` to `main`
 - [x] Tagging the release
 - [x] Pushing to Github
-- [ ] Creating a new Github release
+- [x] Creating a new Github release
 - [ ] Moving the release through Google Play
-- [ ] Attaching the built APK to the Github release
+- [x] Attaching the built APK to the Github release
 - [ ] Making the release "Beta" on Google Play
-- [ ] Creating the F-Droid merge request
 
 A given release will contain one or more beta versions, and then a final release version.
 
@@ -48,7 +47,8 @@ You will need:
 - A fork of the fdroiddata repository on GitLab
 - TODO: Describe the access rights
 
-
+- A Github personal access token saved in `$GITHUB_TOKEN`.
+- A Weblate API token saved in `$WEBLATE_TOKEN`.
 
 ### `init`
 
@@ -59,8 +59,8 @@ Creates the initial release workspace and saves key metadata.
 Normally you only need to run this once -- not once per release, but once in total.
 
 ```shell
-.\runtools mkrelease --verbose init \
-  --work-root c:\users\nik\projects\t2 \
+./runtools mkrelease --verbose init \
+  --work-root ~/projects/pachli-release-workroot \
   --app-repo-fork https://github.com/nikclayton/pachli-android \
   --fdroid-repo-fork https://gitlab.com/nikclayton/fdroiddata
 ```
@@ -84,7 +84,7 @@ Key operations this performs include:
 Starts the process to create a new release. Saves metadata about the in-progress release.
 
 ```shell
-.\runtools mkrelease --verbose start
+./runtools mkrelease --verbose start
   --release-type major
   --issue-url https://www.example.com/1234
 ```
@@ -105,7 +105,7 @@ Key operations this performs include:
 Creates a new beta version and releases it.
 
 ```shell
-.\runtools mkrelease --verbose beta
+./runtools mkrelease --verbose beta
 ```
 
 Key operations this performs include:
