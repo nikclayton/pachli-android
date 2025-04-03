@@ -411,7 +411,7 @@ class NotificationsViewModel @AssistedInject constructor(
 
     val pagingData: Flow<PagingData<NotificationViewData>>
 
-    val groupPagingData: Flow<PagingData<GroupNotificationViewData>>
+    val groupPagingData: Flow<PagingData<NotificationGroupViewData>>
 
     /** Flow of user actions received from the UI */
     private val uiAction = MutableSharedFlow<UiAction>()
@@ -675,7 +675,7 @@ class NotificationsViewModel @AssistedInject constructor(
             }
     }
 
-    data class GroupNotificationViewData(
+    data class NotificationGroupViewData(
         val groupKey: String,
         val type: NotificationEntity.Type,
         val notifications: List<NotificationViewData>,
@@ -684,11 +684,11 @@ class NotificationsViewModel @AssistedInject constructor(
     private suspend fun getGroupedNotifications(
         pachliAccount: PachliAccount,
         filters: Set<Notification.Type>,
-    ): Flow<PagingData<GroupNotificationViewData>> {
+    ): Flow<PagingData<NotificationGroupViewData>> {
         return repository.groupedNotifications(pachliAccountId)
             .map { pagingData ->
                 pagingData.map { group ->
-                    GroupNotificationViewData(
+                    NotificationGroupViewData(
                         groupKey = group.groupKey,
                         type = group.type,
                         notifications = group.notifications.map { notification ->

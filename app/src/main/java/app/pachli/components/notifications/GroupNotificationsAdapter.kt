@@ -21,28 +21,112 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import app.pachli.components.notifications.NotificationsViewModel.GroupNotificationViewData
-import app.pachli.core.ui.BindingHolder
+import androidx.recyclerview.widget.RecyclerView
+import app.pachli.R
+import app.pachli.components.notifications.NotificationsViewModel.NotificationGroupViewData
+import app.pachli.core.data.model.StatusDisplayOptions
+import app.pachli.core.database.model.NotificationEntity
 import app.pachli.databinding.ItemUnknownNotificationBinding
 
-class GroupNotificationsAdapter() : PagingDataAdapter<GroupNotificationViewData, BindingHolder<ItemUnknownNotificationBinding>>(groupNotificationDiffCallback) {
+/** How to present the group in the UI. */
+enum class NotificationGroupViewKind {
+    GROUP_REBLOG,
+    UNKNOWN,
+    ;
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingHolder<ItemUnknownNotificationBinding> {
-        val inflater = LayoutInflater.from(parent.context)
-        return BindingHolder(ItemUnknownNotificationBinding.inflate(inflater))
+    companion object {
+        fun from(kind: NotificationEntity.Type?): NotificationGroupViewKind = when (kind) {
+            NotificationEntity.Type.UNKNOWN -> UNKNOWN
+            NotificationEntity.Type.MENTION -> UNKNOWN
+            NotificationEntity.Type.REBLOG -> GROUP_REBLOG
+            NotificationEntity.Type.FAVOURITE -> UNKNOWN
+            NotificationEntity.Type.FOLLOW -> UNKNOWN
+            NotificationEntity.Type.FOLLOW_REQUEST -> UNKNOWN
+            NotificationEntity.Type.POLL -> UNKNOWN
+            NotificationEntity.Type.STATUS -> UNKNOWN
+            NotificationEntity.Type.SIGN_UP -> UNKNOWN
+            NotificationEntity.Type.UPDATE -> UNKNOWN
+            NotificationEntity.Type.REPORT -> UNKNOWN
+            NotificationEntity.Type.SEVERED_RELATIONSHIPS -> UNKNOWN
+            null -> UNKNOWN
+        }
+    }
+}
+
+/** View holders in this adapter must implement this interface. */
+private interface ViewHolder {
+    /** Bind the data from the notification and payloads to the view. */
+    fun bind(
+        viewData: NotificationGroupViewData,
+        payloads: List<*>?,
+        statusDisplayOptions: StatusDisplayOptions,
+    )
+}
+
+class GroupNotificationsAdapter(
+    var statusDisplayOptions: StatusDisplayOptions = StatusDisplayOptions(),
+
+) : PagingDataAdapter<NotificationGroupViewData, RecyclerView.ViewHolder>(groupNotificationDiffCallback) {
+
+    override fun getItemViewType(position: Int): Int {
+        // TODO: Deal with filters: Maybe the group should be split in two at the view model?
+        // Is that possible?
+
+        return NotificationGroupViewKind.from(getItem(position)?.type).ordinal
     }
 
-    override fun onBindViewHolder(holder: BindingHolder<ItemUnknownNotificationBinding>, position: Int) {
-        val item = getItem(position) ?: return
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
 
-        val t = "${item.groupKey}: ${item.type}: ${item.notifications.size}"
-        holder.binding.root.text = t
+        return when (NotificationGroupViewKind.entries[viewType]) {
+            NotificationGroupViewKind.GROUP_REBLOG -> TODO()
+            NotificationGroupViewKind.UNKNOWN -> FallbackNotificationViewHolder(
+                ItemUnknownNotificationBinding.inflate(inflater, parent, false),
+            )
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        bindViewHolder(holder, position, null)
+    }
+
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>,
+    ) {
+        bindViewHolder(holder, position, payloads)
+    }
+
+    private fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: List<*>?) {
+        getItem(position)?.let {
+            (holder as ViewHolder).bind(it, payloads, statusDisplayOptions)
+        }
     }
 }
 
 private val groupNotificationDiffCallback =
-    object : DiffUtil.ItemCallback<GroupNotificationViewData>() {
-        override fun areItemsTheSame(oldItem: GroupNotificationViewData, newItem: GroupNotificationViewData) = oldItem.groupKey == newItem.groupKey
+    object : DiffUtil.ItemCallback<NotificationGroupViewData>() {
+        override fun areItemsTheSame(oldItem: NotificationGroupViewData, newItem: NotificationGroupViewData) = oldItem.groupKey == newItem.groupKey
 
-        override fun areContentsTheSame(oldItem: GroupNotificationViewData, newItem: GroupNotificationViewData) = oldItem == newItem
+        override fun areContentsTheSame(oldItem: NotificationGroupViewData, newItem: NotificationGroupViewData) = oldItem == newItem
     }
+
+/**
+ * Notification view holder to use if no other type is appropriate. Should never normally
+ * be used, but is useful when migrating code.
+ */
+private class FallbackNotificationViewHolder(
+    val binding: ItemUnknownNotificationBinding,
+) : ViewHolder, RecyclerView.ViewHolder(binding.root) {
+    override fun bind(
+        viewData: NotificationGroupViewData,
+        payloads: List<*>?,
+        statusDisplayOptions: StatusDisplayOptions,
+    ) {
+        val t = "${viewData.groupKey}: ${viewData.type}: ${viewData.notifications.size}"
+        binding.text1.text = t
+
+        binding.text1.text = binding.root.context.getString(R.string.notification_unknown)
+    }
+}
