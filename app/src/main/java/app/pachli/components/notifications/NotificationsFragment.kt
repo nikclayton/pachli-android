@@ -70,7 +70,6 @@ import app.pachli.fragment.SFragment
 import app.pachli.interfaces.AccountActionListener
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.StatusActionListener
-import app.pachli.util.ListStatusAccessibilityDelegate
 import app.pachli.viewdata.NotificationViewData
 import at.connyduck.sparkbutton.helpers.Utils
 import com.github.michaelbull.result.Result
@@ -87,12 +86,9 @@ import kotlin.properties.Delegates
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import postPrepend
 
@@ -116,7 +112,8 @@ class NotificationsFragment :
 
     private val binding by viewBinding(FragmentTimelineNotificationsBinding::bind)
 
-    private lateinit var adapter: NotificationsPagingAdapter
+    //    private lateinit var adapter: NotificationsPagingAdapter
+    private lateinit var adapter: GroupNotificationsAdapter
 
     private lateinit var layoutManager: LinearLayoutManager
 
@@ -166,13 +163,14 @@ class NotificationsFragment :
             SetMastodonHtmlContent
         }
 
-        adapter = NotificationsPagingAdapter(
-            notificationDiffCallback,
-            setStatusContent,
-            statusActionListener = this,
-            notificationActionListener = this,
-            accountActionListener = this,
-        )
+        adapter = GroupNotificationsAdapter()
+//        adapter = NotificationsPagingAdapter(
+//            notificationDiffCallback,
+//            setStatusContent,
+//            statusActionListener = this,
+//            notificationActionListener = this,
+//            accountActionListener = this,
+//        )
 
         // Setup the SwipeRefreshLayout.
         binding.swipeRefreshLayout.setOnRefreshListener(this)
@@ -204,15 +202,15 @@ class NotificationsFragment :
         (binding.recyclerView.itemAnimator as SimpleItemAnimator?)!!.supportsChangeAnimations =
             false
 
-        binding.recyclerView.setAccessibilityDelegateCompat(
-            ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this@NotificationsFragment, openUrl) { pos: Int ->
-                if (pos in 0 until adapter.itemCount) {
-                    adapter.peek(pos)
-                } else {
-                    null
-                }
-            },
-        )
+//        binding.recyclerView.setAccessibilityDelegateCompat(
+//            ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this@NotificationsFragment, openUrl) { pos: Int ->
+//                if (pos in 0 until adapter.itemCount) {
+//                    adapter.peek(pos)
+//                } else {
+//                    null
+//                }
+//            },
+//        )
 
         val saveIdListener = object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -231,19 +229,20 @@ class NotificationsFragment :
                 launch {
                     // Wait for the very first page load, then scroll recyclerview
                     // to the refresh key.
-                    viewModel.initialRefreshKey.combine(adapter.onPagesUpdatedFlow) { key, _ -> key }
-                        .take(1)
-                        .filterNotNull()
-                        .collect { key ->
-                            val snapshot = adapter.snapshot()
-                            val index = snapshot.items.indexOfFirst { it.id == key }
-                            binding.recyclerView.scrollToPosition(
-                                snapshot.placeholdersBefore + index,
-                            )
-                        }
+//                    viewModel.initialRefreshKey.combine(adapter.onPagesUpdatedFlow) { key, _ -> key }
+//                        .take(1)
+//                        .filterNotNull()
+//                        .collect { key ->
+//                            val snapshot = adapter.snapshot()
+//                            val index = snapshot.items.indexOfFirst { it.id == key }
+//                            binding.recyclerView.scrollToPosition(
+//                                snapshot.placeholdersBefore + index,
+//                            )
+//                        }
                 }
 
-                launch { viewModel.pagingData.collectLatest { adapter.submitData(it) } }
+//                launch { viewModel.pagingData.collectLatest { adapter.submitData(it) } }
+                launch { viewModel.groupPagingData.collectLatest { adapter.submitData(it) } }
 
                 launch { viewModel.uiResult.collect(::bindUiResult) }
 
@@ -258,7 +257,7 @@ class NotificationsFragment :
                     viewModel.statusDisplayOptions.collectLatest {
                         // NOTE this this also triggered (emitted?) on resume.
 
-                        adapter.statusDisplayOptions = it
+//                        adapter.statusDisplayOptions = it
                         adapter.notifyItemRangeChanged(0, adapter.itemCount, null)
 
                         if (!it.useAbsoluteTime) {
@@ -458,7 +457,7 @@ class NotificationsFragment :
      * Saves the ID of the notification returned by [getFirstVisibleNotification].
      */
     private fun saveVisibleId() = getFirstVisibleNotification()?.let {
-        viewModel.accept(InfallibleUiAction.SaveVisibleId(pachliAccountId, it.id))
+//        viewModel.accept(InfallibleUiAction.SaveVisibleId(pachliAccountId, it.id))
     }
 
     override fun onResume() {

@@ -411,6 +411,8 @@ class NotificationsViewModel @AssistedInject constructor(
 
     val pagingData: Flow<PagingData<NotificationViewData>>
 
+    val groupPagingData: Flow<PagingData<GroupNotificationViewData>>
+
     /** Flow of user actions received from the UI */
     private val uiAction = MutableSharedFlow<UiAction>()
 
@@ -586,6 +588,24 @@ class NotificationsViewModel @AssistedInject constructor(
             }
             .cachedIn(viewModelScope)
 
+        groupPagingData = accountFlow
+            .distinctUntilChanged { old, new ->
+                (old.entity.notificationsFilter == new.entity.notificationsFilter) &&
+                    (old.entity.notificationAccountFilterNotFollowed == new.entity.notificationAccountFilterNotFollowed) &&
+                    (old.entity.notificationAccountFilterYounger30d == new.entity.notificationAccountFilterYounger30d) &&
+                    (
+                        old.entity.notificationAccountFilterLimitedByServer ==
+                            new.entity.notificationAccountFilterLimitedByServer
+                        )
+            }
+            .flatMapLatest { account ->
+                getGroupedNotifications(
+                    account,
+                    filters = deserialize(account.entity.notificationsFilter),
+                )
+            }
+            .cachedIn(viewModelScope)
+
         uiState =
             combine(accountFlow.distinctUntilChangedBy { it.entity.notificationsFilter }, getUiPrefs()) { account, _ ->
                 UiState(
@@ -652,6 +672,48 @@ class NotificationsViewModel @AssistedInject constructor(
                     }
                     .filter { it.statusViewData?.contentFilterAction != FilterAction.HIDE }
                     .filter { it.accountFilterDecision !is AccountFilterDecision.Hide }
+            }
+    }
+
+    data class GroupNotificationViewData(
+        val groupKey: String,
+        val type: NotificationEntity.Type,
+        val notifications: List<NotificationViewData>,
+    )
+
+    private suspend fun getGroupedNotifications(
+        pachliAccount: PachliAccount,
+        filters: Set<Notification.Type>,
+    ): Flow<PagingData<GroupNotificationViewData>> {
+        return repository.groupedNotifications(pachliAccountId)
+            .map { pagingData ->
+                pagingData.map { group ->
+                    GroupNotificationViewData(
+                        groupKey = group.groupKey,
+                        type = group.type,
+                        notifications = group.notifications.map { notification ->
+                            val contentFilterAction =
+                                notification.viewData?.contentFilterAction
+                                    ?: notification.status?.status?.let { contentFilterModel?.filterActionFor(it) }
+                                    ?: FilterAction.NONE
+                            val isAboutSelf = notification.account.serverId == pachliAccount.entity.accountId
+                            val accountFilterDecision =
+                                notification.viewData?.accountFilterDecision
+                                    ?: filterNotificationByAccount(pachliAccount, notification)
+
+                            NotificationViewData.make(
+                                pachliAccount.entity,
+                                notification,
+                                isShowingContent = statusDisplayOptions.value.showSensitiveMedia ||
+                                    !(notification.status?.status?.sensitive ?: false),
+                                isExpanded = statusDisplayOptions.value.openSpoiler,
+                                contentFilterAction = contentFilterAction,
+                                accountFilterDecision = accountFilterDecision,
+                                isAboutSelf = isAboutSelf,
+                            )
+                        },
+                    )
+                }
             }
     }
 

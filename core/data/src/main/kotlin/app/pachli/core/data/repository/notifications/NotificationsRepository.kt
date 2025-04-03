@@ -34,6 +34,7 @@ import app.pachli.core.database.model.FilterActionUpdate
 import app.pachli.core.database.model.NotificationAccountFilterDecisionUpdate
 import app.pachli.core.database.model.NotificationData
 import app.pachli.core.database.model.NotificationEntity
+import app.pachli.core.database.model.NotificationGroup
 import app.pachli.core.database.model.RemoteKeyEntity
 import app.pachli.core.database.model.RemoteKeyEntity.RemoteKeyKind
 import app.pachli.core.model.AccountFilterDecision
@@ -63,6 +64,7 @@ class NotificationsRepository @Inject constructor(
     private val statusRepository: StatusRepository,
 ) {
     private var factory: InvalidatingPagingSourceFactory<Int, NotificationData>? = null
+    private var factoryGroup: InvalidatingPagingSourceFactory<String, NotificationGroup>? = null
 
     /**
      * @return Notifications for [pachliAccountId].
@@ -95,15 +97,20 @@ class NotificationsRepository @Inject constructor(
         ).flow
     }
 
-//    @OptIn(ExperimentalPagingApi::class)
-//    suspend fun groupedNotifications(pachliAccountId: Long): Flow<PagingData<NotificationData>> {
-//        factory = InvalidatingPagingSourceFactory { notificationDao.loadGroupedNotifications(pachliAccountId) }
-//
-//        return Pager(
-//            config = PagingConfig(
-//                pageSize = PAGE_SIZE,
-//                enablePlaceholders = true,
-//            ),
+    @OptIn(ExperimentalPagingApi::class)
+    suspend fun groupedNotifications(pachliAccountId: Long): Flow<PagingData<NotificationGroup>> {
+        factoryGroup = InvalidatingPagingSourceFactory {
+            GroupedNotificationsPagingSource(
+                pachliAccountId,
+                notificationDao,
+            )
+        }
+
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                enablePlaceholders = true,
+            ),
 //            remoteMediator = NotificationsRemoteMediator(
 //                pachliAccountId,
 //                mastodonApi,
@@ -113,12 +120,13 @@ class NotificationsRepository @Inject constructor(
 //                notificationDao,
 //                statusDao,
 //            ),
-//            pagingSourceFactory = factory!!,
-//        ).flow
-//    }
+            pagingSourceFactory = factoryGroup!!,
+        ).flow
+    }
 
     fun invalidate() {
         factory?.invalidate()
+        factoryGroup?.invalidate()
     }
 
     /**

@@ -335,7 +335,7 @@ grouping AS (
 SELECT * FROM rownumber
  GROUP BY type, statusServerId
 ),
-GroupedNotificationEntity AS (SELECT n.*, IFNULL(g.groupKey, n.serverId) AS groupKey
+GroupedNotificationEntity AS (SELECT n.pachliAccountId, n.serverId, n.type, n.createdAt, n.accountServerId, n.statusServerId, IFNULL(g.groupKey, n.serverId) AS groupKey
 FROM NotificationEntity AS n
 LEFT JOIN
  grouping AS g

@@ -29,6 +29,12 @@ import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.FilterAction
 import java.time.Instant
 
+data class NotificationGroup(
+    val groupKey: String,
+    val type: Type,
+    val notifications: List<NotificationData>,
+)
+
 /**
  * Data about a notification.
  *
