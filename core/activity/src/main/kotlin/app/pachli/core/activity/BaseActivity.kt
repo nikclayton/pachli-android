@@ -45,8 +45,8 @@ import app.pachli.core.data.repository.Loadable
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.EmbeddedFontFamily
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.navigation.AccountRouterActivityIntent
 import app.pachli.core.navigation.LoginActivityIntent
-import app.pachli.core.navigation.MainActivityIntent
 import app.pachli.core.preferences.AppTheme
 import app.pachli.core.preferences.SharedPreferencesRepository
 import com.google.android.material.color.MaterialColors
@@ -290,7 +290,7 @@ abstract class BaseActivity : AppCompatActivity(), MenuProvider {
         }
 
     fun openAsAccount(url: String, account: AccountEntity) {
-        startActivity(MainActivityIntent.openAs(this, account.id, url))
+        startActivity(AccountRouterActivityIntent.openAs(this, account.id, url))
         finish()
     }
 

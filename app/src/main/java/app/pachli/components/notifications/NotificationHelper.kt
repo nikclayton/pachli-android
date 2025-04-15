@@ -53,9 +53,9 @@ import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.AccountFilterReason
 import app.pachli.core.model.FilterAction
+import app.pachli.core.navigation.AccountRouterActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InReplyTo
-import app.pachli.core.navigation.MainActivityIntent
 import app.pachli.core.network.model.Notification
 import app.pachli.core.network.model.RelationshipSeveranceEvent
 import app.pachli.core.network.parseAsMastodonHtml
@@ -299,9 +299,9 @@ fun updateSummaryNotifications(
 
         // All notifications in this group have the same type, so get it from the first.
         val notificationType = members[0].notification.extras.getEnum<Notification.Type>(EXTRA_NOTIFICATION_TYPE)
-        val summaryResultIntent = MainActivityIntent.fromNotification(
+        val summaryResultIntent = AccountRouterActivityIntent.fromNotification(
             context,
-            accountId.toLong(),
+            account.id,
             -1,
             null,
             type = notificationType,
@@ -357,7 +357,7 @@ private fun newAndroidNotification(
     body: Notification,
     account: AccountEntity,
 ): NotificationCompat.Builder {
-    val eventResultIntent = MainActivityIntent.fromNotification(
+    val eventResultIntent = AccountRouterActivityIntent.fromNotification(
         context,
         account.id,
         notificationId,
@@ -443,7 +443,7 @@ private fun getStatusComposeIntent(
         language = language,
         kind = ComposeOptions.ComposeKind.NEW,
     )
-    val composeIntent = MainActivityIntent.fromNotificationCompose(
+    val composeIntent = AccountRouterActivityIntent.fromNotificationCompose(
         context,
         account.id,
         composeOptions,
@@ -943,12 +943,10 @@ fun pendingIntentFlags(mutable: Boolean): Int {
  *
  * @throws IllegalStateException if the value at [key] is not valid for the enum [T].
  */
-inline fun <reified T : Enum<T>> Bundle.getEnum(key: String) =
-    getInt(key, -1).let { if (it >= 0) enumValues<T>()[it] else throw IllegalStateException("unrecognised enum ordinal: $it") }
+inline fun <reified T : Enum<T>> Bundle.getEnum(key: String) = getInt(key, -1).let { if (it >= 0) enumValues<T>()[it] else throw IllegalStateException("unrecognised enum ordinal: $it") }
 
 /**
  * Inserts an enum [value] into the mapping of this [Bundle], replacing any
  * existing value for the given [key].
  */
-fun <T : Enum<T>> Bundle.putEnum(key: String, value: T?) =
-    putInt(key, value?.ordinal ?: -1)
+fun <T : Enum<T>> Bundle.putEnum(key: String, value: T?) = putInt(key, value?.ordinal ?: -1)
