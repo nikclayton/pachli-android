@@ -349,6 +349,7 @@ class AccountRouterActivityIntent(context: Context, pachliAccountId: Long) : Int
                     flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
                 },
             )
+            flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
         }
     }
 }

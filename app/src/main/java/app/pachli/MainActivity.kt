@@ -46,7 +46,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toDrawable
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.forEach
@@ -262,11 +261,8 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     /** Mutex to protect modifications to the drawer's items. */
     private val drawerMutex = Mutex()
 
-    @SuppressLint("RestrictedApi")
+    // @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            installSplashScreen()
-        }
         super.onCreate(savedInstanceState)
 
         var showNotificationTab = MainActivityIntent.getOpenNotificationTab(intent)
@@ -1123,13 +1119,14 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
      * Relaunches MainActivity, switched to the account identified by [pachliAccountId].
      */
     private fun changeAccountAndRestart(pachliAccountId: Long) {
+        Timber.d("changeAccountAndRestart")
         cacheUpdater.stop()
-//        val intent = MainActivityIntent(this, accountId)
-//        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//        intent.pachliAccountId = accountId
-//        startActivityWithTransition(intent, TransitionKind.EXPLODE)
         val intent = AccountRouterActivityIntent.startMainActivity(this, pachliAccountId)
-        startActivityWithDefaultTransition(intent)
+
+        // Force the splash screen to show when starting AccountRouterActivity.
+        // See https://issuetracker.google.com/issues/205021357#comment14
+        val options = Bundle().apply { putInt("android.activity.splashScreenStyle", 1) }
+        startActivityWithDefaultTransition(intent, options)
         finish()
     }
 
