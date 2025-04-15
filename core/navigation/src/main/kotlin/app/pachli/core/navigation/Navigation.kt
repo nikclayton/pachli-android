@@ -341,6 +341,15 @@ class AccountRouterActivityIntent(context: Context, pachliAccountId: Long) : Int
         ) = AccountRouterActivityIntent(context, pachliAccountId).apply {
             putExtra(EXTRA_PAYLOAD, MainActivityIntent.openAs(context, pachliAccountId, url))
         }
+
+        fun startMainActivity(context: Context, pachliAccountId: Long) = AccountRouterActivityIntent(context, pachliAccountId).apply {
+            putExtra(
+                EXTRA_PAYLOAD,
+                MainActivityIntent.start(context, pachliAccountId).apply {
+                    flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
+                },
+            )
+        }
     }
 }
 
