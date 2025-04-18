@@ -62,7 +62,6 @@ import app.pachli.components.notifications.domain.EnableAllNotificationsUseCase
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.PostLookupFallbackBehavior
 import app.pachli.core.activity.ReselectableFragment
-import app.pachli.core.activity.emojify
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.common.extensions.hide
@@ -106,6 +105,7 @@ import app.pachli.core.preferences.MainNavigationPosition
 import app.pachli.core.preferences.TabAlignment
 import app.pachli.core.preferences.TabContents
 import app.pachli.core.ui.AlignableTabLayoutAlignment
+import app.pachli.core.ui.emojify
 import app.pachli.core.ui.extensions.await
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.core.ui.makeIcon
@@ -166,7 +166,6 @@ import dagger.hilt.android.lifecycle.withCreationCallback
 import de.c1710.filemojicompat_ui.helpers.EMOJI_PREFERENCE
 import javax.inject.Inject
 import kotlin.math.max
-import kotlin.properties.Delegates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
@@ -251,12 +250,6 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
      * the account has no lists.
      */
     private val listDrawerItems = mutableListOf<PrimaryDrawerItem>()
-
-    /**
-     * Version of [intent.pachliAccountId] where `-1` has been resolved to the
-     * actual active account value.
-     */
-    private var pachliAccountId by Delegates.notNull<Long>()
 
     /** Mutex to protect modifications to the drawer's items. */
     private val drawerMutex = Mutex()
@@ -450,7 +443,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
         super.onMenuItemSelected(menuItem)
         return when (menuItem.itemId) {
             R.id.action_search -> {
-                startActivity(SearchActivityIntent(this@MainActivity, pachliAccountId))
+                startActivity(SearchActivityIntent(this@MainActivity, intent.pachliAccountId))
                 true
             }
             R.id.action_remove_tab -> {
@@ -459,7 +452,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                 true
             }
             R.id.action_tab_preferences -> {
-                startActivity(TabPreferenceActivityIntent(this, pachliAccountId))
+                startActivity(TabPreferenceActivityIntent(this, intent.pachliAccountId))
                 true
             }
             else -> super.onOptionsItemSelected(menuItem)
@@ -502,7 +495,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
             }
             KeyEvent.KEYCODE_SEARCH -> {
                 startActivityWithDefaultTransition(
-                    SearchActivityIntent(this, pachliAccountId),
+                    SearchActivityIntent(this, intent.pachliAccountId),
                 )
                 return true
             }
@@ -512,7 +505,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
             when (keyCode) {
                 KeyEvent.KEYCODE_N -> {
                     // open compose activity by pressing SHIFT + N (or CTRL + N)
-                    val composeIntent = ComposeActivityIntent(applicationContext, pachliAccountId)
+                    val composeIntent = ComposeActivityIntent(applicationContext, intent.pachliAccountId)
                     startActivity(composeIntent)
                     return true
                 }
@@ -924,13 +917,13 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
                     0 -> {
                         Timber.d("Clearing home timeline cache")
                         lifecycleScope.launch {
-                            developerToolsUseCase.clearHomeTimelineCache(pachliAccountId)
+                            developerToolsUseCase.clearHomeTimelineCache(intent.pachliAccountId)
                         }
                     }
                     1 -> {
                         Timber.d("Removing most recent 40 statuses")
                         lifecycleScope.launch {
-                            developerToolsUseCase.deleteFirstKStatuses(pachliAccountId, 40)
+                            developerToolsUseCase.deleteFirstKStatuses(intent.pachliAccountId, 40)
                         }
                     }
                 }
@@ -1083,7 +1076,7 @@ class MainActivity : BottomSheetActivity(), ActionButtonActivity, MenuProvider {
     private fun refreshComposeButtonState(tabViewData: TabViewData) {
         tabViewData.composeIntent?.let { intent ->
             binding.composeButton.setOnClickListener {
-                startActivity(intent(applicationContext, pachliAccountId))
+                startActivity(intent(applicationContext, this.intent.pachliAccountId))
             }
             binding.composeButton.show()
         } ?: binding.composeButton.hide()
