@@ -75,6 +75,7 @@ internal class StatusNotificationViewHolder(
         DR.dimen.avatar_radius_24dp,
     )
 
+    // TODO: Delete this, it's replaced by GroupStatusNotificationViewHolder
     override fun bind(
         viewData: NotificationViewData,
         payloads: List<*>?,

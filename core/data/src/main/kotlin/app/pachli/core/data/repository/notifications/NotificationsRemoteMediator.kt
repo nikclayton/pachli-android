@@ -48,9 +48,12 @@ import app.pachli.core.network.retrofit.apiresult.ApiResult
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getOrElse
+import java.time.temporal.ChronoUnit
+import java.util.Date
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import okhttp3.Headers
+import timber.log.Timber
 
 @OptIn(ExperimentalPagingApi::class)
 class NotificationsRemoteMediator(
@@ -254,15 +257,51 @@ fun NotificationData.Companion.from(pachliAccountId: Long, notification: Notific
 /**
  * @return A [NotificationEntity] from a network [Notification] for [pachliAccountId].
  */
-fun NotificationEntity.Companion.from(pachliAccountId: Long, notification: Notification) = NotificationEntity(
-    pachliAccountId = pachliAccountId,
-    serverId = notification.id,
-    groupKey = notification.id,
-    type = NotificationEntity.Type.from(notification.type),
-    createdAt = notification.createdAt.toInstant(),
-    accountServerId = notification.account.id,
-    statusServerId = notification.status?.id,
-)
+fun NotificationEntity.Companion.from(pachliAccountId: Long, notification: Notification): NotificationEntity {
+    // Figure out the group key.
+    val groupKey = when (notification.type) {
+        Notification.Type.UNKNOWN,
+        Notification.Type.MENTION,
+        Notification.Type.FOLLOW_REQUEST,
+        Notification.Type.POLL,
+        Notification.Type.STATUS,
+        Notification.Type.SIGN_UP,
+        Notification.Type.UPDATE,
+        Notification.Type.SEVERED_RELATIONSHIPS,
+        -> "${notification.createdAt.time}-00"
+
+        Notification.Type.REBLOG -> "${floorToDayMultiple(notification.status!!.createdAt, notification.createdAt)}-02-boost"
+        Notification.Type.FAVOURITE -> "${floorToDayMultiple(notification.status!!.createdAt, notification.createdAt)}-03-favourite"
+        Notification.Type.FOLLOW -> "${floorToMidnight(notification.createdAt)}-01-follow"
+        Notification.Type.REPORT -> "${floorToMidnight(notification.createdAt)}-02-admin.signup"
+    }
+
+    Timber.d("groupKey: $groupKey")
+
+    return NotificationEntity(
+        pachliAccountId = pachliAccountId,
+        serverId = notification.id,
+        groupKey = groupKey,
+        type = NotificationEntity.Type.from(notification.type),
+        createdAt = notification.createdAt.toInstant(),
+        accountServerId = notification.account.id,
+        statusServerId = notification.status?.id,
+    )
+}
+
+private fun floorToMidnight(date: Date): Long {
+    return date.toInstant().truncatedTo(ChronoUnit.DAYS).toEpochMilli()
+}
+
+private fun floorToDayMultiple(statusDate: Date, notificationDate: Date): Long {
+    val statusInstant = statusDate.toInstant()
+    val notificationInstant = notificationDate.toInstant()
+
+    // Compute how many days differ between the status date and the notification date
+    val dayDiff = ChronoUnit.DAYS.between(statusInstant, notificationInstant)
+
+    return statusInstant.plus(dayDiff, ChronoUnit.DAYS).toEpochMilli()
+}
 
 /**
  * @return A [NotificationReportEntity] from a network [Notification] for [pachliAccountId].

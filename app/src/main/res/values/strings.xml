@@ -92,8 +92,21 @@
     <string name="post_content_show_less">Collapse</string>
     <string name="post_edited">Edited %s</string>
     <string name="footer_empty">Nothing here. Pull down to refresh!</string>
+    <!-- TODO: Delete notification_reblog_format -->
     <string name="notification_reblog_format">%s boosted your post</string>
+    <plurals name="notification_reblog_fmt">
+        <item quantity="one">&lt;b>%1$s&lt;/b> boosted your post</item>
+        <item quantity="two">&lt;b>%1$s&lt;/b> and 1 other boosted your post</item>
+        <item quantity="other">&lt;b>%1$s&lt;/b> and %2$d others boosted your post</item>
+    </plurals>
+    <!-- TODO: Delete notification_favourite_format -->
     <string name="notification_favourite_format">%s favorited your post</string>
+    <plurals name="notification_favourite_fmt">
+        <item quantity="one">&lt;b>%1$s&lt;/b> favorited your post</item>
+        <item quantity="two">&lt;b>%1$s&lt;/b> and 1 other favorited your post</item>
+        <item quantity="other">&lt;b>%1$s&lt;/b> and %2$d others favorited your post</item>
+    </plurals>
+
     <string name="notification_follow_format">%s followed you</string>
     <string name="notification_follow_request_format">%s requested to follow you</string>
     <string name="notification_sign_up_format">%s signed up</string>

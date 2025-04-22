@@ -163,7 +163,12 @@ class NotificationsFragment :
             SetMastodonHtmlContent
         }
 
-        adapter = GroupNotificationsAdapter()
+        adapter = GroupNotificationsAdapter(
+            statusActionListener = this,
+            notificationActionListener = this,
+            accountActionListener = this,
+            setStatusContent = setStatusContent,
+        )
 //        adapter = NotificationsPagingAdapter(
 //            notificationDiffCallback,
 //            setStatusContent,
