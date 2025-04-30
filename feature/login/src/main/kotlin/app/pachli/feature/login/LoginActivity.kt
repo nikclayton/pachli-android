@@ -33,10 +33,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import app.pachli.core.activity.BaseActivity
+import app.pachli.core.activity.OpenUrlUseCase
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.setCloseTransition
 import app.pachli.core.activity.extensions.startActivityWithTransition
-import app.pachli.core.activity.openLinkInCustomTab
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.navigation.LoginActivityIntent
 import app.pachli.core.navigation.MainActivityIntent
@@ -64,6 +64,9 @@ class LoginActivity : BaseActivity() {
     @Inject
     lateinit var mastodonApi: MastodonApi
 
+    @Inject
+    lateinit var openUrl: OpenUrlUseCase
+
     private val viewModel: LoginViewModel by viewModels()
 
     private val binding by viewBinding(ActivityLoginBinding::inflate)
@@ -79,10 +82,11 @@ class LoginActivity : BaseActivity() {
 
     private val doWebViewAuth = registerForActivityResult(OauthLogin()) { result ->
         when (result) {
-            is LoginResult.Ok -> lifecycleScope.launch {
+            is LoginResult.Code -> lifecycleScope.launch {
                 fetchOauthToken(result.code)
             }
-            is LoginResult.Err -> displayError(result.errorMessage)
+
+            is LoginResult.Error -> displayError(result.errorMessage)
             is LoginResult.Cancel -> setLoading(false)
         }
     }
@@ -172,9 +176,7 @@ class LoginActivity : BaseActivity() {
         }
     }
 
-    override fun requiresLogin(): Boolean {
-        return false
-    }
+    override fun requiresLogin() = false
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.add(R.string.action_browser_login)?.apply {
@@ -266,7 +268,7 @@ class LoginActivity : BaseActivity() {
         if (openInWebView) {
             doWebViewAuth.launch(LoginData(domain, uri, oauthRedirectUri.toUri()))
         } else {
-            openLinkInCustomTab(uri, this)
+            openUrl(uri, useCustomTab = true)
         }
     }
 

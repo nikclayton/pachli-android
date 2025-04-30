@@ -131,7 +131,7 @@
     <string name="pref_title_app_theme">Tema de la app</string>
     <string name="pref_title_timelines">Cronologías</string>
     <string name="pref_title_browser_settings">Navegador</string>
-    <string name="pref_title_custom_tabs">Usar pestañas de Chrome</string>
+    <string name="pref_title_custom_tabs">Abrir enlaces en Pestañas Personalizadas</string>
     <string name="pref_title_hide_follow_button">Ocultar botón de redacción al bajar</string>
     <string name="pref_title_post_filter">Filtros de cronología</string>
     <string name="pref_title_post_tabs">Pestañas</string>
@@ -483,7 +483,9 @@
     <string name="description_post_edited">Editado</string>
     <string name="notification_report_format">Nueva denuncia en %s</string>
     <string name="notification_header_report_format">%s denunció a %s</string>
-    <string name="notification_summary_report_format">%s · %d publicaciones fijadas</string>
+    <plurals name="notification_summary_report_format">
+        <item quantity="other">%1$s · %2$d publicaciones fijadas</item>
+    </plurals>
     <string name="language_display_name_format">%s (%s)</string>
     <string name="error_muting_hashtag_format">Error al silenciar #%s</string>
     <string name="error_unmuting_hashtag_format">Error al reactivar #%s</string>
@@ -583,8 +585,6 @@
     <string name="announcement_date">%1$s %2$s</string>
     <string name="load_newest_statuses">Cargar las publicaciones más nuevas</string>
     <string name="dialog_save_profile_changes_message">¿Quieres guardar tus cambios de perfil?</string>
-    <string name="pref_update_notification_frequency_always">Siempre</string>
-    <string name="pref_update_notification_frequency_never">Nunca</string>
     <string name="pref_title_show_self_boosts_description">Alguien impulsa su propia publicación</string>
     <string name="ui_error_filter_v1_load_fmt">La carga de filtros falló: %1$s</string>
     <string name="confirmation_hashtag_muted">#%s oculto(s)</string>
@@ -592,7 +592,6 @@
     <string name="pref_title_show_self_boosts">Mostrar auto-impulsos</string>
     <string name="announcement_date_updated">(Actualizado: %1$s)</string>
     <string name="title_tab_public_trending_statuses">Publicaciones</string>
-    <string name="pref_update_notification_frequency_once_per_version">Una vez por versión</string>
     <string name="pref_title_font_family">Familia de fuente</string>
     <string name="notification_listenable_worker_description">Notificaciones cuando Pachli está trabajando en el fondo</string>
     <string name="action_translate">Traducir</string>
@@ -823,4 +822,22 @@
     <string name="action_send_public_content_description">Enviar como público</string>
     <string name="action_send_private_content_description">Enviar sólo para seguidores</string>
     <string name="action_send_direct_content_description">Enviar mensaje directo</string>
+    <plurals name="followed_hashtags_posts_count_fmt">
+        <item quantity="one">%1$d publicación</item>
+        <item quantity="many">%1$d publicaciones</item>
+        <item quantity="other">%1$d publicaciones</item>
+    </plurals>
+    <string name="followed_hashtags_summary_fmt">%1$s de %2$s (última: %3$s)</string>
+    <plurals name="followed_hashtags_days_count_fmt">
+        <item quantity="one">%1$d día</item>
+        <item quantity="many">%1$d días</item>
+        <item quantity="other">%1$d días</item>
+    </plurals>
+    <string name="pref_custom_tabs_true">Más rápido: tu navegador preferido en Pachli</string>
+    <string name="pref_custom_tabs_false">Más lento: abre tu navegador preferido</string>
+    <plurals name="followed_hashtags_accounts_count_fmt">
+        <item quantity="one">%1$d cuenta</item>
+        <item quantity="many">%1$d cuentas</item>
+        <item quantity="other">%1$d cuentas</item>
+    </plurals>
 </resources>

@@ -25,14 +25,14 @@ import android.view.ViewGroup
 import androidx.core.view.size
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
-import app.pachli.core.activity.EmojiSpan
-import app.pachli.core.activity.emojify
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.util.AbsoluteTimeFormatter
 import app.pachli.core.network.model.Announcement
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.ui.BindingHolder
+import app.pachli.core.ui.EmojiSpan
 import app.pachli.core.ui.LinkListener
+import app.pachli.core.ui.emojify
 import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ItemAnnouncementBinding
 import app.pachli.util.equalByMinute
@@ -50,7 +50,7 @@ interface AnnouncementActionListener : LinkListener {
 class AnnouncementAdapter(
     private var items: List<Announcement> = emptyList(),
     private val listener: AnnouncementActionListener,
-    private val wellbeingEnabled: Boolean = false,
+    private val hideStatsInDetailedPosts: Boolean = false,
     private val animateEmojis: Boolean = false,
     private val useAbsoluteTime: Boolean = false,
 ) : RecyclerView.Adapter<BindingHolder<ItemAnnouncementBinding>>() {
@@ -96,7 +96,7 @@ class AnnouncementAdapter(
         setClickableText(text, emojifiedText, item.mentions, item.tags, listener)
 
         // If wellbeing mode is enabled, announcement badge counts should not be shown.
-        if (wellbeingEnabled) {
+        if (hideStatsInDetailedPosts) {
             // Since reactions are not visible in wellbeing mode,
             // we shouldn't be able to add any ourselves.
             addReactionChip.visibility = View.GONE

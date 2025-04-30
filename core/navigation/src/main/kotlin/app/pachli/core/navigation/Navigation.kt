@@ -25,7 +25,6 @@ import app.pachli.core.database.model.DraftAttachment
 import app.pachli.core.model.ContentFilter
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
-import app.pachli.core.navigation.LoginActivityIntent.LoginMode
 import app.pachli.core.navigation.TimelineActivityIntent.Companion.bookmarks
 import app.pachli.core.navigation.TimelineActivityIntent.Companion.conversations
 import app.pachli.core.navigation.TimelineActivityIntent.Companion.favourites
@@ -292,10 +291,9 @@ class EditContentFilterActivityIntent(context: Context, pachliAccountId: Long) :
          * @param contentFilterId ID of the content filter to load
          * @see [app.pachli.components.filters.EditContentFilterActivity]
          */
-        fun edit(context: Context, accountId: Long, contentFilterId: String) =
-            EditContentFilterActivityIntent(context, accountId).apply {
-                putExtra(EXTRA_CONTENT_FILTER_ID_TO_LOAD, contentFilterId)
-            }
+        fun edit(context: Context, accountId: Long, contentFilterId: String) = EditContentFilterActivityIntent(context, accountId).apply {
+            putExtra(EXTRA_CONTENT_FILTER_ID_TO_LOAD, contentFilterId)
+        }
 
         /** @return the [ContentFilter] passed in this intent, or null */
         fun getContentFilter(intent: Intent) = IntentCompat.getParcelableExtra(intent, EXTRA_CONTENT_FILTER_TO_EDIT, ContentFilter::class.java)
@@ -398,7 +396,7 @@ class MainActivityIntent(context: Context, pachliAccountId: Long) : Intent() {
          * Started to redirect to [url].
          */
         @Parcelize
-        data class Redirect(val url: String) : Payload
+        data class OpenAs(val url: String) : Payload
     }
 
     companion object {
@@ -456,17 +454,16 @@ class MainActivityIntent(context: Context, pachliAccountId: Long) : Intent() {
             composeOptions: ComposeOptions,
             notificationId: Int,
             notificationTag: String,
-        ) =
-            MainActivityIntent(context, pachliAccountId).apply {
-                putExtra(
-                    EXTRA_PAYLOAD,
-                    Payload.NotificationCompose(
-                        composeOptions,
-                        notificationId,
-                        notificationTag,
-                    ),
-                )
-            }
+        ) = MainActivityIntent(context, pachliAccountId).apply {
+            putExtra(
+                EXTRA_PAYLOAD,
+                Payload.NotificationCompose(
+                    composeOptions,
+                    notificationId,
+                    notificationTag,
+                ),
+            )
+        }
 
         /**
          * Switches the active account to [pachliAccountId] and takes the user to the correct place
@@ -499,14 +496,19 @@ class MainActivityIntent(context: Context, pachliAccountId: Long) : Intent() {
 
         /**
          * Switches the active account to [pachliAccountId] and then tries to resolve and
-         * show the provided url
+         * show the provided [url].
+         *
+         * [url] is expected to be the URL to a status to be viewed. The active account
+         * is changed, then a search is performed for the URL on the server of the
+         * new active account. This will (hopefully) find the status (which will not
+         * have the same ID on the new server), and it can be shown to the user.
          */
-        fun redirect(
+        fun openAs(
             context: Context,
             pachliAccountId: Long,
             url: String,
         ) = MainActivityIntent(context, pachliAccountId).apply {
-            putExtra(EXTRA_PAYLOAD, Payload.Redirect(url))
+            putExtra(EXTRA_PAYLOAD, Payload.OpenAs(url))
             flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
         }
 

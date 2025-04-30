@@ -53,7 +53,6 @@ import app.pachli.core.network.model.Relationship
 import app.pachli.core.network.model.TimelineAccount
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.network.retrofit.apiresult.ApiResult
-import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.LinkListener
@@ -121,7 +120,7 @@ class AccountListFragment :
 
         val animateAvatar = sharedPreferencesRepository.animateAvatars
         val animateEmojis = sharedPreferencesRepository.animateEmojis
-        val showBotOverlay = sharedPreferencesRepository.getBoolean(PrefKeys.SHOW_BOT_OVERLAY, true)
+        val showBotOverlay = sharedPreferencesRepository.showBotOverlay
 
         val activeAccount = accountManager.activeAccount!!
 
@@ -180,16 +179,13 @@ class AccountListFragment :
 
     override fun onMute(mute: Boolean, id: String, position: Int, notifications: Boolean) {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                if (!mute) {
-                    api.unmuteAccount(id)
-                } else {
-                    api.muteAccount(id, notifications)
-                }
-                onMuteSuccess(mute, id, position, notifications)
-            } catch (_: Throwable) {
-                onMuteFailure(mute, id, notifications)
+            if (!mute) {
+                api.unmuteAccount(id)
+            } else {
+                api.muteAccount(id, notifications)
             }
+                .onSuccess { onMuteSuccess(mute, id, position, notifications) }
+                .onFailure { onMuteFailure(mute, id, notifications) }
         }
     }
 

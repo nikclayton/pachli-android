@@ -741,6 +741,10 @@ class AccountManager @Inject constructor(
         accountDao.setNotificationsEnabled(accountId, value)
     }
 
+    fun setNotificationsMentioned(accountId: Long, value: Boolean) {
+        accountDao.setNotificationsMentioned(accountId, value)
+    }
+
     fun setNotificationsFollowed(accountId: Long, value: Boolean) {
         accountDao.setNotificationsFollowed(accountId, value)
     }
@@ -775,6 +779,10 @@ class AccountManager @Inject constructor(
 
     fun setNotificationsReports(accountId: Long, value: Boolean) {
         accountDao.setNotificationsReports(accountId, value)
+    }
+
+    fun setNotificationsSeveredRelationships(accountId: Long, value: Boolean) {
+        accountDao.setNotificationsSeveredRelationships(accountId, value)
     }
 
     fun setNotificationSound(accountId: Long, value: Boolean) {
@@ -825,5 +833,38 @@ class AccountManager @Inject constructor(
 
     suspend fun unfollowAccount(pachliAccountId: Long, serverId: String) {
         followingAccountDao.delete(FollowingAccountEntity(pachliAccountId, serverId))
+    }
+
+    // Note: Can't use a Room partial update here because RedactedAccount doesn't
+    // contain an ID. And you can't pass an object to a Room query and then
+    // reference the object properties in the query.
+    suspend fun updateFromRedactedAccount(pachliAccountId: Long, redactedAccount: RedactedAccount) = transactionProvider {
+        setNotificationsEnabled(pachliAccountId, redactedAccount.notificationsEnabled)
+        setNotificationsMentioned(pachliAccountId, redactedAccount.notificationsMentioned)
+        setNotificationsFollowed(pachliAccountId, redactedAccount.notificationsFollowed)
+        setNotificationsFollowRequested(pachliAccountId, redactedAccount.notificationsFollowRequested)
+        setNotificationsReblogged(pachliAccountId, redactedAccount.notificationsReblogged)
+        setNotificationsFavorited(pachliAccountId, redactedAccount.notificationsFavorited)
+        setNotificationsPolls(pachliAccountId, redactedAccount.notificationsPolls)
+        setNotificationsSubscriptions(pachliAccountId, redactedAccount.notificationsSubscriptions)
+        setNotificationsSignUps(pachliAccountId, redactedAccount.notificationsSignUps)
+        setNotificationsUpdates(pachliAccountId, redactedAccount.notificationsUpdates)
+        setNotificationsReports(pachliAccountId, redactedAccount.notificationsReports)
+        setNotificationsSeveredRelationships(pachliAccountId, redactedAccount.notificationsSeveredRelationships)
+        setNotificationSound(pachliAccountId, redactedAccount.notificationSound)
+        setNotificationVibration(pachliAccountId, redactedAccount.notificationVibration)
+        setNotificationLight(pachliAccountId, redactedAccount.notificationLight)
+        setAlwaysShowSensitiveMedia(pachliAccountId, redactedAccount.alwaysShowSensitiveMedia)
+        setAlwaysOpenSpoiler(pachliAccountId, redactedAccount.alwaysOpenSpoiler)
+        setMediaPreviewEnabled(pachliAccountId, redactedAccount.mediaPreviewEnabled)
+        setNotificationMarkerId(pachliAccountId, redactedAccount.notificationMarkerId)
+        setTabPreferences(pachliAccountId, redactedAccount.tabPreferences)
+        setNotificationsFilter(pachliAccountId, redactedAccount.notificationsFilter)
+        setNotificationAccountFilterNotFollowed(pachliAccountId, redactedAccount.notificationAccountFilterNotFollowed)
+        setNotificationAccountFilterYounger30d(pachliAccountId, redactedAccount.notificationAccountFilterYounger30d)
+        setNotificationAccountFilterLimitedByServer(pachliAccountId, redactedAccount.notificationAccountFilterYounger30d)
+        setConversationAccountFilterNotFollowed(pachliAccountId, redactedAccount.conversationAccountFilterNotFollowed)
+        setConversationAccountFilterYounger30d(pachliAccountId, redactedAccount.conversationAccountFilterYounger30d)
+        setConversationAccountFilterLimitedByServer(pachliAccountId, redactedAccount.conversationAccountFilterLimitedByServer)
     }
 }

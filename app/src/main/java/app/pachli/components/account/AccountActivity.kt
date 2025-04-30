@@ -54,11 +54,9 @@ import androidx.viewpager2.widget.MarginPageTransformer
 import app.pachli.R
 import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.ReselectableFragment
-import app.pachli.core.activity.emojify
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.activity.extensions.startActivityWithTransition
-import app.pachli.core.activity.loadAvatar
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
@@ -78,11 +76,12 @@ import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Relationship
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.preferences.AppTheme
-import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.ui.ClipboardUseCase
 import app.pachli.core.ui.LinkListener
+import app.pachli.core.ui.emojify
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.core.ui.getDomain
+import app.pachli.core.ui.loadAvatar
 import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ActivityAccountBinding
 import app.pachli.db.DraftsAlert
@@ -207,7 +206,7 @@ class AccountActivity :
         // Obtain information to fill out the profile.
         viewModel.setAccountInfo(AccountActivityIntent.getAccountId(intent))
 
-        hideFab = sharedPreferencesRepository.getBoolean(PrefKeys.FAB_HIDE, false)
+        hideFab = sharedPreferencesRepository.hideFabWhenScrolling
 
         handleWindowInsets()
         setupToolbar()
@@ -274,7 +273,7 @@ class AccountActivity :
         }
 
         // If wellbeing mode is enabled, follow stats and posts count should be hidden
-        val wellbeingEnabled = sharedPreferencesRepository.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_PROFILE, false)
+        val wellbeingEnabled = sharedPreferencesRepository.hideStatsInProfile
 
         if (wellbeingEnabled) {
             binding.accountStatuses.hide()
@@ -687,7 +686,7 @@ class AccountActivity :
         showingReblogs = relation.showingReblogs
 
         // If wellbeing mode is enabled, "follows you" text should not be visible
-        val wellbeingEnabled = sharedPreferencesRepository.getBoolean(PrefKeys.WELLBEING_HIDE_STATS_PROFILE, false)
+        val wellbeingEnabled = sharedPreferencesRepository.hideStatsInProfile
 
         binding.accountFollowsYouChip.visible(relation.followedBy && !wellbeingEnabled)
 

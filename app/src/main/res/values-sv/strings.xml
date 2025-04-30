@@ -474,7 +474,9 @@
     <string name="status_created_at_now">nu</string>
     <string name="notification_report_format">Ny rapport för %s</string>
     <string name="notification_header_report_format">%s rapporterade %s</string>
-    <string name="notification_summary_report_format">%s · %d inlägg bifogade</string>
+    <plurals name="notification_summary_report_format">
+        <item quantity="other">%1$s · %2$d inlägg bifogade</item>
+    </plurals>
     <string name="confirmation_hashtag_unfollowed">#%s avföljd</string>
     <string name="pref_title_notification_filter_reports">det finns en ny rapport</string>
     <string name="notification_report_name">Rapporter</string>
@@ -588,8 +590,6 @@
     <string name="announcement_date">%1$s %2$s</string>
     <string name="load_newest_statuses">Ladda de nyaste inläggen</string>
     <string name="dialog_save_profile_changes_message">Vill du spara dina profiländringar?</string>
-    <string name="pref_update_notification_frequency_always">Alltid</string>
-    <string name="pref_update_notification_frequency_never">Aldrig</string>
     <string name="pref_title_show_self_boosts_description">Någon som knuffar sin toot</string>
     <string name="ui_error_filter_v1_load_fmt">Laddning av filter misslyckades: %1$s</string>
     <string name="confirmation_hashtag_muted">#%s dold</string>
@@ -597,7 +597,6 @@
     <string name="pref_title_show_self_boosts">Visa självknuffar</string>
     <string name="announcement_date_updated">(Uppdaterad: %1$s)</string>
     <string name="title_tab_public_trending_statuses">Toots</string>
-    <string name="pref_update_notification_frequency_once_per_version">En gång per version</string>
     <string name="pref_title_font_family">Fontfamilj</string>
     <string name="action_translate">Översätta</string>
     <string name="update_dialog_title">En uppdatering är tillgänglig</string>

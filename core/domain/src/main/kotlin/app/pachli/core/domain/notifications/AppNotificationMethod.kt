@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Pachli Association
+ * Copyright 2025 Pachli Association
  *
  * This file is a part of Pachli.
  *
@@ -15,24 +15,20 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package app.pachli.di
+package app.pachli.core.domain.notifications
 
-import android.content.SharedPreferences
-import app.pachli.core.preferences.di.PreferencesModule
-import app.pachli.core.testing.fakes.InMemorySharedPreferences
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
-import javax.inject.Singleton
+/** The overall app notification method. */
+enum class AppNotificationMethod {
+    /** All accounts are configured to use UnifiedPush, and are registered with the distributor. */
+    ALL_PUSH,
 
-@TestInstallIn(
-    components = [SingletonComponent::class],
-    replaces = [PreferencesModule::class],
-)
-@Module
-object FakePreferencesModule {
-    @Provides
-    @Singleton
-    fun providesSharedPreferences(): SharedPreferences = InMemorySharedPreferences()
+    /**
+     * Some accounts are configured to use UnifiedPush, and are registered with the distributor.
+     * For other accounts either registration failed, or their server does not support push, and
+     * notifications are pulled.
+     */
+    MIXED,
+
+    /** All accounts are configured to pull notifications. */
+    ALL_PULL,
 }

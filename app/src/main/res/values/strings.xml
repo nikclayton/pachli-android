@@ -65,6 +65,19 @@
     <string name="title_scheduled_posts">Scheduled posts</string>
     <string name="title_announcements">Announcements</string>
     <string name="title_followed_hashtags">Followed hashtags</string>
+    <plurals name="followed_hashtags_posts_count_fmt">
+        <item quantity="one">%1$d post</item>
+        <item quantity="other">%1$d posts</item>
+    </plurals>
+    <plurals name="followed_hashtags_accounts_count_fmt">
+        <item quantity="one">%1$d account</item>
+        <item quantity="other">%1$d accounts</item>
+    </plurals>
+    <plurals name="followed_hashtags_days_count_fmt">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="followed_hashtags_summary_fmt">%1$s from %2$s (last %3$s)</string>
     <string name="title_edits">Edits</string>
     <string name="dialog_follow_hashtag_title">Follow hashtag</string>
     <string name="dialog_follow_hashtag_hint">#hashtag</string>
@@ -102,7 +115,10 @@
     </plurals>
     <string name="notification_unknown">Unknown notification type</string>
     <string name="notification_header_report_format">%s reported %s</string>
-    <string name="notification_summary_report_format">%s · %d posts attached</string>
+    <plurals name="notification_summary_report_format">
+        <item quantity="one">%1$s · %2$d post attached</item>
+        <item quantity="other">%1$s · %2$d posts attached</item>
+    </plurals>
     <string name="report_username_format">Report @%s</string>
     <string name="report_comment_hint">Additional comments?</string>
     <string name="action_quick_reply">Quick Reply</string>
@@ -249,16 +265,17 @@
     <string name="pref_title_notification_alert_vibrate">Notify with vibration</string>
     <string name="pref_title_notification_alert_light">Notify with light</string>
     <string name="pref_title_notification_filters">Notify me when</string>
-    <string name="pref_title_notification_filter_mentions">mentioned</string>
-    <string name="pref_title_notification_filter_follows">followed</string>
-    <string name="pref_title_notification_filter_follow_requests">follow requested</string>
-    <string name="pref_title_notification_filter_reblogs">my posts are boosted</string>
-    <string name="pref_title_notification_filter_favourites">my posts are favorited</string>
-    <string name="pref_title_notification_filter_poll">polls have ended</string>
-    <string name="pref_title_notification_filter_subscriptions">somebody I\'m subscribed to published a new post</string>
-    <string name="pref_title_notification_filter_sign_ups">somebody signed up</string>
-    <string name="pref_title_notification_filter_updates">a post I\'ve interacted with is edited</string>
-    <string name="pref_title_notification_filter_reports">there\'s a new report</string>
+    <string name="pref_title_notification_filter_mentions">Mentioned</string>
+    <string name="pref_title_notification_filter_follows">Followed</string>
+    <string name="pref_title_notification_filter_follow_requests">Follow requested</string>
+    <string name="pref_title_notification_filter_reblogs">My posts are boosted</string>
+    <string name="pref_title_notification_filter_favourites">My posts are favorited</string>
+    <string name="pref_title_notification_filter_poll">Polls have ended</string>
+    <string name="pref_title_notification_filter_subscriptions">Somebody I\'m subscribed to published a new post</string>
+    <string name="pref_title_notification_filter_sign_ups">Somebody signed up</string>
+    <string name="pref_title_notification_filter_updates">A post I\'ve interacted with is edited</string>
+    <string name="pref_title_notification_filter_reports">There\'s a new report</string>
+    <string name="pref_title_notification_filter_severed_relationships">A follow/following relationship is severed</string>
     <string name="pref_title_appearance_settings">Appearance</string>
     <string name="pref_title_app_theme">App theme</string>
     <string name="pref_title_timelines">Timelines</string>
@@ -266,7 +283,9 @@
     <string name="pref_title_content_filters">Content filters</string>
     <string name="pref_summary_content_filters">Your server does not support content filters</string>
     <string name="pref_title_browser_settings">Browser</string>
-    <string name="pref_title_custom_tabs">Use Chrome Custom Tabs</string>
+    <string name="pref_title_custom_tabs">Open links in Custom Tabs</string>
+    <string name="pref_custom_tabs_true">Faster, your preferred browser in Pachli</string>
+    <string name="pref_custom_tabs_false">Slower, uses your preferred browser</string>
     <string name="pref_title_hide_follow_button">Hide compose button while scrolling</string>
     <string name="pref_title_font_family">Font family</string>
     <string name="pref_title_language">Language</string>
@@ -608,9 +627,11 @@
     <string name="saving_draft">Saving draft…</string>
     <string name="delete_scheduled_post_warning">Delete this scheduled post?</string>
     <string name="language_display_name_format">%s (%s)</string>
+    <string name="title_report_category_fmt">Category: %1$s</string>
     <string name="report_category_violation">Rule violation</string>
     <string name="report_category_spam">Spam</string>
     <string name="report_category_other">Other</string>
+    <string name="title_report_comment">Comment from reporter</string>
     <string name="action_unfollow_hashtag_format">Unfollow #%s?</string>
     <string name="mute_notifications_switch">Mute notifications</string>
     <!-- Reading order preference -->
@@ -666,9 +687,6 @@
     <string name="reaction_name_and_count">%1$s %2$d</string>
     <string name="pref_title_update_settings">Software updates</string>
     <string name="pref_title_update_notification_frequency">Tell me about new Pachli versions</string>
-    <string name="pref_update_notification_frequency_never">Never</string>
-    <string name="pref_update_notification_frequency_once_per_version">Once per version</string>
-    <string name="pref_update_notification_frequency_always">Always</string>
     <string name="update_dialog_title">An update is available</string>
     <string name="update_dialog_neutral">Don\'t remind me for this version</string>
     <string name="update_dialog_negative">Never remind me</string>
@@ -892,4 +910,8 @@
 
     <string name="account_filter_placeholder_type_conversation">A user @&lt;b>%1$s&lt;/b> started a conversation</string>
     <string name="ui_error_reload_reply_fmt">Could not load post: %1$s</string>
+
+    <string name="export_preferences_ok_fmt">Preferences exported to %1$s</string>
+    <string name="error_export_preferences_fmt">Could not export preferences to %1$s: %2$s</string>
+    <string name="error_import_preferences_fmt">Could not import preferences from %1$s: %2$s</string>
 </resources>

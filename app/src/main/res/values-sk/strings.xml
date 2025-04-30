@@ -117,8 +117,8 @@
     <string name="download_media">Stiahnuť médiá</string>
     <string name="dialog_mute_warning">Stíšiť @%s?</string>
     <string name="dialog_block_warning">Zablokovať @%s?</string>
-    <string name="visibility_unlisted">Neuvedené: Nezobrazovať na verejných časových osách</string>
-    <string name="pref_title_notification_filter_favourites">sú moje príspevky obľúbené</string>
+    <string name="visibility_unlisted">Tiché verejné: Nezobrazovať na verejných časových osách</string>
+    <string name="pref_title_notification_filter_favourites">Moje príspevky sú obľúbené</string>
     <string name="pref_summary_http_proxy_missing">&lt;nenastavené&gt;</string>
     <string name="post_boosted_format">%s zdieľal/a</string>
     <string name="title_edits">Úpravy</string>
@@ -135,7 +135,7 @@
     <string name="pref_title_proxy_settings">Proxy</string>
     <string name="send_post_content_to">Zdieľať príspevok s…</string>
     <string name="visibility_public">Verejné: Uverejniť na verejných časových osách</string>
-    <string name="pref_title_notification_filter_subscriptions">niekto, koho odoberám, uverejní nový príspevok</string>
+    <string name="pref_title_notification_filter_subscriptions">Niekto, koho odoberám, uverejnil/a nový príspevok</string>
     <string name="action_suggestions">Navrhované účty</string>
     <string name="account_username_copied">Používateľské meno bolo skopírované</string>
     <string name="pref_title_notification_filters">Upozorniť ma, keď</string>
@@ -215,7 +215,11 @@
     <string name="notification_favourite_description">Upozornenia, keď sú tvoje príspevky označené ako obľúbené</string>
     <string name="notification_unknown">Neznámy typ upozornenia</string>
     <string name="notification_header_report_format">%s nahlásil %s</string>
-    <string name="notification_summary_report_format">%s · %d priložených príspevkov</string>
+    <plurals name="notification_summary_report_format">
+        <item quantity="one">%1$s · %2$d priložený príspevok</item>
+        <item quantity="few">%1$s · %2$d priložené príspevky</item>
+        <item quantity="other">%1$s · %2$d priložených príspevkov</item>
+    </plurals>
     <string name="report_comment_hint">Ďalšie komentáre?</string>
     <string name="action_unfavourite">Odstrániť z obľúbených</string>
     <string name="action_unbookmark">Odstrániť záložku</string>
@@ -245,11 +249,11 @@
     <string name="dialog_delete_conversation_warning">Vymazať túto konverzáciu?</string>
     <string name="dialog_mute_hide_notifications">Skryť upozornenia</string>
     <string name="visibility_direct">Priame: Uverejniť iba pre uvedené účty</string>
-    <string name="pref_title_notification_filter_sign_ups">sa niekto zaregistroval</string>
+    <string name="pref_title_notification_filter_sign_ups">Niekto sa zaregistroval</string>
     <string name="pref_title_app_theme">Motiv aplikácie</string>
     <string name="pref_title_timelines">Časové osi</string>
     <string name="pref_summary_http_proxy_disabled">Deaktivované</string>
-    <string name="pref_title_custom_tabs">Použiť vlastné karty prehliadača Chrome</string>
+    <string name="pref_title_custom_tabs">Otvoriť odkaz vo Vlastných kartách (Chrome)</string>
     <string name="pref_title_animate_custom_emojis">Animovať vlastné emotikony</string>
     <string name="pref_summary_http_proxy_invalid">&lt;neplatné&gt;</string>
     <string name="pref_default_post_privacy">Predvolené nastavenie súkromia príspevku</string>
@@ -267,10 +271,10 @@
     <string name="pref_failed_to_sync">Nepodarilo se synchronizovať nastavenie</string>
     <string name="title_favourited_by">Obľúbené účtom</string>
     <string name="action_open_drawer">Otvoriť menu</string>
-    <string name="pref_title_notification_filter_follows">som sledovaný/á</string>
-    <string name="pref_title_notification_filter_follow_requests">som požiadaný/á o sledovanie</string>
+    <string name="pref_title_notification_filter_follows">Sledované</string>
+    <string name="pref_title_notification_filter_follow_requests">Požiadané o sledovanie</string>
     <string name="hint_content_warning">Varovanie pred obsahom</string>
-    <string name="pref_title_notification_filter_updates">príspevok, s ktorým som interagoval/a, bol upravený</string>
+    <string name="pref_title_notification_filter_updates">Príspevok, s ktorým som interagoval/a, bol upravený</string>
     <string name="pref_title_hide_follow_button">Skryť tlačidlo pre písanie pri skrolovaní</string>
     <string name="pref_title_language">Jazyk</string>
     <string name="pref_title_animate_gif_avatars">Animovať GIF avatary</string>
@@ -290,10 +294,10 @@
     <string name="notification_sign_up_format">%s sa zaregistroval/a</string>
     <string name="notification_subscription_format">%s práve uverejnil/a príspevok</string>
     <string name="notification_update_format">%s upravil/a svoj príspevok</string>
-    <string name="pref_title_notification_filter_mentions">som zmiený/á</string>
-    <string name="pref_title_notification_filter_reblogs">sú moje príspevky zdieľané</string>
-    <string name="pref_title_notification_filter_poll">skončia ankety</string>
-    <string name="pref_title_notification_filter_reports">je nové hlásenie</string>
+    <string name="pref_title_notification_filter_mentions">Zmienky</string>
+    <string name="pref_title_notification_filter_reblogs">Moje príspevky sú zdieľané</string>
+    <string name="pref_title_notification_filter_poll">Ankety skončili</string>
+    <string name="pref_title_notification_filter_reports">Nové hlásenie</string>
     <string name="pref_title_post_filter">Filtrovanie časovej osi</string>
     <string name="pref_title_show_boosts">Zobraziť zdieľania</string>
     <string name="pref_title_show_replies">Zobraziť odpovede</string>
@@ -327,7 +331,7 @@
     <string name="notification_boost_name">Zdieľania</string>
     <string name="notification_subscription_description">Upozornenia, keď niekto, koho sleduješ, uverejní nový príspevok</string>
     <string name="pref_main_nav_position">Umiestnenie hlavného navigačného panelu</string>
-    <string name="post_privacy_unlisted">Neuvedené</string>
+    <string name="post_privacy_unlisted">Tiché verejné</string>
     <string name="notification_mention_name">Nové zmienenia</string>
     <string name="post_privacy_followers_only">Len pre sledujúcich</string>
     <string name="hint_compose">Čo je nové?</string>
@@ -353,7 +357,6 @@
     <string name="filter_action_hide">Skryť</string>
     <string name="dialog_save_profile_changes_message">Chceš uložiť zmeny vo svojom profile?</string>
     <string name="pref_title_update_notification_frequency">Upozorniť na nové verzie Pachli</string>
-    <string name="pref_update_notification_frequency_always">Vždy</string>
     <string name="post_media_image">Obrázok</string>
     <string name="failed_report">Nahlásenie zlyhalo</string>
     <string name="label_duration">Doba trvania</string>
@@ -377,7 +380,7 @@
     <string name="ui_error_translate_status_fmt">Preklad zlyhal: %1$s</string>
     <string name="ui_error_filter_v1_load_fmt">Načítanie filtrov zlyhalo: %1$s</string>
     <string name="pref_title_account_filter_keywords">Profily</string>
-    <string name="description_visibility_unlisted">Neuvedené</string>
+    <string name="description_visibility_unlisted">Tiché verejné</string>
     <string name="title_accounts">Účty</string>
     <string name="warning_scheduling_interval">Mastodon má minimálny interval plánovania 5 minút.</string>
     <string name="pref_title_show_cards_in_timelines">Zobrazovať náhľady odkazov v časových osiach</string>
@@ -441,7 +444,6 @@
         <item quantity="other">zostáva %d dní</item>
     </plurals>
     <string name="poll_info_time_absolute">končí o %s</string>
-    <string name="pref_update_notification_frequency_once_per_version">Raz za verziu</string>
     <string name="no_scheduled_posts">Nemáš žiadne naplánované príspevky.</string>
     <string name="follow_requests_info">Hoci tvoj účet nie je uzamknutý, tím serveru %1$s odporúča manuálnu kontrolu žiadostí o sledovanie.</string>
     <string name="pref_title_show_self_username">Zobraziť používateľské meno v nástrojových lištách</string>
@@ -512,7 +514,6 @@
     <string name="filter_action_warn">Upozorniť</string>
     <string name="filter_action_none">Ukázať</string>
     <string name="total_accounts">Celkový počet účtov</string>
-    <string name="pref_update_notification_frequency_never">Nikdy</string>
     <string name="filter_description_warn">Skryť s upozornením</string>
     <string name="filter_description_none">Zobraziť normálne</string>
     <string name="pref_notification_battery_optimisation_is_disabled">Optimalizácia batérie je vypnutá</string>
@@ -804,4 +805,32 @@
     <string name="pref_account_conversation_filters_label_younger_30d">… ktoré boli vytvorené za posledných 30 dní</string>
     <string name="pref_account_conversation_filters_label_limited_by_server">… ktoré boli obmedzené tvojimi moderátormi</string>
     <string name="pref_account_conversation_filters_label_not_followed">… ktoré nesleduješ</string>
+    <string name="action_send_direct_content_description">Odoslať príspevok iba pre uvedené účty</string>
+    <string name="action_send_public_content_description">Odoslať verejný príspevok</string>
+    <string name="action_send_unlisted_content_description">Odoslať tichý verejný príspevok</string>
+    <string name="action_send_private_content_description">Odoslať príspevok len pre sledujúcich</string>
+    <string name="followed_hashtags_summary_fmt">%1$s z %2$s (posledné %3$s)</string>
+    <plurals name="followed_hashtags_posts_count_fmt">
+        <item quantity="one">%1$d príspevok</item>
+        <item quantity="few">%1$d príspevky</item>
+        <item quantity="other">%1$d príspevkov</item>
+    </plurals>
+    <plurals name="followed_hashtags_accounts_count_fmt">
+        <item quantity="one">%1$d účet</item>
+        <item quantity="few">%1$d účty</item>
+        <item quantity="other">%1$d účtov</item>
+    </plurals>
+    <plurals name="followed_hashtags_days_count_fmt">
+        <item quantity="one">%1$d deň</item>
+        <item quantity="few">%1$d dni</item>
+        <item quantity="other">%1$d dní</item>
+    </plurals>
+    <string name="pref_custom_tabs_true">Rýchlejšie, tvoj preferovaný prehliadač v Pachli</string>
+    <string name="pref_title_notification_filter_severed_relationships">Spojenie so sledovaným/sledujúcim bolo prerušené</string>
+    <string name="pref_custom_tabs_false">Pomalšie, tvoj preferovaný prehliadač</string>
+    <string name="export_preferences_ok_fmt">Preferencie exportované do %1$s</string>
+    <string name="error_export_preferences_fmt">Nepodarilo sa exportovať nastavania do %1$s: %2$s</string>
+    <string name="error_import_preferences_fmt">Nepodarilo sa importovať nastavenia z %1$s: %2$s</string>
+    <string name="title_report_category_fmt">Kategória: %1$s</string>
+    <string name="title_report_comment">Komentár nahlásujúceho</string>
 </resources>

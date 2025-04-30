@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.9.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.9.0)" variant="all" version="8.9.0">
+<issues format="6" by="lint 8.9.1" type="baseline" client="gradle" dependencies="false" name="AGP (8.9.1)" variant="all" version="8.9.1">
 
     <issue
         id="InvalidPackage"
@@ -33,7 +33,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="25"
+            line="27"
             column="9"/>
     </issue>
 
@@ -44,7 +44,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="26"
+            line="28"
             column="9"/>
     </issue>
 
@@ -55,7 +55,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="27"
+            line="29"
             column="9"/>
     </issue>
 
@@ -88,7 +88,7 @@
         errorLine2="                           ^">
         <location
             file="src/main/java/app/pachli/components/compose/MediaUploader.kt"
-            line="405"
+            line="410"
             column="28"/>
         <location
             file="${:core:activity*buildDir}/generated/res/resValues/blueFdroid/debug/values/gradleResValues.xml"
@@ -302,7 +302,7 @@
         errorLine2="                                                  ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="498"
+            line="500"
             column="51"/>
     </issue>
 
@@ -313,7 +313,7 @@
         errorLine2="                                          ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="617"
+            line="616"
             column="43"/>
     </issue>
 
@@ -324,7 +324,7 @@
         errorLine2="                                                  ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="709"
+            line="708"
             column="51"/>
     </issue>
 
@@ -335,7 +335,7 @@
         errorLine2="                                                                   ^">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="733"
+            line="732"
             column="68"/>
     </issue>
 
@@ -363,23 +363,12 @@
 
     <issue
         id="PluralsCandidate"
-        message="Formatting %d followed by words (&quot;posts&quot;): This should probably be a plural rather than a string"
-        errorLine1="    &lt;string name=&quot;notification_summary_report_format&quot;>%s · %d posts attached&lt;/string>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="105"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="PluralsCandidate"
         message="Formatting %d followed by words (&quot;and&quot;): This should probably be a plural rather than a string"
         errorLine1="    &lt;string name=&quot;pref_title_http_proxy_port_message&quot;>Port should be between %d and %d&lt;/string>"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="283"
+            line="306"
             column="5"/>
     </issue>
 
@@ -390,7 +379,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="329"
+            line="352"
             column="5"/>
     </issue>
 
@@ -401,7 +390,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="446"
+            line="469"
             column="5"/>
     </issue>
 
@@ -412,7 +401,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="618"
+            line="643"
             column="5"/>
     </issue>
 
@@ -423,19 +412,8 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="25"
+            line="27"
             column="31"/>
-    </issue>
-
-    <issue
-        id="DataExtractionRules"
-        message="The attribute `android:allowBackup` is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute `android:dataExtractionRules` specifying an `@xml` resource which configures cloud backups and device transfers on Android 12 and higher."
-        errorLine1="        android:allowBackup=&quot;false&quot;"
-        errorLine2="                             ~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="19"
-            column="30"/>
     </issue>
 
     <issue
@@ -445,7 +423,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="519"
+            line="518"
             column="9"/>
     </issue>
 
@@ -626,6 +604,105 @@
     </issue>
 
     <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?android:attr/colorBackground` with a theme that also paints a background (inferred theme is `@style/SplashTheme`)"
+        errorLine1="    android:background=&quot;?android:attr/colorBackground&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_timeline_notifications.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_account.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_draft.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackgroundBorderless` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;?attr/selectableItemBackgroundBorderless&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_emoji_button.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_followed_hashtag.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_hashtag.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_removable.xml"
+            line="9"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?android:colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;?android:colorBackground&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_tab_preference.xml"
+            line="7"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_tab_preference_small.xml"
+            line="7"
+            column="5"/>
+    </issue>
+
+    <issue
         id="UnusedResources"
         message="The resource `R.menu.activity_scheduled_status` appears to be unused"
         errorLine1="&lt;menu xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
@@ -643,7 +720,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="49"
+            line="47"
             column="19"/>
     </issue>
 
@@ -654,7 +731,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="269"
+            line="267"
             column="19"/>
     </issue>
 
@@ -665,7 +742,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="274"
+            line="272"
             column="19"/>
     </issue>
 
@@ -775,7 +852,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="75"
+            line="88"
             column="13"/>
     </issue>
 
@@ -786,7 +863,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="81"
+            line="94"
             column="13"/>
     </issue>
 
@@ -797,7 +874,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="107"
+            line="123"
             column="13"/>
     </issue>
 
@@ -808,7 +885,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="115"
+            line="131"
             column="13"/>
     </issue>
 
@@ -819,7 +896,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="149"
+            line="169"
             column="13"/>
     </issue>
 
@@ -830,7 +907,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="203"
+            line="223"
             column="13"/>
     </issue>
 
@@ -841,7 +918,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="224"
+            line="244"
             column="13"/>
     </issue>
 
@@ -852,18 +929,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="225"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.pref_title_notification_filter_mentions` appears to be unused"
-        errorLine1="    &lt;string name=&quot;pref_title_notification_filter_mentions&quot;>mentioned&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="248"
+            line="245"
             column="13"/>
     </issue>
 
@@ -874,7 +940,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="273"
+            line="296"
             column="13"/>
     </issue>
 
@@ -885,7 +951,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="378"
+            line="401"
             column="13"/>
     </issue>
 
@@ -896,7 +962,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="412"
+            line="435"
             column="13"/>
     </issue>
 
@@ -907,7 +973,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="415"
+            line="438"
             column="13"/>
     </issue>
 
@@ -918,7 +984,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="416"
+            line="439"
             column="13"/>
     </issue>
 
@@ -929,7 +995,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="417"
+            line="440"
             column="13"/>
     </issue>
 
@@ -940,7 +1006,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="419"
+            line="442"
             column="13"/>
     </issue>
 
@@ -951,7 +1017,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="431"
+            line="454"
             column="13"/>
     </issue>
 
@@ -962,7 +1028,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="432"
+            line="455"
             column="13"/>
     </issue>
 
@@ -973,7 +1039,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="484"
+            line="507"
             column="13"/>
     </issue>
 
@@ -984,7 +1050,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="485"
+            line="508"
             column="13"/>
     </issue>
 
@@ -995,7 +1061,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="495"
+            line="518"
             column="13"/>
     </issue>
 
@@ -1006,7 +1072,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="496"
+            line="519"
             column="13"/>
     </issue>
 
@@ -1017,7 +1083,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="497"
+            line="520"
             column="13"/>
     </issue>
 
@@ -1028,7 +1094,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="500"
+            line="523"
             column="13"/>
     </issue>
 
@@ -1039,7 +1105,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="538"
+            line="561"
             column="13"/>
     </issue>
 
@@ -1050,7 +1116,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="580"
+            line="603"
             column="13"/>
     </issue>
 
@@ -1061,7 +1127,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="586"
+            line="609"
             column="13"/>
     </issue>
 
@@ -1072,7 +1138,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="610"
+            line="635"
             column="13"/>
     </issue>
 
@@ -1083,7 +1149,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="636"
+            line="661"
             column="13"/>
     </issue>
 
@@ -1387,18 +1453,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_follow.xml"
-            line="41"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="SelectableText"
-        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
-        errorLine1="    &lt;TextView"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_follow.xml"
-            line="57"
+            line="42"
             column="6"/>
     </issue>
 
@@ -1442,7 +1497,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_followed_hashtag.xml"
-            line="14"
+            line="30"
             column="6"/>
     </issue>
 
@@ -1519,7 +1574,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_removable.xml"
-            line="9"
+            line="12"
             column="6"/>
     </issue>
 
@@ -1530,7 +1585,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_removable.xml"
-            line="23"
+            line="24"
             column="6"/>
     </issue>
 
@@ -1552,7 +1607,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_report_notification.xml"
-            line="50"
+            line="51"
             column="6"/>
     </issue>
 
@@ -1563,7 +1618,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_report_notification.xml"
-            line="65"
+            line="66"
             column="6"/>
     </issue>
 
@@ -2003,7 +2058,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/item_report_notification.xml"
-            line="54"
+            line="55"
             column="9"/>
     </issue>
 

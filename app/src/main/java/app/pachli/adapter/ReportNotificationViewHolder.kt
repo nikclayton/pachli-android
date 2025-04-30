@@ -23,13 +23,15 @@ import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.components.notifications.NotificationActionListener
 import app.pachli.components.notifications.NotificationsPagingAdapter
-import app.pachli.core.activity.emojify
-import app.pachli.core.activity.loadAvatar
+import app.pachli.core.common.extensions.hide
+import app.pachli.core.common.extensions.show
 import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.data.model.StatusDisplayOptions
+import app.pachli.core.database.model.NotificationReportEntity
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.network.model.Report
 import app.pachli.core.network.model.TimelineAccount
+import app.pachli.core.ui.emojify
+import app.pachli.core.ui.loadAvatar
 import app.pachli.databinding.ItemReportNotificationBinding
 import app.pachli.util.getRelativeTimeSpanString
 import app.pachli.viewdata.NotificationViewData
@@ -57,15 +59,15 @@ class ReportNotificationViewHolder(
         )
         setupActionListener(
             notificationActionListener,
-            viewData.report.targetAccount.id,
+            viewData.report.targetAccount.serverId,
             viewData.account.id,
-            viewData.report.id,
+            viewData.report.reportId,
         )
     }
 
     private fun setupWithReport(
         reporter: TimelineAccount,
-        report: Report,
+        report: NotificationReportEntity,
         animateAvatar: Boolean,
         animateEmojis: Boolean,
     ) {
@@ -74,7 +76,7 @@ class ReportNotificationViewHolder(
             binding.root,
             animateEmojis,
         )
-        val reporteeName = report.targetAccount.name.unicodeWrap().emojify(
+        val reporteeName = report.targetAccount.toTimelineAccount().name.unicodeWrap().emojify(
             report.targetAccount.emojis,
             itemView,
             animateEmojis,
@@ -87,12 +89,25 @@ class ReportNotificationViewHolder(
             reporterName,
             reporteeName,
         )
-        binding.notificationSummary.text = itemView.context.getString(
-            R.string.notification_summary_report_format,
+        binding.notificationSummary.text = itemView.context.resources.getQuantityString(
+            R.plurals.notification_summary_report_format,
+            report.statusIds?.size ?: 0,
             getRelativeTimeSpanString(itemView.context, report.createdAt.toEpochMilli(), System.currentTimeMillis()),
             report.statusIds?.size ?: 0,
         )
-        binding.notificationCategory.text = getTranslatedCategory(itemView.context, report.category)
+        binding.notificationCategory.text = itemView.context.getString(
+            R.string.title_report_category_fmt,
+            getTranslatedCategory(itemView.context, report.category),
+        )
+
+        if (report.comment.isNotBlank()) {
+            binding.titleReportComment.show()
+            binding.reportComment.text = report.comment
+            binding.reportComment.show()
+        } else {
+            binding.titleReportComment.hide()
+            binding.reportComment.hide()
+        }
 
         // Fancy avatar inset
         val padding = Utils.dpToPx(binding.notificationReporteeAvatar.context, 12)
@@ -134,9 +149,9 @@ class ReportNotificationViewHolder(
         itemView.setOnClickListener { listener.onViewReport(reportId) }
     }
 
-    private fun getTranslatedCategory(context: Context, category: Report.Category) = when (category) {
-        Report.Category.SPAM -> context.getString(R.string.report_category_spam)
-        Report.Category.VIOLATION -> context.getString(R.string.report_category_violation)
-        Report.Category.OTHER -> context.getString(R.string.report_category_other)
+    private fun getTranslatedCategory(context: Context, category: NotificationReportEntity.Category) = when (category) {
+        NotificationReportEntity.Category.SPAM -> context.getString(R.string.report_category_spam)
+        NotificationReportEntity.Category.VIOLATION -> context.getString(R.string.report_category_violation)
+        NotificationReportEntity.Category.OTHER -> context.getString(R.string.report_category_other)
     }
 }

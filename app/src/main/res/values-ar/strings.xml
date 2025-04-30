@@ -526,7 +526,9 @@
     <string name="action_continue_edit">الاستمرار في التعديل</string>
     <string name="post_media_alt">ALT</string>
     <string name="notification_header_report_format">%s أبلغ عن %s</string>
-    <string name="notification_summary_report_format">%s · %d منشورات ملحقة</string>
+    <plurals name="notification_summary_report_format">
+        <item quantity="other">%1$s · %2$d منشورات ملحقة</item>
+    </plurals>
     <string name="failed_to_pin">فشل التثبيت</string>
     <string name="description_post_language">لغة المنشور</string>
     <string name="delete_scheduled_post_warning">هل تريد حذف هذا المنشور المُبَرمَج؟</string>
@@ -586,14 +588,11 @@
     <string name="dialog_save_profile_changes_message">أتريد حفظ التغييرات التي طرأت على ملفك الشخصي؟</string>
     <string name="ui_error_bookmark_fmt">%1$s :فشل إجراء إضافة المنشور إلى الفواصل المرجعية</string>
     <string name="notification_unknown_name">غير معروف</string>
-    <string name="pref_update_notification_frequency_always">دائما</string>
-    <string name="pref_update_notification_frequency_never">أبدًا</string>
     <string name="filter_keyword_display_format">%s (الكلمةكاملة)</string>
     <string name="filter_keyword_addition_title">إضافة كلمة مفتاحية</string>
     <string name="label_filter_keywords">كلمات مفتاحية أو عبارات للتصفية</string>
     <string name="hint_description">الوصف</string>
     <string name="title_tab_public_trending_statuses">المنشورات</string>
-    <string name="pref_update_notification_frequency_once_per_version">مرة واحدة كل نسخة</string>
     <string name="filter_description_hide">إخفاء تماما</string>
     <string name="filter_description_format">%s: %s</string>
     <string name="post_media_image">صورة</string>

@@ -61,7 +61,6 @@
     <string name="notification_update_format">%s адрэдагаваў(-ла) свой допіс</string>
     <string name="notification_report_format">Новая скарга на %s</string>
     <string name="notification_header_report_format">%s скардзіцца на %s</string>
-    <string name="notification_summary_report_format">%s · %d допісаў дададзена</string>
     <string name="report_username_format">Паскардзіцца на @%s</string>
     <string name="action_quick_reply">Хуткі адказ</string>
     <string name="action_reply">Адказаць</string>
@@ -561,4 +560,10 @@
     <string name="filter_keyword_display_format">%s (цэлае слова)</string>
     <string name="filter_keyword_addition_title">Дадаць ключавое слова</string>
     <string name="filter_edit_keyword_title">Змяніць ключавое слова</string>
+    <plurals name="notification_summary_report_format">
+        <item quantity="one">%1$s · %2$d допісаў дададзена</item>
+        <item quantity="few">%1$s · %2$d допісаў дададзена</item>
+        <item quantity="many">%1$s · %2$d допісаў дададзена</item>
+        <item quantity="other">%1$s · %2$d допісаў дададзена</item>
+    </plurals>
 </resources>
