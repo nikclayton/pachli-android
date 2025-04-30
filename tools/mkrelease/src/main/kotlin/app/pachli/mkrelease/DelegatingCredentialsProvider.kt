@@ -35,16 +35,11 @@ import org.eclipse.jgit.util.TemporaryBuffer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class DelegatingCredentialsProvider(projectDir: Path) :
+class DelegatingCredentialsProvider(private val projectDir: Path) :
     CredentialsProvider() {
     private val additionalNativeGitEnvironment: Map<String, String> = HashMap()
     private val logger: Logger = LoggerFactory.getLogger(DelegatingCredentialsProvider::class.java)
-    private val projectDir: Path
     private val credentials: MutableMap<URIish, CredentialsPair> = HashMap()
-
-    init {
-        this.projectDir = projectDir
-    }
 
     // possibly interactive in case some credential helper asks for input
     override fun isInteractive() = true
@@ -70,8 +65,9 @@ class DelegatingCredentialsProvider(projectDir: Path) :
                 item.value = credentialsPair.username
             } else if (item is CredentialItem.Password) {
                 item.value = credentialsPair.password
-            } else if (item is CredentialItem.StringType && item.getPromptText()
-                .equals("Password: ")
+            } else if (item is CredentialItem.StringType &&
+                item.getPromptText()
+                    .equals("Password: ")
             ) {
                 item.value = String(credentialsPair.password)
             } else {

@@ -30,6 +30,7 @@ import org.eclipse.jgit.api.CommitCommand
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.FetchCommand
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.ListTagCommand
 import org.eclipse.jgit.api.LogCommand
 import org.eclipse.jgit.api.MergeCommand
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode
@@ -251,5 +252,10 @@ fun TagCommand.info(t: Terminal): TagCommand {
     val message = this.getPrivateProperty<TagCommand, String>("message")?.let { " -m '$it'" } ?: ""
     val signed = this.getPrivateProperty<TagCommand, Boolean>("signed")?.let { " -s" } ?: ""
     t.info("- git tag$signed$message$name")
+    return this
+}
+
+fun ListTagCommand.info(t: Terminal): ListTagCommand {
+    t.info("- git tag")
     return this
 }

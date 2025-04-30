@@ -25,6 +25,7 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.mordant.rendering.TextStyles
 import com.github.ajalt.mordant.terminal.Terminal
+import io.github.z4kn4fein.semver.Version
 import java.io.File
 import java.nio.file.Path
 import java.time.LocalDate
@@ -34,6 +35,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 import kotlin.io.path.readText
 import kotlinx.serialization.Serializable
+import org.eclipse.jgit.api.Git
 
 val WEBSITE_DIR = Path("/home/nik/projects/pachli-website/website")
 
@@ -142,6 +144,73 @@ data object CreateReleaseImage : BlogStep {
     }
 }
 
+data class Tag(val name: String, val version: Version) {
+    companion object {
+        fun from(name: String) = Tag(
+            name = name,
+            version = Version.parse(name, strict = false),
+        )
+    }
+}
+
+/**
+ * Gets the changelog so parts of it can be inserted in to the blog post.
+ *
+ * Copied and slightly modified from code in UpdateFilesForRelease.
+ */
+fun getChangelog(t: Terminal, git: Git, spec: ReleaseSpec): MutableMap<Section, List<LogEntry>> {
+    // Can't use spec.prevVersion.versionTag() in this code -- by the time this code is
+    // run the version has been updated, and it now points at the current version.
+    //
+    // Instead, get the tags, sorted to newest first, and take the second tag. The first tag
+    // should be the version we just released, the second one is the previous version.
+    val tags = git.tagList().info(t).call()
+        .map { it.name.substringAfterLast("/") }
+        .map { Tag.from(it) }
+        .sortedBy { it.version }
+        .reversed()
+    t.info("Found tags: $tags")
+
+    val previousVersionTag = tags[1].name
+    t.info("previousVersionTag: $previousVersionTag")
+//    return mutableMapOf()
+    val changelogEntries = git.log()
+        // Previous .addRange call (from the copied code in UpdateFilesForRelease
+//        .addRange(
+//            git.getActualRefObjectId(spec.prevVersion.versionTag()),
+//            git.getActualRefObjectId("main"),
+//        )
+        .addRange(
+            git.getActualRefObjectId(previousVersionTag),
+            git.getActualRefObjectId("main"),
+        )
+        .info(t).call().mapNotNull {
+            val components = it.shortMessage.split(":", limit = 2)
+            t.info(components)
+            if (components.size != 2) return@mapNotNull null
+
+            val section = Section.fromCommitTitle(it.shortMessage)
+
+            if (section == Section.Unknown) return@mapNotNull null
+
+            LogEntry(section, components[1], it.authorIdent)
+        }
+        .groupBy { it.section }
+        .toMutableMap()
+
+    changelogEntries[Translations] = changelogEntries[Translations].orEmpty()
+        .asSequence()
+        .filterNot { it.author.name == "Anonymous" }
+        .filterNot { it.author.name == "LibreTranslate" }
+        .filterNot { it.author.name == "Weblate Translation Memory" }
+        .filterNot { it.author.name == "Weblate (bot)" }
+        .distinctBy { it.author.emailAddress }
+        .sortedBy { it.text }
+        .toList()
+
+    return changelogEntries
+}
+
 data object CreateBlogPost : BlogStep {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val postsPath = WEBSITE_DIR / Path("_posts")
@@ -158,6 +227,25 @@ data object CreateBlogPost : BlogStep {
 
         val title = "Pachli $version released"
 
+        // Pull the changes so the generated blog post has more data.
+        val repo = config.repositoryMain
+        val root = config.pachliMainRoot
+
+        val git = ensureRepo(t, repo.gitUrl, root).also { it.ensureClean(t) }
+        val changes = getChangelog(t, git, spec)
+        t.info("Got changelog: $changes")
+
+        val features = changes[Features]?.joinToString("\n\n") { "### ${it.withLinks()}" }
+
+        // Translations has to convert "Update <lang> translations" to "<lang> [name](link)"
+        val translations = changes[Translations]?.joinToString("\n") {
+            val rxLang = "Update (.*) translations".toRegex()
+            val lang = rxLang.find(it.text)?.groupValues[1]
+            "- $lang by [${it.author.name}](https://github.com/pachli/pachli-android/commits?author=${it.author.emailAddress})"
+        }
+
+        val fixes = changes[Fixes]?.joinToString("\n\n") { "### ${it.withLinks()}" }
+
         val template = """
 ---
 layout: post
@@ -173,27 +261,19 @@ Pachli $version is now available. This release TODO
 
 ## New features and other improvements
 
-TODO
+$features
 
 ### Updates to translations
 
 Languages with updated translations are:
 
-TODO - update this list
-
-- Finnish by [Kalle Kniivilä](https://github.com/pachli/pachli-android/commits?author=kalle.kniivila@gmail.com)
-- Spanish by [Miles Krell](https://github.com/pachli/pachli-android/commits?author=noreply@mileskrell.com)
-- Swedish by [Luna Jernberg](https://github.com/pachli/pachli-android/commits?author=bittin@reimu.nl)
+$translations
 
 If you would like to help improve Pachli's translation in to your language there's [information on how you can contribute](https://github.com/pachli/pachli-android/blob/main/docs/contributing/translate.md).
 
 ## Significant bug fixes
 
-### 1
-
-### 2
-
-### 3
+$fixes
 
 ## Thank you
 
