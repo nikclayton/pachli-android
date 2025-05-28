@@ -50,6 +50,11 @@ You will need:
 - A Github personal access token saved in `$GITHUB_TOKEN`.
 - A Weblate API token saved in `$WEBLATE_TOKEN`.
 
+```shell
+export GITHUB_TOKEN=$(op read 'op://Pachli Release/GITHUB_TOKEN/credential')
+export WEBLATE_TOKEN=$(op read 'op://Pachli Release/WEBLATE_TOKEN/credential')
+```
+
 ### `init`
 
 > Note: Run this from the root of a checked out Pachli repository.
@@ -120,5 +125,13 @@ Key operations this performs include:
 ### `release`
 
 ```shell
-.\runtools mkrelease --verbose final
+./runtools mkrelease --verbose final
+```
+
+### `blog`
+
+Creates the template blog post
+
+```shell
+./runtools mkrelease --verbose blog
 ```
