@@ -32,4 +32,8 @@
     <string name="pref_update_notification_frequency_never">Mai</string>
     <string name="pref_update_notification_frequency_once_per_version">Una volta per versione</string>
     <string name="pref_update_notification_frequency_always">Sempre</string>
+    <string name="visibility_public">Pubblico: visibile sulle timeline pubbliche</string>
+    <string name="visibility_unlisted">Non in elenco: non visibile sulle timeline pubbliche</string>
+    <string name="visibility_private">Solo chi ti segue: visibile solo da chi ti segue</string>
+    <string name="visibility_direct">Diretto: visibile solo agli utenti menzionati</string>
 </resources>

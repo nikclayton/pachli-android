@@ -122,10 +122,6 @@
     <string name="dialog_unfollow_warning">停止關注此使用者？</string>
     <string name="dialog_delete_post_warning">刪除這條嘟文？</string>
     <string name="dialog_redraft_post_warning">刪除並重新編輯這條嘟文？</string>
-    <string name="visibility_public">公開：所有人可見，並會出現在公開時間軸上</string>
-    <string name="visibility_unlisted">不公開：所有人可見，但不會出現在公開時間軸上</string>
-    <string name="visibility_private">僅關注者：只有經過你確認後關注你的使用者可見</string>
-    <string name="visibility_direct">私信：只有被提及的使用者可見</string>
     <string name="pref_title_edit_notification_settings">通知設定</string>
     <string name="pref_title_notifications_enabled">通知</string>
     <string name="pref_title_notification_alerts">提醒</string>

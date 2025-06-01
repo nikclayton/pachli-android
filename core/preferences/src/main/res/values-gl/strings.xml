@@ -20,4 +20,8 @@
     <string name="pref_update_notification_frequency_never">Nunca</string>
     <string name="pref_update_notification_frequency_once_per_version">Unha vez por versión</string>
     <string name="pref_update_notification_frequency_always">Sempre</string>
+    <string name="visibility_public">Público: Publicar en cronoloxías públicas</string>
+    <string name="visibility_unlisted">Non listado: non mostrar en cronoloxías públicas</string>
+    <string name="visibility_private">Só seguidoras: visible só polas seguidoras</string>
+    <string name="visibility_direct">Directo: Visible só polas persoas mencionadas</string>
 </resources>

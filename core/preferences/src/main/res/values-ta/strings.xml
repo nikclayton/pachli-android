@@ -15,4 +15,8 @@
     <string name="pref_update_notification_frequency_never">ஒருபோதும்</string>
     <string name="pref_update_notification_frequency_once_per_version">ஒரு பதிப்பிற்கு ஒரு முறை</string>
     <string name="pref_update_notification_frequency_always">எப்போதும்</string>
+    <string name="visibility_public">அனைவருக்கும் காண்பி</string>
+    <string name="visibility_unlisted">அனைவருக்கும் காட்டாதே</string>
+    <string name="visibility_private">பின்பற்றுபவர்களுக்கு மட்டும் காண்பி</string>
+    <string name="visibility_direct">குறிபிடபட்டுள்ள பயனர்களுக்கு மட்டும் காண்பி</string>
 </resources>

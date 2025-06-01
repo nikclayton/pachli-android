@@ -119,10 +119,6 @@
     <string name="dialog_message_cancel_follow_request">Želite preklicati to zahtevo\?</string>
     <string name="dialog_unfollow_warning">Prenehajte slediti temu računu\?</string>
     <string name="dialog_delete_post_warning">Želite izbrisati ta tut\?</string>
-    <string name="visibility_public">Javno: Objavi v javnih časovnicah</string>
-    <string name="visibility_unlisted">Ni prikazano: Ne prikaže v javnih časovnicah</string>
-    <string name="visibility_private">Samo sledilci: Objavi samo sledilcem</string>
-    <string name="visibility_direct">Neposredno: Objavi samo pri omenjenih uporabnikih</string>
     <string name="pref_title_edit_notification_settings">Obvestila</string>
     <string name="pref_title_notifications_enabled">Obvestila</string>
     <string name="pref_title_notification_alerts">Opozorila</string>

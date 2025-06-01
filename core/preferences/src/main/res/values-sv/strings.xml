@@ -32,4 +32,8 @@
     <string name="pref_update_notification_frequency_never">Aldrig</string>
     <string name="pref_update_notification_frequency_once_per_version">En gång per version</string>
     <string name="pref_update_notification_frequency_always">Alltid</string>
+    <string name="visibility_public">Offentlig: Skicka till offentliga tidslinjer</string>
+    <string name="visibility_unlisted">Olistad: Visa inte i offentliga tidslinjer</string>
+    <string name="visibility_private">Enbart-följare: Ses enbart av följare</string>
+    <string name="visibility_direct">Direkt: Skicka endast till nämnda användare</string>
 </resources>

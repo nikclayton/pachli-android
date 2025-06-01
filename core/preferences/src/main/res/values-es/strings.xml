@@ -36,4 +36,8 @@
     <string name="pref_title_export_settings">Exportar preferencias</string>
     <string name="pref_title_import_settings">Importar preferencias</string>
     <string name="pref_summary_import_settings">Toca para restaurar las preferencias desde un archivo creado usando \"Exportar preferencias\"</string>
+    <string name="visibility_public">Público: Mostrar en cronologías públicas</string>
+    <string name="visibility_unlisted">Silencioso: No mostrar en cronologías públicas</string>
+    <string name="visibility_private">Privado: Sólo visible para seguidores</string>
+    <string name="visibility_direct">Directo: Sólo visible para cuentas mencionadas</string>
 </resources>

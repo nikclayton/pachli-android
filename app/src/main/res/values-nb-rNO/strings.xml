@@ -120,10 +120,6 @@
     <string name="dialog_message_cancel_follow_request">Trekk tilbake følgeforespørselen\?</string>
     <string name="dialog_unfollow_warning">Slutt å følge denne kontoen\?</string>
     <string name="dialog_delete_post_warning">Slett dette innlegget\?</string>
-    <string name="visibility_public">Offentlig: Vis i offentlige tidslinjer</string>
-    <string name="visibility_unlisted">Ikke oppført: Ikke vis i offentlige tidslinjer</string>
-    <string name="visibility_private">Bare følgere: Vis bare til følgere</string>
-    <string name="visibility_direct">Direkte: Vis bare til nevnte brukere</string>
     <string name="pref_title_edit_notification_settings">Varsler</string>
     <string name="pref_title_notifications_enabled">Varsler</string>
     <string name="pref_title_notification_alerts">Varsling</string>

@@ -117,7 +117,6 @@
     <string name="download_media">Stiahnuť médiá</string>
     <string name="dialog_mute_warning">Stíšiť @%s?</string>
     <string name="dialog_block_warning">Zablokovať @%s?</string>
-    <string name="visibility_unlisted">Tiché verejné: Nezobrazovať na verejných časových osách</string>
     <string name="pref_title_notification_filter_favourites">Moje príspevky sú obľúbené</string>
     <string name="pref_summary_http_proxy_missing">&lt;nenastavené&gt;</string>
     <string name="post_boosted_format">%s zdieľal/a</string>
@@ -130,11 +129,9 @@
     <string name="action_share">Zdieľať</string>
     <string name="mute_domain_warning_dialog_ok">Skryť celú doménu</string>
     <string name="confirmation_domain_unmuted">Skrytie %s bolo zrušené</string>
-    <string name="visibility_private">Len pre sledujúcich: Uverejniť iba pre sledujúcich</string>
     <string name="pref_summary_content_filters">Tvoj server nepodporuje filtre obsahu</string>
     <string name="pref_title_proxy_settings">Proxy</string>
     <string name="send_post_content_to">Zdieľať príspevok s…</string>
-    <string name="visibility_public">Verejné: Uverejniť na verejných časových osách</string>
     <string name="pref_title_notification_filter_subscriptions">Niekto, koho odoberám, uverejnil/a nový príspevok</string>
     <string name="action_suggestions">Navrhované účty</string>
     <string name="account_username_copied">Používateľské meno bolo skopírované</string>
@@ -247,7 +244,6 @@
     <string name="dialog_title_finishing_media_upload">Dokončuje sa nahrávanie médií</string>
     <string name="dialog_delete_conversation_warning">Vymazať túto konverzáciu?</string>
     <string name="dialog_mute_hide_notifications">Skryť upozornenia</string>
-    <string name="visibility_direct">Priame: Uverejniť iba pre uvedené účty</string>
     <string name="pref_title_notification_filter_sign_ups">Niekto sa zaregistroval</string>
     <string name="pref_title_app_theme">Motiv aplikácie</string>
     <string name="pref_title_timelines">Časové osi</string>

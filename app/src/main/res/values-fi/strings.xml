@@ -262,11 +262,9 @@
     <string name="title_tab_public_trending_links">Linkit</string>
     <string name="hint_media_description_missing">Mediatiedostolla pitäisi olla kuvaus.</string>
     <string name="title_public_trending_hashtags">Nousussa olevat aihetunnisteet</string>
-    <string name="visibility_private">Vain seurajille: Näytä vain seuraajille</string>
     <string name="hint_display_name">Näyttönimi</string>
     <string name="confirmation_hashtag_unfollowed">#%s seuraaminen lopetettu</string>
     <string name="error_unmuting_hashtag_format">Virhe tilin #%s mykistystä poistettaessa</string>
-    <string name="visibility_unlisted">Listaamaton: Älä näytä julkisilla aikajanoilla</string>
     <string name="dialog_follow_hashtag_hint">#aihetunniste</string>
     <string name="action_post_failed_detail_plural">Julkaisujesi lataaminen epäonnistui ja ne on tallennettu luonnoksiin.
 \n
@@ -294,7 +292,6 @@
     <string name="add_account_description">Lisää uusi Mastodon-tili</string>
     <string name="dialog_title_finishing_media_upload">Mediatiedoston latausta viimeistellään</string>
     <string name="pref_title_show_self_boosts_description">Joku tehostaa omaa julkaisuaan</string>
-    <string name="visibility_public">Julkinen: Julkaise julkisille aikajanoille</string>
     <string name="hint_description">Kuvaus</string>
     <string name="notification_report_format">Uusi raportti %s</string>
     <string name="send_post_content_to">Jaa julkaisu…</string>
@@ -362,7 +359,6 @@
     <string name="notification_report_description">Ilmoitukset moderointiraporteista</string>
     <string name="status_count_one_plus">1+</string>
     <string name="pref_title_http_proxy_port_message">Portin arvon tulee olla välillä %d – %d</string>
-    <string name="visibility_direct">Suoraan: Vain mainitut käyttäjät</string>
     <string name="pref_publishing">Julkaiseminen (synkronoitu palvelimen kanssa)</string>
     <string name="pref_title_notification_alert_vibrate">Ilmoita värähtelyllä</string>
     <string name="pref_default_post_privacy">Julkaisun oletusnäkyvyys</string>

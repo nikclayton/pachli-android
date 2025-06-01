@@ -28,4 +28,8 @@
     <string name="pref_tab_contents_icon_text_below">ไอคอนที่มีข้อความด้านล่าง</string>
     <string name="pref_tab_contents_icon_only">ไอคอนเท่านั้น</string>
     <string name="pref_tab_contents_text_only">ข้อความเท่านั้น</string>
+    <string name="visibility_public">สาธารณะ:โพสต์ในไทม์ไลน์สาธารณะ</string>
+    <string name="visibility_unlisted">ไม่อยู่ในรายการ:ไม่แสดงในไทม์ไลน์สาธารณะ</string>
+    <string name="visibility_private">เฉพาะผู้ติดตาม:โพสต์ให้เฉพาะผู้ติดตามเห็น</string>
+    <string name="visibility_direct">ไดเร็กต์:โพสต์ให้เฉพาะผู้ที่ถูกกล่าวถึงเห็น</string>
 </resources>

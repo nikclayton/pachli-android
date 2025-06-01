@@ -163,10 +163,6 @@
     <string name="dialog_block_warning">Bloquear @%s\?</string>
     <string name="dialog_mute_warning">Silenciar @%s\?</string>
     <string name="dialog_mute_hide_notifications">Esconder notificações</string>
-    <string name="visibility_public">Público: Publicar em timelines públicas</string>
-    <string name="visibility_unlisted">Não listado: Não publicar em timelines públicas</string>
-    <string name="visibility_private">Privado: Publicar apenas para os seguidores</string>
-    <string name="visibility_direct">Direto: Publicar apenas para os utilizadores mencionados</string>
     <string name="pref_title_edit_notification_settings">Notificações</string>
     <string name="pref_title_notifications_enabled">Notificações</string>
     <string name="pref_title_notification_alerts">Alertas</string>

@@ -32,4 +32,8 @@
     <string name="pref_update_notification_frequency_never">Aldri</string>
     <string name="pref_update_notification_frequency_once_per_version">Éin gong per utgåve</string>
     <string name="pref_update_notification_frequency_always">Alltid</string>
+    <string name="visibility_public">Offentleg: Send til offentlege tidslinjer</string>
+    <string name="visibility_unlisted">Ulista: Ikkje syn i offentlege tidslinjer</string>
+    <string name="visibility_private">Kun fylgjarar: Syn kun for fylgjarar</string>
+    <string name="visibility_direct">Direkt: Syn bare for nemnde brukarar</string>
 </resources>

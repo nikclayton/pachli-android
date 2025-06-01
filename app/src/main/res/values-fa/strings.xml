@@ -107,10 +107,6 @@
     <string name="dialog_message_cancel_follow_request">درخواست دنبال کردن را لغو می‌کنید؟</string>
     <string name="dialog_unfollow_warning">ناپیگیری این حساب؟</string>
     <string name="dialog_delete_post_warning">حذف این فرسته؟</string>
-    <string name="visibility_public">عمومی: فرستادن به خط زمانی‌های عمومی</string>
-    <string name="visibility_unlisted">فهرست‌نشده: نشان ندادن در خط زمانی‌های عمومی</string>
-    <string name="visibility_private">تنها دنبال‌کنندگان:پست فقط به دنبال‌کنندگان</string>
-    <string name="visibility_direct">مستقیم: فرستادن فقط برای کاربران اشاره‌شده</string>
     <string name="pref_title_edit_notification_settings">آگاهی‌ها</string>
     <string name="pref_title_notifications_enabled">آگاهی‌ها</string>
     <string name="pref_title_notification_alerts">هشدارها</string>

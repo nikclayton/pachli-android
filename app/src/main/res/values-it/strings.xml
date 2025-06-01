@@ -127,10 +127,6 @@
     <string name="dialog_message_cancel_follow_request">Revocare la richiesta di seguire?</string>
     <string name="dialog_unfollow_warning">Smettere di seguire questo account?</string>
     <string name="dialog_delete_post_warning">Eliminare questo messaggio?</string>
-    <string name="visibility_public">Pubblico: visibile sulle timeline pubbliche</string>
-    <string name="visibility_unlisted">Non in elenco: non visibile sulle timeline pubbliche</string>
-    <string name="visibility_private">Solo chi ti segue: visibile solo da chi ti segue</string>
-    <string name="visibility_direct">Diretto: visibile solo agli utenti menzionati</string>
     <string name="pref_title_edit_notification_settings">Notifiche</string>
     <string name="pref_title_notifications_enabled">Notifiche</string>
     <string name="pref_title_notification_alerts">Allarmi</string>

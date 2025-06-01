@@ -27,4 +27,8 @@
     <string name="pref_tab_contents_text_only">Hanya teks</string>
     <string name="tab_tap_behaviour_jump_to_next_page">Jump to next page</string>
     <string name="pref_update_notification_frequency_never">Jangan pernah</string>
+    <string name="visibility_public">Publik: Post untuk linimasa publik</string>
+    <string name="visibility_unlisted">Tak terdaftar: Jangan tampilkan di linimasa publik</string>
+    <string name="visibility_private">Hanya pengikut: Post hanya untuk pengikut</string>
+    <string name="visibility_direct">Langsung: Post kepada pengguna yang disebut saja</string>
 </resources>

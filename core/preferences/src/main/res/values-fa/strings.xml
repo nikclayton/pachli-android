@@ -29,4 +29,8 @@
     <string name="pref_tab_contents_icon_text_below">با متن زیر</string>
     <string name="pref_tab_contents_icon_only">فقط آیکان</string>
     <string name="pref_title_render_markdown">Render Markdown</string>
+    <string name="visibility_public">عمومی: فرستادن به خط زمانی‌های عمومی</string>
+    <string name="visibility_unlisted">فهرست‌نشده: نشان ندادن در خط زمانی‌های عمومی</string>
+    <string name="visibility_private">تنها دنبال‌کنندگان:پست فقط به دنبال‌کنندگان</string>
+    <string name="visibility_direct">مستقیم: فرستادن فقط برای کاربران اشاره‌شده</string>
 </resources>

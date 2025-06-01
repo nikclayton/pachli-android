@@ -55,7 +55,9 @@ import app.pachli.core.navigation.TabPreferenceActivityIntent
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.preferences.PrefKeys
+import app.pachli.core.preferences.ReplyVisibility
 import app.pachli.core.ui.makeIcon
+import app.pachli.settings.enumListPreference
 import app.pachli.settings.listPreference
 import app.pachli.settings.makePreferenceScreen
 import app.pachli.settings.preference
@@ -267,6 +269,13 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                         syncWithServer(visibility = newValue)
                         true
                     }
+                }
+
+                enumListPreference<ReplyVisibility> {
+                    setTitle(app.pachli.core.preferences.R.string.pref_title_reply_visibility)
+                    setDefaultValue(ReplyVisibility.SAME_AS_PARENT_POST_VISIBILITY)
+                    key = PrefKeys.DEFAULT_REPLY_PRIVACY
+                    preferenceDataStore = accountPreferenceDataStore
                 }
 
                 listPreference {

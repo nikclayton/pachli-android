@@ -20,6 +20,8 @@ package app.pachli.core.data.repository
 import androidx.preference.PreferenceDataStore
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.preferences.PrefKeys
+import app.pachli.core.preferences.PreferenceEnum
+import app.pachli.core.preferences.ReplyVisibility
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -40,6 +42,15 @@ class AccountPreferenceDataStore @Inject constructor(
             PrefKeys.ALWAYS_OPEN_SPOILER -> account.alwaysOpenSpoiler
             PrefKeys.MEDIA_PREVIEW_ENABLED -> account.mediaPreviewEnabled
             else -> defValue
+        }
+    }
+
+    override fun putString(key: String?, value: String?) {
+        val account = accountManager.activeAccount!!
+        externalScope.launch {
+            when (key) {
+                PrefKeys.DEFAULT_REPLY_PRIVACY -> accountManager.setDefaultReplyVisibility(account.id, PreferenceEnum.Companion.from<ReplyVisibility>(value) ?: ReplyVisibility.SAME_AS_PARENT_POST_VISIBILITY)
+            }
         }
     }
 

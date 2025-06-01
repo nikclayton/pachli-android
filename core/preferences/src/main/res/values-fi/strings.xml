@@ -32,4 +32,8 @@
     <string name="pref_update_notification_frequency_never">Ei koskaan</string>
     <string name="pref_update_notification_frequency_once_per_version">Kerran jokaisesta versiosta</string>
     <string name="pref_update_notification_frequency_always">Aina</string>
+    <string name="visibility_public">Julkinen: Julkaise julkisille aikajanoille</string>
+    <string name="visibility_unlisted">Listaamaton: Älä näytä julkisilla aikajanoilla</string>
+    <string name="visibility_private">Vain seurajille: Näytä vain seuraajille</string>
+    <string name="visibility_direct">Suoraan: Vain mainitut käyttäjät</string>
 </resources>

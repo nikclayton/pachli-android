@@ -32,4 +32,8 @@
     <string name="pref_update_notification_frequency_never">Jamais</string>
     <string name="pref_update_notification_frequency_once_per_version">Une fois par version</string>
     <string name="pref_update_notification_frequency_always">Toujours</string>
+    <string name="visibility_public">Public : afficher dans les fils publics</string>
+    <string name="visibility_unlisted">Non listé : ne pas afficher dans les fils publics</string>
+    <string name="visibility_private">Abonné·e·s uniquement : seul·e·s vos abonné·e·s verront vos statuts</string>
+    <string name="visibility_direct">Direct : n’envoyer qu’aux personnes mentionnées</string>
 </resources>

@@ -137,10 +137,6 @@
     <string name="dialog_redraft_post_warning">Eyða og endurvinna þessa færslu\?</string>
     <string name="mute_domain_warning">Ertu alveg algjörlega viss um að þú viljir loka á allt %s\? Þú munt ekki sjá efni frá þessu léni í neinum opinberum tímalínum eða í tilkynningunum þínum. Fylgjendur þínir frá þessu léni verða fjarlægðir.</string>
     <string name="mute_domain_warning_dialog_ok">Fela allt lénið</string>
-    <string name="visibility_public">Opinbert: Senda á opinberar tímalínur</string>
-    <string name="visibility_unlisted">Óskráð: Ekki birt á opinberum tímalínum</string>
-    <string name="visibility_private">Einungis fylgjendur: Senda einungis á fylgjendur</string>
-    <string name="visibility_direct">Beint: Senda einungis á notendur sem minnst er á</string>
     <string name="pref_title_edit_notification_settings">Tilkynningar</string>
     <string name="pref_title_notifications_enabled">Tilkynningar</string>
     <string name="pref_title_notification_alerts">Aðvaranir</string>

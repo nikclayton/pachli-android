@@ -112,10 +112,6 @@
     <string name="dialog_message_cancel_follow_request">Visszavonod a követési kérelmet?</string>
     <string name="dialog_unfollow_warning">Követés megszüntetése?</string>
     <string name="dialog_delete_post_warning">Törlöd ezt a bejegyzést\?</string>
-    <string name="visibility_public">Nyilvános: Bejegyzés nyilvános idővonalra</string>
-    <string name="visibility_unlisted">Listázatlan: Nem jelenik meg a nyilvános idővonalon</string>
-    <string name="visibility_private">Csak követőknek: Bejegyzés csak követőknek</string>
-    <string name="visibility_direct">Közvetlen: Bejegyzés csak a megemlített felhasználóknak</string>
     <string name="pref_title_edit_notification_settings">Értesítések</string>
     <string name="pref_title_notifications_enabled">Értesítések</string>
     <string name="pref_title_notification_alerts">Figyelmeztetések</string>

@@ -29,4 +29,8 @@
     <string name="pref_tab_contents_icon_only">Només la icona</string>
     <string name="pref_tab_contents_text_only">Només text</string>
     <string name="pref_title_render_markdown">Render Markdown</string>
+    <string name="visibility_public">Pública: és visible a la cronologia pública</string>
+    <string name="visibility_unlisted">Sense llistar: no és visible a les cronologies públiques</string>
+    <string name="visibility_private">Només seguidors: només és visible per al teus seguidors</string>
+    <string name="visibility_direct">Directa: només és visible per als usuaris mencionats</string>
 </resources>

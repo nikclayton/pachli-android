@@ -84,6 +84,8 @@ object PrefKeys {
     // Server-side preference, only written to from AccountPreferenceFragment.
     const val DEFAULT_POST_PRIVACY = "defaultPostPrivacy"
 
+    const val DEFAULT_REPLY_PRIVACY = "defaultReplyPrivacy"
+
     // Server-side preference, only written to from AccountPreferenceFragment.
     const val DEFAULT_POST_LANGUAGE = "defaultPostLanguage"
 

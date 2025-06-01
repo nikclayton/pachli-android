@@ -30,6 +30,7 @@ import app.pachli.core.database.model.PachliAccount
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Status
+import app.pachli.core.preferences.ReplyVisibility
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -270,6 +271,16 @@ WHERE id = :accountId
 """,
     )
     fun setDefaultPostPrivacy(accountId: Long, value: Status.Visibility)
+
+    @Query(
+        """
+UPDATE AccountEntity
+SET
+    defaultReplyVisibility = :value
+WHERE id = :pachliAccountId
+        """,
+    )
+    fun setDefaultReplyVisibility(pachliAccountId: Long, value: ReplyVisibility)
 
     // TODO: Should be suspend
     @Query(

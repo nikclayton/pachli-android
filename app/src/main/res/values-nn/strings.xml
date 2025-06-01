@@ -312,14 +312,10 @@
     <string name="mute_domain_warning_dialog_ok">Døl heile domenet</string>
     <string name="dialog_mute_warning">Demp @%s?</string>
     <string name="dialog_mute_hide_notifications">Døl varsel</string>
-    <string name="visibility_public">Offentleg: Send til offentlege tidslinjer</string>
-    <string name="visibility_unlisted">Ulista: Ikkje syn i offentlege tidslinjer</string>
-    <string name="visibility_private">Kun fylgjarar: Syn kun for fylgjarar</string>
     <string name="pref_title_edit_notification_settings">Varsel</string>
     <string name="pref_title_notifications_enabled">Varsel</string>
     <string name="pref_title_notification_alerts">Varslingsmetodar</string>
     <string name="pref_title_notification_alert_sound">Varsle med ljod</string>
-    <string name="visibility_direct">Direkt: Syn bare for nemnde brukarar</string>
     <string name="pref_title_notification_filter_follow_requests">nokon vil fylgje meg</string>
     <string name="pref_title_notification_filter_reblogs">innlegga mine vert delte</string>
     <string name="pref_title_notification_filter_favourites">innlegga mine vert favorittmerkte</string>

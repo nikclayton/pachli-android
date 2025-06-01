@@ -107,10 +107,6 @@
     <string name="dialog_message_cancel_follow_request">Gwrthod y cais i ddilyn\?</string>
     <string name="dialog_unfollow_warning">Dad-ddilyn y cyfrif hwn?</string>
     <string name="dialog_delete_post_warning">Dileu\'r neges hon\?</string>
-    <string name="visibility_public">Cyhoeddus: Postio i ffrydiau cyhoeddus</string>
-    <string name="visibility_unlisted">Heb restru: Peidio â dangos ar ffrydiau cyhoeddus</string>
-    <string name="visibility_private">Dilynwyr yn unig: Postio i ddilynwyr yn unig</string>
-    <string name="visibility_direct">Uniongyrchol: Postio i ddefnyddwyr a grybwyllwyd yn unig</string>
     <string name="pref_title_edit_notification_settings">Hysbysiadau</string>
     <string name="pref_title_notifications_enabled">Hysbysiadau</string>
     <string name="pref_title_notification_alerts">Rhybuddion</string>

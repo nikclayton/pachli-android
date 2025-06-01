@@ -13,4 +13,8 @@
     <string name="pref_show_self_username_always">Заўсёды</string>
     <string name="pref_show_self_username_disambiguate">Калі вы ўвайшлі ў некалькі ўліковых запісаў</string>
     <string name="pref_show_self_username_never">Ніколі</string>
+    <string name="visibility_public">Публічны: Дасылаць у публічныя стужкі</string>
+    <string name="visibility_unlisted">Не ў стужках: Не паказваць у публічных стужках</string>
+    <string name="visibility_private">Толькі падпісчыкі: Дасылаць толькі да падпісчыкаў</string>
+    <string name="visibility_direct">Асабіста: Дасылаць толькі для згаданых карыстальнікаў</string>
 </resources>

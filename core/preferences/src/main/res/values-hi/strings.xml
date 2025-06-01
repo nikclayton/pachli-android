@@ -29,4 +29,8 @@
     <string name="pref_tab_alignment_start">पाठ दिशा शुरू</string>
     <string name="pref_tab_contents_icon_only">केवल आइकन</string>
     <string name="pref_title_render_markdown">रेंडर मार्कडाउन</string>
+    <string name="visibility_public">सार्वजनिक: सार्वजनिक टाइमलाइन पर पोस्ट करें</string>
+    <string name="visibility_unlisted">असूचीबद्ध: सार्वजनिक टाइमलाइन में न दिखाएं</string>
+    <string name="visibility_private">केवल फ़ॉलोअर के लिए : केवल फ़ॉलोअर के लिए पोस्ट करें</string>
+    <string name="visibility_direct">प्रत्यक्ष: केवल उल्लिखित उपयोगकर्ताओं को पोस्ट करें</string>
 </resources>

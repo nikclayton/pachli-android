@@ -122,10 +122,6 @@
     <string name="dialog_unfollow_warning">Отписаться от этого аккаунта?</string>
     <string name="dialog_delete_post_warning">Удалить гудок\?</string>
     <string name="dialog_redraft_post_warning">Удалить гудок и превратить его в черновик\?</string>
-    <string name="visibility_public">Публичный: Показать в публичных лентах</string>
-    <string name="visibility_unlisted">Неизвестно: Не показывать в публичных лентах</string>
-    <string name="visibility_private">Только подписчики: Показать только подписчикам</string>
-    <string name="visibility_direct">Непосредственно: публиковать сообщения только для упомянутых пользователей</string>
     <string name="pref_title_edit_notification_settings">Уведомления</string>
     <string name="pref_title_notifications_enabled">Уведомления</string>
     <string name="pref_title_notification_alerts">Оповещения</string>

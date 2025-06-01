@@ -161,10 +161,6 @@
     <string name="pref_title_notification_alerts">ئاگادارکردنەوەکان</string>
     <string name="pref_title_notifications_enabled">ئاگانامەکان</string>
     <string name="pref_title_edit_notification_settings">ئاگانامەکان</string>
-    <string name="visibility_direct">ڕاستەوخۆ: تەنها بۆ بەکارهێنەرانی ناوبراو پۆست بکە</string>
-    <string name="visibility_private">تەنها شوێنکەوتوانی: تەنها پۆست بۆ شوێنکەوتوانی</string>
-    <string name="visibility_unlisted">لیستی نەکراو: لە هێڵی کاتی گشتی دا پیشان مەدە</string>
-    <string name="visibility_public">گشتی: پۆست بکە بۆ هێڵی کاتی گشتی</string>
     <string name="dialog_mute_hide_notifications">شاردنەوەی ئاگانامەکان</string>
     <string name="dialog_mute_warning">بێدەنگکردن @%s؟</string>
     <string name="dialog_block_warning">بلۆککردنی @%s؟</string>

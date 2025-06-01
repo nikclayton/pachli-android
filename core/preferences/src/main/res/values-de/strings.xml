@@ -32,4 +32,8 @@
     <string name="pref_update_notification_frequency_never">Nie</string>
     <string name="pref_update_notification_frequency_once_per_version">Einmal pro Version</string>
     <string name="pref_update_notification_frequency_always">Immer</string>
+    <string name="visibility_public">Öffentlich: Für alle sichtbar</string>
+    <string name="visibility_unlisted">Nicht gelistet: Nicht in der öffentlichen Timeline sichtbar</string>
+    <string name="visibility_private">Nur Follower: Nur für Follower sichtbar</string>
+    <string name="visibility_direct">Direkt: Nur für die erwähnten Profile sichtbar</string>
 </resources>

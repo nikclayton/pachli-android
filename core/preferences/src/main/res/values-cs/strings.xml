@@ -29,4 +29,8 @@
     <string name="pref_tab_contents_icon_only">Jen ikony</string>
     <string name="pref_tab_contents_text_only">Jen text</string>
     <string name="pref_title_render_markdown">Render Markdown</string>
+    <string name="visibility_public">Veřejný: Poslat na veřejné časové osy</string>
+    <string name="visibility_unlisted">Neuvedený: Neposlat na veřejné časové osy</string>
+    <string name="visibility_private">Pouze pro sledující: Poslat pouze sledujícím</string>
+    <string name="visibility_direct">Přímé: Poslat pouze zmíněným uživatelům</string>
 </resources>

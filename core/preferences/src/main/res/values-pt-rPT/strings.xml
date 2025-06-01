@@ -29,4 +29,8 @@
     <string name="pref_tab_contents_icon_only">Apenas ícone</string>
     <string name="pref_tab_contents_text_only">Só texto</string>
     <string name="pref_title_render_markdown">Render Markdown</string>
+    <string name="visibility_public">Público: Publicar em timelines públicas</string>
+    <string name="visibility_unlisted">Não listado: Não publicar em timelines públicas</string>
+    <string name="visibility_private">Privado: Publicar apenas para os seguidores</string>
+    <string name="visibility_direct">Direto: Publicar apenas para os utilizadores mencionados</string>
 </resources>

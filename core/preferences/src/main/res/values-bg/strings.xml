@@ -15,4 +15,8 @@
     <string name="pref_tab_contents_icon_only">Само икона</string>
     <string name="pref_tab_contents_text_only">Само текст</string>
     <string name="download_location_downloads">Папка за изтегляния</string>
+    <string name="visibility_public">Публично: Публикуване в публични емисии</string>
+    <string name="visibility_unlisted">Скрито: Не се показва в публични емисии</string>
+    <string name="visibility_private">Само за последователи: Публикуване само за последователи</string>
+    <string name="visibility_direct">Директно: Публикуване само за споменатите потребители</string>
 </resources>

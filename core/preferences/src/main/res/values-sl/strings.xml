@@ -13,4 +13,8 @@
     <string name="pref_show_self_username_never">Nikoli</string>
     <string name="pref_tab_contents_icon_only">Samo ikona</string>
     <string name="pref_tab_contents_text_only">Samo besedilo</string>
+    <string name="visibility_public">Javno: Objavi v javnih časovnicah</string>
+    <string name="visibility_unlisted">Ni prikazano: Ne prikaže v javnih časovnicah</string>
+    <string name="visibility_private">Samo sledilci: Objavi samo sledilcem</string>
+    <string name="visibility_direct">Neposredno: Objavi samo pri omenjenih uporabnikih</string>
 </resources>

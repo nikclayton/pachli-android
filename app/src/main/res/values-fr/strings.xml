@@ -120,10 +120,6 @@
     <string name="dialog_message_cancel_follow_request">Révoquer la demande d’abonnement ?</string>
     <string name="dialog_unfollow_warning">Ne plus suivre ce compte ?</string>
     <string name="dialog_delete_post_warning">Supprimer ce message \?</string>
-    <string name="visibility_public">Public : afficher dans les fils publics</string>
-    <string name="visibility_unlisted">Non listé : ne pas afficher dans les fils publics</string>
-    <string name="visibility_private">Abonné·e·s uniquement : seul·e·s vos abonné·e·s verront vos statuts</string>
-    <string name="visibility_direct">Direct : n’envoyer qu’aux personnes mentionnées</string>
     <string name="pref_title_edit_notification_settings">Notifications</string>
     <string name="pref_title_notifications_enabled">Notifications</string>
     <string name="pref_title_notification_alerts">Alertes</string>

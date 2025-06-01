@@ -113,10 +113,6 @@
     <string name="dialog_message_cancel_follow_request">フォローリクエストを取り消しますか？</string>
     <string name="dialog_unfollow_warning">このアカウントをフォロー解除しますか？</string>
     <string name="dialog_delete_post_warning">本当に削除しますか？</string>
-    <string name="visibility_public">公開：公開タイムラインに投稿する</string>
-    <string name="visibility_unlisted">未収載：公開タイムラインには表示しない</string>
-    <string name="visibility_private">フォロワー限定：フォロワーだけに公開</string>
-    <string name="visibility_direct">ダイレクト：返信先のユーザーだけに公開</string>
     <string name="pref_title_edit_notification_settings">通知</string>
     <string name="pref_title_notifications_enabled">通知</string>
     <string name="pref_title_notification_alerts">通知時の動作</string>

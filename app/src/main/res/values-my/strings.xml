@@ -139,10 +139,6 @@
     <string name="dialog_block_warning">\@%sအားပိတ်ပင်မည်လား?</string>
     <string name="dialog_mute_warning">\@%sအားကန့်သတ်မည်လား?</string>
     <string name="dialog_mute_hide_notifications">သတိပေးချက်များအားဝှက်ရန်</string>
-    <string name="visibility_public">Public: Public timeline များသို့ပိုစ့်တင်မည်</string>
-    <string name="visibility_unlisted">Unlisted: public timeline တွင်ပိုစ့်အားမပြပါ</string>
-    <string name="visibility_private">စောင့်ကြည်သူများသာ: ပိုစ့်အားစောင့်ကြည့်သူများထံသာပေးပို့ရန်</string>
-    <string name="visibility_direct">တိုက်ရိုက်: ပိုစ့်အားမန်းရှင်းထားသောသူများထံသာပို့ရန်</string>
     <string name="pref_title_notifications_enabled">သတိပေးချက်များ</string>
     <string name="pref_title_notification_alerts">အသိပေးချက်များ</string>
     <string name="pref_title_notification_alert_sound">အသံဖြင့်အသိပေးပါ</string>

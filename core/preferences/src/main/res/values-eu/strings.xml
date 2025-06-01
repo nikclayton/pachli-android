@@ -13,4 +13,8 @@
     <string name="pref_show_self_username_always">Beti</string>
     <string name="pref_show_self_username_never">Inoiz ez</string>
     <string name="pref_tab_contents_icon_only">Ikonoa bakarrik</string>
+    <string name="visibility_public">Publikoa: Istorio publikoetan erakutsi</string>
+    <string name="visibility_unlisted">Ezkutukoa: Ez erakutsi istorio publikoetan</string>
+    <string name="visibility_private">Pribatua: Jarraitzaileentzat soilik ikusgai</string>
+    <string name="visibility_direct">Zuzena: Aipatutako kontuentzat bakarrik ikusgai</string>
 </resources>

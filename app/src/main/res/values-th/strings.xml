@@ -207,10 +207,6 @@
     <string name="pref_title_notification_alerts">เตือน</string>
     <string name="pref_title_notifications_enabled">การแจ้งเตือนแบบ Push</string>
     <string name="pref_title_edit_notification_settings">ตั้งค่าการแจ้งเตือน</string>
-    <string name="visibility_direct">ไดเร็กต์:โพสต์ให้เฉพาะผู้ที่ถูกกล่าวถึงเห็น</string>
-    <string name="visibility_private">เฉพาะผู้ติดตาม:โพสต์ให้เฉพาะผู้ติดตามเห็น</string>
-    <string name="visibility_unlisted">ไม่อยู่ในรายการ:ไม่แสดงในไทม์ไลน์สาธารณะ</string>
-    <string name="visibility_public">สาธารณะ:โพสต์ในไทม์ไลน์สาธารณะ</string>
     <string name="dialog_mute_warning">ปิดเสียง @%s\?</string>
     <string name="dialog_block_warning">บล็อก @%s\?</string>
     <string name="mute_domain_warning_dialog_ok">ซ่อนทั้งโดเมน</string>

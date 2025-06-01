@@ -29,4 +29,8 @@
     <string name="pref_tab_contents_icon_only">Csak ikon</string>
     <string name="pref_tab_contents_text_only">Csak szöveg</string>
     <string name="pref_title_render_markdown">Render Markdown</string>
+    <string name="visibility_public">Nyilvános: Bejegyzés nyilvános idővonalra</string>
+    <string name="visibility_unlisted">Listázatlan: Nem jelenik meg a nyilvános idővonalon</string>
+    <string name="visibility_private">Csak követőknek: Bejegyzés csak követőknek</string>
+    <string name="visibility_direct">Közvetlen: Bejegyzés csak a megemlített felhasználóknak</string>
 </resources>

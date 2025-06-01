@@ -81,10 +81,6 @@
     <string name="pref_title_notification_alert_sound">एक ध्वनि के साथ सूचित करें</string>
     <string name="pref_title_notifications_enabled">सूचनाएं</string>
     <string name="pref_title_edit_notification_settings">सूचनाएं</string>
-    <string name="visibility_direct">प्रत्यक्ष: केवल उल्लिखित उपयोगकर्ताओं को पोस्ट करें</string>
-    <string name="visibility_private">केवल फ़ॉलोअर के लिए : केवल फ़ॉलोअर के लिए पोस्ट करें</string>
-    <string name="visibility_unlisted">असूचीबद्ध: सार्वजनिक टाइमलाइन में न दिखाएं</string>
-    <string name="visibility_public">सार्वजनिक: सार्वजनिक टाइमलाइन पर पोस्ट करें</string>
     <string name="dialog_mute_warning">म्यूट @%s\?</string>
     <string name="mute_domain_warning_dialog_ok">संपूर्ण डोमेन छिपाएं</string>
     <string name="dialog_download_image">डाउनलोड</string>

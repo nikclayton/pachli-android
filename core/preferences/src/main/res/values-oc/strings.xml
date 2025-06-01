@@ -12,4 +12,8 @@
     <string name="pref_show_self_username_always">Totjorn</string>
     <string name="pref_show_self_username_disambiguate">Quand mai d’un compte es connectat</string>
     <string name="pref_show_self_username_never">Jamai</string>
+    <string name="visibility_public">Publica : es visibla a la cronologia publica</string>
+    <string name="visibility_unlisted">Pas listada :es pas visibla a las cronologias publicas</string>
+    <string name="visibility_private">Solament seguidors : pas que visibla pels vòstres seguidors</string>
+    <string name="visibility_direct">Dirècta : pas que visibla al monde mencionats</string>
 </resources>

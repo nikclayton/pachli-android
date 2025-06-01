@@ -29,4 +29,8 @@
     <string name="pref_tab_contents_icon_only">僅圖示</string>
     <string name="pref_tab_contents_text_only">只有文字</string>
     <string name="pref_title_render_markdown">性别标记</string>
+    <string name="visibility_public">公開：所有人可見，並會出現在公開時間軸上</string>
+    <string name="visibility_unlisted">不公開：所有人可見，但不會出現在公開時間軸上</string>
+    <string name="visibility_private">僅關注者：只有經過你確認後關注你的使用者可見</string>
+    <string name="visibility_direct">私信：只有被提及的使用者可見</string>
 </resources>

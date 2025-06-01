@@ -29,4 +29,8 @@
     <string name="pref_tab_contents_icon_text_below">Ikono kun teksto sub</string>
     <string name="pref_tab_contents_icon_only">Nur piktogramo</string>
     <string name="pref_title_render_markdown">Render Markdown</string>
+    <string name="visibility_public">Publika: afiŝi en publikaj tempolinioj</string>
+    <string name="visibility_unlisted">Nelistigita: Ne afiŝi en publikaj tempolinioj</string>
+    <string name="visibility_private">Nur por sekvantoj: Afiŝi nur al sekvantoj</string>
+    <string name="visibility_direct">Rekta: Afiŝi nur al menciitaj uzantoj</string>
 </resources>

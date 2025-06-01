@@ -48,6 +48,7 @@ import app.pachli.core.network.retrofit.InstanceSwitchAuthInterceptor
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.network.retrofit.NodeInfoApi
 import app.pachli.core.network.retrofit.apiresult.ApiError
+import app.pachli.core.preferences.ReplyVisibility
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -682,6 +683,10 @@ class AccountManager @Inject constructor(
 
     fun setDefaultPostPrivacy(accountId: Long, value: Status.Visibility) {
         accountDao.setDefaultPostPrivacy(accountId, value)
+    }
+
+    suspend fun setDefaultReplyVisibility(pachliAccountId: Long, value: ReplyVisibility) {
+        accountDao.setDefaultReplyVisibility(pachliAccountId, value)
     }
 
     fun setDefaultMediaSensitivity(accountId: Long, value: Boolean) {

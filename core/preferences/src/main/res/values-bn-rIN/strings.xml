@@ -10,4 +10,8 @@
     <string name="pref_main_nav_position_option_top">সর্বপ্রথম</string>
     <string name="pref_main_nav_position_option_bottom">সবচেয়ে শেষ</string>
     <string name="pref_show_self_username_always">সবসময়</string>
+    <string name="visibility_public">সর্বজনীন: পাবলিক টাইমলাইনে পোস্ট কর</string>
+    <string name="visibility_unlisted">তালিকাভুক্ত নয়: সর্বজনীন সময়সূচীগুলিতে দেখাবেন না</string>
+    <string name="visibility_private">শুধুমাত্র অনুসরণকারীদের: শুধুমাত্র অনুসরণকারীদের পোস্ট করুন</string>
+    <string name="visibility_direct">সরাসরি: শুধুমাত্র উল্লেখ ব্যবহারকারীদের পোস্ট করুন</string>
 </resources>

@@ -13,4 +13,8 @@
     <string name="pref_show_self_username_disambiguate">Pan fydd cyfrifon lluosog wedi\'u mewngofnodi</string>
     <string name="pref_show_self_username_never">Byth</string>
     <string name="pref_tab_contents_icon_only">Eicon yn unig</string>
+    <string name="visibility_public">Cyhoeddus: Postio i ffrydiau cyhoeddus</string>
+    <string name="visibility_unlisted">Heb restru: Peidio â dangos ar ffrydiau cyhoeddus</string>
+    <string name="visibility_private">Dilynwyr yn unig: Postio i ddilynwyr yn unig</string>
+    <string name="visibility_direct">Uniongyrchol: Postio i ddefnyddwyr a grybwyllwyd yn unig</string>
 </resources>

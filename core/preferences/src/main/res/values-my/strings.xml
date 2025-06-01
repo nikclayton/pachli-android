@@ -8,4 +8,8 @@
     <string name="pref_main_nav_position_option_top">အပေါ်ဘက်</string>
     <string name="pref_show_self_username_always">အမြဲတမ်း</string>
     <string name="pref_show_self_username_never">Never</string>
+    <string name="visibility_public">Public: Public timeline များသို့ပိုစ့်တင်မည်</string>
+    <string name="visibility_unlisted">Unlisted: public timeline တွင်ပိုစ့်အားမပြပါ</string>
+    <string name="visibility_private">စောင့်ကြည်သူများသာ: ပိုစ့်အားစောင့်ကြည့်သူများထံသာပေးပို့ရန်</string>
+    <string name="visibility_direct">တိုက်ရိုက်: ပိုစ့်အားမန်းရှင်းထားသောသူများထံသာပို့ရန်</string>
 </resources>

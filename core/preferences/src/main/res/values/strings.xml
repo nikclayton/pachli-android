@@ -58,4 +58,12 @@
     <string name="pref_summary_export_settings">Tap to save app and account settings to a local file</string>
     <string name="pref_title_import_settings">Import settings</string>
     <string name="pref_summary_import_settings">Tap to restore settings from a file created using \"Export settings\"</string>
+
+    <string name="pref_title_reply_visibility">Default reply visibility</string>
+    <string name="pref_reply_visibility_same_as_account">Use default post privacy</string>
+    <string name="pref_reply_visibility_same_as_parent">Same as post being replied to</string>
+    <string name="visibility_public">Public: Post to public timelines</string>
+    <string name="visibility_unlisted">Unlisted: Do not show in public timelines</string>
+    <string name="visibility_private">Followers-Only: Post to followers only</string>
+    <string name="visibility_direct">Direct: Post to mentioned users only</string>
 </resources>

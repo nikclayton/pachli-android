@@ -112,10 +112,6 @@
     <string name="dialog_message_cancel_follow_request">Cancelar solicitação para seguir\?</string>
     <string name="dialog_unfollow_warning">Deixar de seguir esta conta?</string>
     <string name="dialog_delete_post_warning">Excluir este Toot?</string>
-    <string name="visibility_public">Público: Postar em linhas públicas</string>
-    <string name="visibility_unlisted">Não-listado: Não postar em linhas públicas</string>
-    <string name="visibility_private">Privado: Postar só para seguidores</string>
-    <string name="visibility_direct">Direto: Postar só para mencionados</string>
     <string name="pref_title_edit_notification_settings">Notificações</string>
     <string name="pref_title_notifications_enabled">Notificações</string>
     <string name="pref_title_notification_alerts">Alertas</string>

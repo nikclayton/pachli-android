@@ -32,4 +32,8 @@
     <string name="pref_update_notification_frequency_never">Aldri</string>
     <string name="pref_update_notification_frequency_once_per_version">Én gang om versjon</string>
     <string name="pref_update_notification_frequency_always">Alltid</string>
+    <string name="visibility_public">Offentlig: Vis i offentlige tidslinjer</string>
+    <string name="visibility_unlisted">Ikke oppført: Ikke vis i offentlige tidslinjer</string>
+    <string name="visibility_private">Bare følgere: Vis bare til følgere</string>
+    <string name="visibility_direct">Direkte: Vis bare til nevnte brukere</string>
 </resources>

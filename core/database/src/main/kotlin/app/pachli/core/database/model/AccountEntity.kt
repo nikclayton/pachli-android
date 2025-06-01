@@ -27,6 +27,7 @@ import app.pachli.core.model.FilterAction
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Emoji
 import app.pachli.core.network.model.Status
+import app.pachli.core.preferences.ReplyVisibility
 
 @Entity(
     indices = [
@@ -81,6 +82,8 @@ data class AccountEntity(
     val notificationVibration: Boolean = true,
     val notificationLight: Boolean = true,
     val defaultPostPrivacy: Status.Visibility = Status.Visibility.PUBLIC,
+    @ColumnInfo(defaultValue = "SAME_AS_PARENT_POST_VISIBILITY")
+    val defaultReplyVisibility: ReplyVisibility = ReplyVisibility.SAME_AS_PARENT_POST_VISIBILITY,
     val defaultMediaSensitivity: Boolean = false,
     val defaultPostLanguage: String = "",
     val alwaysShowSensitiveMedia: Boolean = false,

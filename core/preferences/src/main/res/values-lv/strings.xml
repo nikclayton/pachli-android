@@ -36,4 +36,8 @@
     <string name="pref_tab_contents_icon_text_below">Ikona ar tekstu apakšā</string>
     <string name="pref_tab_alignment_justify_if_possible">Izvērst līdz pilnam platumam</string>
     <string name="pref_tab_alignment_end">Teksta virziena beigas</string>
+    <string name="visibility_public">Publisks: pieejams publiskās laika joslās</string>
+    <string name="visibility_unlisted">Neiekļauts: nerādīt publiskās laika joslās</string>
+    <string name="visibility_private">Tikai sekotājiem: iesūtīt tikai sekotājiem</string>
+    <string name="visibility_direct">Tiešs: iesūtīt tikai pieminētajiem lietotājiem</string>
 </resources>

@@ -254,10 +254,6 @@
     <string name="dialog_block_warning">Block @%s?</string>
     <string name="dialog_mute_warning">Mute @%s?</string>
     <string name="dialog_mute_hide_notifications">Hide notifications</string>
-    <string name="visibility_public">Public: Post to public timelines</string>
-    <string name="visibility_unlisted">Unlisted: Do not show in public timelines</string>
-    <string name="visibility_private">Followers-Only: Post to followers only</string>
-    <string name="visibility_direct">Direct: Post to mentioned users only</string>
     <string name="pref_title_edit_notification_settings">Notifications</string>
     <string name="pref_title_notifications_enabled">Notifications</string>
     <string name="pref_title_notification_alerts">Alerts</string>
@@ -308,6 +304,7 @@
     <string name="pref_summary_http_proxy_missing">&lt;not set&gt;</string>
     <string name="pref_summary_http_proxy_invalid">&lt;invalid&gt;</string>
     <string name="pref_default_post_privacy">Default post privacy</string>
+    <string name="pref_detault_reply_visibility">Default reply visibility</string>
     <string name="pref_default_post_language">Default posting language</string>
     <string name="pref_default_media_sensitivity">Always mark media as sensitive</string>
     <string name="pref_publishing">Publishing (synced with server)</string>

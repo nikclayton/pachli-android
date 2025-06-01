@@ -118,10 +118,6 @@
     <string name="dialog_message_cancel_follow_request">Återkalla följningsförfrågan?</string>
     <string name="dialog_unfollow_warning">Sluta följ detta konto\?</string>
     <string name="dialog_delete_post_warning">Radera denna toot?</string>
-    <string name="visibility_public">Offentlig: Skicka till offentliga tidslinjer</string>
-    <string name="visibility_unlisted">Olistad: Visa inte i offentliga tidslinjer</string>
-    <string name="visibility_private">Enbart-följare: Ses enbart av följare</string>
-    <string name="visibility_direct">Direkt: Skicka endast till nämnda användare</string>
     <string name="pref_title_edit_notification_settings">Aviseringar</string>
     <string name="pref_title_notifications_enabled">Aviseringar</string>
     <string name="pref_title_notification_alerts">Alarm</string>

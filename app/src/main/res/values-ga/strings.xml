@@ -50,10 +50,6 @@
     <string name="pref_title_notification_alerts">Foláirimh</string>
     <string name="pref_title_notifications_enabled">Fógraí</string>
     <string name="pref_title_edit_notification_settings">Fógraí</string>
-    <string name="visibility_direct">Díreach: Post chuig úsáideoirí luaite amháin</string>
-    <string name="visibility_private">Leantóirí-amháin: Seol chuig leantóirí amháin</string>
-    <string name="visibility_unlisted">Neamhliostaithe: Ná taispeáin in amlínte poiblí</string>
-    <string name="visibility_public">Poiblí: Post chuig amlínte poiblí</string>
     <string name="dialog_mute_hide_notifications">Folaigh fógraí</string>
     <string name="dialog_block_warning">Bloc @%s\?</string>
     <string name="mute_domain_warning_dialog_ok">Folaigh an fearann iomlán</string>

@@ -330,10 +330,6 @@
     <string name="pref_title_notification_alert_vibrate">Dèan crith nuair a thig brath a-steach</string>
     <string name="pref_title_notification_alert_sound">Seirm nuair a thig brath a-steach</string>
     <string name="pref_title_notification_alerts">Rabhaidhean</string>
-    <string name="visibility_direct">Dìreach: Postaich dha na cleachdaichean le iomradh orra a-mhàin</string>
-    <string name="visibility_private">Luchd-leantainn a-mhàin: Postaich dhan luchd-leantainn a-mhàin</string>
-    <string name="visibility_unlisted">Neo-liostaichte: Na seall air loidhnichean-ama poblach</string>
-    <string name="visibility_public">Poblach: Postaich gu loidhnichean-ama poblach</string>
     <string name="dialog_mute_warning">A bheil thu airson @%s a mhùchadh\?</string>
     <string name="dialog_block_warning">A bheil thu airson @%s a bhacadh\?</string>
     <string name="mute_domain_warning_dialog_ok">Falaich an àrainn uile gu lèir</string>

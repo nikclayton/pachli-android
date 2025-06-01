@@ -32,4 +32,8 @@
     <string name="pref_update_notification_frequency_never">Nunca</string>
     <string name="pref_update_notification_frequency_once_per_version">Uma vez por versão</string>
     <string name="pref_update_notification_frequency_always">Sempre</string>
+    <string name="visibility_public">Público: Postar em linhas públicas</string>
+    <string name="visibility_unlisted">Não-listado: Não postar em linhas públicas</string>
+    <string name="visibility_private">Privado: Postar só para seguidores</string>
+    <string name="visibility_direct">Direto: Postar só para mencionados</string>
 </resources>

@@ -112,10 +112,6 @@
     <string name="dialog_message_cancel_follow_request">Takip isteğini iptal et\?</string>
     <string name="dialog_unfollow_warning">Takibi bırakmak istiyor musunuz\?</string>
     <string name="dialog_delete_post_warning">Bu durumu silmek istiyor musunuz\?</string>
-    <string name="visibility_public">Herkese Açık: Herkese açık ağ akışında göster</string>
-    <string name="visibility_unlisted">Listelenmemiş: Herkese açık ağ akışında gösterme</string>
-    <string name="visibility_private">Özel: Sadece takipçiler ve bahsedilenlere açık</string>
-    <string name="visibility_direct">Doğrudan: Sadece bahsedilen kullanıcılara açık</string>
     <string name="pref_title_edit_notification_settings">Bildirimler</string>
     <string name="pref_title_notifications_enabled">Anlık bildirimler</string>
     <string name="pref_title_notification_alerts">Uyarılar</string>

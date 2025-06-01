@@ -511,7 +511,6 @@
     <string name="account_filter_placeholder_type_mention_fmt">Lietotājs @<b>%1s</b> pieminēja Tevi</string>
     <string name="action_send_private_content_description">Nosūtīt tikai sekotājiem paredzētu ierakstu</string>
     <string name="action_send_direct_content_description">Nosūtīt tiešu ziņu</string>
-    <string name="visibility_direct">Tiešs: iesūtīt tikai pieminētajiem lietotājiem</string>
     <string name="action_send_public_content_description">Nosūtīt publisku ierakstu</string>
     <string name="search_operator_where_dialog_library_hint">Tavi ieraksti, pastiprinājumi, izlase, grāmatzīmes un ieraksti, kuros Tevi @piemin</string>
     <string name="account_filter_placeholder_label_limited_by_server">Atlasīts jo: <b>satura pārraudzītāju ierobežots</b></string>
@@ -679,8 +678,6 @@
     <string name="confirmation_hashtag_unmuted">#%s paslēpšana atcelta</string>
     <string name="action_filter_search">Atlasīt meklēšanu</string>
     <string name="label_image">Attēls</string>
-    <string name="visibility_unlisted">Neiekļauts: nerādīt publiskās laika joslās</string>
-    <string name="visibility_public">Publisks: pieejams publiskās laika joslās</string>
     <string name="post_privacy_unlisted">Neiekļauts</string>
     <string name="action_unsubscribe_account">Atcelt abonēšanu</string>
     <string name="ui_error_vote_fmt">Balsošana aptaujā neizdevās: %1$s</string>
@@ -762,7 +759,6 @@
     <string name="pref_title_font_family">Fontu saime</string>
     <string name="notification_severed_relationships_name">Pārtrauktās saiknes</string>
     <string name="pref_title_content_filters">Satura atlasītāji</string>
-    <string name="visibility_private">Tikai sekotājiem: iesūtīt tikai sekotājiem</string>
     <string name="pref_summary_content_filters">Tavs serveris nenodrošina satura atlasītājus</string>
     <string name="notification_update_description">Paziņojums, kad tiek laboti ieraksti, ar kuriem mijiedarbojies</string>
     <string name="pref_ui_text_size">Saskarnes teksta lielums</string>

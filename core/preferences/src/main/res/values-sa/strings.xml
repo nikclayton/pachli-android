@@ -13,4 +13,8 @@
     <string name="pref_show_self_username_always">सर्वदा</string>
     <string name="pref_show_self_username_never">न कदापि</string>
     <string name="pref_tab_contents_icon_only">प्रतीकः एव</string>
+    <string name="visibility_public">सार्वजनिकः‍‍‍‍= प्रकट्यतां सार्वजनिकसमयतालिकासु</string>
+    <string name="visibility_unlisted">अनिर्दिष्टः = सार्वजनिकसमयतालिकायां मा प्रकट्यताम्</string>
+    <string name="visibility_private">केवलमनुसर्तृृणाम् :- कृते प्रकट्यताम्</string>
+    <string name="visibility_direct">प्रत्यक्षम् - केवलमुल्लिखितयोक्तृभ्यः प्रकट्यताम्</string>
 </resources>

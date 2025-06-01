@@ -36,4 +36,8 @@
     <string name="pref_summary_import_settings">Klepnutím obnovíš nastavenia zo súboru vytvoreného pomocou funkcie „Exportovať nastavenia“</string>
     <string name="pref_title_export_settings">Exportovať nastavenia</string>
     <string name="pref_title_import_settings">Importovať nastavenia</string>
+    <string name="visibility_public">Verejné: Uverejniť na verejných časových osách</string>
+    <string name="visibility_unlisted">Tiché verejné: Nezobrazovať na verejných časových osách</string>
+    <string name="visibility_private">Len pre sledujúcich: Uverejniť iba pre sledujúcich</string>
+    <string name="visibility_direct">Priame: Uverejniť iba pre uvedené účty</string>
 </resources>

@@ -28,4 +28,8 @@
     <string name="pref_tab_alignment_justify_if_possible">Расширение до полной ширины</string>
     <string name="pref_tab_contents_icon_only">Только значок</string>
     <string name="pref_tab_contents_text_only">Только текст</string>
+    <string name="visibility_public">Публичный: Показать в публичных лентах</string>
+    <string name="visibility_unlisted">Неизвестно: Не показывать в публичных лентах</string>
+    <string name="visibility_private">Только подписчики: Показать только подписчикам</string>
+    <string name="visibility_direct">Непосредственно: публиковать сообщения только для упомянутых пользователей</string>
 </resources>

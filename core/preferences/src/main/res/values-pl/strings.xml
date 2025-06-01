@@ -36,4 +36,8 @@
     <string name="pref_summary_import_settings">Stuknij, by odtworzyć ustawienia z pliku stworzonego przez „Eksport ustawień”</string>
     <string name="pref_summary_export_settings">Stuknij, by zapisać ustawienia aplikacji i kont do lokalnego pliku</string>
     <string name="pref_title_export_settings">Eksport ustawień</string>
+    <string name="visibility_public">Publiczny: Widoczny na publicznych osiach czasu</string>
+    <string name="visibility_unlisted">Niepubliczny: Niewidoczny na publicznych osiach czasu</string>
+    <string name="visibility_private">Tylko dla obserwujących: Widoczny tylko dla osób, które cię obserwują</string>
+    <string name="visibility_direct">Bezpośredni: Widoczny tylko dla wspomnianych osób</string>
 </resources>
