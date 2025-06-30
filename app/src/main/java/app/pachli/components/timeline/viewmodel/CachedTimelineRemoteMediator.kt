@@ -31,6 +31,7 @@ import app.pachli.core.database.model.StatusEntity
 import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.database.model.TimelineStatusEntity
 import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Links
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
@@ -58,6 +59,7 @@ class CachedTimelineRemoteMediator(
         state: PagingState<Int, TimelineStatusWithAccount>,
     ): MediatorResult {
         Timber.d("load(), account ID: %d, LoadType = %s", pachliAccountId, loadType)
+        val remoteKeyTimelineId = Timeline.Home.remoteKeyTimelineId
 
         return transactionProvider {
             val response = when (loadType) {
@@ -66,17 +68,17 @@ class CachedTimelineRemoteMediator(
                     // REFRESH key.
                     val statusId = remoteKeyDao.remoteKeyForKind(
                         pachliAccountId,
-                        RKE_TIMELINE_ID,
+                        remoteKeyTimelineId,
                         RemoteKeyKind.REFRESH,
                     )?.key
                     Timber.d("Refresh from item: %s", statusId)
-                    getInitialPage(statusId, state.config.pageSize)
+                    getInitialPage(statusId, state.config.initialLoadSize)
                 }
 
                 LoadType.PREPEND -> {
                     val rke = remoteKeyDao.remoteKeyForKind(
                         pachliAccountId,
-                        RKE_TIMELINE_ID,
+                        remoteKeyTimelineId,
                         RemoteKeyKind.PREV,
                     ) ?: return@transactionProvider MediatorResult.Success(endOfPaginationReached = true)
                     Timber.d("Prepend from remoteKey: %s", rke)
@@ -86,7 +88,7 @@ class CachedTimelineRemoteMediator(
                 LoadType.APPEND -> {
                     val rke = remoteKeyDao.remoteKeyForKind(
                         pachliAccountId,
-                        RKE_TIMELINE_ID,
+                        remoteKeyTimelineId,
                         RemoteKeyKind.NEXT,
                     ) ?: return@transactionProvider MediatorResult.Success(endOfPaginationReached = true)
                     Timber.d("Append from remoteKey: %s", rke)
@@ -97,19 +99,15 @@ class CachedTimelineRemoteMediator(
             val statuses = response.body
 
             Timber.d("%d - # statuses loaded", statuses.size)
-
-            // This request succeeded with no new data, and pagination ends (unless this is a
-            // REFRESH, which must always set endOfPaginationReached to false).
-            if (statuses.isEmpty()) {
-                return@transactionProvider MediatorResult.Success(endOfPaginationReached = loadType != LoadType.REFRESH)
+            if (statuses.isNotEmpty()) {
+                Timber.d("  %s..%s", statuses.first().id, statuses.last().id)
             }
-
-            Timber.d("  %s..%s", statuses.first().id, statuses.last().id)
 
             val links = Links.from(response.headers["link"])
 
             when (loadType) {
                 LoadType.REFRESH -> {
+                    remoteKeyDao.deletePrevNext(pachliAccountId, remoteKeyTimelineId)
                     timelineDao.deleteAllStatusesForAccountOnTimeline(
                         pachliAccountId,
                         TimelineStatusEntity.Kind.Home,
@@ -118,7 +116,7 @@ class CachedTimelineRemoteMediator(
                     remoteKeyDao.upsert(
                         RemoteKeyEntity(
                             pachliAccountId,
-                            RKE_TIMELINE_ID,
+                            remoteKeyTimelineId,
                             RemoteKeyKind.NEXT,
                             links.next,
                         ),
@@ -127,7 +125,7 @@ class CachedTimelineRemoteMediator(
                     remoteKeyDao.upsert(
                         RemoteKeyEntity(
                             pachliAccountId,
-                            RKE_TIMELINE_ID,
+                            remoteKeyTimelineId,
                             RemoteKeyKind.PREV,
                             links.prev,
                         ),
@@ -139,7 +137,7 @@ class CachedTimelineRemoteMediator(
                     remoteKeyDao.upsert(
                         RemoteKeyEntity(
                             pachliAccountId,
-                            RKE_TIMELINE_ID,
+                            remoteKeyTimelineId,
                             RemoteKeyKind.PREV,
                             prev,
                         ),
@@ -151,7 +149,7 @@ class CachedTimelineRemoteMediator(
                     remoteKeyDao.upsert(
                         RemoteKeyEntity(
                             pachliAccountId,
-                            RKE_TIMELINE_ID,
+                            remoteKeyTimelineId,
                             RemoteKeyKind.NEXT,
                             next,
                         ),
@@ -160,7 +158,13 @@ class CachedTimelineRemoteMediator(
             }
             insertStatuses(pachliAccountId, statuses)
 
-            MediatorResult.Success(endOfPaginationReached = false)
+            val endOfPagination = when (loadType) {
+                LoadType.REFRESH -> statuses.isEmpty() || (links.prev == null && links.next == null)
+                LoadType.PREPEND -> statuses.isEmpty() || links.prev == null
+                LoadType.APPEND -> statuses.isEmpty() || links.next == null
+            }
+
+            MediatorResult.Success(endOfPaginationReached = endOfPagination)
         }
     }
 
@@ -172,8 +176,8 @@ class CachedTimelineRemoteMediator(
         statusId ?: return@coroutineScope mastodonApi.homeTimeline(limit = pageSize)
 
         val status = async { mastodonApi.status(statusId = statusId) }
-        val prevPage = async { mastodonApi.homeTimeline(minId = statusId, limit = pageSize * 3) }
-        val nextPage = async { mastodonApi.homeTimeline(maxId = statusId, limit = pageSize * 3) }
+        val prevPage = async { mastodonApi.homeTimeline(minId = statusId, limit = pageSize / 2) }
+        val nextPage = async { mastodonApi.homeTimeline(maxId = statusId, limit = pageSize / 2) }
 
         val statuses = buildList {
             prevPage.await().get()?.let { this.addAll(it.body) }
@@ -217,9 +221,5 @@ class CachedTimelineRemoteMediator(
                 )
             },
         )
-    }
-
-    companion object {
-        const val RKE_TIMELINE_ID = "HOME"
     }
 }
