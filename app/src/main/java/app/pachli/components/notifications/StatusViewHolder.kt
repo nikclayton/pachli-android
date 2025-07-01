@@ -20,18 +20,20 @@ package app.pachli.components.notifications
 import app.pachli.adapter.FilterableStatusViewHolder
 import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.data.model.StatusDisplayOptions
-import app.pachli.core.network.model.Notification
+import app.pachli.core.database.model.NotificationEntity
+import app.pachli.core.ui.SetStatusContent
 import app.pachli.databinding.ItemStatusBinding
 import app.pachli.databinding.ItemStatusWrapperBinding
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.viewdata.NotificationViewData
+import com.bumptech.glide.RequestManager
 
 internal class StatusViewHolder(
-    pachliAccountId: Long,
     binding: ItemStatusBinding,
+    glide: RequestManager,
+    setStatusContent: SetStatusContent,
     private val statusActionListener: StatusActionListener<NotificationViewData>,
-    private val accountId: String,
-) : NotificationsPagingAdapter.ViewHolder, StatusViewHolder<NotificationViewData>(pachliAccountId, binding) {
+) : NotificationsPagingAdapter.ViewHolder, StatusViewHolder<NotificationViewData>(binding, glide, setStatusContent) {
 
     override fun bind(
         viewData: NotificationViewData,
@@ -54,8 +56,8 @@ internal class StatusViewHolder(
                 payloads?.firstOrNull(),
             )
         }
-        if (viewData.type == Notification.Type.POLL) {
-            setPollInfo(accountId == viewData.account.id)
+        if (viewData.type == NotificationEntity.Type.POLL) {
+            setPollInfo(viewData.isAboutSelf)
         } else {
             hideStatusInfo()
         }
@@ -63,11 +65,11 @@ internal class StatusViewHolder(
 }
 
 class FilterableStatusViewHolder(
-    private val pachliAccountId: Long,
     binding: ItemStatusWrapperBinding,
+    glide: RequestManager,
+    setStatusContent: SetStatusContent,
     private val statusActionListener: StatusActionListener<NotificationViewData>,
-    private val accountId: String,
-) : NotificationsPagingAdapter.ViewHolder, FilterableStatusViewHolder<NotificationViewData>(pachliAccountId, binding) {
+) : NotificationsPagingAdapter.ViewHolder, FilterableStatusViewHolder<NotificationViewData>(binding, glide, setStatusContent) {
     // Note: Identical to bind() in StatusViewHolder above
     override fun bind(
         viewData: NotificationViewData,
@@ -90,8 +92,8 @@ class FilterableStatusViewHolder(
                 payloads?.firstOrNull(),
             )
         }
-        if (viewData.type == Notification.Type.POLL) {
-            setPollInfo(accountId == viewData.account.id)
+        if (viewData.type == NotificationEntity.Type.POLL) {
+            setPollInfo(viewData.isAboutSelf)
         } else {
             hideStatusInfo()
         }

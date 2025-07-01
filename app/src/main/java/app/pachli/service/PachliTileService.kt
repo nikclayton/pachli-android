@@ -16,22 +16,20 @@
 
 package app.pachli.service
 
-import android.annotation.TargetApi
 import android.app.PendingIntent
 import android.os.Build
 import android.service.quicksettings.TileService
-import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
-import app.pachli.core.navigation.MainActivityIntent
+import androidx.annotation.RequiresApi
+import app.pachli.core.navigation.IntentRouterActivityIntent
 
 /**
  * Small Addition that adds in a QuickSettings tile
  * opens the Compose activity or shows an account selector when multiple accounts are present
  */
-@TargetApi(24)
+@RequiresApi(24)
 class PachliTileService : TileService() {
     override fun onClick() {
-        // XXX: -1L here needs handling properly.
-        val intent = MainActivityIntent.openCompose(this, ComposeOptions(), -1L)
+        val intent = IntentRouterActivityIntent.fromQuickTile(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
             startActivityAndCollapse(pendingIntent)

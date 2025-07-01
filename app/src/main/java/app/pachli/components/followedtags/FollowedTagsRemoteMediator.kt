@@ -7,29 +7,25 @@ import androidx.paging.RemoteMediator
 import app.pachli.core.network.model.HashTag
 import app.pachli.core.network.model.HttpHeaderLink
 import app.pachli.core.network.retrofit.MastodonApi
-import retrofit2.HttpException
-import retrofit2.Response
+import app.pachli.core.network.retrofit.apiresult.ApiResult
+import com.github.michaelbull.result.getOrElse
 
 @OptIn(ExperimentalPagingApi::class)
 class FollowedTagsRemoteMediator(
     private val api: MastodonApi,
     private val viewModel: FollowedTagsViewModel,
-) : RemoteMediator<String, String>() {
+) : RemoteMediator<String, HashTag>() {
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<String, String>,
+        state: PagingState<String, HashTag>,
     ): MediatorResult {
-        return try {
-            val response = request(loadType)
-                ?: return MediatorResult.Success(endOfPaginationReached = true)
+        val response = request(loadType)
+            ?: return MediatorResult.Success(endOfPaginationReached = true)
 
-            return applyResponse(response)
-        } catch (e: Exception) {
-            MediatorResult.Error(e)
-        }
+        return applyResponse(response)
     }
 
-    private suspend fun request(loadType: LoadType): Response<List<HashTag>>? {
+    private suspend fun request(loadType: LoadType): ApiResult<List<HashTag>>? {
         return when (loadType) {
             LoadType.PREPEND -> null
             LoadType.APPEND -> api.followedTags(maxId = viewModel.nextKey)
@@ -41,13 +37,13 @@ class FollowedTagsRemoteMediator(
         }
     }
 
-    private fun applyResponse(response: Response<List<HashTag>>): MediatorResult {
-        val tags = response.body()
-        if (!response.isSuccessful || tags == null) {
-            return MediatorResult.Error(HttpException(response))
+    private fun applyResponse(result: ApiResult<List<HashTag>>): MediatorResult {
+        val response = result.getOrElse {
+            return MediatorResult.Error(it.throwable)
         }
+        val tags = response.body
 
-        val links = HttpHeaderLink.parse(response.headers()["Link"])
+        val links = HttpHeaderLink.parse(response.headers["Link"])
         viewModel.nextKey = HttpHeaderLink.findByRelationType(links, "next")?.uri?.getQueryParameter("max_id")
         viewModel.tags.addAll(tags)
         viewModel.currentSource?.invalidate()

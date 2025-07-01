@@ -22,31 +22,24 @@ import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import app.pachli.components.timeline.TimelineRepository.Companion.PAGE_SIZE
 import app.pachli.components.timeline.viewmodel.CachedTimelineRemoteMediator
 import app.pachli.core.common.di.ApplicationScope
-import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.database.dao.RemoteKeyDao
+import app.pachli.core.database.dao.StatusDao
 import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.database.dao.TranslatedStatusDao
 import app.pachli.core.database.di.TransactionProvider
+import app.pachli.core.database.model.RemoteKeyEntity.RemoteKeyKind
 import app.pachli.core.database.model.StatusViewDataEntity
 import app.pachli.core.database.model.TimelineStatusWithAccount
 import app.pachli.core.database.model.TranslatedStatusEntity
-import app.pachli.core.database.model.TranslationState
 import app.pachli.core.model.Timeline
-import app.pachli.core.network.model.Translation
 import app.pachli.core.network.retrofit.MastodonApi
-import app.pachli.util.EmptyPagingSource
-import app.pachli.viewdata.StatusViewData
-import at.connyduck.calladapter.networkresult.NetworkResult
-import at.connyduck.calladapter.networkresult.fold
-import com.squareup.moshi.Moshi
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -61,168 +54,86 @@ import timber.log.Timber
 @Singleton
 class CachedTimelineRepository @Inject constructor(
     private val mastodonApi: MastodonApi,
-    private val accountManager: AccountManager,
     private val transactionProvider: TransactionProvider,
     val timelineDao: TimelineDao,
     private val remoteKeyDao: RemoteKeyDao,
     private val translatedStatusDao: TranslatedStatusDao,
-    private val moshi: Moshi,
+    private val statusDao: StatusDao,
     @ApplicationScope private val externalScope: CoroutineScope,
-) {
+) : TimelineRepository<TimelineStatusWithAccount> {
     private var factory: InvalidatingPagingSourceFactory<Int, TimelineStatusWithAccount>? = null
 
-    private var activeAccount = accountManager.activeAccount
-
-    /** @return flow of Mastodon [TimelineStatusWithAccount], loaded in [pageSize] increments */
-    @OptIn(ExperimentalPagingApi::class, ExperimentalCoroutinesApi::class)
-    fun getStatusStream(
-        kind: Timeline,
-        pageSize: Int = PAGE_SIZE,
-        initialKey: String? = null,
+    /** @return flow of Mastodon [TimelineStatusWithAccount. */
+    @OptIn(ExperimentalPagingApi::class)
+    override suspend fun getStatusStream(
+        pachliAccountId: Long,
+        timeline: Timeline,
     ): Flow<PagingData<TimelineStatusWithAccount>> {
-        Timber.d("getStatusStream(): key: %s", initialKey)
+        factory = InvalidatingPagingSourceFactory { timelineDao.getStatuses(pachliAccountId) }
 
-        return accountManager.activeAccountFlow.flatMapLatest {
-            activeAccount = it
-
-            factory = InvalidatingPagingSourceFactory {
-                activeAccount?.let { timelineDao.getStatuses(it.id) } ?: EmptyPagingSource()
-            }
-
-            val row = initialKey?.let { key ->
-                // Room is row-keyed (by Int), not item-keyed, so the status ID string that was
-                // passed as `initialKey` won't work.
-                //
-                // Instead, get all the status IDs for this account, in timeline order, and find the
-                // row index that contains the status. The row index is the correct initialKey.
-                activeAccount?.let { account ->
-                    timelineDao.getStatusRowNumber(account.id)
-                        .indexOfFirst { it == key }.takeIf { it != -1 }
-                }
-            }
-
-            Timber.d("initialKey: %s is row: %d", initialKey, row)
-
-            Pager(
-                config = PagingConfig(
-                    pageSize = pageSize,
-                    jumpThreshold = PAGE_SIZE * 3,
-                    enablePlaceholders = true,
-                ),
-                initialKey = row,
-                remoteMediator = CachedTimelineRemoteMediator(
-                    initialKey,
-                    mastodonApi,
-                    activeAccount!!.id,
-                    factory!!,
-                    transactionProvider,
-                    timelineDao,
-                    remoteKeyDao,
-                    moshi,
-                ),
-                pagingSourceFactory = factory!!,
-            ).flow
+        val initialKey = timeline.remoteKeyTimelineId?.let { timelineId ->
+            remoteKeyDao.remoteKeyForKind(pachliAccountId, timelineId, RemoteKeyKind.REFRESH)?.key
         }
+
+        val row = initialKey?.let { timelineDao.getStatusRowNumber(pachliAccountId, it) }
+
+        Timber.d("initialKey: %s is row: %d", initialKey, row)
+
+        return Pager(
+            initialKey = row,
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                enablePlaceholders = true,
+            ),
+            remoteMediator = CachedTimelineRemoteMediator(
+                mastodonApi,
+                pachliAccountId,
+                transactionProvider,
+                timelineDao,
+                remoteKeyDao,
+                statusDao,
+            ),
+            pagingSourceFactory = factory!!,
+        ).flow
     }
 
     /** Invalidate the active paging source, see [androidx.paging.PagingSource.invalidate] */
-    suspend fun invalidate() {
+    override suspend fun invalidate(pachliAccountId: Long) {
         // Invalidating when no statuses have been loaded can cause empty timelines because it
         // cancels the network load.
-        if (timelineDao.getStatusCount(activeAccount!!.id) < 1) {
+        if (timelineDao.getStatusCount(pachliAccountId) < 1) {
             return
         }
 
         factory?.invalidate()
     }
 
-    suspend fun saveStatusViewData(statusViewData: StatusViewData) = externalScope.launch {
-        timelineDao.upsertStatusViewData(
-            StatusViewDataEntity(
-                serverId = statusViewData.actionableId,
-                timelineUserId = activeAccount!!.id,
-                expanded = statusViewData.isExpanded,
-                contentShowing = statusViewData.isShowingContent,
-                contentCollapsed = statusViewData.isCollapsed,
-                translationState = statusViewData.translationState,
-            ),
-        )
-    }.join()
-
     /**
      * @return Map between statusIDs and any viewdata for them cached in the repository.
      */
-    suspend fun getStatusViewData(statusId: List<String>): Map<String, StatusViewDataEntity> {
-        return timelineDao.getStatusViewData(activeAccount!!.id, statusId)
+    suspend fun getStatusViewData(pachliAccountId: Long, statusId: List<String>): Map<String, StatusViewDataEntity> {
+        return statusDao.getStatusViewData(pachliAccountId, statusId)
     }
 
     /**
      * @return Map between statusIDs and any translations for them cached in the repository.
      */
-    suspend fun getStatusTranslations(statusIds: List<String>): Map<String, TranslatedStatusEntity> {
-        return translatedStatusDao.getTranslations(activeAccount!!.id, statusIds)
+    suspend fun getStatusTranslations(pachliAccountId: Long, statusIds: List<String>): Map<String, TranslatedStatusEntity> {
+        return translatedStatusDao.getTranslations(pachliAccountId, statusIds)
     }
 
     /** Remove all statuses authored/boosted by the given account, for the active account */
-    suspend fun removeAllByAccountId(accountId: String) = externalScope.launch {
-        timelineDao.removeAllByUser(activeAccount!!.id, accountId)
+    suspend fun removeAllByAccountId(pachliAccountId: Long, accountId: String) = externalScope.launch {
+        timelineDao.removeAllByUser(pachliAccountId, accountId)
     }.join()
 
     /** Remove all statuses from the given instance, for the active account */
-    suspend fun removeAllByInstance(instance: String) = externalScope.launch {
-        timelineDao.deleteAllFromInstance(activeAccount!!.id, instance)
+    suspend fun removeAllByInstance(pachliAccountId: Long, instance: String) = externalScope.launch {
+        timelineDao.deleteAllFromInstance(pachliAccountId, instance)
     }.join()
 
     /** Clear the warning (remove the "filtered" setting) for the given status, for the active account */
-    suspend fun clearStatusWarning(statusId: String) = externalScope.launch {
-        timelineDao.clearWarning(activeAccount!!.id, statusId)
+    suspend fun clearStatusWarning(pachliAccountId: Long, statusId: String) = externalScope.launch {
+        statusDao.clearWarning(pachliAccountId, statusId)
     }.join()
-
-    /** Remove all statuses and invalidate the pager, for the active account */
-    suspend fun clearAndReload() = externalScope.launch {
-        Timber.d("clearAndReload()")
-        timelineDao.removeAll(activeAccount!!.id)
-        factory?.invalidate()
-    }.join()
-
-    suspend fun clearAndReloadFromNewest() = externalScope.launch {
-        activeAccount?.let {
-            timelineDao.removeAll(it.id)
-            remoteKeyDao.delete(it.id)
-            invalidate()
-        }
-    }
-
-    suspend fun translate(statusViewData: StatusViewData): NetworkResult<Translation> {
-        saveStatusViewData(statusViewData.copy(translationState = TranslationState.TRANSLATING))
-        val translation = mastodonApi.translate(statusViewData.actionableId)
-        translation.fold({
-            translatedStatusDao.upsert(
-                TranslatedStatusEntity(
-                    serverId = statusViewData.actionableId,
-                    timelineUserId = activeAccount!!.id,
-                    // TODO: Should this embed the network type instead of copying data
-                    // from one type to another?
-                    content = it.content,
-                    spoilerText = it.spoilerText,
-                    poll = it.poll,
-                    attachments = it.attachments,
-                    provider = it.provider,
-                ),
-            )
-            saveStatusViewData(statusViewData.copy(translationState = TranslationState.SHOW_TRANSLATION))
-        }, {
-            // Reset the translation state
-            saveStatusViewData(statusViewData)
-        })
-        return translation
-    }
-
-    suspend fun translateUndo(statusViewData: StatusViewData) {
-        saveStatusViewData(statusViewData.copy(translationState = TranslationState.SHOW_ORIGINAL))
-    }
-
-    companion object {
-        private const val PAGE_SIZE = 30
-    }
 }

@@ -14,4 +14,20 @@
     <string name="title_hashtags_dialog">Haischlibeanna</string>
     <string name="action_refresh">Athnuaigh</string>
     <string name="url_domain_notifier">" (🔗 %s)"</string>
+    <string name="item_copied">Cóipeáladh téacs</string>
+    <string name="action_copy_item">Cóipeáil mír</string>
+    <string name="title_mentions_dialog">Tráchtanna</string>
+    <string name="button_continue">Lean ar aghaidh</string>
+    <string name="pref_notification_method_push">Brúigh</string>
+    <string name="pref_notification_method_pull">Tarraingt</string>
+    <string name="pref_notification_fetch_method_title">Modh fógartha</string>
+    <string name="pref_notification_fetch_ok_timestamp_fmt">✔ %1$s ó shin @ %2$s</string>
+    <string name="pref_notification_fetch_err_timestamp_fmt">✖ %1$s ó shin @ %2$s</string>
+    <string name="pref_notification_fetch_server_rejected">Dhiúltaigh %1$s brúchlárú</string>
+    <string name="pref_notification_fetch_needs_push">Níl raon feidhme \"brú\" ag an gcuntas. D\'fhéadfadh logáil amach agus ar ais isteach é seo a shocrú.</string>
+    <string name="title_logout_fmt">Logáil amach %1$s</string>
+    <string name="action_logout_confirm">Scriosfaidh sé seo gach sonraí áitiúla de chuntas %1$s, lena n-áirítear dréachtaí agus roghanna.\n\nNí scriosfaidh sé seo do chuntas ar an bhfreastalaí.</string>
+    <string name="add_account_name">Cuir Cuntas leis</string>
+    <string name="notification_details_last_fetch_label">Iarratas deiridh /api/v1/fógraí</string>
+    <string name="action_logout">Logáil Amach</string>
 </resources>

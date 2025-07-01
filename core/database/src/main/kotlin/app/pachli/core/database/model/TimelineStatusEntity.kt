@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Tusky Contributors
+ * Copyright (c) 2025 Pachli Association
  *
  * This file is a part of Pachli.
  *
@@ -17,335 +17,62 @@
 
 package app.pachli.core.database.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
-import app.pachli.core.network.model.Attachment
-import app.pachli.core.network.model.Card
-import app.pachli.core.network.model.Emoji
-import app.pachli.core.network.model.FilterResult
-import app.pachli.core.network.model.HashTag
-import app.pachli.core.network.model.Poll
-import app.pachli.core.network.model.Status
-import app.pachli.core.network.model.TimelineAccount
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapter
-import java.util.Date
+import com.squareup.moshi.JsonClass
+import dev.zacsweers.moshix.sealed.annotations.DefaultNull
+import dev.zacsweers.moshix.sealed.annotations.TypeLabel
 
 /**
- * We're trying to play smart here. Server sends us reblogs as two entities one embedded into
- * another (reblogged status is a field inside of "reblog" status). But it's really inefficient from
- * the DB perspective and doesn't matter much for the display/interaction purposes.
- * What if when we store reblog we don't store almost empty "reblog status" but we store
- * *reblogged* status and we embed "reblog status" into reblogged status. This reversed
- * relationship takes much less space and is much faster to fetch (no N+1 type queries or JSON
- * serialization).
- * "Reblog status", if present, is marked by [reblogServerId], and [reblogAccountId]
- * fields.
+ * M:N association between a [TimelineStatusEntity.Kind] and the statuses
+ * that make up the timeline.
  */
 @Entity(
-    primaryKeys = ["serverId", "timelineUserId"],
-    foreignKeys = (
-        [
-            ForeignKey(
-                entity = TimelineAccountEntity::class,
-                parentColumns = ["serverId", "timelineUserId"],
-                childColumns = ["authorServerId", "timelineUserId"],
-                deferred = true,
-            ),
-        ]
-        ),
-    // Avoiding rescanning status table when accounts table changes. Recommended by Room(c).
-    indices = [Index("authorServerId", "timelineUserId")],
+    primaryKeys = ["kind", "pachliAccountId", "statusId"],
 )
 @TypeConverters(Converters::class)
 data class TimelineStatusEntity(
-    // id never flips: we need it for sorting so it's a real id
-    val serverId: String,
-    val url: String?,
-    // our local id for the logged in user in case there are multiple accounts per instance
-    val timelineUserId: Long,
-    val authorServerId: String,
-    val inReplyToId: String?,
-    val inReplyToAccountId: String?,
-    val content: String?,
-    val createdAt: Long,
-    val editedAt: Long?,
-    val emojis: String?,
-    val reblogsCount: Int,
-    val favouritesCount: Int,
-    val repliesCount: Int,
-    val reblogged: Boolean,
-    val bookmarked: Boolean,
-    val favourited: Boolean,
-    val sensitive: Boolean,
-    val spoilerText: String,
-    val visibility: Status.Visibility,
-    val attachments: String?,
-    val mentions: String?,
-    val tags: String?,
-    val application: String?,
-    // if it has a reblogged status, it's id is stored here
-    val reblogServerId: String?,
-    val reblogAccountId: String?,
-    val poll: String?,
-    val muted: Boolean?,
-    val pinned: Boolean,
-    val card: String?,
-    val language: String?,
-    val filtered: List<FilterResult>?,
+    val kind: Kind,
+    val pachliAccountId: Long,
+    val statusId: String,
 ) {
-    companion object {
-        @OptIn(ExperimentalStdlibApi::class)
-        fun from(status: Status, timelineUserId: Long, moshi: Moshi) = TimelineStatusEntity(
-            serverId = status.id,
-            url = status.actionableStatus.url,
-            timelineUserId = timelineUserId,
-            authorServerId = status.actionableStatus.account.id,
-            inReplyToId = status.actionableStatus.inReplyToId,
-            inReplyToAccountId = status.actionableStatus.inReplyToAccountId,
-            content = status.actionableStatus.content,
-            createdAt = status.actionableStatus.createdAt.time,
-            editedAt = status.actionableStatus.editedAt?.time,
-            emojis = moshi.adapter<List<Emoji>>().toJson(status.actionableStatus.emojis),
-            reblogsCount = status.actionableStatus.reblogsCount,
-            favouritesCount = status.actionableStatus.favouritesCount,
-            reblogged = status.actionableStatus.reblogged,
-            favourited = status.actionableStatus.favourited,
-            bookmarked = status.actionableStatus.bookmarked,
-            sensitive = status.actionableStatus.sensitive,
-            spoilerText = status.actionableStatus.spoilerText,
-            visibility = status.actionableStatus.visibility,
-            attachments = moshi.adapter<List<Attachment>>().toJson(status.actionableStatus.attachments),
-            mentions = moshi.adapter<List<Status.Mention>>().toJson(status.actionableStatus.mentions),
-            tags = moshi.adapter<List<HashTag>>().toJson(status.actionableStatus.tags),
-            application = moshi.adapter<Status.Application?>().toJson(status.actionableStatus.application),
-            reblogServerId = status.reblog?.id,
-            reblogAccountId = status.reblog?.let { status.account.id },
-            poll = moshi.adapter<Poll>().toJson(status.actionableStatus.poll),
-            muted = status.actionableStatus.muted,
-            pinned = status.actionableStatus.pinned == true,
-            card = moshi.adapter<Card?>().toJson(status.actionableStatus.card),
-            repliesCount = status.actionableStatus.repliesCount,
-            language = status.actionableStatus.language,
-            filtered = status.actionableStatus.filtered,
-        )
-    }
-}
+    /**
+     * Cacheable timeline kinds.
+     *
+     * Timelines that are not cacheable (e.g., search queries) do not belong
+     * here.
+     */
+    // TODO: Eventually these have to be the timeline kind types for
+    // remotekeys
+    // TODO: See also core.model.Timeline
+    @DefaultNull
+    @JsonClass(generateAdapter = true, generator = "sealed:type")
+    sealed interface Kind {
+        @TypeLabel("home")
+        data object Home : Kind
 
-@Entity(
-    primaryKeys = ["serverId", "timelineUserId"],
-)
-data class TimelineAccountEntity(
-    val serverId: String,
-    val timelineUserId: Long,
-    val localUsername: String,
-    val username: String,
-    val displayName: String,
-    val url: String,
-    val avatar: String,
-    val emojis: String,
-    val bot: Boolean,
-) {
-    @OptIn(ExperimentalStdlibApi::class)
-    fun toTimelineAccount(moshi: Moshi): TimelineAccount {
-        return TimelineAccount(
-            id = serverId,
-            localUsername = localUsername,
-            username = username,
-            displayName = displayName,
-            note = "",
-            url = url,
-            avatar = avatar,
-            bot = bot,
-            emojis = moshi.adapter<List<Emoji>>().fromJson(emojis),
-        )
-    }
+        @TypeLabel("local")
+        data object Local : Kind
 
-    companion object {
-        @OptIn(ExperimentalStdlibApi::class)
-        fun from(timelineAccount: TimelineAccount, accountId: Long, moshi: Moshi) = TimelineAccountEntity(
-            serverId = timelineAccount.id,
-            timelineUserId = accountId,
-            localUsername = timelineAccount.localUsername,
-            username = timelineAccount.username,
-            displayName = timelineAccount.name,
-            url = timelineAccount.url,
-            avatar = timelineAccount.avatar,
-            emojis = moshi.adapter<List<Emoji>>().toJson(timelineAccount.emojis),
-            bot = timelineAccount.bot,
-        )
-    }
-}
+        @TypeLabel("federated")
+        data object Federated : Kind
 
-enum class TranslationState {
-    /** Show the original, untranslated status */
-    SHOW_ORIGINAL,
+        // data class RemoteLocal(val serverDomain: String): K ?
 
-    /** Show the original, untranslated status, but translation is happening */
-    TRANSLATING,
+        @TypeLabel("hashtag")
+        @JsonClass(generateAdapter = true)
+        data class Hashtag(val hashtag: String) : Kind
 
-    /** Show the translated status */
-    SHOW_TRANSLATION,
-}
+        @TypeLabel("link")
+        @JsonClass(generateAdapter = true)
+        data class Link(val url: String) : Kind
 
-/**
- * The local view data for a status.
- *
- * There is *no* foreignkey relationship between this and [TimelineStatusEntity], as the view
- * data is kept even if the status is deleted from the local cache (e.g., during a refresh
- * operation).
- */
-@Entity(
-    primaryKeys = ["serverId", "timelineUserId"],
-)
-data class StatusViewDataEntity(
-    val serverId: String,
-    val timelineUserId: Long,
-    /** Corresponds to [app.pachli.viewdata.IStatusViewData.isExpanded] */
-    val expanded: Boolean,
-    /** Corresponds to [app.pachli.viewdata.IStatusViewData.isShowingContent] */
-    val contentShowing: Boolean,
-    /** Corresponds to [app.pachli.viewdata.IStatusViewData.isCollapsed] */
-    val contentCollapsed: Boolean,
-    /** Show the translated version of the status (if it exists) */
-    @ColumnInfo(defaultValue = "SHOW_ORIGINAL")
-    val translationState: TranslationState,
-)
+        @TypeLabel("list")
+        @JsonClass(generateAdapter = true)
+        data class List(val listId: String) : Kind
 
-data class TimelineStatusWithAccount(
-    @Embedded
-    val status: TimelineStatusEntity,
-    @Embedded(prefix = "a_")
-    val account: TimelineAccountEntity,
-    // null when no reblog
-    @Embedded(prefix = "rb_")
-    val reblogAccount: TimelineAccountEntity? = null,
-    @Embedded(prefix = "svd_")
-    val viewData: StatusViewDataEntity? = null,
-    @Embedded(prefix = "t_")
-    val translatedStatus: TranslatedStatusEntity? = null,
-) {
-    @OptIn(ExperimentalStdlibApi::class)
-    fun toStatus(moshi: Moshi): Status {
-        val attachments: List<Attachment> = status.attachments?.let {
-            moshi.adapter<List<Attachment>?>().fromJson(it)
-        } ?: emptyList()
-        val mentions: List<Status.Mention> = status.mentions?.let {
-            moshi.adapter<List<Status.Mention>?>().fromJson(it)
-        } ?: emptyList()
-        val tags: List<HashTag>? = status.tags?.let {
-            moshi.adapter<List<HashTag>?>().fromJson(it)
-        }
-        val application = status.application?.let { moshi.adapter<Status.Application>().fromJson(it) }
-        val emojis: List<Emoji> = status.emojis?.let { moshi.adapter<List<Emoji>?>().fromJson(it) }
-            ?: emptyList()
-        val poll: Poll? = status.poll?.let { moshi.adapter<Poll?>().fromJson(it) }
-        val card: Card? = status.card?.let { moshi.adapter<Card?>().fromJson(it) }
-
-        val reblog = status.reblogServerId?.let { id ->
-            Status(
-                id = id,
-                url = status.url,
-                account = account.toTimelineAccount(moshi),
-                inReplyToId = status.inReplyToId,
-                inReplyToAccountId = status.inReplyToAccountId,
-                reblog = null,
-                content = status.content.orEmpty(),
-                createdAt = Date(status.createdAt),
-                editedAt = status.editedAt?.let { Date(it) },
-                emojis = emojis,
-                reblogsCount = status.reblogsCount,
-                favouritesCount = status.favouritesCount,
-                reblogged = status.reblogged,
-                favourited = status.favourited,
-                bookmarked = status.bookmarked,
-                sensitive = status.sensitive,
-                spoilerText = status.spoilerText,
-                visibility = status.visibility,
-                attachments = attachments,
-                mentions = mentions,
-                tags = tags,
-                application = application,
-                pinned = false,
-                muted = status.muted,
-                poll = poll,
-                card = card,
-                repliesCount = status.repliesCount,
-                language = status.language,
-                filtered = status.filtered,
-            )
-        }
-        return if (reblog != null) {
-            Status(
-                id = status.serverId,
-                // no url for reblogs
-                url = null,
-                account = reblogAccount!!.toTimelineAccount(moshi),
-                inReplyToId = null,
-                inReplyToAccountId = null,
-                reblog = reblog,
-                content = "",
-                // lie but whatever?
-                createdAt = Date(status.createdAt),
-                editedAt = null,
-                emojis = listOf(),
-                reblogsCount = 0,
-                favouritesCount = 0,
-                reblogged = false,
-                favourited = false,
-                bookmarked = false,
-                sensitive = false,
-                spoilerText = "",
-                visibility = status.visibility,
-                attachments = listOf(),
-                mentions = listOf(),
-                tags = listOf(),
-                application = null,
-                pinned = status.pinned,
-                muted = status.muted,
-                poll = null,
-                card = null,
-                repliesCount = status.repliesCount,
-                language = status.language,
-                filtered = status.filtered,
-            )
-        } else {
-            Status(
-                id = status.serverId,
-                url = status.url,
-                account = account.toTimelineAccount(moshi),
-                inReplyToId = status.inReplyToId,
-                inReplyToAccountId = status.inReplyToAccountId,
-                reblog = null,
-                content = status.content.orEmpty(),
-                createdAt = Date(status.createdAt),
-                editedAt = status.editedAt?.let { Date(it) },
-                emojis = emojis,
-                reblogsCount = status.reblogsCount,
-                favouritesCount = status.favouritesCount,
-                reblogged = status.reblogged,
-                favourited = status.favourited,
-                bookmarked = status.bookmarked,
-                sensitive = status.sensitive,
-                spoilerText = status.spoilerText,
-                visibility = status.visibility,
-                attachments = attachments,
-                mentions = mentions,
-                tags = tags,
-                application = application,
-                pinned = status.pinned,
-                muted = status.muted,
-                poll = poll,
-                card = card,
-                repliesCount = status.repliesCount,
-                language = status.language,
-                filtered = status.filtered,
-            )
-        }
+        @TypeLabel("direct")
+        data object Direct : Kind
     }
 }

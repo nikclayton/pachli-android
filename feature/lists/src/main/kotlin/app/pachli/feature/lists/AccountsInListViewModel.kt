@@ -21,7 +21,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pachli.core.data.repository.ListsError
 import app.pachli.core.data.repository.ListsRepository
-import app.pachli.core.network.model.TimelineAccount
+import app.pachli.core.model.TimelineAccount
+import app.pachli.core.network.model.asModel
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.network.retrofit.apiresult.ApiError
 import com.github.michaelbull.result.Ok
@@ -61,6 +62,7 @@ sealed interface Accounts {
 class AccountsInListViewModel @AssistedInject constructor(
     private val api: MastodonApi,
     private val listsRepository: ListsRepository,
+    @Assisted val pachliAccountId: Long,
     @Assisted val listId: String,
 ) : ViewModel() {
 
@@ -81,7 +83,7 @@ class AccountsInListViewModel @AssistedInject constructor(
 
     fun refresh() = viewModelScope.launch {
         _accountsInList.value = Ok(Accounts.Loading)
-        _accountsInList.value = listsRepository.getAccountsInList(listId)
+        _accountsInList.value = listsRepository.getAccountsInList(pachliAccountId, listId)
             .mapEither(
                 { Accounts.Loaded(it) },
                 { FlowError.GetAccounts(it) },
@@ -92,7 +94,7 @@ class AccountsInListViewModel @AssistedInject constructor(
      * Add [account] to [listId], refreshing on success, sending [Error.AddAccounts] on failure
      */
     fun addAccountToList(account: TimelineAccount) = viewModelScope.launch {
-        listsRepository.addAccountsToList(listId, listOf(account.id))
+        listsRepository.addAccountsToList(pachliAccountId, listId, listOf(account.id))
             .onSuccess { refresh() }
             .onFailure {
                 Timber.e("Failed to add account to list: %s", account.username)
@@ -105,7 +107,7 @@ class AccountsInListViewModel @AssistedInject constructor(
      * [Error.DeleteAccounts] on failure
      */
     fun deleteAccountFromList(accountId: String) = viewModelScope.launch {
-        listsRepository.deleteAccountsFromList(listId, listOf(accountId))
+        listsRepository.deleteAccountsFromList(pachliAccountId, listId, listOf(accountId))
             .onSuccess { refresh() }
             .onFailure {
                 Timber.e("Failed to remove account from list: %s", accountId)
@@ -120,7 +122,7 @@ class AccountsInListViewModel @AssistedInject constructor(
             query.isBlank() -> _searchResults.value = Ok(SearchResults.Loaded(emptyList()))
             else -> viewModelScope.launch {
                 _searchResults.value = api.searchAccounts(query, null, 10, true)
-                    .map { SearchResults.Loaded(it.body) }
+                    .map { SearchResults.Loaded(it.body.asModel()) }
             }
         }
     }
@@ -128,7 +130,10 @@ class AccountsInListViewModel @AssistedInject constructor(
     /** Create [AccountsInListViewModel] injecting [listId] */
     @AssistedFactory
     interface Factory {
-        fun create(listId: String): AccountsInListViewModel
+        fun create(
+            pachliAccountId: Long,
+            listId: String,
+        ): AccountsInListViewModel
     }
 
     /**

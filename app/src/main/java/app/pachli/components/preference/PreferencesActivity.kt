@@ -26,11 +26,11 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import app.pachli.BuildConfig
 import app.pachli.R
-import app.pachli.appstore.EventHub
 import app.pachli.core.activity.BaseActivity
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
-import app.pachli.core.navigation.MainActivityIntent
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.navigation.IntentRouterActivityIntent
 import app.pachli.core.navigation.PreferencesActivityIntent
 import app.pachli.core.navigation.PreferencesActivityIntent.PreferenceScreen
 import app.pachli.core.navigation.pachliAccountId
@@ -61,7 +61,7 @@ class PreferencesActivity :
              * Either the back stack activities need to all be recreated, or do the easier thing, which
              * is hijack the back button press and use it to launch a new MainActivity and clear the
              * back stack. */
-            val intent = MainActivityIntent(this@PreferencesActivity, intent.pachliAccountId)
+            val intent = IntentRouterActivityIntent.startMainActivity(this@PreferencesActivity, intent.pachliAccountId)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivityWithDefaultTransition(intent)
         }
@@ -79,20 +79,22 @@ class PreferencesActivity :
             setDisplayShowHomeEnabled(true)
         }
 
-        val preferenceType = PreferencesActivityIntent.getPreferenceType(intent)
+        if (savedInstanceState == null) {
+            val preferenceType = PreferencesActivityIntent.getPreferenceType(intent)
 
-        val fragmentTag = "preference_fragment_$preferenceType"
+            val fragmentTag = "preference_fragment_$preferenceType"
 
-        val fragment: Fragment = supportFragmentManager.findFragmentByTag(fragmentTag)
-            ?: when (preferenceType) {
-                PreferenceScreen.GENERAL -> PreferencesFragment.newInstance()
-                PreferenceScreen.ACCOUNT -> AccountPreferencesFragment.newInstance(intent.pachliAccountId)
-                PreferenceScreen.NOTIFICATION -> NotificationPreferencesFragment.newInstance()
-                else -> throw IllegalArgumentException("preferenceType not known")
+            val fragment: Fragment = supportFragmentManager.findFragmentByTag(fragmentTag)
+                ?: when (preferenceType) {
+                    PreferenceScreen.GENERAL -> PreferencesFragment.newInstance()
+                    PreferenceScreen.ACCOUNT -> AccountPreferencesFragment.newInstance(intent.pachliAccountId)
+                    PreferenceScreen.NOTIFICATION -> NotificationPreferencesFragment.newInstance()
+                    else -> throw IllegalArgumentException("preferenceType not known")
+                }
+
+            supportFragmentManager.commit {
+                replace(R.id.fragment_container, fragment, fragmentTag)
             }
-
-        supportFragmentManager.commit {
-            replace(R.id.fragment_container, fragment, fragmentTag)
         }
 
         onBackPressedDispatcher.addCallback(this, restartActivitiesOnBackPressedCallback)
@@ -118,6 +120,7 @@ class PreferencesActivity :
                     PrefKeys.STATUS_TEXT_SIZE, PrefKeys.ABSOLUTE_TIME_VIEW, PrefKeys.SHOW_BOT_OVERLAY, PrefKeys.ANIMATE_GIF_AVATARS, PrefKeys.USE_BLURHASH,
                     PrefKeys.SHOW_SELF_USERNAME, PrefKeys.SHOW_CARDS_IN_TIMELINES, PrefKeys.CONFIRM_REBLOGS, PrefKeys.CONFIRM_FAVOURITES,
                     PrefKeys.ENABLE_SWIPE_FOR_TABS, PrefKeys.MAIN_NAV_POSITION, PrefKeys.HIDE_TOP_TOOLBAR, PrefKeys.SHOW_STATS_INLINE,
+                    PrefKeys.TAB_ALIGNMENT, PrefKeys.TAB_CONTENTS,
                     -> {
                         restartActivitiesOnBackPressedCallback.isEnabled = true
                     }
@@ -147,6 +150,7 @@ class PreferencesActivity :
                 TransitionKind.SLIDE_FROM_END.closeExit,
             )
             replace(R.id.fragment_container, fragment)
+            setReorderingAllowed(true)
             addToBackStack(null)
         }
         return true

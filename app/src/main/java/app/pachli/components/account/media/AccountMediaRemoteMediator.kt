@@ -23,7 +23,7 @@ import androidx.paging.RemoteMediator
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.network.retrofit.MastodonApi
-import retrofit2.HttpException
+import com.github.michaelbull.result.getOrElse
 
 @OptIn(ExperimentalPagingApi::class)
 class AccountMediaRemoteMediator(
@@ -35,43 +35,37 @@ class AccountMediaRemoteMediator(
         loadType: LoadType,
         state: PagingState<String, AttachmentViewData>,
     ): MediatorResult {
-        try {
-            val statusResponse = when (loadType) {
-                LoadType.REFRESH -> {
-                    api.accountStatuses(viewModel.accountId, onlyMedia = true)
+        val statusResponse = when (loadType) {
+            LoadType.REFRESH -> {
+                api.accountStatuses(viewModel.accountId, onlyMedia = true)
+            }
+
+            LoadType.PREPEND -> {
+                return MediatorResult.Success(endOfPaginationReached = true)
+            }
+
+            LoadType.APPEND -> {
+                val maxId = state.lastItemOrNull()?.statusId
+                if (maxId != null) {
+                    api.accountStatuses(viewModel.accountId, maxId = maxId, onlyMedia = true)
+                } else {
+                    return MediatorResult.Success(endOfPaginationReached = false)
                 }
-                LoadType.PREPEND -> {
-                    return MediatorResult.Success(endOfPaginationReached = true)
-                }
-                LoadType.APPEND -> {
-                    val maxId = state.lastItemOrNull()?.statusId
-                    if (maxId != null) {
-                        api.accountStatuses(viewModel.accountId, maxId = maxId, onlyMedia = true)
-                    } else {
-                        return MediatorResult.Success(endOfPaginationReached = false)
-                    }
-                }
             }
+        }.getOrElse { return MediatorResult.Error(it.throwable) }
 
-            val statuses = statusResponse.body()
-            if (!statusResponse.isSuccessful || statuses == null) {
-                return MediatorResult.Error(HttpException(statusResponse))
-            }
-
-            val attachments = statuses.flatMap { status ->
-                AttachmentViewData.list(status, activeAccount.alwaysShowSensitiveMedia)
-            }
-
-            if (loadType == LoadType.REFRESH) {
-                viewModel.attachmentData.clear()
-            }
-
-            viewModel.attachmentData.addAll(attachments)
-
-            viewModel.currentSource?.invalidate()
-            return MediatorResult.Success(endOfPaginationReached = statuses.isEmpty())
-        } catch (e: Exception) {
-            return MediatorResult.Error(e)
+        val statuses = statusResponse.body
+        val attachments = statuses.flatMap { status ->
+            AttachmentViewData.list(status.asModel(), activeAccount.alwaysShowSensitiveMedia)
         }
+
+        if (loadType == LoadType.REFRESH) {
+            viewModel.attachmentData.clear()
+        }
+
+        viewModel.attachmentData.addAll(attachments)
+
+        viewModel.currentSource?.invalidate()
+        return MediatorResult.Success(endOfPaginationReached = statuses.isEmpty())
     }
 }

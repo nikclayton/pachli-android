@@ -18,10 +18,10 @@
 package app.pachli.interfaces
 
 import android.view.View
-import app.pachli.core.network.model.Poll
-import app.pachli.core.network.model.Status
+import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.model.Poll
+import app.pachli.core.model.Status
 import app.pachli.core.ui.LinkListener
-import app.pachli.viewdata.IStatusViewData
 
 interface StatusActionListener<T : IStatusViewData> : LinkListener {
     fun onReply(viewData: T)
@@ -37,7 +37,7 @@ interface StatusActionListener<T : IStatusViewData> : LinkListener {
      */
     fun onOpenReblog(status: Status)
     fun onExpandedChange(viewData: T, expanded: Boolean)
-    fun onContentHiddenChange(viewData: T, isShowing: Boolean)
+    fun onContentHiddenChange(viewData: T, isShowingContent: Boolean)
 
     /**
      * Called when the status [android.widget.ToggleButton] responsible for collapsing long
@@ -56,9 +56,19 @@ interface StatusActionListener<T : IStatusViewData> : LinkListener {
      * called when the favourite count has been clicked
      */
     fun onShowFavs(statusId: String) {}
+
+    /**
+     * Called when voting on a poll.
+     *
+     * @param viewData
+     * @param poll The poll the user is voting in.
+     * @param choices The indices of the options the user is voting for.
+     */
     fun onVoteInPoll(viewData: T, poll: Poll, choices: List<Int>)
     fun onShowEdits(statusId: String) {}
-    fun clearWarningAction(viewData: T)
+
+    /** Remove the content filter from the status. */
+    fun clearContentFilter(viewData: T)
 
     /** Edit the filter that matched this status. */
     fun onEditFilterById(pachliAccountId: Long, filterId: String)

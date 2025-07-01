@@ -26,14 +26,21 @@ android {
     namespace = "app.pachli.core.database"
 
     defaultConfig {
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "app.pachli.core.database.HiltTestRunner"
+    }
+
+    packaging {
+        resources.excludes.apply {
+            // Otherwise this error:
+            // "2 files found with path 'META-INF/versions/9/OSGI-INF/MANIFEST.MF' from inputs:"
+            add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
+        }
     }
 }
 
 dependencies {
     implementation(projects.core.common)
     implementation(projects.core.model)
-    implementation(projects.core.network)
     implementation(projects.core.preferences)
 
     // Because of the use of @Json in DraftEntity
@@ -43,4 +50,15 @@ dependencies {
 
     implementation(libs.moshix.sealed.runtime)
     ksp(libs.moshix.sealed.codegen)
+
+    // ServerRepository
+    implementation(libs.semver)?.because("Converters has to convert Version")
+
+    testImplementation(projects.core.testing)
+    testImplementation(projects.core.network)
+        ?.because("Creates core.network.model.Status in tests")
+
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.android)
 }

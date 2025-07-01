@@ -27,11 +27,10 @@ import androidx.core.view.MenuProvider
 import androidx.lifecycle.lifecycleScope
 import app.pachli.R
 import app.pachli.TabViewData
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.MainTabsChangedEvent
-import app.pachli.core.activity.BottomSheetActivity
 import app.pachli.core.activity.ReselectableFragment
+import app.pachli.core.activity.ViewUrlActivity
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
@@ -48,7 +47,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class TrendingActivity : BottomSheetActivity(), AppBarLayoutHost, MenuProvider {
+class TrendingActivity : ViewUrlActivity(), AppBarLayoutHost, MenuProvider {
     @Inject
     lateinit var eventHub: EventHub
 
@@ -127,7 +126,7 @@ class TrendingActivity : BottomSheetActivity(), AppBarLayoutHost, MenuProvider {
         // Check if this timeline is in a tab; if not, enable the add_to_tab menu item
         val currentTabs = accountManager.activeAccount?.tabPreferences.orEmpty()
         val hideMenu = currentTabs.contains(timeline)
-        menu.findItem(R.id.action_add_to_tab)?.setVisible(!hideMenu)
+        menu.findItem(R.id.action_add_to_tab)?.isVisible = !hideMenu
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
@@ -136,13 +135,11 @@ class TrendingActivity : BottomSheetActivity(), AppBarLayoutHost, MenuProvider {
             val timeline = tabViewData.timeline
             accountManager.activeAccount?.let {
                 lifecycleScope.launch(Dispatchers.IO) {
-                    it.tabPreferences += timeline
-                    accountManager.saveAccount(it)
-                    eventHub.dispatch(MainTabsChangedEvent(it.tabPreferences))
+                    accountManager.setTabPreferences(it.id, it.tabPreferences + timeline)
                 }
             }
             Toast.makeText(this, getString(R.string.action_add_to_tab_success, tabViewData.title(this)), Toast.LENGTH_LONG).show()
-            menuItem.setVisible(false)
+            menuItem.isVisible = false
             true
         }
         else -> super.onMenuItemSelected(menuItem)

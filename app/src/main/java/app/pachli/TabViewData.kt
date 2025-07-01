@@ -28,9 +28,9 @@ import app.pachli.components.notifications.NotificationsFragment
 import app.pachli.components.timeline.TimelineFragment
 import app.pachli.components.trending.TrendingLinksFragment
 import app.pachli.components.trending.TrendingTagsFragment
+import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.ComposeActivityIntent
-import app.pachli.core.network.model.Status
 
 /**
  * Wrap a [Timeline] with additional information to display a tab with that
@@ -50,7 +50,7 @@ data class TabViewData(
     @DrawableRes val icon: Int,
     val fragment: () -> Fragment,
     val title: (Context) -> String = { context -> context.getString(text) },
-    val composeIntent: ((Context) -> Intent)? = { context -> ComposeActivityIntent(context) },
+    val composeIntent: ((Context, Long) -> Intent)? = { context, pachliAccountId -> ComposeActivityIntent(context, pachliAccountId) },
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -94,9 +94,10 @@ data class TabViewData(
                 text = R.string.title_direct_messages,
                 icon = R.drawable.ic_reblog_direct_24dp,
                 fragment = { ConversationsFragment.newInstance(pachliAccountId) },
-            ) {
+            ) { context, pachliAccountId ->
                 ComposeActivityIntent(
-                    it,
+                    context,
+                    pachliAccountId,
                     ComposeActivityIntent.ComposeOptions(visibility = Status.Visibility.PRIVATE),
                 )
             }
@@ -129,10 +130,11 @@ data class TabViewData(
                         context.getString(R.string.title_tag, it)
                     }
                 },
-            ) { context ->
+            ) { context, pachliAccountId ->
                 val tag = timeline.tags.first()
                 ComposeActivityIntent(
                     context,
+                    pachliAccountId,
                     ComposeActivityIntent.ComposeOptions(
                         content = getString(context, R.string.title_tag_with_initial_position).format(tag),
                         initialCursorPosition = ComposeActivityIntent.ComposeOptions.InitialCursorPosition.START,
@@ -158,6 +160,13 @@ data class TabViewData(
                 text = R.string.title_favourites,
                 icon = R.drawable.ic_favourite_filled_24dp,
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
+            )
+            is Timeline.Link -> TabViewData(
+                timeline = timeline,
+                text = -1,
+                icon = R.drawable.ic_newspaper_24,
+                fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
+                title = { timeline.title },
             )
             is Timeline.User.Pinned -> throw IllegalArgumentException("can't add to tab: $timeline")
             is Timeline.User.Posts -> throw IllegalArgumentException("can't add to tab: $timeline")

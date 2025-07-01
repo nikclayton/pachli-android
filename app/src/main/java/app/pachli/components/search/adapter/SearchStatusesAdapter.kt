@@ -22,20 +22,24 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.data.model.StatusDisplayOptions
+import app.pachli.core.data.model.StatusViewData
+import app.pachli.core.ui.SetStatusContent
 import app.pachli.databinding.ItemStatusBinding
 import app.pachli.interfaces.StatusActionListener
-import app.pachli.viewdata.StatusViewData
+import com.bumptech.glide.RequestManager
 
 class SearchStatusesAdapter(
-    private val pachliAccountId: Long,
+    private val glide: RequestManager,
+    private val setStatusContent: SetStatusContent,
     private val statusDisplayOptions: StatusDisplayOptions,
     private val statusListener: StatusActionListener<StatusViewData>,
 ) : PagingDataAdapter<StatusViewData, StatusViewHolder<StatusViewData>>(STATUS_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatusViewHolder<StatusViewData> {
         return StatusViewHolder(
-            pachliAccountId,
             ItemStatusBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            glide,
+            setStatusContent,
         )
     }
 
@@ -47,11 +51,9 @@ class SearchStatusesAdapter(
 
     companion object {
         val STATUS_COMPARATOR = object : DiffUtil.ItemCallback<StatusViewData>() {
-            override fun areContentsTheSame(oldItem: StatusViewData, newItem: StatusViewData): Boolean =
-                oldItem == newItem
+            override fun areContentsTheSame(oldItem: StatusViewData, newItem: StatusViewData): Boolean = oldItem == newItem
 
-            override fun areItemsTheSame(oldItem: StatusViewData, newItem: StatusViewData): Boolean =
-                oldItem.id == newItem.id
+            override fun areItemsTheSame(oldItem: StatusViewData, newItem: StatusViewData): Boolean = oldItem.id == newItem.id
         }
     }
 }

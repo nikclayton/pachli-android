@@ -1,57 +1,59 @@
 [versions]
-aboutlibraries = "11.2.3"
-acra = "5.11.3"
-agp = "8.7.0"
-androidx-activity = "1.9.1"
-androidx-appcompat = "1.7.0"
+aboutlibraries = "11.6.3"
+acra = "5.12.0"
+agp = "8.10.1"
+androidx-activity = "1.10.1"
+androidx-appcompat = "1.7.1"
 androidx-browser = "1.8.0"
 androidx-cardview = "1.0.0"
-androidx-constraintlayout = "2.1.4"
-androidx-core = "1.13.1"
-androidx-exifinterface = "1.3.7"
-androidx-fragment = "1.8.2"
+androidx-constraintlayout = "2.2.1"
+androidx-core = "1.16.0"
+androidx-exifinterface = "1.4.1"
+androidx-fragment = "1.8.6"
 androidx-hilt = "1.2.0"
 androidx-junit = "1.2.1"
-androidx-lifecycle = "2.8.4"
-androidx-media3 = "1.4.1"
-androidx-paging = "3.3.2"
+androidx-lifecycle = "2.8.7"
+androidx-media3 = "1.6.1"
+androidx-paging = "3.3.6"
 androidx-preference = "1.2.1"
-androidx-recyclerview = "1.3.2"
+androidx-recyclerview = "1.4.0"
 androidx-sharetarget = "1.2.0"
-androidx-splashscreen = "1.2.0-alpha01"
+androidx-splashscreen = "1.2.0-beta02"
 androidx-swiperefresh-layout = "1.1.0"
 androidx-testing = "2.2.0"
 androidx-test-core-ktx = "1.6.1"
-androidx-transition = "1.5.1"
+androidx-test-rules = "1.6.1"
+androidx-transition = "1.6.0"
 androidx-viewpager2 = "1.1.0"
-androidx-webkit = "1.11.0"
-androidx-work = "2.9.1"
-androidx-room = "2.6.1"
+androidx-webkit = "1.12.1"
+androidx-work = "2.10.0"
+androidx-room = "2.7.1"
 app-update = "2.1.0"
 apollographql = "3.8.5"
 auto-service = "1.1.1"
 auto-service-ksp = "1.2.0"
-bouncycastle = "1.70"
 conscrypt = "2.5.3"
-coroutines = "1.9.0"
-coroutines-play-services = "1.9.0"
-desugar_jdk_libs = "2.1.1"
+coroutines = "1.10.1"
+coroutines-play-services = "1.10.1"
+desugar_jdk_libs = "2.1.5"
 diffx = "1.1.1"
 emoji2 = "1.3.0"
 espresso = "3.6.1"
 filemoji-compat = "3.2.7"
 glide = "4.16.0"
-# Deliberate downgrade, https://github.com/tuskyapp/Tusky/issues/3631
-glide-animation-plugin = "2.23.0"
-hilt = "2.52"
-org-json = "20240303"
+glide-animation-plugin = "3.0.5"
+hilt = "2.56.2"
+org-json = "20250107"
+jlatexmath-android = "0.2.0"
 junit = "4.13.2"
-kotlin = "2.0.21"
+kotlin = "2.1.20"
 kotlin-result = "1.1.20"
-ksp = "2.0.21-1.0.25"
-image-cropper = "4.3.2"
+ksoup = "0.5.0"
+ksp = "2.1.20-1.0.32"
+image-cropper = "4.6.0"
 leakcanary = "2.14"
-lint = "31.7.0" # = agp + 23.0.0 (= 8.7.0), see https://github.com/googlesamples/android-custom-lint-rules#lint-version
+lint = "31.10.1" # = agp + 23.0.0 (= 8.10.1), see https://github.com/googlesamples/android-custom-lint-rules#lint-version
+markwon = "4.6.2"
 material = "1.12.0"
 material-drawer = "9.0.2"
 material-iconics = "5.5.0-compose01"
@@ -59,31 +61,31 @@ material-typeface = "4.0.0.3-kotlin"
 mlkit-language-id = "17.0.0"
 mockito-inline = "5.2.0"
 mockito-kotlin = "5.4.0"
-moshi = "1.15.1"
-moshix = "0.28.0"
-networkresult-calladapter = "1.0.0"
+moshi = "1.15.2"
+moshix = "0.30.0"
 okhttp = "4.12.0"
-okio = "3.9.0"
+okio = "3.11.0"
 play-services-base = "18.5.0"
+prism4j = "2.0.0"
 quadrant = "1.9.1"
 retrofit = "2.11.0"
-robolectric = "4.13"
-semver = "2.0.0"
+robolectric = "4.15.1"
+semver = "3.0.0"
 sparkbutton = "4.2.0"
 timber = "5.0.1"
 touchimageview = "3.6"
 truth = "1.4.4"
-turbine = "1.1.0"
+turbine = "1.2.1"
 unified-push = "2.5.0"
 xmlwriter = "1.0.4"
 
 # Tool dependencies
 betterparse = "0.4.4"
-clikt = "4.4.0"
-icu4j = "75.1"
-junit-jupiter = "5.11.0"
-kotlin-logging-jvm = "7.0.0"
-logback = "1.5.7"
+clikt = "5.0.3"
+icu4j = "77.1"
+junit-jupiter = "5.12.2"
+kotlin-logging-jvm = "7.0.7"
+logback = "1.5.18"
 
 [plugins]
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
@@ -95,7 +97,7 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
-ktlint = "org.jlleitschuh.gradle.ktlint:12.1.1"
+ktlint = "org.jlleitschuh.gradle.ktlint:12.2.0"
 room = { id = "androidx.room", version.ref = "androidx-room" }
 quadrant = { id = "com.gaelmarhic.quadrant", version.ref = "quadrant" }
 apollographql = { id = "com.apollographql.apollo3", version.ref = "apollographql"}
@@ -142,6 +144,7 @@ androidx-media3-datasource-okhttp = { module = "androidx.media3:media3-datasourc
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "androidx-media3" }
 androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", version.ref = "androidx-paging" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "androidx-preference" }
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "androidx-room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "androidx-room" }
 androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "androidx-room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-room" }
@@ -151,6 +154,7 @@ androidx-sharetarget = { module = "androidx.sharetarget:sharetarget", version.re
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "androidx-swiperefresh-layout" }
 androidx-test-core-ktx = { module = "androidx.test:core-ktx", version.ref = "androidx-test-core-ktx" }
 androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test-rules"}
 androidx-transition = { module = "androidx.transition:transition-ktx", version.ref = "androidx-transition" }
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "androidx-viewpager2" }
 androidx-webkit = { module = "androidx.webkit:webkit", version.ref = "androidx-webkit" }
@@ -161,7 +165,6 @@ app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.re
 apollo-runtime = { module = "com.apollographql.apollo3:apollo-runtime", version.ref = "apollographql" }
 auto-service-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "auto-service"}
 auto-service-ksp = { module = "dev.zacsweers.autoservice:auto-service-ksp", version.ref = "auto-service-ksp"}
-bouncycastle = { module = "org.bouncycastle:bcprov-jdk15on", version.ref = "bouncycastle" }
 conscrypt-android = { module = "org.conscrypt:conscrypt-android", version.ref = "conscrypt" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 diffx = { module = "org.pageseeder.diffx:pso-diffx", version.ref = "diffx" }
@@ -176,21 +179,32 @@ glide-okhttp3-integration = { module = "com.github.bumptech.glide:okhttp3-integr
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
+jlatexmath-android = { module = "ru.noties:jlatexmath-android", version.ref = "jlatexmath-android" }
 junit = { module = "junit:junit", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
 kotlin-result = { module = "com.michael-bull.kotlin-result:kotlin-result", version.ref = "kotlin-result" }
 kotlin-result-coroutines = { module = "com.michael-bull.kotlin-result:kotlin-result-coroutines", version.ref = "kotlin-result" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines"}
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutines-play-services" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
-image-cropper = { module = "com.github.CanHub:Android-Image-Cropper", version.ref = "image-cropper" }
+ksoup-entities = { module = "com.mohamedrejeb.ksoup:ksoup-entities", version.ref = "ksoup" }
+image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "image-cropper" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 lint-api = { module = "com.android.tools.lint:lint-api", version.ref = "lint" }
 lint-checks = { module = "com.android.tools.lint:lint-checks", version.ref = "lint" }
 lint-cli = { module = "com.android.tools.lint:lint", version.ref = "lint" }
 lint-tests = { module = "com.android.tools.lint:lint-tests", version.ref = "lint" }
+markwon = { module = "io.noties.markwon:core", version.ref = "markwon" }
+markwon-html = { module = "io.noties.markwon:html", version.ref = "markwon" }
+markwon-inline-parser = { module = "io.noties.markwon:inline-parser", version.ref = "markwon" }
+markwon-simple-ext = { module = "io.noties.markwon:simple-ext", version.ref = "markwon" }
+markwon-latex = { module = "io.noties.markwon:ext-latex", version.ref = "markwon" }
+markwon-strikethrough = { module = "io.noties.markwon:ext-strikethrough", version.ref = "markwon" }
+markwon-syntax-highlight = { module = "io.noties.markwon:syntax-highlight", version.ref = "markwon" }
+markwon-tables = { module = "io.noties.markwon:ext-tables", version.ref = "markwon" }
 material-drawer-core = { module = "com.mikepenz:materialdrawer", version.ref = "material-drawer" }
 material-drawer-iconics = { module = "com.mikepenz:materialdrawer-iconics", version.ref = "material-drawer" }
 material-iconics = { module = "com.mikepenz:iconics-core", version.ref="material-iconics" }
@@ -204,13 +218,13 @@ moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "
 moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
 moshix-sealed-runtime = { module = "dev.zacsweers.moshix:moshi-sealed-runtime", version.ref = "moshix" }
 moshix-sealed-codegen = { module = "dev.zacsweers.moshix:moshi-sealed-codegen", version.ref = "moshix" }
-networkresult-calladapter = { module = "at.connyduck:networkresult-calladapter", version.ref = "networkresult-calladapter" }
 okhttp-core = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
 okhttp-tls = { module = "com.squareup.okhttp3:okhttp-tls", version.ref = "okhttp" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 org-json = { module = "org.json:json", version.ref = "org-json"}
 play-services-base = { module = "com.google.android.gms:play-services-base", version.ref = "play-services-base" }
+prism4j = { module = "io.noties:prism4j-bundler", version.ref = "prism4j" }
 retrofit-converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
 retrofit-core = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }

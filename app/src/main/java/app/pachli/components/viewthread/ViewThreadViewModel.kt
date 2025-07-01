@@ -18,80 +18,88 @@ package app.pachli.components.viewthread
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.pachli.appstore.BlockEvent
-import app.pachli.appstore.BookmarkEvent
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.FavoriteEvent
-import app.pachli.appstore.PinEvent
-import app.pachli.appstore.ReblogEvent
-import app.pachli.appstore.StatusComposedEvent
-import app.pachli.appstore.StatusDeletedEvent
-import app.pachli.appstore.StatusEditedEvent
 import app.pachli.components.timeline.CachedTimelineRepository
-import app.pachli.components.timeline.util.ifExpected
+import app.pachli.core.common.PachliError
+import app.pachli.core.data.model.ContentFilterModel
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.data.repository.AccountManager
-import app.pachli.core.data.repository.ContentFiltersRepository
+import app.pachli.core.data.repository.Loadable
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
+import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.database.model.AccountEntity
-import app.pachli.core.database.model.TranslatedStatusEntity
 import app.pachli.core.database.model.TranslationState
+import app.pachli.core.database.model.toEntity
+import app.pachli.core.eventhub.BlockEvent
+import app.pachli.core.eventhub.BookmarkEvent
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.FavoriteEvent
+import app.pachli.core.eventhub.PinEvent
+import app.pachli.core.eventhub.ReblogEvent
+import app.pachli.core.eventhub.StatusComposedEvent
+import app.pachli.core.eventhub.StatusDeletedEvent
+import app.pachli.core.eventhub.StatusEditedEvent
 import app.pachli.core.model.ContentFilterVersion
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
-import app.pachli.core.network.model.Poll
-import app.pachli.core.network.model.Status
+import app.pachli.core.model.Poll
+import app.pachli.core.model.Status
+import app.pachli.core.network.model.asModel
 import app.pachli.core.network.retrofit.MastodonApi
-import app.pachli.network.ContentFilterModel
+import app.pachli.core.network.retrofit.apiresult.ApiError
 import app.pachli.usecase.TimelineCases
-import app.pachli.viewdata.StatusViewData
-import at.connyduck.calladapter.networkresult.fold
-import at.connyduck.calladapter.networkresult.getOrElse
-import at.connyduck.calladapter.networkresult.getOrThrow
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.get
+import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
-import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.getAndUpdate
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import timber.log.Timber
 
 @HiltViewModel
 class ViewThreadViewModel @Inject constructor(
     private val api: MastodonApi,
-    private val timelineCases: TimelineCases,
     eventHub: EventHub,
-    accountManager: AccountManager,
+    private val accountManager: AccountManager,
     private val timelineDao: TimelineDao,
-    private val moshi: Moshi,
     private val repository: CachedTimelineRepository,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
-    private val contentFiltersRepository: ContentFiltersRepository,
+    private val statusRepository: StatusRepository,
+    private val timelineCases: TimelineCases,
 ) : ViewModel() {
+    // TODO: For consistency with other fragments the UiState should not include
+    // the list of statuses. Look at SuggestionsViewModel for ideas.
+    private val _uiResult: MutableStateFlow<Result<ThreadUiState, ThreadError>> =
+        MutableStateFlow(Ok(ThreadUiState.Loading))
+    val uiResult: Flow<Result<ThreadUiState, ThreadError>>
+        get() = _uiResult
 
-    private val _uiState: MutableStateFlow<ThreadUiState> = MutableStateFlow(ThreadUiState.Loading)
-    val uiState: Flow<ThreadUiState>
-        get() = _uiState
-
-    private val _errors = MutableSharedFlow<Throwable>(replay = 0, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    val errors: Flow<Throwable>
-        get() = _errors
+    private val _errors = Channel<PachliError>()
+    val errors = _errors.receiveAsFlow()
 
     var isInitialLoad: Boolean = true
 
     val statusDisplayOptions = statusDisplayOptionsRepository.flow
 
-    val activeAccount: AccountEntity = accountManager.activeAccount!!
-    private val alwaysShowSensitiveMedia: Boolean = activeAccount.alwaysShowSensitiveMedia
-    private val alwaysOpenSpoiler: Boolean = activeAccount.alwaysOpenSpoiler
+    val activeAccount: AccountEntity
+        get() {
+            return accountManager.activeAccount!!
+        }
 
     private var contentFilterModel: ContentFilterModel? = null
 
@@ -113,35 +121,34 @@ class ViewThreadViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            contentFiltersRepository.contentFilters.collect { filters ->
-                filters.onSuccess {
-                    contentFilterModel = when (it?.version) {
-                        ContentFilterVersion.V2 -> ContentFilterModel(FilterContext.THREAD)
-                        ContentFilterVersion.V1 -> ContentFilterModel(FilterContext.THREAD, it.contentFilters)
-                        else -> null
+            accountManager.activePachliAccountFlow
+                .distinctUntilChangedBy { it.contentFilters }
+                .collect { account ->
+                    contentFilterModel = when (account.contentFilters.version) {
+                        ContentFilterVersion.V2 -> ContentFilterModel(FilterContext.CONVERSATIONS)
+                        ContentFilterVersion.V1 -> ContentFilterModel(FilterContext.CONVERSATIONS, account.contentFilters.contentFilters)
                     }
                     updateStatuses()
                 }
-                    .onFailure {
-                        // TODO: Deliberately don't emit to _errors here -- at the moment
-                        // ViewThreadFragment shows a generic error to the user, and that
-                        // would confuse them when the rest of the thread is loading OK.
-                    }
-            }
         }
     }
 
     fun loadThread(id: String) {
-        _uiState.value = ThreadUiState.Loading
-
         viewModelScope.launch {
+            _uiResult.value = Ok(ThreadUiState.Loading)
+
+            val account = accountManager.activeAccountFlow
+                .filterIsInstance<Loadable.Loaded<AccountEntity?>>()
+                .filter { it.data != null }
+                .first().data!!
+
             Timber.d("Finding status with: %s", id)
             val contextCall = async { api.statusContext(id) }
             val timelineStatusWithAccount = timelineDao.getStatus(id)
 
             var detailedStatus = if (timelineStatusWithAccount != null) {
                 Timber.d("Loaded status from local timeline")
-                val status = timelineStatusWithAccount.toStatus(moshi)
+                val status = timelineStatusWithAccount.toStatus()
 
                 // Return the correct status, depending on which one matched. If you do not do
                 // this the status IDs will be different between the status that's displayed with
@@ -149,36 +156,54 @@ class ViewThreadViewModel @Inject constructor(
                 // status content is the same. Then the status flickers as it is drawn twice.
                 if (status.actionableId == id) {
                     StatusViewData.from(
+                        pachliAccountId = account.id,
                         status = status.actionableStatus,
-                        isExpanded = timelineStatusWithAccount.viewData?.expanded ?: alwaysOpenSpoiler,
-                        isShowingContent = timelineStatusWithAccount.viewData?.contentShowing ?: (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
+                        isExpanded = timelineStatusWithAccount.viewData?.expanded ?: account.alwaysOpenSpoiler,
+                        isShowingContent = timelineStatusWithAccount.viewData?.contentShowing ?: (account.alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
                         isCollapsed = timelineStatusWithAccount.viewData?.contentCollapsed ?: true,
                         isDetailed = true,
+                        contentFilterAction = contentFilterModel?.filterActionFor(status.actionableStatus)
+                            ?: FilterAction.NONE,
                         translationState = timelineStatusWithAccount.viewData?.translationState ?: TranslationState.SHOW_ORIGINAL,
                         translation = timelineStatusWithAccount.translatedStatus,
                     )
                 } else {
                     StatusViewData.from(
+                        pachliAccountId = account.id,
                         timelineStatusWithAccount,
-                        moshi,
-                        isExpanded = alwaysOpenSpoiler,
-                        isShowingContent = (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
+                        isExpanded = account.alwaysOpenSpoiler,
+                        isShowingContent = (account.alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
                         isDetailed = true,
+                        contentFilterAction = contentFilterModel?.filterActionFor(status.actionableStatus)
+                            ?: FilterAction.NONE,
                         translationState = TranslationState.SHOW_ORIGINAL,
                     )
                 }
             } else {
                 Timber.d("Loaded status from network")
-                val result = api.status(id).getOrElse { exception ->
-                    _uiState.value = ThreadUiState.Error(exception)
+                val statusCall = async { api.status(id) }
+                val existingViewData = statusRepository.getStatusViewData(account.id, id)
+                val existingTranslation = statusRepository.getTranslation(account.id, id)
+
+                val status = statusCall.await().getOrElse { error ->
+                    _uiResult.value = Err(ThreadError.Api(error))
                     return@launch
-                }
-                StatusViewData.fromStatusAndUiState(result, isDetailed = true)
+                }.body.asModel()
+
+                val statusViewData = StatusViewData.fromStatusAndUiState(account, status, isDetailed = true)
+                existingViewData?.let {
+                    statusViewData.copy(
+                        translationState = existingViewData.translationState,
+                        translation = existingTranslation,
+                    )
+                } ?: statusViewData
             }
 
-            _uiState.value = ThreadUiState.LoadingThread(
-                statusViewDatum = detailedStatus,
-                revealButton = detailedStatus.getRevealButtonState(),
+            _uiResult.value = Ok(
+                ThreadUiState.LoadingThread(
+                    statusViewDatum = detailedStatus,
+                    revealButton = detailedStatus.getRevealButtonState(),
+                ),
             )
 
             // If the detailedStatus was loaded from the database it might be out-of-date
@@ -186,13 +211,15 @@ class ViewThreadViewModel @Inject constructor(
             // for the status. Ignore errors, the user still has a functioning UI if the fetch
             // failed.
             if (timelineStatusWithAccount != null) {
-                api.status(id).getOrNull()?.let {
+                api.status(id).get()?.body?.asModel()?.let {
                     detailedStatus = StatusViewData.from(
+                        pachliAccountId = account.id,
                         it,
                         isShowingContent = detailedStatus.isShowingContent,
                         isExpanded = detailedStatus.isExpanded,
                         isCollapsed = detailedStatus.isCollapsed,
                         isDetailed = true,
+                        contentFilterAction = contentFilterModel?.filterActionFor(it) ?: FilterAction.NONE,
                         translationState = detailedStatus.translationState,
                         translation = detailedStatus.translation,
                     )
@@ -201,65 +228,75 @@ class ViewThreadViewModel @Inject constructor(
 
             val contextResult = contextCall.await()
 
-            contextResult.fold({ statusContext ->
+            contextResult.onSuccess {
+                val statusContext = it.body
                 val ids = statusContext.ancestors.map { it.id } + statusContext.descendants.map { it.id }
-                val cachedViewData = repository.getStatusViewData(ids)
-                val cachedTranslations = repository.getStatusTranslations(ids)
-                val ancestors = statusContext.ancestors.map { status ->
+                val cachedViewData = repository.getStatusViewData(activeAccount.id, ids)
+                val cachedTranslations = repository.getStatusTranslations(activeAccount.id, ids)
+                val ancestors = statusContext.ancestors.asModel().map { status ->
                     val svd = cachedViewData[status.id]
                     StatusViewData.from(
+                        pachliAccountId = account.id,
                         status,
-                        isShowingContent = svd?.contentShowing ?: (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
-                        isExpanded = svd?.expanded ?: alwaysOpenSpoiler,
+                        isShowingContent = svd?.contentShowing ?: (account.alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
+                        isExpanded = svd?.expanded ?: account.alwaysOpenSpoiler,
                         isCollapsed = svd?.contentCollapsed ?: true,
                         isDetailed = false,
+                        contentFilterAction = contentFilterModel?.filterActionFor(status) ?: FilterAction.NONE,
                         translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
                         translation = cachedTranslations[status.id],
                     )
                 }.filterByFilterAction()
-                val descendants = statusContext.descendants.map { status ->
+                val descendants = statusContext.descendants.asModel().map { status ->
                     val svd = cachedViewData[status.id]
                     StatusViewData.from(
+                        pachliAccountId = account.id,
                         status,
-                        isShowingContent = svd?.contentShowing ?: (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
-                        isExpanded = svd?.expanded ?: alwaysOpenSpoiler,
+                        isShowingContent = svd?.contentShowing ?: (account.alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
+                        isExpanded = svd?.expanded ?: account.alwaysOpenSpoiler,
                         isCollapsed = svd?.contentCollapsed ?: true,
                         isDetailed = false,
+                        contentFilterAction = contentFilterModel?.filterActionFor(status) ?: FilterAction.NONE,
                         translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
                         translation = cachedTranslations[status.id],
                     )
                 }.filterByFilterAction()
                 val statuses = ancestors + detailedStatus + descendants
 
-                _uiState.value = ThreadUiState.Success(
-                    statusViewData = statuses,
-                    detailedStatusPosition = ancestors.size,
-                    revealButton = statuses.getRevealButtonState(),
+                _uiResult.value = Ok(
+                    ThreadUiState.Loaded(
+                        statusViewData = statuses,
+                        detailedStatusPosition = ancestors.size,
+                        revealButton = statuses.getRevealButtonState(),
+                    ),
                 )
-            }, { throwable ->
-                _errors.emit(throwable)
-                _uiState.value = ThreadUiState.Success(
-                    statusViewData = listOf(detailedStatus),
-                    detailedStatusPosition = 0,
-                    revealButton = RevealButtonState.NO_BUTTON,
-                )
-            })
+            }
+                .onFailure { error ->
+                    _uiResult.value = Ok(
+                        ThreadUiState.Loaded(
+                            statusViewData = listOf(detailedStatus),
+                            detailedStatusPosition = 0,
+                            revealButton = RevealButtonState.NO_BUTTON,
+                        ),
+                    )
+                    _errors.send(error)
+                }
         }
     }
 
     fun retry(id: String) {
-        _uiState.value = ThreadUiState.Loading
+        _uiResult.value = Ok(ThreadUiState.Loading)
         loadThread(id)
     }
 
     fun refresh(id: String) {
-        _uiState.value = ThreadUiState.Refreshing
+        _uiResult.value = Ok(ThreadUiState.Refreshing)
         loadThread(id)
     }
 
     fun detailedStatus(): StatusViewData? {
-        return when (val uiState = _uiState.value) {
-            is ThreadUiState.Success -> uiState.statusViewData.find { status ->
+        return when (val uiState = _uiResult.value.get()) {
+            is ThreadUiState.Loaded -> uiState.statusViewData.find { status ->
                 status.isDetailed
             }
             is ThreadUiState.LoadingThread -> uiState.statusViewDatum
@@ -267,33 +304,37 @@ class ViewThreadViewModel @Inject constructor(
         }
     }
 
-    fun reblog(reblog: Boolean, status: StatusViewData): Job = viewModelScope.launch {
-        try {
-            timelineCases.reblog(status.actionableId, reblog).getOrThrow()
-        } catch (t: Exception) {
-            ifExpected(t) {
-                Timber.d(t, "Failed to reblog status: %s", status.actionableId)
-            }
+    fun reblog(reblog: Boolean, status: StatusViewData) = viewModelScope.launch {
+        updateStatus(status.id) {
+            it.copy(
+                reblogged = reblog,
+                reblog = it.reblog?.copy(reblogged = reblog),
+            )
+        }
+        statusRepository.reblog(status.pachliAccountId, status.actionableId, reblog).onFailure {
+            updateStatus(status.id) { it }
+            Timber.d("Failed to reblog status: %s: %s", status.actionableId, it)
         }
     }
 
-    fun favorite(favorite: Boolean, status: StatusViewData): Job = viewModelScope.launch {
-        try {
-            timelineCases.favourite(status.actionableId, favorite).getOrThrow()
-        } catch (t: Exception) {
-            ifExpected(t) {
-                Timber.d(t, "Failed to favourite status: %s ", status.actionableId)
-            }
+    fun favorite(favorite: Boolean, status: StatusViewData) = viewModelScope.launch {
+        updateStatus(status.id) {
+            it.copy(
+                favourited = favorite,
+                favouritesCount = it.favouritesCount + 1,
+            )
+        }
+        statusRepository.favourite(status.pachliAccountId, status.actionableId, favorite).onFailure {
+            updateStatus(status.id) { it }
+            Timber.d("Failed to favourite status: %s: %s", status.actionableId, it)
         }
     }
 
-    fun bookmark(bookmark: Boolean, status: StatusViewData): Job = viewModelScope.launch {
-        try {
-            timelineCases.bookmark(status.actionableId, bookmark).getOrThrow()
-        } catch (t: Exception) {
-            ifExpected(t) {
-                Timber.d(t, "Failed to bookmark status: %s", status.actionableId)
-            }
+    fun bookmark(bookmark: Boolean, status: StatusViewData) = viewModelScope.launch {
+        updateStatus(status.id) { it.copy(bookmarked = bookmark) }
+        statusRepository.bookmark(status.pachliAccountId, status.actionableId, bookmark).onFailure {
+            updateStatus(status.id) { it }
+            Timber.d("Failed to bookmark status: %s: %s", status.actionableId, it)
         }
     }
 
@@ -303,13 +344,11 @@ class ViewThreadViewModel @Inject constructor(
             status.copy(poll = votedPoll)
         }
 
-        try {
-            timelineCases.voteInPoll(status.actionableId, poll.id, choices).getOrThrow()
-        } catch (t: Exception) {
-            ifExpected(t) {
-                Timber.d(t, "Failed to vote in poll: %s", status.actionableId)
+        statusRepository.voteInPoll(status.pachliAccountId, status.actionableId, poll.id, choices)
+            .onFailure {
+                Timber.d("Failed to vote in poll: %s: %s", status.actionableId, it)
+                updateStatus(status.id) { it.copy(poll = poll) }
             }
-        }
     }
 
     fun removeStatus(statusToRemove: StatusViewData) {
@@ -335,7 +374,7 @@ class ViewThreadViewModel @Inject constructor(
             )
         }
         viewModelScope.launch {
-            repository.saveStatusViewData(status.copy(isExpanded = expanded))
+            statusRepository.setExpanded(status.pachliAccountId, status.id, expanded)
         }
     }
 
@@ -344,7 +383,7 @@ class ViewThreadViewModel @Inject constructor(
             viewData.copy(isShowingContent = isShowing)
         }
         viewModelScope.launch {
-            repository.saveStatusViewData(status.copy(isShowingContent = isShowing))
+            statusRepository.setContentShowing(status.pachliAccountId, status.id, isShowing)
         }
     }
 
@@ -353,7 +392,7 @@ class ViewThreadViewModel @Inject constructor(
             viewData.copy(isCollapsed = isCollapsed)
         }
         viewModelScope.launch {
-            repository.saveStatusViewData(status.copy(isCollapsed = isCollapsed))
+            statusRepository.setContentCollapsed(status.pachliAccountId, status.id, isCollapsed)
         }
     }
 
@@ -400,7 +439,7 @@ class ViewThreadViewModel @Inject constructor(
             if (detailedIndex != -1 && repliedIndex >= detailedIndex) {
                 // there is a new reply to the detailed status or below -> display it
                 val newStatuses = statuses.subList(0, repliedIndex + 1) +
-                    StatusViewData.fromStatusAndUiState(eventStatus) +
+                    StatusViewData.fromStatusAndUiState(activeAccount, eventStatus) +
                     statuses.subList(repliedIndex + 1, statuses.size)
                 uiState.copy(statusViewData = newStatuses)
             } else {
@@ -414,7 +453,7 @@ class ViewThreadViewModel @Inject constructor(
             uiState.copy(
                 statusViewData = uiState.statusViewData.map { status ->
                     if (status.actionableId == event.originalId) {
-                        StatusViewData.fromStatusAndUiState(event.status)
+                        StatusViewData.fromStatusAndUiState(activeAccount, event.status)
                     } else {
                         status
                     }
@@ -455,39 +494,23 @@ class ViewThreadViewModel @Inject constructor(
 
     fun translate(statusViewData: StatusViewData) {
         viewModelScope.launch {
-            repository.translate(statusViewData).fold({
-                val translatedEntity = TranslatedStatusEntity(
-                    serverId = statusViewData.actionableId,
-                    timelineUserId = activeAccount.id,
-                    content = it.content,
-                    spoilerText = it.spoilerText,
-                    poll = it.poll,
-                    attachments = it.attachments,
-                    provider = it.provider,
-                )
-                updateStatusViewData(statusViewData.status.id) { viewData ->
-                    viewData.copy(translation = translatedEntity, translationState = TranslationState.SHOW_TRANSLATION)
+            timelineCases.translate(statusViewData)
+                .onSuccess {
+                    val translatedEntity = it.toEntity(statusViewData.pachliAccountId, statusViewData.actionableId)
+                    updateStatusViewData(statusViewData.id) { viewData ->
+                        viewData.copy(translation = translatedEntity, translationState = TranslationState.SHOW_TRANSLATION)
+                    }
                 }
-            }, {
-                // Mastodon returns 403 if it thinks the original status language is the
-                // same as the user's language, ignoring the actual content of the status
-                // (https://github.com/mastodon/documentation/issues/1330). Nothing useful
-                // to do here so swallow the error
-                if (it is HttpException && it.code() == 403) return@fold
-
-                _errors.emit(it)
-            })
+                .onFailure { _errors.send(it) }
         }
     }
 
     fun translateUndo(statusViewData: StatusViewData) {
-        updateStatusViewData(statusViewData.status.id) { viewData ->
+        updateStatusViewData(statusViewData.id) { viewData ->
             viewData.copy(translationState = TranslationState.SHOW_ORIGINAL)
         }
         viewModelScope.launch {
-            repository.saveStatusViewData(
-                statusViewData.copy(translationState = TranslationState.SHOW_ORIGINAL),
-            )
+            statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.id, TranslationState.SHOW_ORIGINAL)
         }
     }
 
@@ -545,8 +568,8 @@ class ViewThreadViewModel @Inject constructor(
             if (status.isDetailed) {
                 true
             } else {
-                status.filterAction = contentFilterModel?.filterActionFor(status.status) ?: FilterAction.NONE
-                status.filterAction != FilterAction.HIDE
+                status.contentFilterAction = contentFilterModel?.filterActionFor(status.status) ?: FilterAction.NONE
+                status.contentFilterAction != FilterAction.HIDE
             }
         }
     }
@@ -555,23 +578,28 @@ class ViewThreadViewModel @Inject constructor(
      * Creates a [StatusViewData] from `status`, copying over the viewdata state from the same
      * status in _uiState (if that status exists).
      */
-    private fun StatusViewData.Companion.fromStatusAndUiState(status: Status, isDetailed: Boolean = false): StatusViewData {
-        val oldStatus = (_uiState.value as? ThreadUiState.Success)?.statusViewData?.find { it.id == status.id }
+    private fun StatusViewData.Companion.fromStatusAndUiState(account: AccountEntity, status: Status, isDetailed: Boolean = false): StatusViewData {
+        val oldStatus =
+            (_uiResult.value.get() as? ThreadUiState.Loaded)?.statusViewData?.find { it.id == status.id }
         return from(
+            pachliAccountId = account.id,
             status,
-            isShowingContent = oldStatus?.isShowingContent ?: (alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
-            isExpanded = oldStatus?.isExpanded ?: alwaysOpenSpoiler,
+            isShowingContent = oldStatus?.isShowingContent ?: (account.alwaysShowSensitiveMedia || !status.actionableStatus.sensitive),
+            isExpanded = oldStatus?.isExpanded ?: account.alwaysOpenSpoiler,
             isCollapsed = oldStatus?.isCollapsed ?: !isDetailed,
             isDetailed = oldStatus?.isDetailed ?: isDetailed,
         )
     }
 
-    private inline fun updateSuccess(updater: (ThreadUiState.Success) -> ThreadUiState.Success) {
-        _uiState.update { uiState ->
-            if (uiState is ThreadUiState.Success) {
-                updater(uiState)
+    /**
+     * Updates [_uiResult] using [updater] if [_uiResult] is already [ThreadUiState.Loaded].
+     */
+    private inline fun updateSuccess(updater: (ThreadUiState.Loaded) -> ThreadUiState.Loaded) {
+        _uiResult.getAndUpdate { v ->
+            if (v.get() is ThreadUiState.Loaded) {
+                Ok(updater(v.get() as ThreadUiState.Loaded))
             } else {
-                uiState
+                v
             }
         }
     }
@@ -592,16 +620,12 @@ class ViewThreadViewModel @Inject constructor(
 
     private fun updateStatus(statusId: String, updater: (Status) -> Status) {
         updateStatusViewData(statusId) { viewData ->
-            viewData.copy(
-                status = updater(viewData.status),
-            )
+            viewData.copy(status = updater(viewData.status))
         }
     }
 
     fun clearWarning(viewData: StatusViewData) {
-        updateStatus(viewData.id) { status ->
-            status.copy(filtered = null)
-        }
+        updateStatusViewData(viewData.id) { it.copy(contentFilterAction = FilterAction.NONE) }
     }
 }
 
@@ -615,11 +639,8 @@ sealed interface ThreadUiState {
         val revealButton: RevealButtonState,
     ) : ThreadUiState
 
-    /** An error occurred at any point */
-    class Error(val throwable: Throwable) : ThreadUiState
-
     /** Successfully loaded the full thread */
-    data class Success(
+    data class Loaded(
         val statusViewData: List<StatusViewData>,
         val revealButton: RevealButtonState,
         val detailedStatusPosition: Int,
@@ -627,6 +648,11 @@ sealed interface ThreadUiState {
 
     /** Refreshing the thread with a swipe */
     data object Refreshing : ThreadUiState
+}
+
+sealed interface ThreadError : PachliError {
+    @JvmInline
+    value class Api(private val error: ApiError) : ThreadError, PachliError by error
 }
 
 enum class RevealButtonState {

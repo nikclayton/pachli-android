@@ -22,7 +22,7 @@ import android.view.WindowManager
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
 import app.pachli.R
-import app.pachli.core.network.model.NewPoll
+import app.pachli.core.model.NewPoll
 import app.pachli.databinding.DialogAddPollBinding
 
 const val DAY_SECONDS = 60 * 60 * 24
@@ -33,7 +33,7 @@ fun showAddPollDialog(
     maxOptionCount: Int,
     maxOptionLength: Int,
     minDuration: Int,
-    maxDuration: Int,
+    maxDuration: Long,
     onUpdatePoll: (NewPoll) -> Unit,
 ) {
     val binding = DialogAddPollBinding.inflate(LayoutInflater.from(context))

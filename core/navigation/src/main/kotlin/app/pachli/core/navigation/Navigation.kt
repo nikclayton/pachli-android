@@ -21,11 +21,15 @@ import android.content.Context
 import android.content.Intent
 import android.os.Parcelable
 import androidx.core.content.IntentCompat
-import androidx.core.content.pm.ShortcutManagerCompat
-import app.pachli.core.database.model.DraftAttachment
+import app.pachli.core.model.Attachment
 import app.pachli.core.model.ContentFilter
+import app.pachli.core.model.DraftAttachment
+import app.pachli.core.model.Emoji
+import app.pachli.core.model.NewPoll
+import app.pachli.core.model.Notification
+import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
-import app.pachli.core.navigation.LoginActivityIntent.LoginMode
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.TimelineActivityIntent.Companion.bookmarks
 import app.pachli.core.navigation.TimelineActivityIntent.Companion.conversations
 import app.pachli.core.navigation.TimelineActivityIntent.Companion.favourites
@@ -33,22 +37,25 @@ import app.pachli.core.navigation.TimelineActivityIntent.Companion.hashtag
 import app.pachli.core.navigation.TimelineActivityIntent.Companion.list
 import app.pachli.core.navigation.TimelineActivityIntent.Companion.publicFederated
 import app.pachli.core.navigation.TimelineActivityIntent.Companion.publicLocal
-import app.pachli.core.network.model.Attachment
-import app.pachli.core.network.model.NewPoll
-import app.pachli.core.network.model.Notification
-import app.pachli.core.network.model.Status
+import app.pachli.core.network.parseAsMastodonHtml
 import com.gaelmarhic.quadrant.QuadrantConstants
+import java.util.Date
 import kotlinx.parcelize.Parcelize
 
 private const val EXTRA_PACHLI_ACCOUNT_ID = "app.pachli.EXTRA_PACHLI_ACCOUNT_ID"
+const val PACHLI_ACCOUNT_ID_ACTIVE = -1L
 
 /**
  * The Pachli Account ID passed to this intent. This is the
  * [id][app.pachli.core.database.model.AccountEntity.id] of the account that is
  * "active" for the purposes of this activity.
+ *
+ * [PACHLI_ACCOUNT_ID_ACTIVE] is a marker only used by [IntentRouterActivityIntent]
+ * and indicates the active account should be used. All other activities expect
+ * an explicit Pachli account ID.
  */
 var Intent.pachliAccountId: Long
-    get() = getLongExtra(EXTRA_PACHLI_ACCOUNT_ID, -1L)
+    get() = getLongExtra(EXTRA_PACHLI_ACCOUNT_ID, PACHLI_ACCOUNT_ID_ACTIVE)
     set(value) {
         putExtra(EXTRA_PACHLI_ACCOUNT_ID, value)
         return
@@ -126,11 +133,226 @@ class AccountListActivityIntent(context: Context, pachliAccountId: Long, kind: K
     }
 }
 
+class IntentRouterActivityIntent(context: Context, pachliAccountId: Long) : Intent() {
+    init {
+        setClassName(context, QuadrantConstants.INTENT_ROUTER_ACTIVITY)
+        this.pachliAccountId = pachliAccountId
+    }
+
+    /** Describes where the activity was started from. */
+    sealed interface Payload : Parcelable {
+        /**
+         * Started from the "Compose post" quick tile. This cannot include
+         * information about the account to start with. See
+         * [PachliTileService][app.pachli.service.PachliTileService].
+         */
+        @Parcelize
+        data object QuickTile : Payload
+
+        /**
+         * Started from the "Compose" button in an Android notification.
+         *
+         * @param composeOptions
+         * @param notificationId Notification's ID
+         * @param notificationTag Notification's tag (Mastodon notification ID)
+         */
+        @Parcelize
+        data class NotificationCompose(
+            val composeOptions: ComposeOptions,
+            val notificationId: Int,
+            val notificationTag: String?,
+        ) : Payload
+
+        /** Sharing content from a share sheet. */
+        @Parcelize
+        data object ShareContent : Payload
+
+        /** Open main activity, passing the included payload */
+        @Parcelize
+        data class MainActivity(val mainActivityPayload: MainActivityIntent.Payload) : Payload {
+            companion object {
+                /**
+                 * @see MainActivityIntent.Payload.Start
+                 */
+                fun start() = MainActivity(MainActivityIntent.Payload.Start)
+
+                /** @see MainActivityIntent.Payload.OpenAs */
+                fun openAs(url: String) = MainActivity(MainActivityIntent.Payload.OpenAs(url))
+
+                /** @see MainActivityIntent.Payload.OpenAs */
+                fun openDrafts() = MainActivity(MainActivityIntent.Payload.OpenDrafts)
+
+                /**
+                 * Switches the active account to [pachliAccountId] and takes the user to the correct place
+                 * according to the notification they clicked.
+                 *
+                 * @see MainActivityIntent.Payload.Notification
+                 * @param notificationId Notification's ID. May be -1 if this is from a summary
+                 * notification.
+                 * @param notificationTag Notification's tag (Mastodon notification ID). May be null
+                 * if this is from a summary notification.
+                 * @param type
+                 */
+                fun fromNotification(
+                    notificationId: Int,
+                    notificationTag: String?,
+                    type: Notification.Type,
+                ) = MainActivity(
+                    MainActivityIntent.Payload.Notification(
+                        notificationId,
+                        notificationTag,
+                        type,
+                    ),
+                )
+            }
+        }
+
+        /** Log out the account in [Intent.pachliAccountId]. */
+        @Parcelize
+        data object Logout : Payload
+    }
+
+    companion object {
+        private const val EXTRA_PAYLOAD = "app.pachli.EXTRA_PAYLOAD"
+
+        // Shortcuts use PersistableBundles which can't serialize a Payload. This
+        // extra is used as a marker that the payload is a shortcut.
+        private const val EXTRA_PAYLOAD_SHORTCUT = "app.pachli.EXTRA_PAYLOAD_SHORTCUT"
+
+        /** @return The [Payload] derived from [intent]. */
+        fun payload(intent: Intent): Payload? {
+            val payload = IntentCompat.getParcelableExtra(
+                intent,
+                EXTRA_PAYLOAD,
+                Payload::class.java,
+            )
+
+            if (payload != null) return payload
+
+            if (intent.type != null) return Payload.ShareContent
+
+            return null
+        }
+
+        /**
+         * Open from a tap on a quick tile. There is a single quick tile
+         * irrespective of how many accounts are logged in, so use -1L as the account ID.
+         */
+        fun fromQuickTile(context: Context) = IntentRouterActivityIntent(context, -1L).apply {
+            putExtra(EXTRA_PAYLOAD, Payload.QuickTile).apply {
+                flags = FLAG_ACTIVITY_NEW_TASK
+            }
+        }
+
+        /**
+         * Open from a tap on a shortcut.
+         */
+        fun fromShortcut(context: Context, pachliAccountId: Long) = IntentRouterActivityIntent(context, pachliAccountId).apply {
+            action = ACTION_MAIN
+            putExtra(EXTRA_PAYLOAD_SHORTCUT, true)
+        }
+
+        /**
+         * Open from an Android notification's "Compose" button.
+         *
+         * @param context
+         * @param pachliAccountId
+         * @param composeOptions
+         * @param notificationId Notification's ID
+         * @param notificationTag Notification's tag (Mastodon notification ID)
+         */
+        fun fromNotificationCompose(
+            context: Context,
+            pachliAccountId: Long,
+            composeOptions: ComposeOptions,
+            notificationId: Int,
+            notificationTag: String,
+        ) = IntentRouterActivityIntent(context, pachliAccountId).apply {
+            putExtra(
+                EXTRA_PAYLOAD,
+                Payload.NotificationCompose(
+                    composeOptions,
+                    notificationId,
+                    notificationTag,
+                ),
+            )
+        }
+
+        /**
+         * Switches the active account to [pachliAccountId] and takes the user to the correct place
+         * according to the notification they clicked.
+         *
+         * @param context
+         * @param pachliAccountId
+         * @param notificationId Notification's ID. May be -1 if this is from a summary
+         * notification.
+         * @param notificationTag Notification's tag (Mastodon notification ID). May be null
+         * if this is from a summary notification.
+         * @param type
+         */
+        fun fromNotification(
+            context: Context,
+            pachliAccountId: Long,
+            notificationId: Int,
+            notificationTag: String?,
+            type: Notification.Type,
+        ) = IntentRouterActivityIntent(context, pachliAccountId).apply {
+            putExtra(
+                EXTRA_PAYLOAD,
+                Payload.MainActivity.fromNotification(
+                    notificationId,
+                    notificationTag,
+                    type,
+                ),
+            )
+        }
+
+        /**
+         * Switches the active account to the provided accountId and then opens drafts
+         */
+        fun fromDraftsNotification(context: Context, pachliAccountId: Long) = IntentRouterActivityIntent(context, pachliAccountId).apply {
+            putExtra(EXTRA_PAYLOAD, Payload.MainActivity.openDrafts())
+        }
+
+        /**
+         * Switches the active account to [pachliAccountId] and then tries to resolve and
+         * show the provided [url].
+         *
+         * [url] is expected to be the URL to a status to be viewed. The active account
+         * is changed, then a search is performed for the URL on the server of the
+         * new active account. This will (hopefully) find the status (which will not
+         * have the same ID on the new server), and it can be shown to the user.
+         */
+        fun openAs(
+            context: Context,
+            pachliAccountId: Long,
+            url: String,
+        ) = IntentRouterActivityIntent(context, pachliAccountId).apply {
+            putExtra(EXTRA_PAYLOAD, Payload.MainActivity.openAs(url))
+        }
+
+        /**
+         * Switches the active account to [pachliAccountId] and then starts
+         * MainActivity.
+         */
+        fun startMainActivity(context: Context, pachliAccountId: Long) = IntentRouterActivityIntent(context, pachliAccountId).apply {
+            putExtra(EXTRA_PAYLOAD, Payload.MainActivity.start())
+            flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        fun logout(context: Context, pachliAccountId: Long) = IntentRouterActivityIntent(context, pachliAccountId).apply {
+            putExtra(EXTRA_PAYLOAD, Payload.Logout)
+        }
+    }
+}
+
 /**
  * @param context
+ * @param pachliAccountId
+ * @param composeOptions
  * @see [app.pachli.components.compose.ComposeActivity]
  */
-class ComposeActivityIntent(context: Context) : Intent() {
+class ComposeActivityIntent(context: Context, pachliAccountId: Long, composeOptions: ComposeOptions? = null) : Intent() {
     @Parcelize
     data class ComposeOptions(
         val scheduledTootId: String? = null,
@@ -139,15 +361,13 @@ class ComposeActivityIntent(context: Context) : Intent() {
         val mediaUrls: List<String>? = null,
         val mediaDescriptions: List<String>? = null,
         val mentionedUsernames: Set<String>? = null,
-        val inReplyToId: String? = null,
         val replyVisibility: Status.Visibility? = null,
         val visibility: Status.Visibility? = null,
         val contentWarning: String? = null,
-        val replyingStatusAuthor: String? = null,
-        val replyingStatusContent: String? = null,
+        val inReplyTo: InReplyTo? = null,
         val mediaAttachments: List<Attachment>? = null,
         val draftAttachments: List<DraftAttachment>? = null,
-        val scheduledAt: String? = null,
+        val scheduledAt: Date? = null,
         val sensitive: Boolean? = null,
         val poll: NewPoll? = null,
         val modifiedInitialState: Boolean? = null,
@@ -185,26 +405,68 @@ class ComposeActivityIntent(context: Context) : Intent() {
             /** Position the cursor at the end of the line */
             END,
         }
+
+        /**
+         * The status the user is replying to.
+         */
+        @Parcelize
+        sealed class InReplyTo : Parcelable {
+            /** ID of the status being replied to. */
+            abstract val statusId: String
+
+            /**
+             * ID of the status being replied to.
+             *
+             * Used when the caller only has the ID, and needs
+             * [ComposeActivity][app.pachli.components.compose.ComposeActivity] to
+             * fetch the contents of the in-reply-to status.
+             */
+            data class Id(override val statusId: String) : InReplyTo()
+
+            /**
+             * Content of the status being replied to.
+             *
+             * Used when the caller already has the in-reply-to status content which
+             * can be reused without a network round trip.
+             */
+            data class Status(
+                override val statusId: String,
+                val avatarUrl: String,
+                val isBot: Boolean,
+                val displayName: String,
+                val username: String,
+                val emojis: List<Emoji>?,
+                val contentWarning: String,
+                val content: String,
+            ) : InReplyTo() {
+                companion object {
+                    fun from(status: app.pachli.core.model.Status) = Status(
+                        statusId = status.id,
+                        avatarUrl = status.account.avatar,
+                        isBot = status.account.bot,
+                        displayName = status.account.name,
+                        username = status.account.localUsername,
+                        emojis = status.emojis,
+                        contentWarning = status.spoilerText,
+                        content = status.content.parseAsMastodonHtml().toString(),
+                    )
+                }
+            }
+        }
     }
 
     init {
         setClassName(context, QuadrantConstants.COMPOSE_ACTIVITY)
-    }
+        this.pachliAccountId = pachliAccountId
 
-    /**
-     * @param context
-     * @param options Configure the initial state of the activity
-     * @see [app.pachli.components.compose.ComposeActivity]
-     */
-    constructor(context: Context, options: ComposeOptions) : this(context) {
-        putExtra(EXTRA_COMPOSE_OPTIONS, options)
+        composeOptions?.let { putExtra(EXTRA_COMPOSE_OPTIONS, it) }
     }
 
     companion object {
         private const val EXTRA_COMPOSE_OPTIONS = "app.pachli.EXTRA_COMPOSE_OPTIONS"
 
         /** @return the [ComposeOptions] passed in this intent, or null */
-        fun getOptions(intent: Intent) = IntentCompat.getParcelableExtra(intent, EXTRA_COMPOSE_OPTIONS, ComposeOptions::class.java)
+        fun getComposeOptions(intent: Intent) = IntentCompat.getParcelableExtra(intent, EXTRA_COMPOSE_OPTIONS, ComposeOptions::class.java)
     }
 }
 
@@ -246,10 +508,9 @@ class EditContentFilterActivityIntent(context: Context, pachliAccountId: Long) :
          * @param contentFilterId ID of the content filter to load
          * @see [app.pachli.components.filters.EditContentFilterActivity]
          */
-        fun edit(context: Context, accountId: Long, contentFilterId: String) =
-            EditContentFilterActivityIntent(context, accountId).apply {
-                putExtra(EXTRA_CONTENT_FILTER_ID_TO_LOAD, contentFilterId)
-            }
+        fun edit(context: Context, accountId: Long, contentFilterId: String) = EditContentFilterActivityIntent(context, accountId).apply {
+            putExtra(EXTRA_CONTENT_FILTER_ID_TO_LOAD, contentFilterId)
+        }
 
         /** @return the [ContentFilter] passed in this intent, or null */
         fun getContentFilter(intent: Intent) = IntentCompat.getParcelableExtra(intent, EXTRA_CONTENT_FILTER_TO_EDIT, ContentFilter::class.java)
@@ -264,16 +525,19 @@ class EditContentFilterActivityIntent(context: Context, pachliAccountId: Long) :
  * @param loginMode See [LoginMode]
  * @see [app.pachli.feature.login.LoginActivity]
  */
-class LoginActivityIntent(context: Context, loginMode: LoginMode = LoginMode.DEFAULT) : Intent() {
+class LoginActivityIntent(context: Context, loginMode: LoginMode = LoginMode.Default) : Intent() {
     /** How to log in */
-    enum class LoginMode {
-        DEFAULT,
+    sealed interface LoginMode : Parcelable {
+        @Parcelize
+        data object Default : LoginMode
 
         /** Already logged in, log in with an additional account */
-        ADDITIONAL_LOGIN,
+        @Parcelize
+        data object AdditionalLogin : LoginMode
 
-        /** Update the OAuth scope granted to the client */
-        MIGRATION,
+        /** Allow the user to reauthenticate the account (at [domain]). */
+        @Parcelize
+        data class Reauthenticate(val domain: String) : LoginMode
     }
 
     init {
@@ -285,93 +549,70 @@ class LoginActivityIntent(context: Context, loginMode: LoginMode = LoginMode.DEF
         private const val EXTRA_LOGIN_MODE = "app.pachli.EXTRA_LOGIN_MODE"
 
         /** @return the `loginMode` passed to this intent */
-        fun getLoginMode(intent: Intent) = intent.getSerializableExtra(EXTRA_LOGIN_MODE)!! as LoginMode
+        fun getLoginMode(intent: Intent) = IntentCompat.getParcelableExtra(intent, EXTRA_LOGIN_MODE, LoginMode::class.java)
     }
 }
 
-class MainActivityIntent(context: Context, pachliAccountId: Long) : Intent() {
+class MainActivityIntent(
+    context: Context,
+    pachliAccountId: Long,
+    openNotificationTab: Boolean = false,
+) : Intent() {
     init {
         setClassName(context, QuadrantConstants.MAIN_ACTIVITY)
         this.pachliAccountId = pachliAccountId
+        putExtra(EXTRA_OPEN_NOTIFICATION_TAB, openNotificationTab)
+    }
+
+    /** Describes where the activity was started from. */
+    sealed interface Payload : Parcelable {
+        /**
+         * Started by tapping on a notification body.
+         *
+         * @param notificationId Notification's ID
+         * @param notificationTag Notification's tag (Mastodon notification ID)
+         * @param notificationType Notification's type
+         */
+        @Parcelize
+        data class Notification(
+            val notificationId: Int,
+            val notificationTag: String?,
+            val notificationType: app.pachli.core.model.Notification.Type,
+        ) : Payload
+
+        /** Start as normal, no special processing. */
+        @Parcelize
+        data object Start : Payload
+
+        /**
+         * Started to redirect to [url].
+         */
+        @Parcelize
+        data class OpenAs(val url: String) : Payload
+
+        /**
+         * Started to open drafts (e.g., after a post failed to send).
+         */
+        @Parcelize
+        data object OpenDrafts : Payload
     }
 
     companion object {
-        private const val EXTRA_NOTIFICATION_TYPE = "app.pachli.EXTRA_NOTIFICATION_TYPE"
-        private const val EXTRA_COMPOSE_OPTIONS = "app.pachli.EXTRA_COMPOSE_OPTIONS"
-        private const val EXTRA_NOTIFICATION_TAG = "app.pachli.EXTRA_NOTIFICATION_TAG"
-        private const val EXTRA_NOTIFICATION_ID = "app.pachli.EXTRA_NOTIFICATION_ID"
-        private const val EXTRA_REDIRECT_URL = "app.pachli.EXTRA_REDIRECT_URL"
-        private const val EXTRA_OPEN_DRAFTS = "app.pachli.EXTRA_OPEN_DRAFTS"
+        private const val EXTRA_OPEN_NOTIFICATION_TAB = "app.pachli.EXTRA_OPEN_NOTIFICATION_TAB"
 
-        fun hasComposeOptions(intent: Intent) = intent.hasExtra(EXTRA_COMPOSE_OPTIONS)
-        fun hasNotificationType(intent: Intent) = intent.hasExtra(EXTRA_NOTIFICATION_TYPE)
+        const val EXTRA_PAYLOAD = "app.pachli.EXTRA_PAYLOAD"
 
-        fun getNotificationType(intent: Intent) = intent.getSerializableExtra(EXTRA_NOTIFICATION_TYPE) as Notification.Type
-        fun getNotificationTag(intent: Intent) = intent.getStringExtra(EXTRA_NOTIFICATION_TAG)
-        fun getNotificationId(intent: Intent) = intent.getIntExtra(EXTRA_NOTIFICATION_ID, -1)
-        fun getRedirectUrl(intent: Intent) = intent.getStringExtra(EXTRA_REDIRECT_URL)
-        fun getOpenDrafts(intent: Intent) = intent.getBooleanExtra(EXTRA_OPEN_DRAFTS, false)
-
-        /**
-         *
-         */
-        fun withShortCut(context: Context, pachliAccountId: Long) = MainActivityIntent(context, pachliAccountId).apply {
-            action = ACTION_SEND
-            type = "text/plain"
-            putExtra(ShortcutManagerCompat.EXTRA_SHORTCUT_ID, pachliAccountId.toString())
+        /** @return The [Payload] in [intent]. May be null if the intent has no payload. */
+        fun payload(intent: Intent): Payload {
+            return IntentCompat.getParcelableExtra(
+                intent,
+                EXTRA_PAYLOAD,
+                Payload::class.java,
+            ) ?: Payload.Start
         }
 
-        /**
-         * Switches the active account to the accountId and takes the user to the correct place
-         * according to the notification they clicked
-         */
-        fun openNotification(
-            context: Context,
-            pachliAccountId: Long,
-            type: Notification.Type,
-        ) = MainActivityIntent(context, pachliAccountId).apply {
-            putExtra(EXTRA_NOTIFICATION_TYPE, type)
-        }
-
-        /**
-         * Switches the active account to the accountId and then opens ComposeActivity with the provided options
-         * @param pachliAccountId the id of the Pachli account to open the screen with.
-         * @param notificationId optional id of the notification that should be cancelled when this intent is opened
-         * @param notificationTag optional tag of the notification that should be cancelled when this intent is opened
-         */
-        fun openCompose(
-            context: Context,
-            options: ComposeActivityIntent.ComposeOptions,
-            pachliAccountId: Long,
-            notificationTag: String? = null,
-            notificationId: Int = -1,
-        ) = MainActivityIntent(context, pachliAccountId).apply {
-            action = ACTION_SEND
-            putExtra(EXTRA_COMPOSE_OPTIONS, options)
-            putExtra(EXTRA_NOTIFICATION_TAG, notificationTag)
-            putExtra(EXTRA_NOTIFICATION_ID, notificationId)
-            flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
-        }
-
-        /**
-         * Switches the active account to [pachliAccountId] and then tries to resolve and
-         * show the provided url
-         */
-        fun redirect(
-            context: Context,
-            pachliAccountId: Long,
-            url: String,
-        ) = MainActivityIntent(context, pachliAccountId).apply {
-            putExtra(EXTRA_REDIRECT_URL, url)
-            flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
-        }
-
-        /**
-         * switches the active account to the provided accountId and then opens drafts
-         */
-        fun openDrafts(context: Context, pachliAccountId: Long) = MainActivityIntent(context, pachliAccountId).apply {
-            putExtra(EXTRA_OPEN_DRAFTS, true)
-        }
+        /** @return the `openNotificationTab` passed to this intent */
+        fun getOpenNotificationTab(intent: Intent) = intent.getBooleanExtra(EXTRA_OPEN_NOTIFICATION_TAB, false)
     }
 }
 
@@ -487,6 +728,17 @@ class TimelineActivityIntent private constructor(context: Context, pachliAccount
          */
         fun hashtag(context: Context, pachliAccountId: Long, hashtag: String) = TimelineActivityIntent(context, pachliAccountId).apply {
             putExtra(EXTRA_TIMELINE, Timeline.Hashtags(listOf(hashtag)))
+        }
+
+        /**
+         * Show statuses that reference a trending link.
+         *
+         * @param context
+         * @param url URL of trending link.
+         * @param title URL's title.
+         */
+        fun link(context: Context, pachliAccountId: Long, url: String, title: String) = TimelineActivityIntent(context, pachliAccountId).apply {
+            putExtra(EXTRA_TIMELINE, Timeline.Link(url, title))
         }
 
         /**
@@ -672,6 +924,12 @@ class ListsActivityIntent(context: Context, pachliAccountId: Long) : Intent() {
 class LoginWebViewActivityIntent(context: Context) : Intent() {
     init {
         setClassName(context, QuadrantConstants.LOGIN_WEB_VIEW_ACTIVITY)
+    }
+}
+
+class ManageAccountsActivityIntent(context: Context) : Intent() {
+    init {
+        setClassName(context, QuadrantConstants.MANAGE_ACCOUNTS_ACTIVITY)
     }
 }
 

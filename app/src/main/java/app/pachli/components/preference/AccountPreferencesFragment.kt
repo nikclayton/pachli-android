@@ -28,15 +28,22 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import app.pachli.BuildConfig
 import app.pachli.R
-import app.pachli.appstore.EventHub
 import app.pachli.components.notifications.activeAccountNeedsPushScope
+import app.pachli.components.preference.accountfilters.AccountConversationFiltersPreferenceDialogFragment
+import app.pachli.components.preference.accountfilters.AccountNotificationFiltersPreferencesDialogFragment
 import app.pachli.core.activity.extensions.TransitionKind
+import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.AccountPreferenceDataStore
 import app.pachli.core.data.repository.ContentFiltersRepository
+import app.pachli.core.data.repository.canFilterV1
+import app.pachli.core.data.repository.canFilterV2
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_GET
+import app.pachli.core.model.Status
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.ContentFiltersActivityIntent
 import app.pachli.core.navigation.FollowedTagsActivityIntent
@@ -46,8 +53,6 @@ import app.pachli.core.navigation.LoginActivityIntent.LoginMode
 import app.pachli.core.navigation.PreferencesActivityIntent
 import app.pachli.core.navigation.PreferencesActivityIntent.PreferenceScreen
 import app.pachli.core.navigation.TabPreferenceActivityIntent
-import app.pachli.core.network.model.Account
-import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.ui.makeIcon
@@ -60,17 +65,17 @@ import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
 import app.pachli.util.getPachliDisplayName
 import app.pachli.util.iconRes
-import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.z4kn4fein.semver.constraints.toConstraint
 import javax.inject.Inject
 import kotlin.properties.Delegates
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -99,6 +104,13 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
      */
     private lateinit var filterPreference: Preference
 
+    /**
+     * The conversation account filter preference.
+     *
+     * Is enabled/disabled at runtime.
+     */
+    private lateinit var conversationAccountFilterPreference: Preference
+
     private var pachliAccountId by Delegates.notNull<Long>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,12 +122,20 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 // Enable/disable the filter preference based on info from
-                // FiltersRespository. filterPreferences is safe to access here,
+                // the server. filterPreferences is safe to access here,
                 // it was populated in onCreatePreferences, called by onCreate
                 // before onViewCreated is called.
-                contentFiltersRepository.contentFilters.collect { filters ->
-                    filterPreference.isEnabled = filters is Ok
-                }
+                accountManager.activePachliAccountFlow
+                    .distinctUntilChangedBy { it.server }
+                    .collect { account ->
+                        filterPreference.isEnabled = account.server.canFilterV2() || account.server.canFilterV1()
+
+                        conversationAccountFilterPreference.isEnabled =
+                            account.server.can(
+                                ORG_JOINMASTODON_STATUSES_GET,
+                                ">=1.0.0".toConstraint(),
+                            )
+                    }
             }
         }
         return super.onViewCreated(view, savedInstanceState)
@@ -138,7 +158,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 setIcon(R.drawable.ic_add_to_tab_24)
                 setOnPreferenceClickListener {
                     val intent = TabPreferenceActivityIntent(context, pachliAccountId)
-                    activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+                    startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     true
                 }
             }
@@ -148,7 +168,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 setIcon(R.drawable.ic_hashtag)
                 setOnPreferenceClickListener {
                     val intent = FollowedTagsActivityIntent(context, pachliAccountId)
-                    activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+                    startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     true
                 }
             }
@@ -158,7 +178,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 setIcon(R.drawable.ic_mute_24dp)
                 setOnPreferenceClickListener {
                     val intent = AccountListActivityIntent(context, pachliAccountId, AccountListActivityIntent.Kind.MUTES)
-                    activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+                    startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     true
                 }
             }
@@ -168,7 +188,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 icon = makeIcon(GoogleMaterial.Icon.gmd_block)
                 setOnPreferenceClickListener {
                     val intent = AccountListActivityIntent(context, pachliAccountId, AccountListActivityIntent.Kind.BLOCKS)
-                    activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+                    startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     true
                 }
             }
@@ -178,7 +198,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 setIcon(R.drawable.ic_mute_24dp)
                 setOnPreferenceClickListener {
                     val intent = InstanceListActivityIntent(context)
-                    activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+                    startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                     true
                 }
             }
@@ -188,8 +208,8 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                     setTitle(R.string.title_migration_relogin)
                     setIcon(R.drawable.ic_logout)
                     setOnPreferenceClickListener {
-                        val intent = LoginActivityIntent(context, LoginMode.MIGRATION)
-                        activity?.startActivityWithTransition(intent, TransitionKind.EXPLODE)
+                        val intent = LoginActivityIntent(context, LoginMode.Reauthenticate(accountManager.activeAccount!!.domain))
+                        startActivityWithTransition(intent, TransitionKind.EXPLODE)
                         true
                     }
                 }
@@ -202,11 +222,32 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                     setTitle(R.string.pref_title_content_filters)
                     setOnPreferenceClickListener {
                         val intent = ContentFiltersActivityIntent(requireContext(), pachliAccountId)
-                        activity?.startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+                        startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
                         true
                     }
                     setSummaryProvider {
                         if (it.isEnabled) "" else context.getString(R.string.pref_summary_content_filters)
+                    }
+                }
+
+                preference {
+                    setTitle(R.string.pref_title_account_notification_filters)
+                    setOnPreferenceClickListener {
+                        AccountNotificationFiltersPreferencesDialogFragment.Companion.newInstance(pachliAccountId)
+                            .show(parentFragmentManager, null)
+                        return@setOnPreferenceClickListener true
+                    }
+                }
+
+                conversationAccountFilterPreference = preference {
+                    setTitle(R.string.pref_title_account_conversation_filters)
+                    setOnPreferenceClickListener {
+                        AccountConversationFiltersPreferenceDialogFragment.Companion.newInstance(pachliAccountId)
+                            .show(parentFragmentManager, null)
+                        return@setOnPreferenceClickListener true
+                    }
+                    setSummaryProvider {
+                        if (it.isEnabled) "" else context.getString(R.string.pref_summary_account_conversation_filters)
                     }
                 }
             }
@@ -308,42 +349,35 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
             val intent = Intent()
             intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
             intent.putExtra("android.provider.extra.APP_PACKAGE", BuildConfig.APPLICATION_ID)
-            requireActivity().startActivity(intent)
+            startActivityWithDefaultTransition(intent)
         } else {
             val intent = PreferencesActivityIntent(requireContext(), pachliAccountId, PreferenceScreen.NOTIFICATION)
-            requireActivity().startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+            startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
         }
     }
 
     private fun syncWithServer(visibility: String? = null, sensitive: Boolean? = null, language: String? = null) {
         // TODO these could also be "datastore backed" preferences (a ServerPreferenceDataStore);
         //  follow-up of issue #3204
-
-        mastodonApi.accountUpdateSource(visibility, sensitive, language)
-            .enqueue(
-                object : Callback<Account> {
-                    override fun onResponse(call: Call<Account>, response: Response<Account>) {
-                        val account = response.body()
-                        if (response.isSuccessful && account != null) {
-                            accountManager.activeAccount?.let {
-                                it.defaultPostPrivacy = account.source?.privacy
-                                    ?: Status.Visibility.PUBLIC
-                                it.defaultMediaSensitivity = account.source?.sensitive ?: false
-                                it.defaultPostLanguage = language.orEmpty()
-                                accountManager.saveAccount(it)
-                            }
-                        } else {
-                            Timber.e("failed updating settings on server")
-                            showErrorSnackbar(visibility, sensitive)
-                        }
+        lifecycleScope.launch {
+            mastodonApi.accountUpdateSource(visibility, sensitive, language)
+                .onSuccess {
+                    val account = it.body
+                    accountManager.activeAccount?.let {
+                        accountManager.setDefaultPostPrivacy(
+                            it.id,
+                            account.source.privacy?.asModel()
+                                ?: Status.Visibility.PUBLIC,
+                        )
+                        accountManager.setDefaultMediaSensitivity(it.id, account.source.sensitive ?: false)
+                        accountManager.setDefaultPostLanguage(it.id, language.orEmpty())
                     }
-
-                    override fun onFailure(call: Call<Account>, t: Throwable) {
-                        Timber.e(t, "failed updating settings on server")
-                        showErrorSnackbar(visibility, sensitive)
-                    }
-                },
-            )
+                }
+                .onFailure {
+                    Timber.e("failed updating settings on server: %s", it)
+                    showErrorSnackbar(visibility, sensitive)
+                }
+        }
     }
 
     private fun showErrorSnackbar(visibility: String?, sensitive: Boolean?) {

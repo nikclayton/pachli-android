@@ -32,15 +32,16 @@ import app.pachli.components.notifications.makeNotification
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.defaultTabs
+import app.pachli.core.model.Notification
 import app.pachli.core.model.Timeline
+import app.pachli.core.model.TimelineAccount
 import app.pachli.core.navigation.AccountListActivityIntent
-import app.pachli.core.network.model.Account
-import app.pachli.core.network.model.Notification
-import app.pachli.core.network.model.TimelineAccount
+import app.pachli.core.network.model.AccountSource
+import app.pachli.core.network.model.CredentialAccount
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.testing.rules.lazyActivityScenarioRule
+import app.pachli.core.testing.success
 import app.pachli.db.DraftsAlert
-import at.connyduck.calladapter.networkresult.NetworkResult
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.CustomTestApplication
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -48,6 +49,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import java.time.Instant
 import java.util.Date
 import javax.inject.Inject
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -92,16 +94,17 @@ class MainActivityTest {
     @Inject
     lateinit var mastodonApi: MastodonApi
 
-    val account = Account(
+    val account = CredentialAccount(
         id = "1",
         localUsername = "username",
         username = "username@domain.example",
         displayName = "Display Name",
-        createdAt = Date.from(Instant.now()),
+        createdAt = Instant.now(),
         note = "",
         url = "",
         avatar = "",
         header = "",
+        source = AccountSource(),
     )
 
     @Inject
@@ -112,22 +115,21 @@ class MainActivityTest {
     val draftsAlert: DraftsAlert = mock()
 
     @Before
-    fun setup() {
+    fun setup() = runTest {
         hilt.inject()
 
         reset(mastodonApi)
         mastodonApi.stub {
-            onBlocking { accountVerifyCredentials() } doReturn NetworkResult.success(account)
-            onBlocking { listAnnouncements(false) } doReturn NetworkResult.success(emptyList())
+            onBlocking { accountVerifyCredentials() } doReturn success(account)
+            onBlocking { listAnnouncements(false) } doReturn success(emptyList())
         }
 
-        accountManager.addAccount(
+        accountManager.verifyAndAddAccount(
             accessToken = "token",
             domain = "domain.example",
             clientId = "id",
             clientSecret = "secret",
             oauthScopes = "scopes",
-            newAccount = account,
         )
 
         WorkManagerTestInitHelper.initializeTestWorkManager(
@@ -152,7 +154,7 @@ class MainActivityTest {
             Notification.Type.FOLLOW,
         )
         rule.launch(intent)
-        rule.getScenario().onActivity {
+        rule.scenario.onActivity {
             val currentTab = it.findViewById<ViewPager2>(R.id.viewPager).currentItem
             val notificationTab = defaultTabs().indexOfFirst { it is Timeline.Notifications }
             assertEquals(currentTab, notificationTab)
@@ -169,7 +171,7 @@ class MainActivityTest {
         )
 
         rule.launch(intent)
-        rule.getScenario().onActivity {
+        rule.scenario.onActivity {
             val nextActivity = shadowOf(it).peekNextStartedActivity()
             assertNotNull(nextActivity)
             assertEquals(
@@ -196,6 +198,7 @@ class MainActivityTest {
                 Notification(
                     type = type,
                     id = "id",
+                    createdAt = Date(),
                     account = TimelineAccount(
                         id = "1",
                         localUsername = "connyduck",
@@ -204,6 +207,7 @@ class MainActivityTest {
                         note = "This is their bio",
                         url = "https://mastodon.example/@ConnyDuck",
                         avatar = "https://mastodon.example/system/accounts/avatars/000/150/486/original/ab27d7ddd18a10ea.jpg",
+                        createdAt = Instant.now(),
                     ),
                     status = null,
                     report = null,

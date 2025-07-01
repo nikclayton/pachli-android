@@ -7,7 +7,7 @@
     <string name="error_media_upload_opening">Den filen kunde inte öppnas.</string>
     <string name="error_media_upload_permission">Behörighet att läsa media krävs.</string>
     <string name="error_media_download_permission">Behörighet att spara media krävs.</string>
-    <string name="error_media_upload_image_or_video">Bilder och videoklipp kan inte båda bifogas i samma inlägg.</string>
+    <string name="error_media_upload_image_or_video">bilder och videoklipp kan inte båda bifogas i samma inlägg.</string>
     <string name="error_media_upload_sending">Uppladdningen misslyckades.</string>
     <string name="error_sender_account_gone">Kunde inte posta inlägg.</string>
     <string name="title_home">Hem</string>
@@ -49,8 +49,6 @@
     <string name="action_favourite">Favorit</string>
     <string name="action_unfavourite">Ta bort favorit</string>
     <string name="action_compose">Skriv</string>
-    <string name="action_logout">Logga ut</string>
-    <string name="action_logout_confirm">Är du säker på att du vill logga ut från kontot %1$s?</string>
     <string name="action_follow">Följ</string>
     <string name="action_unfollow">Avfölj</string>
     <string name="action_block">Blockera</string>
@@ -92,11 +90,9 @@
     <string name="action_open_reblogger">Öppna knuff författare</string>
     <string name="action_open_reblogged_by">Visa knuffar</string>
     <string name="action_open_faved_by">Visa favoriter</string>
-    <string name="title_mentions_dialog">Omnämnanden</string>
     <string name="action_open_media_n">Öppna media #%d</string>
     <string name="download_image">Laddar ned %1$s</string>
     <string name="action_copy_link">Kopiera länk</string>
-    <string name="action_share_as">Dela som …</string>
     <string name="send_post_link_to">Dela toot-URL till…</string>
     <string name="send_post_content_to">Dela toot till…</string>
     <string name="send_media_to">Dela media till…</string>
@@ -183,7 +179,6 @@
         <item quantity="other">%d nya interaktioner</item>
     </plurals>
     <string name="description_account_locked">Låst konto</string>
-    <string name="about_pachli_version">Pachli %s</string>
     <!-- note to translators:
          * you should think of “free” as in “free speech,” not as in “free beer”.
            We sometimes call it “libre software,” borrowing the French or Spanish word for “free” as in freedom,
@@ -209,7 +204,6 @@
     <string name="follows_you">Följer dig</string>
     <string name="pref_title_alway_show_sensitive_media">Visa alltid allt innehåll (inkl. känsligt)</string>
     <string name="title_media">Media</string>
-    <string name="replying_to">Svarar till @%s</string>
     <string name="pref_title_public_filter_keywords">Offentliga tidslinjer</string>
     <string name="pref_title_thread_filter_keywords">Trådar</string>
     <string name="filter_addition_title">Lägg till filter</string>
@@ -217,14 +211,8 @@
     <string name="filter_dialog_remove_button">Ta bort</string>
     <string name="filter_dialog_update_button">Uppdatera</string>
     <string name="filter_add_description">Filtrera fras</string>
-    <string name="add_account_name">Lägg till konto</string>
     <string name="add_account_description">Lägg till ett nytt Mastodon-konto</string>
     <string name="compose_active_account_description">Publicerar som %1$s</string>
-    <plurals name="hint_describe_for_visually_impaired">
-        <item quantity="one">Beskriv innehåll för synskadade (max %d tecken)</item>
-        <item quantity="other">Beskriv innehåll för synskadade (max %d tecken)</item>
-    </plurals>
-    <string name="action_set_caption">Ange bildtext</string>
     <string name="action_remove">Ta bort</string>
     <string name="lock_account_label">Lås konto</string>
     <string name="lock_account_label_description">Kräver att du manuellt godkänner följare</string>
@@ -262,8 +250,8 @@
         <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Favoriter</item>
     </plurals>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> Knuff</item>
-        <item quantity="other"><b>%s</b> Knuffar</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Knuff</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Knuffar</item>
     </plurals>
     <string name="title_reblogged_by">Knuffad av</string>
     <string name="title_favourited_by">Favoritmarkerad av</string>
@@ -335,7 +323,6 @@
     <string name="confirmation_domain_unmuted">%s inte tystad längre</string>
     <string name="mute_domain_warning">Är du säker på att du vill blockera allt från %s\? Du kommer inte kunna se något innehåll från denna domän i publika tidslinjer eller i dina notifieringar. Dina följare på domänen kommer inte att bli borttagna.</string>
     <string name="mute_domain_warning_dialog_ok">Dölj hela domänen</string>
-    <string name="button_continue">Fortsätt</string>
     <string name="button_back">Tillbaka</string>
     <string name="report_sent_success">Anmälan av @%s har lyckats</string>
     <string name="hint_additional_info">Ytterligare kommentarer</string>
@@ -409,7 +396,6 @@
     <string name="notification_subscription_format">%s skrev precis</string>
     <string name="wellbeing_hide_stats_profile">Dölj kvantitativ information på profiler</string>
     <string name="wellbeing_hide_stats_posts">Dölj kvantitativ information på inlägg</string>
-    <string name="limit_notifications">Begränsa tidslinje aviseringar</string>
     <string name="review_notifications">Revidera aviseringar</string>
     <string name="wellbeing_mode_notice">Information som kan påverka ditt välmående kommer att döljas. Detta inkluderar:
 \n
@@ -469,7 +455,7 @@
     <string name="post_media_attachments">Bilagor</string>
     <string name="status_count_one_plus">1+</string>
     <string name="title_migration_relogin">Logga in igen för pushnotiser</string>
-    <string name="compose_save_draft_loses_media">Spara utkast\? (Bilagor kommer att laddas upp igen när du återställer utkastet.)</string>
+    <string name="compose_save_draft_loses_media">Bilagor kommer att laddas upp igen när du återställer utkastet.</string>
     <string name="failed_to_pin">Kunde inte fästa</string>
     <string name="failed_to_unpin">Kunde inte lossa</string>
     <string name="action_add_reaction">lägg till reaktion</string>
@@ -478,7 +464,9 @@
     <string name="status_created_at_now">nu</string>
     <string name="notification_report_format">Ny rapport för %s</string>
     <string name="notification_header_report_format">%s rapporterade %s</string>
-    <string name="notification_summary_report_format">%s · %d inlägg bifogade</string>
+    <plurals name="notification_summary_report_format">
+        <item quantity="other">%1$s · %2$d inlägg bifogade</item>
+    </plurals>
     <string name="confirmation_hashtag_unfollowed">#%s avföljd</string>
     <string name="pref_title_notification_filter_reports">det finns en ny rapport</string>
     <string name="notification_report_name">Rapporter</string>
@@ -529,7 +517,6 @@
     <string name="total_usage">Total användning</string>
     <string name="total_accounts">Totala konton</string>
     <string name="hint_description">Beskrivning</string>
-    <string name="post_media_image">Bild</string>
     <string name="description_browser_login">Kan stödja ytterligare autentiseringsmetoder, men kräver en webbläsare som stöds.</string>
     <string name="filter_description_format">%s: %s</string>
     <string name="filter_keyword_addition_title">Lägg till nyckelord</string>
@@ -541,7 +528,7 @@
     <string name="select_list_manage">Hantera listor</string>
     <string name="select_list_empty">Du har inga listor, än</string>
     <string name="status_filtered_show_anyway">Visa allafall</string>
-    <string name="status_filter_placeholder_label_format">Filtrerad: &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">Filtrerad: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Profiler</string>
     <string name="label_filter_action">Filteråtgärd</string>
     <string name="label_filter_keywords">Nyckelord eller fraser att filtrera</string>
@@ -554,9 +541,7 @@
     <string name="filter_description_hide">Dölj helt</string>
     <string name="action_add">Lägg till</string>
     <string name="filter_keyword_display_format">%s (helt ord)</string>
-    <string name="help_empty_home">Detta är din <b>hemtidslinje</b>. Den visar de senaste inläggen för konton du följer.
-\n
-\nFör att utforska konton kan du antingen upptäcka dem i någon av de andra tidslinjerna. Till exempel den lokala tidslinjen för din instans [iconics gmd_group]. Eller så kan du söka efter dem efter namn [ikonics gmd_search]; sök till exempel efter Pachli för att hitta vårt Mastodon-konto.</string>
+    <string name="help_empty_home">Detta är din <b>hemtidslinje</b>. Den visar de senaste inläggen för konton du följer.\n\nFör att utforska konton kan du antingen upptäcka dem i någon av de andra tidslinjerna. Till exempel den lokala tidslinjen för din instans [iconics gmd_group]. Eller så kan du söka efter deras namn [ikonics gmd_search]; sök till exempel efter Pachli för att hitta vårt Mastodon-konto.</string>
     <string name="pref_ui_text_size">UI textstorlek</string>
     <string name="notification_listenable_worker_name">Bakgrundsaktivitet</string>
     <string name="notification_listenable_worker_description">Aviseringar när Pachli arbetar i bakgrunden</string>
@@ -568,7 +553,6 @@
     <string name="ui_error_bookmark_fmt">Att bokmärka inlägg misslyckades: %1$s</string>
     <string name="ui_error_clear_notifications">Rensing av aviseringar misslyckades: %s</string>
     <string name="ui_error_favourite_fmt">Att favoritmarkera inlägg misslyckades: %1$s</string>
-    <string name="error_list_load">Fel vid laddning av listor</string>
     <string name="ui_error_reject_follow_request">Avacceptera följarförgrågan misslyckades: %s</string>
     <string name="label_filter_context">Filtrera sammanhang</string>
     <string name="title_public_trending_hashtags">Populära hashtaggar</string>
@@ -595,9 +579,6 @@
     <string name="announcement_date">%1$s %2$s</string>
     <string name="load_newest_statuses">Ladda de nyaste inläggen</string>
     <string name="dialog_save_profile_changes_message">Vill du spara dina profiländringar?</string>
-    <string name="pref_update_notification_frequency_always">Alltid</string>
-    <string name="error_media_upload_sending_fmt">Uppladdning misslyckades: %s</string>
-    <string name="pref_update_notification_frequency_never">Aldrig</string>
     <string name="pref_title_show_self_boosts_description">Någon som knuffar sin toot</string>
     <string name="ui_error_filter_v1_load_fmt">Laddning av filter misslyckades: %1$s</string>
     <string name="confirmation_hashtag_muted">#%s dold</string>
@@ -605,7 +586,6 @@
     <string name="pref_title_show_self_boosts">Visa självknuffar</string>
     <string name="announcement_date_updated">(Uppdaterad: %1$s)</string>
     <string name="title_tab_public_trending_statuses">Toots</string>
-    <string name="pref_update_notification_frequency_once_per_version">En gång per version</string>
     <string name="pref_title_font_family">Fontfamilj</string>
     <string name="action_translate">Översätta</string>
     <string name="update_dialog_title">En uppdatering är tillgänglig</string>
@@ -614,4 +594,51 @@
     <string name="action_translate_undo">Ångra översättning</string>
     <string name="server_repository_error">Kunde inte hämta serverinformation för %1$s: %2$s</string>
     <string name="pref_summary_content_filters">Din server stöder inte filter</string>
+    <string name="action_filter_search">Filtrera sökningen</string>
+    <string name="search_operator_attachment_dialog_audio_label">Ljud</string>
+    <string name="action_suggestions">Föreslagna konton</string>
+    <string name="notification_severed_relationships_domain_block_body">En moderator blockerade instansen</string>
+    <string name="notification_severed_relationships_user_domain_block_body">Du blockerade instansen</string>
+    <string name="search_operator_attachment_dialog_image_label">Bilder</string>
+    <string name="pref_notification_up_distributor_none">Ingen</string>
+    <string name="search_operator_attachment_none">Inget</string>
+    <string name="search_operator_from_dialog_account_hint">\@konto</string>
+    <string name="notification_unknown">Okänd varningstyp</string>
+    <string name="search_operator_attachment_dialog_video_label">Video</string>
+    <string name="pref_title_content_filters">Innehållsfilter</string>
+    <plurals name="notification_severed_relationships_summary_followers_fmt">
+        <item quantity="one">%1$s följare borttagen</item>
+        <item quantity="other">%1$s följare borttagna</item>
+    </plurals>
+    <plurals name="notification_severed_relationships_summary_following_fmt">
+        <item quantity="one">%1$s konto som du följer borttaget</item>
+        <item quantity="other">%1$s konton som du följer borttagna</item>
+    </plurals>
+    <string name="search_operator_attachment_kind_image_label">bilder</string>
+    <string name="search_operator_date_dialog_today">I dag</string>
+    <string name="search_operator_attachment_kind_video_label">video</string>
+    <string name="notification_severed_relationships_account_suspension_body">En moderator blockerade kontot</string>
+    <string name="notification_severed_relationships_unknown_body">Okänd anledning</string>
+    <string name="error_prepare_media_io_fmt">%1$s</string>
+    <string name="search_operator_attachment_kind_audio_label">ljud</string>
+    <string name="search_operator_language_checked_fmt">%1$s</string>
+    <string name="poll_show_votes">Via röster</string>
+    <string name="notification_severed_relationships_description">Meddelanden om brutna relationer</string>
+    <string name="filter_action_none">Visa</string>
+    <string name="pref_notification_method_all_pull">Hämtas ungefär en gång var 15 minuter. Tryck för detaljer.</string>
+    <string name="pref_title_labs">Experiment</string>
+    <string name="pref_labs_warning">Dessa är experimentella funktioner. Det finns ingen garanti för att de fungerar eller kommer att finnas i framtida versioner. Använd på egen risk.</string>
+    <string name="pref_title_confirm_status_language">Kontrollera postens språkinställning innan du publicerar</string>
+    <string name="pref_labs_reverse_home_timeline_title">Omvänd sortering av tidslinjen</string>
+    <string name="pref_labs_reverse_home_timeline_off_summary">Nyaste inlägg först</string>
+    <string name="pref_title_notification_method">Aviseringsmetod</string>
+    <string name="notification_severed_relationships_name">Brutna relationer</string>
+    <string name="filter_description_none">Visa som vanlig</string>
+    <string name="pref_notification_up_distributor_name_fmt">%1$s. Tryck för att öppna</string>
+    <string name="compose_schedule_date_time_fmt">%1$s %2$s</string>
+    <string name="pref_title_notification_battery_optimisation">Batterioptimering</string>
+    <string name="notification_severed_relationships_format">Bröt förhållandet med <b>%1$s</b></string>
+    <string name="conversation_0_recipients">Inga andra deltagare</string>
+    <string name="manage_lists">Hantera listor</string>
+    <string name="pref_labs_reverse_home_timeline_on_summary">Äldst inlägg först</string>
 </resources>

@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - uses: ./.github/actions/setup-build-env
         with:
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - uses: ./.github/actions/setup-build-env
         with:
@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - uses: ./.github/actions/setup-build-env
         with:
@@ -65,38 +65,60 @@ jobs:
 
   # Android lint is per-variant
   lint:
+    permissions:
+      # Required to upload SARIF files
+      security-events: write
     strategy:
       matrix:
         color: ["orange"]
-        store: ["fdroid", "github", "google"]
-        type: ["debug", "release"]
+        store: [ "Fdroid", "Github", "Google" ]
+        type: [ "Debug", "Release" ]
     name: Android Lint
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - uses: ./.github/actions/setup-build-env
         with:
           gradle-cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
+      # Run lint for the app module. This is configured to also lint the
+      # dependent modules and produce a single report.
       - name: Regular lint ${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
-        run: ./gradlew lint${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
+        id: runlint
+        run: |
+          set +e
+          ./gradlew app:lint${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
+          echo "exitcode=$?" >> $GITHUB_OUTPUT
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@39edc492dbe16b1465b0cafca41432d857bdb31a # v3
+        with:
+          sarif_file: app/build/reports/lint-results-${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}.sarif
+          category: lint-${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
+
+
+      # Exit with whatever exit code the original lint run exited with, to
+      # ensure this job fails if lint fails, *but* the lint reports are still
+      # uploaded.
+      - name: Fail if lint failed
+        run: exit ${{ steps.runlint.outputs.exitcode }}
 
   # Android tests are per variant
   test:
     strategy:
       matrix:
         color: ["orange"]
-        store: ["fdroid", "github", "google"]
-        type: ["debug", "release"]
+        store: [ "Fdroid", "Github", "Google" ]
+        type: [ "Debug", "Release" ]
     name: Android Test
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - uses: ./.github/actions/setup-build-env
         with:
@@ -110,14 +132,14 @@ jobs:
     strategy:
       matrix:
         color: ["orange"]
-        store: ["fdroid", "github", "google"]
-        type: ["debug", "release"]
+        store: [ "Fdroid", "Github", "Google" ]
+        type: [ "Debug", "Release" ]
     name: Android Assemble
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - uses: ./.github/actions/setup-build-env
         with:
@@ -125,3 +147,60 @@ jobs:
 
       - name: assemble ${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
         run: ./gradlew assemble${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
+
+  # Connected tests are per-store-variant, debug builds only.
+  connected:
+    strategy:
+      matrix:
+        color: ["Orange"]
+        store: ["Fdroid", "Github", "Google"]
+        type: ["Debug"]
+        api-level: [31]
+        target: [default]
+    name: Android Emulator Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - uses: ./.github/actions/setup-build-env
+        with:
+          gradle-cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: AVD cache
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@1dcd0090116d15e7c562f8db72807de5e036a4ed # v2
+        with:
+          arch: x86_64
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-metrics -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: Run tests
+        uses: reactivecircus/android-emulator-runner@1dcd0090116d15e7c562f8db72807de5e036a4ed # v2
+        with:
+          arch: x86_64
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-metrics -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          target: ${{ matrix.target }}
+          script: ./gradlew connected${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}AndroidTest

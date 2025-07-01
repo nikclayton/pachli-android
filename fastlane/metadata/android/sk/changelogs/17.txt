@@ -1,0 +1,16 @@
+Rezorty 2.6.0
+
+Nové funkcie:
+
+- Zobraziť "Navrhované účty"
+- Podpora pre server filtre v GoToSocial 0.16.0
+
+Opravy:
+
+- Aktualizácia písma pri návrate z predvoľby
+- Správne spracovanie editácie stavu jazyka
+- Vylepšená čitateľnosť popisov stavu médií
+- Zabezpečenie, že text v navigačnom paneli je správny
+- Neprekračuj maximálny počet vytvorených skratiek
+- Použi predvolené "Navigate up" opis obsahu v ViewThreadActivity
+- Aktualizácia prekladov do fínštiny, španielčiny a švédčiny

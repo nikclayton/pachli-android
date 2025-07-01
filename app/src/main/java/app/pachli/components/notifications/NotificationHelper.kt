@@ -43,14 +43,21 @@ import androidx.work.WorkRequest
 import app.pachli.BuildConfig
 import app.pachli.MainActivity
 import app.pachli.R
-import app.pachli.core.activity.NotificationConfig
 import app.pachli.core.common.string.unicodeWrap
+import app.pachli.core.data.repository.PachliAccount
 import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.database.model.NotificationData
+import app.pachli.core.database.model.NotificationEntity
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.domain.notifications.NotificationConfig
+import app.pachli.core.model.AccountFilterDecision
+import app.pachli.core.model.AccountFilterReason
+import app.pachli.core.model.FilterAction
+import app.pachli.core.model.Notification
+import app.pachli.core.model.RelationshipSeveranceEvent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
-import app.pachli.core.navigation.MainActivityIntent
-import app.pachli.core.network.model.Notification
-import app.pachli.core.network.model.RelationshipSeveranceEvent
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InReplyTo
+import app.pachli.core.navigation.IntentRouterActivityIntent
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.receiver.SendStatusBroadcastReceiver
 import app.pachli.viewdata.buildDescription
@@ -58,6 +65,7 @@ import app.pachli.viewdata.calculatePercent
 import app.pachli.worker.NotificationWorker
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import java.time.Duration
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import timber.log.Timber
@@ -114,8 +122,8 @@ private const val EXTRA_NOTIFICATION_TYPE =
  * Takes a given Mastodon notification and creates a new Android notification or updates the
  * existing Android notification.
  *
- * The Android notification has it's tag set to the Mastodon notification ID, and it's ID set
- * to the ID of the account that received the notification.
+ * The Android notification tag is the Mastodon notification ID, and the notification ID
+ * is the ID of the account that received the notification.
  *
  * @param context to access application preferences and services
  * @param mastodonNotification    a new Mastodon notification
@@ -129,8 +137,7 @@ fun makeNotification(
     account: AccountEntity,
     isFirstOfBatch: Boolean,
 ): android.app.Notification {
-    var notif = mastodonNotification
-    notif = notif.rewriteToStatusTypeIfNeeded(account.accountId)
+    val notif = mastodonNotification.rewriteToStatusTypeIfNeeded(account.accountId)
     val mastodonNotificationId = notif.id
     val accountId = account.id.toInt()
 
@@ -146,7 +153,7 @@ fun makeNotification(
     // Create the notification -- either create a new one, or use the existing one.
     val builder = existingAndroidNotification?.let {
         NotificationCompat.Builder(context, it)
-    } ?: newAndroidNotification(context, notif, account)
+    } ?: newAndroidNotification(context, notificationId, notif, account)
 
     builder
         .setContentTitle(titleForType(context, notif, account))
@@ -292,10 +299,12 @@ fun updateSummaryNotifications(
 
         // All notifications in this group have the same type, so get it from the first.
         val notificationType = members[0].notification.extras.getEnum<Notification.Type>(EXTRA_NOTIFICATION_TYPE)
-        val summaryResultIntent = MainActivityIntent.openNotification(
+        val summaryResultIntent = IntentRouterActivityIntent.fromNotification(
             context,
-            accountId.toLong(),
-            notificationType,
+            account.id,
+            -1,
+            null,
+            type = notificationType,
         )
         val summaryStackBuilder = TaskStackBuilder.create(context)
         summaryStackBuilder.addParentStack(MainActivity::class.java)
@@ -337,17 +346,24 @@ fun updateSummaryNotifications(
         // See https://github.com/tuskyapp/Tusky/pull/3626#discussion_r1192963664
         try {
             Thread.sleep(1000)
-        } catch (ignored: InterruptedException) {
+        } catch (_: InterruptedException) {
         }
     }
 }
 
 private fun newAndroidNotification(
     context: Context,
+    notificationId: Int,
     body: Notification,
     account: AccountEntity,
 ): NotificationCompat.Builder {
-    val eventResultIntent = MainActivityIntent.openNotification(context, account.id, body.type)
+    val eventResultIntent = IntentRouterActivityIntent.fromNotification(
+        context,
+        account.id,
+        notificationId,
+        body.id,
+        body.type,
+    )
     val eventStackBuilder = TaskStackBuilder.create(context)
     eventStackBuilder.addParentStack(MainActivity::class.java)
     eventStackBuilder.addNextIntent(eventResultIntent)
@@ -375,7 +391,11 @@ private fun getStatusReplyIntent(
 ): PendingIntent {
     val status = body.status!!
     val inReplyToId = status.id
-    val (_, _, account1, _, _, _, _, _, _, _, _, _, _, _, _, _, _, contentWarning, replyVisibility, _, mentions) = status.actionableStatus
+    val account1 = status.actionableStatus.account
+    val contentWarning = status.actionableStatus.spoilerText
+    val replyVisibility = status.actionableStatus.visibility
+    val mentions = status.actionableStatus.mentions
+
     var mentionedUsernames: MutableList<String?> = ArrayList()
     mentionedUsernames.add(account1.username)
     for ((_, _, username) in mentions) {
@@ -410,10 +430,12 @@ private fun getStatusComposeIntent(
     account: AccountEntity,
 ): PendingIntent {
     val status = body.status!!
-    val citedLocalAuthor = status.account.localUsername
-    val citedText = status.content.parseAsMastodonHtml().toString()
-    val inReplyToId = status.id
-    val (_, _, account1, _, _, _, _, _, _, _, _, _, _, _, _, _, _, contentWarning, replyVisibility, _, mentions, _, _, _, _, _, _, language) = status.actionableStatus
+    val account1 = status.actionableStatus.account
+    val contentWarning = status.actionableStatus.spoilerText
+    val replyVisibility = status.actionableStatus.visibility
+    val mentions = status.actionableStatus.mentions
+    val language = status.actionableStatus.language
+
     val mentionedUsernames: MutableSet<String> = LinkedHashSet()
     mentionedUsernames.add(account1.username)
     for ((_, _, mentionedUsername) in mentions) {
@@ -422,22 +444,20 @@ private fun getStatusComposeIntent(
         }
     }
     val composeOptions = ComposeOptions(
-        inReplyToId = inReplyToId,
         replyVisibility = replyVisibility,
         contentWarning = contentWarning,
-        replyingStatusAuthor = citedLocalAuthor,
-        replyingStatusContent = citedText,
+        inReplyTo = InReplyTo.Status.from(status),
         mentionedUsernames = mentionedUsernames,
         modifiedInitialState = true,
         language = language,
         kind = ComposeOptions.ComposeKind.NEW,
     )
-    val composeIntent = MainActivityIntent.openCompose(
+    val composeIntent = IntentRouterActivityIntent.fromNotificationCompose(
         context,
-        composeOptions,
         account.id,
-        body.id,
+        composeOptions,
         account.id.toInt(),
+        body.id,
     )
     return PendingIntent.getActivity(
         context.applicationContext,
@@ -553,14 +573,6 @@ fun createNotificationChannelsForAccount(account: AccountEntity, context: Contex
     }
 }
 
-fun deleteNotificationChannelsForAccount(account: AccountEntity, context: Context) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.deleteNotificationChannelGroup(account.identifier)
-    }
-}
-
 fun enablePullNotifications(context: Context) {
     Timber.i("Enabling pull notifications for all accounts")
     val workManager = WorkManager.getInstance(context)
@@ -570,13 +582,13 @@ fun enablePullNotifications(context: Context) {
     // practice that may not be soon enough, so create and enqueue an expedited one-time
     // request to get new notifications immediately.
     Timber.d("Enqueing immediate notification worker")
-    val fetchNotifications: WorkRequest = OneTimeWorkRequest.Builder(NotificationWorker::class.java)
+    val fetchNotifications: WorkRequest = OneTimeWorkRequest.Builder(NotificationWorker::class)
         .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
         .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
         .build()
     workManager.enqueue(fetchNotifications)
     val workRequest: WorkRequest = PeriodicWorkRequest.Builder(
-        NotificationWorker::class.java,
+        NotificationWorker::class,
         PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
         TimeUnit.MILLISECONDS,
         PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS,
@@ -597,8 +609,8 @@ fun disablePullNotifications(context: Context) {
     NotificationConfig.notificationMethod = NotificationConfig.Method.Unknown
 }
 
-fun clearNotificationsForAccount(context: Context, account: AccountEntity) {
-    val accountId = account.id.toInt()
+fun clearNotificationsForAccount(context: Context, pachliAccountId: Long) {
+    val accountId = pachliAccountId.toInt()
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     for (androidNotification in notificationManager.activeNotifications) {
@@ -638,6 +650,84 @@ fun filterNotification(
         Notification.Type.SEVERED_RELATIONSHIPS -> account.notificationsSeveredRelationships
         Notification.Type.UNKNOWN -> false
     }
+}
+
+/**
+ * Returns the [AccountFilterDecision] for [notificationData] based on the notification
+ * filters in [accountWithFilters].
+ *
+ * @return The most severe [AccountFilterDecision], in order [Hide][AccountFilterDecision.Hide],
+ * [Warn][AccountFilterDecision.Warn], or [None][AccountFilterDecision.None].
+ */
+fun filterNotificationByAccount(accountWithFilters: PachliAccount, notificationData: NotificationData): AccountFilterDecision {
+    val notification = notificationData.notification
+    // Some notifications are never filtered, irrespective of the account that
+    // sent them.
+    when (notification.type) {
+        // Poll we interacted with has ended.
+        NotificationEntity.Type.POLL -> return AccountFilterDecision.None
+        // Status we interacted with has been updated.
+        NotificationEntity.Type.UPDATE -> return AccountFilterDecision.None
+        // A new moderation report.
+        NotificationEntity.Type.REPORT -> return AccountFilterDecision.None
+        // Moderation has resulted in severed relationships.
+        NotificationEntity.Type.SEVERED_RELATIONSHIPS -> return AccountFilterDecision.None
+        // We explicitly asked to be notified about this user.
+        NotificationEntity.Type.STATUS -> return AccountFilterDecision.None
+        // Admin signup notifications should not be filtered.
+        NotificationEntity.Type.SIGN_UP -> return AccountFilterDecision.None
+        else -> {
+            /* fall through */
+        }
+    }
+
+    // The account that generated the notification.
+    val accountToTest = notificationData.account
+
+    // Any notifications from our own activity are not filtered.
+    if (accountWithFilters.entity.accountId == accountToTest.serverId) return AccountFilterDecision.None
+
+    val decisions = buildList {
+        // Check the following relationship.
+        if (accountWithFilters.entity.notificationAccountFilterNotFollowed != FilterAction.NONE) {
+            if (accountWithFilters.following.none { it.serverId == accountToTest.serverId }) {
+                add(
+                    AccountFilterDecision.make(
+                        accountWithFilters.entity.notificationAccountFilterNotFollowed,
+                        AccountFilterReason.NOT_FOLLOWING,
+                    ),
+                )
+            }
+        }
+
+        // Check the age of the account relative to the notification.
+        accountToTest.createdAt?.let { createdAt ->
+            if (accountWithFilters.entity.notificationAccountFilterYounger30d != FilterAction.NONE) {
+                if (Duration.between(createdAt, notification.createdAt) < Duration.ofDays(30)) {
+                    add(
+                        AccountFilterDecision.make(
+                            accountWithFilters.entity.notificationAccountFilterYounger30d,
+                            AccountFilterReason.YOUNGER_30D,
+                        ),
+                    )
+                }
+            }
+        }
+
+        // Check limited status.
+        if (accountToTest.limited && accountWithFilters.entity.notificationAccountFilterLimitedByServer != FilterAction.NONE) {
+            add(
+                AccountFilterDecision.make(
+                    accountWithFilters.entity.notificationAccountFilterLimitedByServer,
+                    AccountFilterReason.LIMITED_BY_SERVER,
+                ),
+            )
+        }
+    }
+
+    return decisions.firstOrNull { it is AccountFilterDecision.Hide }
+        ?: decisions.firstOrNull { it is AccountFilterDecision.Warn }
+        ?: AccountFilterDecision.None
 }
 
 private fun getChannelId(account: AccountEntity, notification: Notification): String? {
@@ -854,12 +944,10 @@ fun pendingIntentFlags(mutable: Boolean): Int {
  *
  * @throws IllegalStateException if the value at [key] is not valid for the enum [T].
  */
-inline fun <reified T : Enum<T>> Bundle.getEnum(key: String) =
-    getInt(key, -1).let { if (it >= 0) enumValues<T>()[it] else throw IllegalStateException("unrecognised enum ordinal: $it") }
+inline fun <reified T : Enum<T>> Bundle.getEnum(key: String) = getInt(key, -1).let { if (it >= 0) enumValues<T>()[it] else throw IllegalStateException("unrecognised enum ordinal: $it") }
 
 /**
  * Inserts an enum [value] into the mapping of this [Bundle], replacing any
  * existing value for the given [key].
  */
-fun <T : Enum<T>> Bundle.putEnum(key: String, value: T?) =
-    putInt(key, value?.ordinal ?: -1)
+fun <T : Enum<T>> Bundle.putEnum(key: String, value: T?) = putInt(key, value?.ordinal ?: -1)

@@ -17,7 +17,6 @@
 
 package app.pachli.feature.login
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -25,24 +24,27 @@ import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.View
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import app.pachli.core.activity.BaseActivity
+import app.pachli.core.activity.OpenUrlUseCase
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.setCloseTransition
 import app.pachli.core.activity.extensions.startActivityWithTransition
-import app.pachli.core.activity.openLinkInCustomTab
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.navigation.IntentRouterActivityIntent
 import app.pachli.core.navigation.LoginActivityIntent
-import app.pachli.core.navigation.MainActivityIntent
-import app.pachli.core.network.model.AccessToken
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.preferences.getNonNullString
-import app.pachli.core.ui.extensions.getErrorString
 import app.pachli.feature.login.databinding.ActivityLoginBinding
-import at.connyduck.calladapter.networkresult.fold
-import com.bumptech.glide.Glide
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -60,6 +62,11 @@ class LoginActivity : BaseActivity() {
     @Inject
     lateinit var mastodonApi: MastodonApi
 
+    @Inject
+    lateinit var openUrl: OpenUrlUseCase
+
+    private val viewModel: LoginViewModel by viewModels()
+
     private val binding by viewBinding(ActivityLoginBinding::inflate)
 
     private lateinit var preferences: SharedPreferences
@@ -73,10 +80,11 @@ class LoginActivity : BaseActivity() {
 
     private val doWebViewAuth = registerForActivityResult(OauthLogin()) { result ->
         when (result) {
-            is LoginResult.Ok -> lifecycleScope.launch {
+            is LoginResult.Code -> lifecycleScope.launch {
                 fetchOauthToken(result.code)
             }
-            is LoginResult.Err -> displayError(result.errorMessage)
+
+            is LoginResult.Error -> displayError(result.errorMessage)
             is LoginResult.Cancel -> setLoading(false)
         }
     }
@@ -86,30 +94,31 @@ class LoginActivity : BaseActivity() {
 
         setContentView(binding.root)
 
+        val authenticationDomain = authenticationDomain()
+
         if (savedInstanceState == null &&
             BuildConfig.CUSTOM_INSTANCE.isNotBlank() &&
             !isAdditionalLogin() &&
-            !isAccountMigration()
+            authenticationDomain == null
         ) {
             binding.domainEditText.setText(BuildConfig.CUSTOM_INSTANCE)
             binding.domainEditText.setSelection(BuildConfig.CUSTOM_INSTANCE.length)
         }
 
-        if (isAccountMigration()) {
-            binding.domainEditText.setText(accountManager.activeAccount!!.domain)
+        authenticationDomain?.let { domain ->
+            binding.domainEditText.setText(domain)
             binding.domainEditText.isEnabled = false
         }
 
         if (BuildConfig.CUSTOM_LOGO_URL.isNotBlank()) {
-            Glide.with(binding.loginLogo)
-                .load(BuildConfig.CUSTOM_LOGO_URL)
+            glide.load(BuildConfig.CUSTOM_LOGO_URL)
                 .placeholder(null)
                 .into(binding.loginLogo)
         }
 
         preferences = getSharedPreferences(
             getString(R.string.preferences_file_key),
-            Context.MODE_PRIVATE,
+            MODE_PRIVATE,
         )
 
         binding.loginButton.setOnClickListener { onLoginClick(true) }
@@ -124,13 +133,47 @@ class LoginActivity : BaseActivity() {
         }
 
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(isAdditionalLogin() || isAccountMigration())
+        supportActionBar?.setDisplayHomeAsUpEnabled(isAdditionalLogin() || authenticationDomain != null)
         supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        bind()
     }
 
-    override fun requiresLogin(): Boolean {
-        return false
+    /** Binds data to the UI. */
+    private fun bind() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                launch { viewModel.uiResult.collect(::bindUiResult) }
+            }
+        }
     }
+
+    /** Act on the result of UI actions. */
+    private fun bindUiResult(uiResult: Result<UiSuccess, UiError>) {
+        uiResult.onFailure { uiError ->
+            when (uiError) {
+                is UiError.VerifyAndAddAccount -> {
+                    setLoading(false)
+                    binding.domainTextInputLayout.error = uiError.fmt(this)
+                    Timber.e(uiError.fmt(this))
+                }
+            }
+        }
+
+        uiResult.onSuccess { uiSuccess ->
+            when (uiSuccess) {
+                is UiSuccess.VerifyAndAddAccount -> {
+                    val intent = IntentRouterActivityIntent.startMainActivity(this, uiSuccess.accountId)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivityWithTransition(intent, TransitionKind.EXPLODE)
+                    finishAffinity()
+                    setCloseTransition(TransitionKind.EXPLODE)
+                }
+            }
+        }
+    }
+
+    override fun requiresLogin() = false
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.add(R.string.action_browser_login)?.apply {
@@ -176,33 +219,31 @@ class LoginActivity : BaseActivity() {
                 oauthRedirectUri,
                 OAUTH_SCOPES,
                 getString(R.string.pachli_website),
-            ).fold(
-                { credentials ->
-                    // Before we open browser page we save the data.
-                    // Even if we don't open other apps user may go to password manager or somewhere else
-                    // and we will need to pick up the process where we left off.
-                    // Alternatively we could pass it all as part of the intent and receive it back
-                    // but it is a bit of a workaround.
-                    preferences.edit()
-                        .putString(DOMAIN, domain)
+            ).onSuccess {
+                val credentials = it.body
+                // Before we open browser page we save the data.
+                // Even if we don't open other apps user may go to password manager or somewhere else
+                // and we will need to pick up the process where we left off.
+                // Alternatively we could pass it all as part of the intent and receive it back
+                // but it is a bit of a workaround.
+                preferences.edit {
+                    putString(DOMAIN, domain)
                         .putString(CLIENT_ID, credentials.clientId)
                         .putString(CLIENT_SECRET, credentials.clientSecret)
-                        .apply()
+                }
 
-                    redirectUserToAuthorizeAndLogin(domain, credentials.clientId, openInWebView)
-                },
-                { e ->
-                    binding.loginButton.isEnabled = true
-                    binding.domainTextInputLayout.error =
-                        String.format(
-                            getString(R.string.error_failed_app_registration_fmt),
-                            e.getErrorString(this@LoginActivity),
-                        )
-                    setLoading(false)
-                    Timber.e(e, "Error when creating/registing app")
-                    return@launch
-                },
-            )
+                redirectUserToAuthorizeAndLogin(domain, credentials.clientId, openInWebView)
+            }.onFailure { e ->
+                binding.loginButton.isEnabled = true
+                binding.domainTextInputLayout.error =
+                    getString(
+                        R.string.error_failed_app_registration_fmt,
+                        e.fmt(this@LoginActivity),
+                    )
+                setLoading(false)
+                Timber.e("Error when creating/registing app: %s", e.fmt(this@LoginActivity))
+                return@launch
+            }
         }
     }
 
@@ -224,7 +265,7 @@ class LoginActivity : BaseActivity() {
         if (openInWebView) {
             doWebViewAuth.launch(LoginData(domain, uri, oauthRedirectUri.toUri()))
         } else {
-            openLinkInCustomTab(uri, this)
+            openUrl(uri, useCustomTab = true)
         }
     }
 
@@ -288,52 +329,22 @@ class LoginActivity : BaseActivity() {
             oauthRedirectUri,
             code,
             "authorization_code",
-        ).fold(
-            { accessToken ->
-                fetchAccountDetails(accessToken, domain, clientId, clientSecret)
-            },
-            { e ->
-                setLoading(false)
-                binding.domainTextInputLayout.error =
-                    getString(R.string.error_retrieving_oauth_token)
-                Timber.e(e, getString(R.string.error_retrieving_oauth_token))
-            },
-        )
-    }
-
-    private suspend fun fetchAccountDetails(
-        accessToken: AccessToken,
-        domain: String,
-        clientId: String,
-        clientSecret: String,
-    ) {
-        mastodonApi.accountVerifyCredentials(
-            domain = domain,
-            auth = "Bearer ${accessToken.accessToken}",
-        ).fold(
-            { newAccount ->
-                val pachliAccountId = accountManager.addAccount(
-                    accessToken = accessToken.accessToken,
-                    domain = domain,
-                    clientId = clientId,
-                    clientSecret = clientSecret,
-                    oauthScopes = OAUTH_SCOPES,
-                    newAccount = newAccount,
-                )
-
-                val intent = MainActivityIntent(this, pachliAccountId)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivityWithTransition(intent, TransitionKind.EXPLODE)
-                finishAffinity()
-                setCloseTransition(TransitionKind.EXPLODE)
-            },
-            { e ->
-                setLoading(false)
-                binding.domainTextInputLayout.error =
-                    getString(R.string.error_loading_account_details)
-                Timber.e(e, getString(R.string.error_loading_account_details))
-            },
-        )
+        ).onSuccess {
+            val accessToken = it.body
+            viewModel.accept(
+                FallibleUiAction.VerifyAndAddAccount(
+                    accessToken,
+                    domain,
+                    clientId,
+                    clientSecret,
+                    OAUTH_SCOPES,
+                ),
+            )
+        }.onFailure { e ->
+            setLoading(false)
+            binding.domainTextInputLayout.error =
+                getString(R.string.error_retrieving_oauth_token_fmt, e.fmt(this@LoginActivity))
+        }
     }
 
     private fun setLoading(loadingState: Boolean) {
@@ -348,11 +359,11 @@ class LoginActivity : BaseActivity() {
     }
 
     private fun isAdditionalLogin(): Boolean {
-        return LoginActivityIntent.getLoginMode(intent) == LoginActivityIntent.LoginMode.ADDITIONAL_LOGIN
+        return LoginActivityIntent.getLoginMode(intent) is LoginActivityIntent.LoginMode.AdditionalLogin
     }
 
-    private fun isAccountMigration(): Boolean {
-        return LoginActivityIntent.getLoginMode(intent) == LoginActivityIntent.LoginMode.MIGRATION
+    private fun authenticationDomain(): String? {
+        return (LoginActivityIntent.getLoginMode(intent) as? LoginActivityIntent.LoginMode.Reauthenticate)?.domain
     }
 
     companion object {

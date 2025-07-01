@@ -30,8 +30,12 @@ android {
 }
 
 dependencies {
+    // TODO: AccountManager currently exposes AccountEntity which must be re-exported.
+    api(projects.core.database)
+
     implementation(projects.core.common)
-    implementation(projects.core.database)
+    implementation(projects.core.eventhub)
+        ?.because("NotificationRepository sends events")
     implementation(projects.core.model)
     implementation(projects.core.network)
     implementation(projects.core.preferences)
@@ -42,6 +46,13 @@ dependencies {
     // ServerRepository
     implementation(libs.semver)
 
+    implementation(libs.moshi)
+        ?.because("Notifications serialise as JSON")
+
     testImplementation(projects.core.networkTest)
     testImplementation(libs.bundles.mockito)
+
+    testImplementation(libs.moshi)
+    testImplementation(libs.moshi.adapters)
+    ksp(libs.moshi.codegen)
 }

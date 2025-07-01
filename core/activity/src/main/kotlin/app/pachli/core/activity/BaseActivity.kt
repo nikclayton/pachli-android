@@ -18,7 +18,6 @@ package app.pachli.core.activity
 
 import android.app.ActivityManager.TaskDescription
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
@@ -31,23 +30,26 @@ import android.view.View
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
+import androidx.lifecycle.lifecycleScope
 import app.pachli.core.activity.extensions.canOverrideActivityTransitions
 import app.pachli.core.activity.extensions.getTransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
+import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.Loadable
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.EmbeddedFontFamily
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.navigation.IntentRouterActivityIntent
 import app.pachli.core.navigation.LoginActivityIntent
-import app.pachli.core.navigation.MainActivityIntent
 import app.pachli.core.preferences.AppTheme
-import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
+import app.pachli.core.ui.ChooseAccountSuspendDialogFragment
+import com.bumptech.glide.Glide
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.EntryPoint
@@ -57,6 +59,7 @@ import dagger.hilt.android.EntryPointAccessors.fromApplication
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Inject
 import kotlin.properties.Delegates
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -78,6 +81,12 @@ abstract class BaseActivity : AppCompatActivity(), MenuProvider {
     interface SharedPreferencesRepositoryEntryPoint {
         fun sharedPreferencesRepository(): SharedPreferencesRepository
     }
+
+    /**
+     * Glide [RequestManager][com.bumptech.glide.RequestManager] that can be passed to
+     * anything that needs it scoped to this activity's lifecycle.
+     */
+    protected val glide by unsafeLazy { Glide.with(this) }
 
     override fun setTheme(@StyleRes themeId: Int) {
         activeThemeId = themeId
@@ -118,13 +127,11 @@ abstract class BaseActivity : AppCompatActivity(), MenuProvider {
         setTaskDescription(TaskDescription(appName, appIcon, recentsBackgroundColor))
 
         // Set status text size
-        val style =
-            textStyle(sharedPreferencesRepository.getString(PrefKeys.STATUS_TEXT_SIZE, "medium")!!)
+        val style = textStyle(sharedPreferencesRepository.statusTextSize)
         getTheme().applyStyle(style, true)
 
         // Set application font family
-        val fontFamily =
-            EmbeddedFontFamily.from(sharedPreferencesRepository.getString(PrefKeys.FONT_FAMILY, "default"))
+        val fontFamily = sharedPreferencesRepository.fontFamily
         if (fontFamily !== EmbeddedFontFamily.DEFAULT) {
             getTheme().applyStyle(fontFamily.style, true)
         }
@@ -139,8 +146,8 @@ abstract class BaseActivity : AppCompatActivity(), MenuProvider {
             SharedPreferencesRepositoryEntryPoint::class.java,
         ).sharedPreferencesRepository()
 
-        // Scale text in the UI from PrefKeys.UI_TEXT_SCALE_RATIO
-        val uiScaleRatio = sharedPreferencesRepository.getFloat(PrefKeys.UI_TEXT_SCALE_RATIO, 100f)
+        // Scale text in the UI from the user's preference.
+        val uiScaleRatio = sharedPreferencesRepository.uiTextScaleRatio
         val configuration = newBase.resources.configuration
 
         // Adjust `fontScale` in the configuration.
@@ -194,12 +201,24 @@ abstract class BaseActivity : AppCompatActivity(), MenuProvider {
     }
 
     private fun redirectIfNotLoggedIn() {
-        val account = accountManager.activeAccount
-        if (account == null) {
-            val intent = LoginActivityIntent(this)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivityWithDefaultTransition(intent)
-            finish()
+        lifecycleScope.launch {
+            accountManager.activeAccountFlow.collect {
+                when (it) {
+                    is Loadable.Loading -> {
+                        /* wait for account to become available */
+                    }
+
+                    is Loadable.Loaded -> {
+                        val account = it.data
+                        if (account == null) {
+                            val intent = LoginActivityIntent(this@BaseActivity)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            startActivityWithDefaultTransition(intent)
+                            finish()
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -214,70 +233,50 @@ abstract class BaseActivity : AppCompatActivity(), MenuProvider {
         bar.show()
     }
 
-    fun showAccountChooserDialog(
+    /**
+     * Chooses and returns an account.
+     *
+     * If only one account exists then returns that.
+     *
+     * If two accounts exist and [showActiveAccount] is false then the non-active
+     * account is returned.
+     *
+     * Otherwise, displays a dialog allowing the user to choose from the available
+     * accounts. The user's choice is returned, or null if they cancelled the dialog.
+     *
+     * @param dialogTitle Title to show in the dialog (if shown)
+     * @param showActiveAccount True if the active account should be included in
+     * the list of accounts.
+     * @return The chosen account, or null if the user did not choose an account
+     * (see [ChooseAccountSuspendDialogFragment.result]).
+     */
+    suspend fun chooseAccount(
         dialogTitle: CharSequence?,
         showActiveAccount: Boolean,
-        listener: AccountSelectionListener,
-    ) {
-        val accounts = accountManager.getAllAccountsOrderedByActive().toMutableList()
-        val activeAccount = accountManager.activeAccount!!
+    ): AccountEntity? {
+        val accounts = accountManager.accountsOrderedByActive
         when (accounts.size) {
-            1 -> {
-                listener.onAccountSelected(activeAccount)
-                return
-            }
-
-            2 -> {
-                if (!showActiveAccount) {
-                    for (account in accounts) {
-                        if (activeAccount !== account) {
-                            listener.onAccountSelected(account)
-                            return
-                        }
-                    }
-                }
-            }
+            1 -> return accounts.first()
+            2 -> if (!showActiveAccount) return accounts.last()
         }
-        if (!showActiveAccount) {
-            accounts.remove(activeAccount)
-        }
-        val adapter = AccountSelectionAdapter(
-            this,
-            sharedPreferencesRepository.animateAvatars,
-            sharedPreferencesRepository.animateEmojis,
-        )
-        adapter.addAll(accounts)
-        AlertDialog.Builder(this)
-            .setTitle(dialogTitle)
-            .setAdapter(adapter) { _: DialogInterface?, index: Int ->
-                listener.onAccountSelected(
-                    accounts[index],
-                )
-            }
-            .show()
+        return ChooseAccountSuspendDialogFragment.newInstance(
+            dialogTitle,
+            showActiveAccount,
+        ).await(supportFragmentManager)?.entity
     }
 
     val openAsText: String?
         get() {
-            val accounts = accountManager.getAllAccountsOrderedByActive()
+            val accounts = accountManager.accountsOrderedByActive
             return when (accounts.size) {
                 0, 1 -> null
-                2 -> {
-                    for (account in accounts) {
-                        if (account !== accountManager.activeAccount) {
-                            return String.format(getString(R.string.action_open_as), account.fullName)
-                        }
-                    }
-                    null
-                }
-                else -> String.format(getString(R.string.action_open_as), "…")
+                2 -> getString(R.string.action_open_as, accounts.last().fullName)
+                else -> getString(R.string.action_open_as, "…")
             }
         }
 
     fun openAsAccount(url: String, account: AccountEntity) {
-        accountManager.setActiveAccount(account.id)
-        val intent = MainActivityIntent.redirect(this, account.id, url)
-        startActivity(intent)
+        startActivity(IntentRouterActivityIntent.openAs(this, account.id, url))
         finish()
     }
 

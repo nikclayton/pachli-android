@@ -32,10 +32,13 @@ interface TranslatedStatusDao {
      * @return map from statusIDs to known translations for those IDs
      */
     @Query(
-        """SELECT *
-            FROM TranslatedStatusEntity
-            WHERE timelineUserId = :accountId
-            AND serverId IN (:serverIds)""",
+        """
+SELECT *
+FROM TranslatedStatusEntity
+WHERE
+    timelineUserId = :accountId
+    AND serverId IN (:serverIds)
+""",
     )
     suspend fun getTranslations(
         accountId: Long,
@@ -45,4 +48,21 @@ interface TranslatedStatusDao {
         String,
         TranslatedStatusEntity,
         >
+
+    /**
+     * @return [TranslatedStatusEntity] for [serverId], null if none exists.
+     */
+    @Query(
+        """
+SELECT *
+FROM TranslatedStatusEntity
+WHERE
+    timelineUserId = :accountId
+    AND serverId = :serverId
+""",
+    )
+    suspend fun getTranslation(
+        accountId: Long,
+        serverId: String,
+    ): TranslatedStatusEntity?
 }

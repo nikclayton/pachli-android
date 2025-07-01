@@ -26,14 +26,17 @@ import app.pachli.adapter.FilterableStatusViewHolder
 import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.data.model.StatusDisplayOptions
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.model.FilterAction
+import app.pachli.core.ui.SetStatusContent
 import app.pachli.databinding.ItemStatusBinding
 import app.pachli.databinding.ItemStatusWrapperBinding
 import app.pachli.interfaces.StatusActionListener
-import app.pachli.viewdata.StatusViewData
+import com.bumptech.glide.RequestManager
 
 class TimelinePagingAdapter(
-    private val pachliAccountId: Long,
+    private val glide: RequestManager,
+    private val setStatusContent: SetStatusContent,
     private val statusListener: StatusActionListener<StatusViewData>,
     var statusDisplayOptions: StatusDisplayOptions,
 ) : PagingDataAdapter<StatusViewData, RecyclerView.ViewHolder>(TimelineDifferCallback) {
@@ -41,10 +44,18 @@ class TimelinePagingAdapter(
         val inflater = LayoutInflater.from(viewGroup.context)
         return when (viewType) {
             VIEW_TYPE_STATUS_FILTERED -> {
-                FilterableStatusViewHolder<StatusViewData>(pachliAccountId, ItemStatusWrapperBinding.inflate(inflater, viewGroup, false))
+                FilterableStatusViewHolder<StatusViewData>(
+                    ItemStatusWrapperBinding.inflate(inflater, viewGroup, false),
+                    glide,
+                    setStatusContent,
+                )
             }
             VIEW_TYPE_STATUS -> {
-                StatusViewHolder<StatusViewData>(pachliAccountId, ItemStatusBinding.inflate(inflater, viewGroup, false))
+                StatusViewHolder<StatusViewData>(
+                    ItemStatusBinding.inflate(inflater, viewGroup, false),
+                    glide,
+                    setStatusContent,
+                )
             }
             else -> return object : RecyclerView.ViewHolder(inflater.inflate(R.layout.item_placeholder, viewGroup, false)) {}
         }
@@ -67,7 +78,11 @@ class TimelinePagingAdapter(
         position: Int,
         payloads: List<*>?,
     ) {
-        getItem(position)?.let {
+        try {
+            getItem(position)
+        } catch (_: IndexOutOfBoundsException) {
+            null
+        }?.let {
             (viewHolder as StatusViewHolder<StatusViewData>).setupWithStatus(
                 it,
                 statusListener,
@@ -78,8 +93,17 @@ class TimelinePagingAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        val viewData = getItem(position) ?: return VIEW_TYPE_PLACEHOLDER
-        return if (viewData.filterAction == FilterAction.WARN) {
+        // The getItem() call here can occasionally trigger a bug in androidx.paging
+        // where androidx.paging.PageStore.checkIndex(PageStore.kt:56) throws an
+        // IndexOutOfBoundsException. Fall back to returning a placeholder in that
+        // case.
+        val viewData = try {
+            getItem(position) ?: return VIEW_TYPE_PLACEHOLDER
+        } catch (_: IndexOutOfBoundsException) {
+            return VIEW_TYPE_PLACEHOLDER
+        }
+
+        return if (viewData.contentFilterAction == FilterAction.WARN) {
             VIEW_TYPE_STATUS_FILTERED
         } else {
             VIEW_TYPE_STATUS

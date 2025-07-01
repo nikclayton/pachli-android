@@ -17,53 +17,79 @@
 
 package app.pachli.core.database.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
-import app.pachli.core.network.model.Emoji
+import app.pachli.core.model.Emoji
+import app.pachli.core.model.InstanceInfo
+import app.pachli.core.model.InstanceInfo.Companion.DEFAULT_MAX_MEDIA_DESCRIPTION_CHARS
 
 @Entity
 @TypeConverters(Converters::class)
-data class InstanceEntity(
-    @PrimaryKey val instance: String,
-    val emojiList: List<Emoji>?,
-    val maximumTootCharacters: Int?,
-    val maxPollOptions: Int?,
-    val maxPollOptionLength: Int?,
-    val minPollDuration: Int?,
-    val maxPollDuration: Int?,
-    val charactersReservedPerUrl: Int?,
-    val version: String?,
-    val videoSizeLimit: Long?,
-    val imageSizeLimit: Long?,
-    val imageMatrixLimit: Int?,
-    val maxMediaAttachments: Int?,
-    val maxFields: Int?,
-    val maxFieldNameLength: Int?,
-    val maxFieldValueLength: Int?,
-)
-
-@TypeConverters(Converters::class)
-data class EmojisEntity(
-    @PrimaryKey val instance: String,
-    val emojiList: List<Emoji>?,
-)
-
 data class InstanceInfoEntity(
     @PrimaryKey val instance: String,
-    val maximumTootCharacters: Int,
+    val maxPostCharacters: Int,
     val maxPollOptions: Int,
     val maxPollOptionLength: Int,
     val minPollDuration: Int,
-    val maxPollDuration: Int,
+    val maxPollDuration: Long,
     val charactersReservedPerUrl: Int,
     val version: String,
     val videoSizeLimit: Long,
     val imageSizeLimit: Long,
     val imageMatrixLimit: Int,
     val maxMediaAttachments: Int,
-    val maxFields: Int?,
+    @ColumnInfo(defaultValue = DEFAULT_MAX_MEDIA_DESCRIPTION_CHARS.toString())
+    val maxMediaDescriptionChars: Int,
+    val maxFields: Int,
     val maxFieldNameLength: Int?,
     val maxFieldValueLength: Int?,
+    @ColumnInfo(defaultValue = "0")
+    val enabledTranslation: Boolean = false,
+)
+
+/**
+ * @return [InstanceInfo] model; if this is null then returns the default
+ * [InstanceInfo] values.
+ */
+fun InstanceInfoEntity?.asModel(): InstanceInfo {
+    if (this == null) return InstanceInfo()
+    return InstanceInfo(
+        maxChars = maxPostCharacters,
+        pollMaxOptions = maxPollOptions,
+        pollMaxLength = maxPollOptionLength,
+        pollMinDuration = minPollDuration,
+        pollMaxDuration = maxPollDuration,
+        charactersReservedPerUrl = charactersReservedPerUrl,
+        videoSizeLimit = videoSizeLimit,
+        imageSizeLimit = imageSizeLimit,
+        imageMatrixLimit = imageMatrixLimit,
+        maxMediaAttachments = maxMediaAttachments,
+        maxMediaDescriptionChars = maxMediaDescriptionChars,
+        maxFields = maxFields,
+        maxFieldNameLength = maxFieldNameLength,
+        maxFieldValueLength = maxFieldValueLength,
+        version = version,
+    )
+}
+
+@Entity(
+    primaryKeys = ["accountId"],
+    foreignKeys = [
+        ForeignKey(
+            entity = AccountEntity::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("accountId"),
+            onDelete = ForeignKey.CASCADE,
+            deferred = true,
+        ),
+    ],
+)
+@TypeConverters(Converters::class)
+data class EmojisEntity(
+    val accountId: Long,
+    val emojiList: List<Emoji>,
 )

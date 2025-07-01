@@ -17,21 +17,26 @@
 
 package app.pachli.core.data.repository
 
-import android.app.Application
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
-import app.pachli.core.data.model.InstanceInfo.Companion.DEFAULT_CHARACTER_LIMIT
-import app.pachli.core.network.model.Account
+import app.pachli.core.database.AppDatabase
+import app.pachli.core.model.InstanceInfo.Companion.DEFAULT_CHARACTER_LIMIT
+import app.pachli.core.network.model.AccountSource
+import app.pachli.core.network.model.CredentialAccount
 import app.pachli.core.network.model.InstanceConfiguration
 import app.pachli.core.network.model.InstanceV1
+import app.pachli.core.network.model.nodeinfo.UnvalidatedJrd
+import app.pachli.core.network.model.nodeinfo.UnvalidatedNodeInfo
 import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.network.retrofit.NodeInfoApi
+import app.pachli.core.testing.failure
 import app.pachli.core.testing.rules.MainCoroutineRule
-import at.connyduck.calladapter.networkresult.NetworkResult
-import dagger.hilt.android.testing.CustomTestApplication
+import app.pachli.core.testing.success
+import com.github.michaelbull.result.andThen
+import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.time.Instant
-import java.util.Date
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -41,16 +46,13 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.stub
 import org.robolectric.annotation.Config
-
-open class PachliHiltApplication : Application()
-
-@CustomTestApplication(PachliHiltApplication::class)
-interface HiltTestApplication
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -70,7 +72,13 @@ class InstanceInfoRepositoryTest {
     lateinit var mastodonApi: MastodonApi
 
     @Inject
+    lateinit var nodeInfoApi: NodeInfoApi
+
+    @Inject
     lateinit var instanceInfoRepository: InstanceInfoRepository
+
+    @Inject
+    lateinit var appDatabase: AppDatabase
 
     /**
      * Tests set this to return a customised fake [InstanceV1].
@@ -78,44 +86,66 @@ class InstanceInfoRepositoryTest {
      * After setting this tests must call [InstanceInfoRepository.reload] so
      * the repository re-fetches the data.
      */
-    private var instanceResponseCallback: (() -> InstanceV1)? = null
+    private var instanceResponseCallback: (() -> InstanceV1) = { getInstanceWithCustomConfiguration() }
+
+    private val account = CredentialAccount(
+        id = "1",
+        localUsername = "username",
+        username = "username@domain.example",
+        displayName = "Display Name",
+        createdAt = Instant.now(),
+        note = "",
+        url = "",
+        avatar = "",
+        header = "",
+        source = AccountSource(),
+    )
 
     @Before
-    fun setup() {
+    fun setup() = runTest {
         hilt.inject()
 
         reset(mastodonApi)
         mastodonApi.stub {
-            onBlocking { getCustomEmojis() } doReturn NetworkResult.success(emptyList())
-            onBlocking { getInstanceV1() } doAnswer {
-                instanceResponseCallback?.invoke().let { instance ->
-                    if (instance == null) {
-                        NetworkResult.failure(Throwable())
-                    } else {
-                        NetworkResult.success(instance)
-                    }
-                }
+            onBlocking { accountVerifyCredentials(anyOrNull(), anyOrNull()) } doReturn success(account)
+            onBlocking { getCustomEmojis() } doReturn success(emptyList())
+            onBlocking { getInstanceV2() } doReturn failure()
+            onBlocking { getInstanceV1(anyOrNull()) } doAnswer {
+                instanceResponseCallback.invoke().let { success(it) }
             }
+            onBlocking { getLists() } doReturn success(emptyList())
+            onBlocking { listAnnouncements(any()) } doReturn success(emptyList())
+            onBlocking { getContentFilters() } doReturn success(emptyList())
+            onBlocking { getContentFiltersV1() } doReturn success(emptyList())
+            onBlocking { accountFollowing(any(), anyOrNull(), any()) } doReturn success(emptyList())
         }
 
-        accountManager.addAccount(
+        reset(nodeInfoApi)
+        nodeInfoApi.stub {
+            onBlocking { nodeInfoJrd() } doReturn success(
+                UnvalidatedJrd(
+                    listOf(
+                        UnvalidatedJrd.Link(
+                            "http://nodeinfo.diaspora.software/ns/schema/2.1",
+                            "https://example.com",
+                        ),
+                    ),
+                ),
+            )
+            onBlocking { nodeInfo(any()) } doReturn success(
+                UnvalidatedNodeInfo(UnvalidatedNodeInfo.Software("mastodon", "4.2.0")),
+            )
+        }
+
+        accountManager.verifyAndAddAccount(
             accessToken = "token",
             domain = "domain.example",
             clientId = "id",
             clientSecret = "secret",
             oauthScopes = "scopes",
-            newAccount = Account(
-                id = "1",
-                localUsername = "username",
-                username = "username@domain.example",
-                displayName = "Display Name",
-                createdAt = Date.from(Instant.now()),
-                note = "",
-                url = "",
-                avatar = "",
-                header = "",
-            ),
         )
+            .andThen { accountManager.setActiveAccount(it) }
+            .onSuccess { accountManager.refresh(it) }
     }
 
     @Test
@@ -179,7 +209,7 @@ class InstanceInfoRepositoryTest {
 
     private fun getInstanceWithCustomConfiguration(maximumLegacyTootCharacters: Int? = null, configuration: InstanceConfiguration = InstanceConfiguration()): InstanceV1 {
         return InstanceV1(
-            uri = "https://example.token",
+            uri = "example.token",
             version = "2.6.3",
             maxTootChars = maximumLegacyTootCharacters,
             pollConfiguration = null,

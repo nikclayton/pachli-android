@@ -2,8 +2,6 @@ package app.pachli.components.viewthread.edits
 
 import android.content.Context
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Html
 import android.text.Spannable
@@ -16,31 +14,34 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.graphics.drawable.toDrawable
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.PollAdapter
 import app.pachli.adapter.PollAdapter.DisplayMode
-import app.pachli.core.activity.decodeBlurHash
-import app.pachli.core.activity.emojify
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.util.AbsoluteTimeFormatter
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.network.model.StatusEdit
+import app.pachli.core.model.StatusEdit
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.ui.BindingHolder
 import app.pachli.core.ui.LinkListener
+import app.pachli.core.ui.decodeBlurHash
+import app.pachli.core.ui.emojify
 import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ItemStatusEditBinding
 import app.pachli.util.aspectRatios
 import app.pachli.viewdata.PollOptionViewData
-import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.google.android.material.color.MaterialColors
 import org.xml.sax.XMLReader
 
 class ViewEditsAdapter(
+    context: Context,
+    private val glide: RequestManager,
     private val edits: List<StatusEdit>,
     private val animateEmojis: Boolean,
     private val useBlurhash: Boolean,
@@ -54,6 +55,8 @@ class ViewEditsAdapter(
 
     /** Size of medium text in this theme, in px */
     private var mediumTextSizePx: Float = 0f
+
+    private val pachliTagHandler = PachliTagHandler(context)
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -102,25 +105,28 @@ class ViewEditsAdapter(
 
         binding.statusEditInfo.text = context.getString(infoStringRes, timestamp)
 
-        if (edit.spoilerText.isEmpty()) {
+        if (edit.spoilerText.removePrefix("<div></div>").removePrefix("<div/>").isEmpty()) {
             binding.statusEditContentWarningDescription.hide()
             binding.statusEditContentWarningSeparator.hide()
         } else {
             binding.statusEditContentWarningDescription.show()
             binding.statusEditContentWarningSeparator.show()
-            binding.statusEditContentWarningDescription.text = edit.spoilerText.emojify(
-                edit.emojis,
-                binding.statusEditContentWarningDescription,
-                animateEmojis,
-            )
+            binding.statusEditContentWarningDescription.text = edit.spoilerText
+                .parseAsMastodonHtml(pachliTagHandler)
+                .emojify(
+                    glide,
+                    edit.emojis,
+                    binding.statusEditContentWarningDescription,
+                    animateEmojis,
+                )
         }
 
         val emojifiedText = edit
             .content
-            .parseAsMastodonHtml(PachliTagHandler(context))
-            .emojify(edit.emojis, binding.statusEditContent, animateEmojis)
+            .parseAsMastodonHtml(pachliTagHandler)
+            .emojify(glide, edit.emojis, binding.statusEditContent, animateEmojis)
 
-        setClickableText(binding.statusEditContent, emojifiedText, emptyList(), emptyList(), listener)
+        setClickableText(binding.statusEditContent, emojifiedText, emptyList(), null, listener)
 
         val poll = edit.poll
         if (poll == null) {
@@ -134,6 +140,7 @@ class ViewEditsAdapter(
             // binding.statusEditPollDescription.show()
 
             val pollAdapter = PollAdapter(
+                glide,
                 options = poll.options.map { PollOptionViewData.from(it) },
                 votesCount = 0,
                 votersCount = null,
@@ -171,16 +178,15 @@ class ViewEditsAdapter(
 
                 val blurhash = attachment.blurhash
 
-                val placeholder: Drawable = if (blurhash != null && useBlurhash) {
+                val placeholder = if (blurhash != null && useBlurhash) {
                     decodeBlurHash(context, blurhash)
                 } else {
-                    ColorDrawable(MaterialColors.getColor(imageView, android.R.attr.colorBackground))
+                    MaterialColors.getColor(imageView, android.R.attr.colorBackground).toDrawable()
                 }
 
                 if (attachment.previewUrl.isNullOrEmpty()) {
                     imageView.removeFocalPoint()
-                    Glide.with(imageView)
-                        .load(placeholder)
+                    glide.load(placeholder)
                         .centerInside()
                         .into(imageView)
                 } else {
@@ -188,16 +194,14 @@ class ViewEditsAdapter(
 
                     if (focus != null) {
                         imageView.setFocalPoint(focus)
-                        Glide.with(imageView.context)
-                            .load(attachment.previewUrl)
+                        glide.load(attachment.previewUrl)
                             .placeholder(placeholder)
                             .centerInside()
                             .addListener(imageView)
                             .into(imageView)
                     } else {
                         imageView.removeFocalPoint()
-                        Glide.with(imageView)
-                            .load(attachment.previewUrl)
+                        glide.load(attachment.previewUrl)
                             .placeholder(placeholder)
                             .centerInside()
                             .into(imageView)

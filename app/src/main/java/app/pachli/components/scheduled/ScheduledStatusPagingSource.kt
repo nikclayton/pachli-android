@@ -18,9 +18,10 @@ package app.pachli.components.scheduled
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import app.pachli.core.network.model.ScheduledStatus
+import app.pachli.core.model.ScheduledStatus
+import app.pachli.core.network.model.asModel
 import app.pachli.core.network.retrofit.MastodonApi
-import at.connyduck.calladapter.networkresult.getOrElse
+import com.github.michaelbull.result.mapBoth
 
 class ScheduledStatusPagingSourceFactory(
     private val mastodonApi: MastodonApi,
@@ -59,12 +60,16 @@ class ScheduledStatusPagingSource(
                 nextKey = scheduledStatusesCache.lastOrNull()?.id,
             )
         } else {
-            val result = mastodonApi.scheduledStatuses(
+            mastodonApi.scheduledStatuses(
                 maxId = params.key,
                 limit = params.loadSize,
-            ).getOrElse { return LoadResult.Error(it) }
-
-            LoadResult.Page(data = result, prevKey = null, nextKey = result.lastOrNull()?.id)
+            ).mapBoth(
+                {
+                    val result = it.body.asModel()
+                    LoadResult.Page(data = result, prevKey = null, nextKey = result.lastOrNull()?.id)
+                },
+                { LoadResult.Error(it.throwable) },
+            )
         }
     }
 }

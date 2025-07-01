@@ -47,8 +47,6 @@
     <string name="action_reblog">Yeniden Paylaş</string>
     <string name="action_favourite">Gözdele</string>
     <string name="action_compose">Oluştur</string>
-    <string name="action_logout">Oturumu kapat</string>
-    <string name="action_logout_confirm">Bu oturumu sonlandırmak istediğinizden emin misiniz%1$s\? Bu, taslaklar ve tercihler dahil olmak üzere hesabın tüm yerel verilerini silecektir.</string>
     <string name="action_follow">Takip et</string>
     <string name="action_unfollow">Takibi bırak</string>
     <string name="action_block">Engelle</string>
@@ -89,7 +87,6 @@
     <string name="action_add_tab">Sekme ekle</string>
     <string name="download_image">%1$s indiriliyor</string>
     <string name="action_copy_link">Bağlantıyı kopyala</string>
-    <string name="action_share_as">Olarak paylaş …</string>
     <string name="send_post_link_to">Gönderi adresini paylaş…</string>
     <string name="send_post_content_to">Gönderiyi paylaş…</string>
     <string name="send_media_to">Medyayı paylaş…</string>
@@ -174,7 +171,6 @@
         <item quantity="other">%d yeni etkileşimler</item>
     </plurals>
     <string name="description_account_locked">Kilitli Hesap</string>
-    <string name="about_pachli_version">Pachli %s</string>
     <!-- note to translators:
          * you should think of “free” as in “free speech,” not as in “free beer”.
            We sometimes call it “libre software,” borrowing the French or Spanish word for “free” as in freedom,
@@ -200,14 +196,8 @@
     <string name="follows_you">Seni takip ediyor</string>
     <string name="pref_title_alway_show_sensitive_media">Her zaman hassas içerikleri göster</string>
     <string name="title_media">Medya</string>
-    <string name="add_account_name">Hesap Ekle</string>
     <string name="add_account_description">Yeni Mastodon hesabı ekle</string>
     <string name="compose_active_account_description">%1$s hesabıyla gönderiliyor</string>
-    <plurals name="hint_describe_for_visually_impaired">
-        <item quantity="one">İçeriği görme engelliler için açıkla (%d karakter limiti)</item>
-        <item quantity="other">İçerikleri görme engelliler için açıklamalar (%d karakter limitleti)</item>
-    </plurals>
-    <string name="action_set_caption">Başlık belirle</string>
     <string name="action_remove">Kaldır</string>
     <string name="lock_account_label">Hesabı Kilitle</string>
     <string name="lock_account_label_description">Takipçileri elle onaylamanız gerekir</string>
@@ -240,12 +230,12 @@
     <string name="unpin_action">Sabitlemeyi kaldır</string>
     <string name="pin_action">Sabitle</string>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> Gözde</item>
-        <item quantity="other"><b>%1$s</b> Gözdeler</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Gözde</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Gözdeler</item>
     </plurals>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> Yeniden Paylaşan</item>
-        <item quantity="other"><b>%s</b> Yeniden Paylaşanlar</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Yeniden Paylaşan</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Yeniden Paylaşanlar</item>
     </plurals>
     <string name="title_reblogged_by">tarafından paylaşıldı</string>
     <string name="title_favourited_by">Tarafından gözdelendi</string>
@@ -319,7 +309,6 @@
         <item quantity="one">%d saniye kaldı</item>
         <item quantity="other">%d saniyeler kaldı</item>
     </plurals>
-    <string name="button_continue">Devam</string>
     <string name="button_back">Geri</string>
     <string name="report_sent_success">\@%s başarıyla bildirildi</string>
     <string name="hint_additional_info">Ek Yorumlar</string>
@@ -329,7 +318,6 @@
     <string name="report_description_remote_instance">Hesap başka bir sunucudan. Raporun anonim bir kopyasını da oraya gönderilsin mi\?</string>
     <string name="action_open_reblogger">Gönderi yazanını aç</string>
     <string name="action_open_reblogged_by">Yeniden paylaşımları göster</string>
-    <string name="title_mentions_dialog">Bahsedenler</string>
     <string name="action_open_media_n">#%d medyayı aç</string>
     <string name="title_bookmarks">Yer imleri</string>
     <string name="title_scheduled_posts">Zamanlanmış yayınlar</string>
@@ -359,7 +347,6 @@
     <string name="add_poll_choice">Seçenek ekle</string>
     <string name="poll_allow_multiple_choices">Çoklu seçim</string>
     <string name="edit_poll">Düzenle</string>
-    <string name="replying_to">Yanıtlanıyor: %s</string>
     <string name="confirmation_domain_unmuted">%s alan adını gizleme</string>
     <string name="mute_domain_warning_dialog_ok">Alan adından her şeyi gizle</string>
     <string name="pref_title_alway_open_spoiler">Her zaman içerik uyarılarıyla işaretlenmiş alanları genişlet</string>
@@ -408,7 +395,9 @@
     <string name="pref_title_notification_filter_reports">yeni bir rapor olduğunda</string>
     <string name="pref_title_animate_custom_emojis">Özel ayarlanmış emojileri oynat</string>
     <string name="notification_header_report_format">%s rapor edilmiş %s</string>
-    <string name="notification_summary_report_format">%s · %d ekli gönderiler</string>
+    <plurals name="notification_summary_report_format">
+        <item quantity="other">%1$s · %2$d ekli gönderiler</item>
+    </plurals>
     <string name="post_edited">Düzenleme %s</string>
     <string name="account_note_hint">Bu hesap hakkındaki özel notun</string>
     <string name="title_migration_relogin">Bildirim beslemesi için yeniden giriş yapın</string>
@@ -425,7 +414,7 @@
     <string name="set_focus_description">Küçük görsellerde her zaman görülebilecek odak noktasını seçmek için daireye dokunun veya sürükleyin.</string>
     <string name="no_announcements">Hiç duyuru yok.</string>
     <string name="duration_30_days">30 gün</string>
-    <string name="compose_save_draft_loses_media">Taslağı kurtarmak mı\? (Taslağı geri yüklediğinizde ekler yeniden yüklenir.)</string>
+    <string name="compose_save_draft_loses_media">Taslağı kurtarmak mı? (Taslağı geri yüklediğinizde ekler yeniden yüklenir.)</string>
     <string name="pref_title_show_self_username">Kullanıcı adını araç çubuklarında göster</string>
     <string name="duration_180_days">180 gün</string>
     <string name="duration_60_days">60 gün</string>
@@ -460,7 +449,6 @@
     <string name="failed_to_pin">Sabitleme Başarısız</string>
     <string name="failed_to_unpin">Açılamadı</string>
     <string name="drafts_post_failed_to_send">Bu yayın gönderilemedi!</string>
-    <string name="limit_notifications">Ağ akışı bildirimlerini sınırla</string>
     <string name="wellbeing_hide_stats_posts">Yayınların niceliksel istatistikleri gizle</string>
     <string name="status_created_at_now">şimdi</string>
     <string name="drafts_post_reply_removed">Yanıt yazdığınız yayın kaldırıldı</string>
@@ -492,9 +480,7 @@
     <string name="pref_title_http_proxy_port_message">Bağlantı noktası %d ile %d arasında olmalıdır</string>
     <string name="post_media_alt">Alternatif metin</string>
     <string name="a11y_label_loading_thread">Konu yükleniyor</string>
-    <string name="help_empty_home">Bu senin <b>ana ağ akışın</b>. Takip ettiğin hesapların son gönderileri burada yer alacak.
-\n
-\nTakip edebileceğin hesapları diğer zaman tünellerinden keşfedebilirsin, örneğin kendi sunucunun yerel zaman tünelinden [iconics gmd_group]. Veya hesapları adlarıyla arayabilirsin [iconics gmd_search], örneğin Mastodon hesabımızı bulmak için Pachli adıyla araman yeterli.</string>
+    <string name="help_empty_home">Bu senin <b>ana ağ akışın</b>. Takip ettiğin hesapların son gönderileri burada yer alacak. \n \nTakip edebileceğin hesapları diğer zaman tünellerinden keşfedebilirsin, örneğin kendi sunucunun yerel zaman tünelinden [iconics gmd_group]. Veya hesapları adlarıyla arayabilirsin [iconics gmd_search], örneğin Mastodon hesabımızı bulmak için Pachli adıyla araman yeterli.</string>
     <string name="pref_summary_http_proxy_missing">&lt;ayarlanmadı&gt;</string>
     <string name="pref_summary_http_proxy_invalid">&lt;geçersiz&gt;</string>
     <string name="pref_summary_http_proxy_disabled">Etkisizleştirildi</string>
@@ -505,7 +491,6 @@
     <string name="status_edit_info">%1$s düzenledi</string>
     <string name="title_edits">Düzenlemeler</string>
     <string name="hint_description">Açıklama</string>
-    <string name="post_media_image">Görsel</string>
     <string name="label_filter_action">Süzgeçleme eylemi</string>
     <string name="action_add">Ekle</string>
     <string name="label_filter_context">Süzgeçleme bağlamları</string>
@@ -536,7 +521,6 @@
     <string name="description_browser_login">Ek kimlik doğrulama yöntemlerini destekleyebilir ancak desteklenen bir tarayıcı gerektirir.</string>
     <string name="select_list_empty">Henüz hiç listen yok</string>
     <string name="select_list_manage">Listeleri yönet</string>
-    <string name="error_list_load">Listeler yüklenirken hata oluştu</string>
     <string name="action_share_account_link">Hesaba bağlantı paylaş</string>
     <string name="action_share_account_username">Hesap adını paylaş</string>
     <string name="account_username_copied">Kullanıcı adı kopyalandı</string>
@@ -553,7 +537,7 @@
     <string name="filter_action_hide">Gizle</string>
     <string name="filter_description_warn">Bir uyarı ile gizle</string>
     <string name="status_filtered_show_anyway">Yine de göster</string>
-    <string name="status_filter_placeholder_label_format">Süzgeçlendi: &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">Süzgeçlendi: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="filter_edit_keyword_title">Anahtar kelimeyi düzenle</string>
     <string name="filter_description_format">%s: %s</string>
     <string name="pref_title_show_stat_inline">Gönderi istatistiklerini sğ akışında göster</string>
@@ -571,6 +555,5 @@
     <string name="error_missing_edits">Sunucunuz bu gönderinin düzenlendiğini bilir, ancak düzenlemelerin bir kopyası yoktur, bu nedenle bunlar size gösterilemez.
 \n
 \nBu <a href="https://github.com/mastodon/mastodon/issues/25398">Mastodon sorununu #25398</a>.</string>
-    <string name="error_media_upload_sending_fmt">Yükleme başarısız oldu: %s</string>
     <string name="error_media_playback">Oynatma başarısız oldu: %s</string>
 </resources>

@@ -32,8 +32,8 @@ android {
 
     defaultConfig {
         applicationId = "app.pachli"
-        versionCode = 22
-        versionName = "2.8.2"
+        versionCode = 32
+        versionName = "2.14.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -70,6 +70,10 @@ android {
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
+    }
+
+    lint {
+        checkDependencies = true
     }
 
     testOptions {
@@ -109,6 +113,10 @@ configurations {
     testImplementation {
         exclude(group = "org.conscrypt", module = "conscrypt-android")
     }
+
+    implementation {
+        exclude(group = "org.jetbrains", module = "annotations")
+    }
 }
 
 dependencies {
@@ -127,6 +135,7 @@ dependencies {
     implementation(projects.core.database)
     implementation(projects.core.designsystem)
     implementation(projects.core.domain)
+    implementation(projects.core.eventhub)
     implementation(projects.core.model)
     implementation(projects.core.navigation)
     implementation(projects.core.network)
@@ -134,8 +143,10 @@ dependencies {
     implementation(projects.core.ui)
 
     implementation(projects.feature.about)
+    implementation(projects.feature.intentrouter)
     implementation(projects.feature.lists)
     implementation(projects.feature.login)
+    implementation(projects.feature.manageaccounts)
     implementation(projects.feature.suggestions)
 
     implementation(libs.kotlinx.coroutines.android)
@@ -155,9 +166,6 @@ dependencies {
 
     implementation(libs.conscrypt.android)
 
-    implementation(libs.bundles.glide)
-    ksp(libs.glide.compiler)
-
     implementation(libs.sparkbutton)
 
     implementation(libs.touchimageview)
@@ -169,7 +177,6 @@ dependencies {
 
     implementation(libs.bundles.filemojicompat)
 
-    implementation(libs.bouncycastle)
     implementation(libs.unified.push)
 
     implementation(libs.bundles.xmldiff)

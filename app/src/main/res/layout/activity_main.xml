@@ -31,13 +31,14 @@
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/topNav"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
                 android:orientation="horizontal"
                 app:contentInsetStart="0dp"
                 app:contentInsetStartWithNavigation="0dp"
                 app:navigationContentDescription="@string/action_open_drawer">
 
-                <com.google.android.material.tabs.TabLayout
+                <app.pachli.core.ui.AlignableTabLayout
                     android:id="@+id/tabLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -65,7 +66,7 @@
             app:navigationContentDescription="@string/action_open_drawer"
             app:fabAlignmentMode="end">
 
-            <com.google.android.material.tabs.TabLayout
+            <app.pachli.core.ui.AlignableTabLayout
                 android:id="@+id/bottomTabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
@@ -84,8 +85,6 @@
             app:layout_anchor="@id/viewPager"
             app:layout_anchorGravity="bottom|end"
             app:srcCompat="@drawable/ic_create_24dp" />
-
-        <include layout="@layout/item_status_bottom_sheet" />
 
         <ProgressBar
             android:id="@+id/progressBar"

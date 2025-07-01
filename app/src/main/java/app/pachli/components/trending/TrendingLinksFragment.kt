@@ -38,21 +38,26 @@ import app.pachli.R
 import app.pachli.components.trending.viewmodel.InfallibleUiAction
 import app.pachli.components.trending.viewmodel.LoadState
 import app.pachli.components.trending.viewmodel.TrendingLinksViewModel
+import app.pachli.core.activity.OpenUrlUseCase
 import app.pachli.core.activity.RefreshableFragment
 import app.pachli.core.activity.ReselectableFragment
-import app.pachli.core.activity.openLink
+import app.pachli.core.activity.extensions.TransitionKind
+import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.model.PreviewCard
+import app.pachli.core.model.ServerOperation
 import app.pachli.core.navigation.AccountActivityIntent
-import app.pachli.core.network.model.PreviewCard
+import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.databinding.FragmentTrendingLinksBinding
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.AppBarLayoutHost
 import app.pachli.view.PreviewCardView.Target
+import com.bumptech.glide.Glide
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsDrawable
@@ -60,8 +65,12 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
+import io.github.z4kn4fein.semver.constraints.toConstraint
+import javax.inject.Inject
 import kotlin.properties.Delegates
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import timber.log.Timber
@@ -74,7 +83,16 @@ class TrendingLinksFragment :
     RefreshableFragment,
     MenuProvider {
 
-    private val viewModel: TrendingLinksViewModel by viewModels()
+    @Inject
+    lateinit var openUrl: OpenUrlUseCase
+
+    private val viewModel: TrendingLinksViewModel by viewModels(
+        extrasProducer = {
+            defaultViewModelCreationExtras.withCreationCallback<TrendingLinksViewModel.Factory> { factory ->
+                factory.create(requireArguments().getLong(ARG_PACHLI_ACCOUNT_ID))
+            }
+        },
+    )
 
     private val binding by viewBinding(FragmentTrendingLinksBinding::bind)
 
@@ -99,11 +117,6 @@ class TrendingLinksFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-        trendingLinksAdapter = TrendingLinksAdapter(viewModel.statusDisplayOptions.value, ::onOpenLink)
-
-        setupSwipeRefreshLayout()
-        setupRecyclerView()
-
         (activity as? ActionButtonActivity)?.actionButton?.let { actionButton ->
             actionButton.show()
 
@@ -119,68 +132,92 @@ class TrendingLinksFragment :
             }
         }
 
+        trendingLinksAdapter = TrendingLinksAdapter(
+            Glide.with(this),
+            viewModel.statusDisplayOptions.value,
+            false,
+            ::onOpenLink,
+        )
+
+        setupSwipeRefreshLayout()
+        setupRecyclerView()
+
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.loadState.collectLatest {
-                when (it) {
-                    LoadState.Initial -> {
-                        viewModel.accept(InfallibleUiAction.Reload)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.pachliAccountFlow.distinctUntilChangedBy { it.server }.collect { account ->
+                        trendingLinksAdapter.showTimelineLink = account.server.can(
+                            ServerOperation.ORG_JOINMASTODON_TIMELINES_LINK,
+                            ">=1.0.0".toConstraint(),
+                        )
                     }
+                }
 
-                    LoadState.Loading -> {
-                        if (!binding.swipeRefreshLayout.isRefreshing) {
-                            binding.progressBar.show()
-                        } else {
-                            binding.progressBar.hide()
+                launch {
+                    viewModel.loadState.collect {
+                        when (it) {
+                            LoadState.Loading -> bindLoading()
+                            is LoadState.Success -> bindSuccess(it)
+                            is LoadState.Error -> bindError(it)
                         }
                     }
-
-                    is LoadState.Success -> {
-                        trendingLinksAdapter.submitList(it.data)
-                        binding.progressBar.hide()
-                        binding.swipeRefreshLayout.isRefreshing = false
-                        if (it.data.isEmpty()) {
-                            binding.messageView.setup(BackgroundMessage.Empty())
-                            binding.messageView.show()
-                        } else {
-                            binding.messageView.hide()
-                            binding.recyclerView.show()
-                        }
-                    }
-
-                    is LoadState.Error -> {
-                        binding.progressBar.hide()
-                        binding.swipeRefreshLayout.isRefreshing = false
-                        binding.recyclerView.hide()
-                        if (trendingLinksAdapter.itemCount != 0) {
-                            val snackbar = Snackbar.make(
-                                binding.root,
-                                it.throwable.message ?: "Error",
-                                Snackbar.LENGTH_INDEFINITE,
-                            )
-
-                            if (it.throwable !is HttpException || it.throwable.code() != 404) {
-                                snackbar.setAction("Retry") { viewModel.accept(InfallibleUiAction.Reload) }
-                            }
-                            snackbar.show()
-                        } else {
-                            if (it.throwable !is HttpException || it.throwable.code() != 404) {
-                                binding.messageView.setup(it.throwable) {
-                                    viewModel.accept(InfallibleUiAction.Reload)
-                                }
-                            } else {
-                                binding.messageView.setup(it.throwable)
-                            }
-                            binding.messageView.show()
-                        }
+                }
+                launch {
+                    viewModel.statusDisplayOptions.collectLatest {
+                        trendingLinksAdapter.statusDisplayOptions = it
                     }
                 }
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.statusDisplayOptions.collectLatest {
-                trendingLinksAdapter.statusDisplayOptions = it
+        viewModel.accept(InfallibleUiAction.Reload)
+    }
+
+    private fun bindLoading() {
+        if (!binding.swipeRefreshLayout.isRefreshing) {
+            binding.progressBar.show()
+        } else {
+            binding.progressBar.hide()
+        }
+    }
+
+    private fun bindSuccess(loadState: LoadState.Success) {
+        trendingLinksAdapter.submitList(loadState.data)
+        binding.progressBar.hide()
+        binding.swipeRefreshLayout.isRefreshing = false
+        if (loadState.data.isEmpty()) {
+            binding.messageView.setup(BackgroundMessage.Empty())
+            binding.messageView.show()
+        } else {
+            binding.messageView.hide()
+            binding.recyclerView.show()
+        }
+    }
+
+    private fun bindError(loadState: LoadState.Error) {
+        binding.progressBar.hide()
+        binding.swipeRefreshLayout.isRefreshing = false
+        binding.recyclerView.hide()
+        if (trendingLinksAdapter.itemCount != 0) {
+            val snackbar = Snackbar.make(
+                binding.root,
+                loadState.throwable.message ?: "Error",
+                Snackbar.LENGTH_INDEFINITE,
+            )
+
+            if (loadState.throwable !is HttpException || loadState.throwable.code() != 404) {
+                snackbar.setAction("Retry") { viewModel.accept(InfallibleUiAction.Reload) }
             }
+            snackbar.show()
+        } else {
+            if (loadState.throwable !is HttpException || loadState.throwable.code() != 404) {
+                binding.messageView.setup(loadState.throwable) {
+                    viewModel.accept(InfallibleUiAction.Reload)
+                }
+            } else {
+                binding.messageView.setup(loadState.throwable)
+            }
+            binding.messageView.show()
         }
     }
 
@@ -238,14 +275,26 @@ class TrendingLinksFragment :
     }
 
     private fun onOpenLink(card: PreviewCard, target: Target) {
-        if (target == Target.BYLINE) {
-            card.authors?.firstOrNull()?.account?.id?.let {
-                startActivity(AccountActivityIntent(requireContext(), pachliAccountId, it))
+        when (target) {
+            Target.CARD -> openUrl(card.url)
+            Target.IMAGE -> openUrl(card.url)
+            Target.BYLINE -> card.authors?.firstOrNull()?.account?.id?.let {
+                startActivityWithTransition(
+                    AccountActivityIntent(requireContext(), pachliAccountId, it),
+                    TransitionKind.SLIDE_FROM_END,
+                )
             }
-            return
-        }
 
-        requireContext().openLink(card.url)
+            Target.TIMELINE_LINK -> {
+                val intent = TimelineActivityIntent.link(
+                    requireContext(),
+                    pachliAccountId,
+                    card.url,
+                    card.title,
+                )
+                startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+            }
+        }
     }
 
     override fun onResume() {

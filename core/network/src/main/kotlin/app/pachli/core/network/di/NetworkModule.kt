@@ -20,27 +20,25 @@ package app.pachli.core.network.di
 import android.content.Context
 import android.os.Build
 import app.pachli.core.common.util.versionName
+import app.pachli.core.model.VersionAdapter
 import app.pachli.core.network.BuildConfig
 import app.pachli.core.network.json.BooleanIfNull
 import app.pachli.core.network.json.DefaultIfNull
 import app.pachli.core.network.json.EnumConstantConverterFactory
 import app.pachli.core.network.json.Guarded
 import app.pachli.core.network.json.HasDefault
+import app.pachli.core.network.json.InstantJsonAdapter
+import app.pachli.core.network.json.LenientRfc3339DateJsonAdapter
+import app.pachli.core.network.json.UriAdapter
 import app.pachli.core.network.model.MediaUploadApi
 import app.pachli.core.network.retrofit.InstanceSwitchAuthInterceptor
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.network.retrofit.NewContentFilterConverterFactory
 import app.pachli.core.network.retrofit.apiresult.ApiResultCallAdapterFactory
 import app.pachli.core.network.util.localHandshakeCertificates
-import app.pachli.core.preferences.PrefKeys.HTTP_PROXY_ENABLED
-import app.pachli.core.preferences.PrefKeys.HTTP_PROXY_PORT
-import app.pachli.core.preferences.PrefKeys.HTTP_PROXY_SERVER
 import app.pachli.core.preferences.ProxyConfiguration
 import app.pachli.core.preferences.SharedPreferencesRepository
-import app.pachli.core.preferences.getNonNullString
-import at.connyduck.calladapter.networkresult.NetworkResultCallAdapterFactory
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -49,6 +47,7 @@ import dagger.hilt.components.SingletonComponent
 import java.net.IDN
 import java.net.InetSocketAddress
 import java.net.Proxy
+import java.time.Instant
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -68,7 +67,10 @@ object NetworkModule {
     @Provides
     @Singleton
     fun providesMoshi(): Moshi = Moshi.Builder()
-        .add(Date::class.java, Rfc3339DateJsonAdapter())
+        .add(Date::class.java, LenientRfc3339DateJsonAdapter())
+        .add(Instant::class.java, InstantJsonAdapter())
+        .add(UriAdapter())
+        .add(VersionAdapter())
         .add(Guarded.Factory())
         .add(HasDefault.Factory())
         .add(DefaultIfNull.Factory())
@@ -83,9 +85,9 @@ object NetworkModule {
         instanceSwitchAuthInterceptor: InstanceSwitchAuthInterceptor,
     ): OkHttpClient {
         val versionName = versionName(context)
-        val httpProxyEnabled = preferences.getBoolean(HTTP_PROXY_ENABLED, false)
-        val httpServer = preferences.getNonNullString(HTTP_PROXY_SERVER, "")
-        val httpPort = preferences.getNonNullString(HTTP_PROXY_PORT, "-1").toIntOrNull() ?: -1
+        val httpProxyEnabled = preferences.httpProxyEnabled
+        val httpServer = preferences.httpProxyServer ?: ""
+        val httpPort = preferences.httpProxyPort
         val cacheSize = 25 * 1024 * 1024L // 25 MiB
         val builder = OkHttpClient.Builder()
             .addInterceptor { chain ->
@@ -142,7 +144,6 @@ object NetworkModule {
             .addConverterFactory(NewContentFilterConverterFactory)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .addCallAdapterFactory(ApiResultCallAdapterFactory.create())
-            .addCallAdapterFactory(NetworkResultCallAdapterFactory.create())
             .build()
     }
 

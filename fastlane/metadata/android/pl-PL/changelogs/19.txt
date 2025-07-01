@@ -1,0 +1,5 @@
+Pachli 2.7.1
+
+Poprawki:
+
+- Właściwa pozycja obrazów w kartach podglądu, pokazywanie opisu karty

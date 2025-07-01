@@ -18,7 +18,6 @@
 plugins {
     alias(libs.plugins.pachli.android.library)
     alias(libs.plugins.pachli.android.hilt)
-    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -40,7 +39,6 @@ dependencies {
 
     implementation(libs.bundles.retrofit)
     implementation(libs.bundles.okhttp)
-    api(libs.networkresult.calladapter)
     implementation(libs.semver)
 
     testImplementation(libs.mockwebserver)

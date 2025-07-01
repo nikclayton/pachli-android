@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Get branch of PR
-        uses: xt0rted/pull-request-comment-branch@d97294d304604fa98a2600a6e2f916a84b596dc7 # v2
+        uses: xt0rted/pull-request-comment-branch@e8b8daa837e8ea7331c0003c9c316a64c6d8b0b1 # v3
         id: comment-branch
 
       - name: Set latest commit status as pending
@@ -25,7 +25,7 @@ jobs:
           status: pending
 
       - name: Checkout PR branch ${{ steps.comment-branch.outputs.head_ref }} / ${{ steps.comment-branch.outputs.head_sha }}
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           ref: ${{ steps.comment-branch.outputs.head_sha }}
 
@@ -53,7 +53,7 @@ jobs:
 
       - name: Upload APK Release Asset
         id: upload-release-asset-apk
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: app-release.apk
           path: ${{steps.sign_app_apk.outputs.signedReleaseFile}}

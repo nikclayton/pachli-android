@@ -24,9 +24,7 @@ import androidx.paging.cachedIn
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.database.dao.DraftDao
 import app.pachli.core.database.model.DraftEntity
-import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
-import at.connyduck.calladapter.networkresult.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -58,14 +56,12 @@ class DraftsViewModel @Inject constructor(
 
     fun restoreDraft(draft: DraftEntity) {
         viewModelScope.launch {
-            draftDao.insertOrReplace(draft)
+            draftDao.upsert(draft)
             deletedDrafts.remove(draft)
         }
     }
 
-    suspend fun getStatus(statusId: String): NetworkResult<Status> {
-        return api.status(statusId)
-    }
+    suspend fun getStatus(statusId: String) = api.status(statusId)
 
     override fun onCleared() {
         viewModelScope.launch {

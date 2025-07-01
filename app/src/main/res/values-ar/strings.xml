@@ -49,8 +49,6 @@
     <string name="action_favourite">تفضيل</string>
     <string name="action_unfavourite">إزالة المفضلة</string>
     <string name="action_compose">حرر</string>
-    <string name="action_logout">خروج</string>
-    <string name="action_logout_confirm">متأكد مِن أنك تود الخروج من الحساب %1$s؟</string>
     <string name="action_follow">إتبع</string>
     <string name="action_unfollow">إلغاء المتابعة</string>
     <string name="action_block">قم بحظره</string>
@@ -91,10 +89,8 @@
     <string name="action_add_tab">إضافة لسان</string>
     <string name="action_open_reblogged_by">اعرض المشاركات</string>
     <string name="action_open_faved_by">اعرض المفضلات</string>
-    <string name="title_mentions_dialog">الإشارات</string>
     <string name="download_image">تنزيل %1$s</string>
     <string name="action_copy_link">إنسخ الرابط</string>
-    <string name="action_share_as">شاركه كـ…</string>
     <string name="send_post_link_to">شارك رابط التبويق مع…</string>
     <string name="send_post_content_to">شارك التبويق على…</string>
     <string name="send_media_to">شارك الوسيط مع…</string>
@@ -185,7 +181,6 @@
         <item quantity="other">%d تفاعلات جديدة</item>
     </plurals>
     <string name="description_account_locked">حساب مقفل</string>
-    <string name="about_pachli_version">توسكي %s</string>
     <!-- note to translators:
          * you should think of “free” as in “free speech,” not as in “free beer”.
            We sometimes call it “libre software,” borrowing the French or Spanish word for “free” as in freedom,
@@ -211,7 +206,6 @@
     <string name="follows_you">يتبعك الآن</string>
     <string name="pref_title_alway_show_sensitive_media">أظهر دائما المحتوى الحساس</string>
     <string name="title_media">الوسائط</string>
-    <string name="replying_to">ردًا على @%s</string>
     <string name="pref_title_public_filter_keywords">الخطوط الزمنية العمومية</string>
     <string name="pref_title_thread_filter_keywords">خيوط المحادثات</string>
     <string name="filter_addition_title">إضافة عامل تصفية</string>
@@ -219,24 +213,8 @@
     <string name="filter_dialog_remove_button">إزالة</string>
     <string name="filter_dialog_update_button">تحديث</string>
     <string name="filter_add_description">العبارة التي يلزم تصفيتها</string>
-    <string name="add_account_name">إضافة حساب</string>
     <string name="add_account_description">إضافة حساب ماستدون جديد</string>
     <string name="compose_active_account_description">النشر بإسم %1$s</string>
-    <plurals name="hint_describe_for_visually_impaired">
-        <item quantity="zero">وصف لضعاف البصر
-\n(%d أحرف على أقصى تقدير)</item>
-        <item quantity="one">وصف لضعاف البصر
-\n(حرف واحد على أقصى تقدير)</item>
-        <item quantity="two">وصف لضعاف البصر
-\n(حرفان على أقصى تقدير)</item>
-        <item quantity="few">وصف لضعاف البصر
-\n(%d حروف على أقصى تقدير)</item>
-        <item quantity="many">وصف لضعاف البصر
-\n(%d حرفًا على أقصى تقدير)</item>
-        <item quantity="other">وصف لضعاف البصر
-\n(%d حرف على أقصى تقدير)</item>
-    </plurals>
-    <string name="action_set_caption">إضافة شرح</string>
     <string name="action_remove">حذف</string>
     <string name="lock_account_label">تجميد الحساب</string>
     <string name="lock_account_label_description">يتطلب منك قبول طلبات المتابَعة يدويا</string>
@@ -313,20 +291,20 @@
     <string name="poll_ended_created">لقد انتهى استطلاع رأي قمتَ بإنشائه</string>
     <string name="pref_title_notification_filter_poll">تنتهي استطلاعات الرأي</string>
     <plurals name="favs">
-        <item quantity="zero"><b>%1$s</b> مفضلة</item>
-        <item quantity="one"><b>%1$s</b> مفضلة</item>
-        <item quantity="two"><b>%1$s</b> مفضلتين</item>
-        <item quantity="few"><b>%1$s</b> مفضلة</item>
-        <item quantity="many"><b>%1$s</b> مفضلات</item>
-        <item quantity="other"><b>%1$s</b> مفضلات</item>
+        <item quantity="zero">&lt;b&gt;%1$s&lt;/b&gt; مفضلة</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; مفضلة</item>
+        <item quantity="two">&lt;b&gt;%1$s&lt;/b&gt; مفضلتين</item>
+        <item quantity="few">&lt;b&gt;%1$s&lt;/b&gt; مفضلة</item>
+        <item quantity="many">&lt;b&gt;%1$s&lt;/b&gt; مفضلات</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; مفضلات</item>
     </plurals>
     <plurals name="reblogs">
-        <item quantity="zero"><b>%s</b> مشاركة</item>
-        <item quantity="one"><b>%s</b> مشاركة</item>
-        <item quantity="two"><b>%s</b> مشاركتين</item>
-        <item quantity="few"><b>%s</b> مشاركات</item>
-        <item quantity="many"><b>%s</b> مشاركات</item>
-        <item quantity="other"><b>%s</b> مشاركات</item>
+        <item quantity="zero">&lt;b&gt;%s&lt;/b&gt; مشاركة</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; مشاركة</item>
+        <item quantity="two">&lt;b&gt;%s&lt;/b&gt; مشاركتين</item>
+        <item quantity="few">&lt;b&gt;%s&lt;/b&gt; مشاركات</item>
+        <item quantity="many">&lt;b&gt;%s&lt;/b&gt; مشاركات</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; مشاركات</item>
     </plurals>
     <string name="pref_title_bot_overlay">إظهار علامة البوتات</string>
     <plurals name="poll_timespan_days">
@@ -368,7 +346,6 @@
     <string name="confirmation_domain_unmuted">لم يعُد %s مخفيا</string>
     <string name="mute_domain_warning_dialog_ok">اخفِ كافة النطاق</string>
     <string name="pref_title_animate_gif_avatars">تنشيط الصور المتحركة GIF للحسابات</string>
-    <string name="button_continue">واصل</string>
     <string name="button_back">العودة</string>
     <string name="report_sent_success">تم الابلاغ عن @%s بنجاح</string>
     <string name="hint_additional_info">تعليقات إضافية</string>
@@ -464,7 +441,6 @@
     <string name="pref_title_confirm_favourites">أظهر نافذة لطلب التأكيد قبل الإضافة إلى المفضلة</string>
     <string name="drafts_failed_loading_reply">فشل في تحميل معلومات الرد</string>
     <string name="duration_indefinite">غير محددة</string>
-    <string name="limit_notifications">وضع حد لإشعارات الخيط الزمني</string>
     <string name="duration_14_days">14 يومًا</string>
     <string name="duration_30_days">30 يومًا</string>
     <string name="duration_60_days">60 يومًا</string>
@@ -530,7 +506,9 @@
     <string name="action_continue_edit">الاستمرار في التعديل</string>
     <string name="post_media_alt">ALT</string>
     <string name="notification_header_report_format">%s أبلغ عن %s</string>
-    <string name="notification_summary_report_format">%s · %d منشورات ملحقة</string>
+    <plurals name="notification_summary_report_format">
+        <item quantity="other">%1$s · %2$d منشورات ملحقة</item>
+    </plurals>
     <string name="failed_to_pin">فشل التثبيت</string>
     <string name="description_post_language">لغة المنشور</string>
     <string name="delete_scheduled_post_warning">هل تريد حذف هذا المنشور المُبَرمَج؟</string>
@@ -572,7 +550,7 @@
     <string name="filter_action_warn">تحذير</string>
     <string name="title_public_trending_links">الروابط الشائعة</string>
     <string name="title_tab_public_trending_links">الروابط</string>
-    <string name="status_filter_placeholder_label_format">مُصفّى: &lt;b>%1$s&lt;/b></string>
+    <string name="status_filter_placeholder_label_format">مُصفّى: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="update_dialog_neutral">لا تذكرني بهذه النسخة</string>
     <string name="ui_error_reject_follow_request">فشل رفض طلب المتابعة: %s</string>
     <string name="reaction_name_and_count">%1$s %2$d</string>
@@ -590,24 +568,18 @@
     <string name="dialog_save_profile_changes_message">أتريد حفظ التغييرات التي طرأت على ملفك الشخصي؟</string>
     <string name="ui_error_bookmark_fmt">%1$s :فشل إجراء إضافة المنشور إلى الفواصل المرجعية</string>
     <string name="notification_unknown_name">غير معروف</string>
-    <string name="pref_update_notification_frequency_always">دائما</string>
-    <string name="error_media_upload_sending_fmt">اخفق التحميل: %s</string>
-    <string name="pref_update_notification_frequency_never">أبدًا</string>
     <string name="filter_keyword_display_format">%s (الكلمةكاملة)</string>
     <string name="filter_keyword_addition_title">إضافة كلمة مفتاحية</string>
     <string name="label_filter_keywords">كلمات مفتاحية أو عبارات للتصفية</string>
     <string name="hint_description">الوصف</string>
     <string name="title_tab_public_trending_statuses">المنشورات</string>
-    <string name="pref_update_notification_frequency_once_per_version">مرة واحدة كل نسخة</string>
     <string name="filter_description_hide">إخفاء تماما</string>
     <string name="filter_description_format">%s: %s</string>
-    <string name="post_media_image">صورة</string>
     <string name="filter_action_hide">إخفاء</string>
     <string name="label_filter_title">العنوان</string>
     <string name="pref_title_font_family">عائلة الخطوط</string>
     <string name="notification_listenable_worker_description">إشعارات عندما يعمل Pachli (باكلي) في الخلفية</string>
     <string name="status_filtered_show_anyway">إظهار على أي حال</string>
-    <string name="error_list_load">خطأ في تحميل القوائم</string>
     <string name="action_translate">ترجمة</string>
     <string name="select_list_empty">ليس لديك قوائم بعد</string>
     <string name="pref_title_account_filter_keywords">الملفات التعريفية</string>

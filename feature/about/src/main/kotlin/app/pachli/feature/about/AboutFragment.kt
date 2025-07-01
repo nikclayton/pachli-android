@@ -17,8 +17,6 @@
 
 package app.pachli.feature.about
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.os.Build
 import android.os.Bundle
 import android.text.SpannableString
@@ -28,24 +26,30 @@ import android.text.style.URLSpan
 import android.text.util.Linkify
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import app.pachli.core.activity.openLink
+import app.pachli.core.activity.OpenUrlUseCase
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.versionName
+import app.pachli.core.ui.ClipboardUseCase
 import app.pachli.core.ui.NoUnderlineURLSpan
 import app.pachli.feature.about.databinding.FragmentAboutBinding
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AboutFragment : Fragment(R.layout.fragment_about) {
+    @Inject
+    lateinit var clipboard: ClipboardUseCase
+
+    @Inject
+    lateinit var openUrl: OpenUrlUseCase
+
     private val viewModel: AboutFragmentViewModel by viewModels()
 
     private val binding by viewBinding(FragmentAboutBinding::bind)
@@ -90,26 +94,17 @@ class AboutFragment : Fragment(R.layout.fragment_about) {
             binding.aboutPoweredBy.hide()
         }
 
-        binding.aboutLicenseInfoTextView.setClickableTextWithoutUnderlines(R.string.about_pachli_license)
-        binding.aboutWebsiteInfoTextView.setClickableTextWithoutUnderlines(R.string.about_project_site)
-        binding.aboutBugsFeaturesInfoTextView.setClickableTextWithoutUnderlines(R.string.about_bug_feature_request_site)
+        binding.aboutLicenseInfoTextView.setClickableTextWithoutUnderlines(R.string.about_pachli_license, openUrl::invoke)
+        binding.aboutWebsiteInfoTextView.setClickableTextWithoutUnderlines(R.string.about_project_site, openUrl::invoke)
+        binding.aboutBugsFeaturesInfoTextView.setClickableTextWithoutUnderlines(R.string.about_bug_feature_request_site, openUrl::invoke)
 
         binding.appProfileButton.setOnClickListener {
-            requireActivity().openLink(BuildConfig.SUPPORT_ACCOUNT_URL)
+            openUrl(BuildConfig.SUPPORT_ACCOUNT_URL)
         }
 
         binding.copyDeviceInfo.setOnClickListener {
             val text = "$version\n\nDevice:\n\n$deviceInfo\n\nAccount:\n\n${binding.accountInfo.text}"
-            val clipboard = getSystemService(requireContext(), ClipboardManager::class.java) as ClipboardManager
-            val clip = ClipData.newPlainText("Pachli version information", text)
-            clipboard.setPrimaryClip(clip)
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.about_copied),
-                    Toast.LENGTH_SHORT,
-                ).show()
-            }
+            clipboard.copyTextTo(text, R.string.about_copied, "Pachli version information")
         }
     }
 
@@ -118,7 +113,7 @@ class AboutFragment : Fragment(R.layout.fragment_about) {
     }
 }
 
-internal fun TextView.setClickableTextWithoutUnderlines(@StringRes textId: Int) {
+internal fun TextView.setClickableTextWithoutUnderlines(@StringRes textId: Int, openUrl: (String) -> Unit) {
     val text = SpannableString(context.getText(textId))
 
     Linkify.addLinks(text, Linkify.WEB_URLS)
@@ -130,7 +125,7 @@ internal fun TextView.setClickableTextWithoutUnderlines(@StringRes textId: Int) 
         val end = builder.getSpanEnd(span)
         val flags = builder.getSpanFlags(span)
 
-        val customSpan = NoUnderlineURLSpan(span.url)
+        val customSpan = NoUnderlineURLSpan(span.url, openUrl::invoke)
 
         builder.removeSpan(span)
         builder.setSpan(customSpan, start, end, flags)

@@ -25,14 +25,14 @@ import android.widget.Toast
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.MainTabsChangedEvent
-import app.pachli.core.activity.BottomSheetActivity
+import app.pachli.core.activity.ViewUrlActivity
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.ContentFilterEdit
-import app.pachli.core.data.repository.ContentFiltersError
 import app.pachli.core.data.repository.ContentFiltersRepository
+import app.pachli.core.data.repository.canFilterV1
+import app.pachli.core.data.repository.canFilterV2
+import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.ContentFilter
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
@@ -44,7 +44,6 @@ import app.pachli.core.navigation.pachliAccountId
 import app.pachli.databinding.ActivityTimelineBinding
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.AppBarLayoutHost
-import at.connyduck.calladapter.networkresult.fold
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import com.google.android.material.appbar.AppBarLayout
@@ -53,6 +52,8 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -60,7 +61,7 @@ import timber.log.Timber
  * Show a single timeline.
  */
 @AndroidEntryPoint
-class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonActivity, MenuProvider {
+class TimelineActivity : ViewUrlActivity(), AppBarLayoutHost, ActionButtonActivity, MenuProvider {
     @Inject
     lateinit var eventHub: EventHub
 
@@ -99,24 +100,31 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
         timeline = TimelineActivityIntent.getTimeline(intent)
         hashtag = (timeline as? Timeline.Hashtags)?.tags?.firstOrNull()
 
-        val viewData = TabViewData.from(intent.pachliAccountId, timeline)
+        val tabViewData = TabViewData.from(intent.pachliAccountId, timeline)
 
         supportActionBar?.run {
-            title = viewData.title(this@TimelineActivity)
+            title = tabViewData.title(this@TimelineActivity)
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
 
         if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) == null) {
             supportFragmentManager.commit {
-                val fragment = viewData.fragment()
+                val fragment = tabViewData.fragment()
                 replace(R.id.fragmentContainer, fragment)
                 binding.composeButton.show()
             }
         }
 
-        viewData.composeIntent?.let { intent ->
-            binding.composeButton.setOnClickListener { startActivity(intent(this@TimelineActivity)) }
+        tabViewData.composeIntent?.let { intent ->
+            binding.composeButton.setOnClickListener {
+                startActivity(
+                    intent(
+                        this@TimelineActivity,
+                        this.intent.pachliAccountId,
+                    ),
+                )
+            }
             binding.composeButton.show()
         } ?: binding.composeButton.hide()
     }
@@ -126,21 +134,19 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
 
         hashtag?.let { tag ->
             lifecycleScope.launch {
-                mastodonApi.tag(tag).fold(
-                    { tagEntity ->
-                        menuInflater.inflate(R.menu.view_hashtag_toolbar, menu)
-                        followTagItem = menu.findItem(R.id.action_follow_hashtag)
-                        unfollowTagItem = menu.findItem(R.id.action_unfollow_hashtag)
-                        muteTagItem = menu.findItem(R.id.action_mute_hashtag)
-                        unmuteTagItem = menu.findItem(R.id.action_unmute_hashtag)
-                        followTagItem?.isVisible = tagEntity.following == false
-                        unfollowTagItem?.isVisible = tagEntity.following == true
-                        updateMuteTagMenuItems(tag)
-                    },
-                    {
-                        Timber.w(it, "Failed to query tag #%s", tag)
-                    },
-                )
+                mastodonApi.tag(tag).onSuccess {
+                    val tagEntity = it.body
+                    menuInflater.inflate(R.menu.view_hashtag_toolbar, menu)
+                    followTagItem = menu.findItem(R.id.action_follow_hashtag)
+                    unfollowTagItem = menu.findItem(R.id.action_unfollow_hashtag)
+                    muteTagItem = menu.findItem(R.id.action_mute_hashtag)
+                    unmuteTagItem = menu.findItem(R.id.action_unmute_hashtag)
+                    followTagItem?.isVisible = tagEntity.following == false
+                    unfollowTagItem?.isVisible = tagEntity.following == true
+                    updateMuteTagMenuItems(tag)
+                }.onFailure {
+                    Timber.w("Failed to query tag #%s: %s", tag, it)
+                }
             }
         }
 
@@ -149,9 +155,11 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
 
     override fun onPrepareMenu(menu: Menu) {
         // Check if this timeline is in a tab; if not, enable the add_to_tab menu item
+        // Timeline.Link (all posts about a specific link) is special-cased to not be
+        // addable to a tab)
         val currentTabs = accountManager.activeAccount?.tabPreferences.orEmpty()
-        val hideMenu = currentTabs.contains(timeline)
-        menu.findItem(R.id.action_add_to_tab)?.setVisible(!hideMenu)
+        val hideMenu = timeline is Timeline.Link || currentTabs.contains(timeline)
+        menu.findItem(R.id.action_add_to_tab)?.isVisible = !hideMenu
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -159,7 +167,7 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
             R.id.action_add_to_tab -> {
                 addToTab()
                 Toast.makeText(this, getString(R.string.action_add_to_tab_success, supportActionBar?.title), Toast.LENGTH_LONG).show()
-                menuItem.setVisible(false)
+                menuItem.isVisible = false
                 true
             }
             R.id.action_follow_hashtag -> {
@@ -185,9 +193,7 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
     private fun addToTab() {
         accountManager.activeAccount?.let {
             lifecycleScope.launch(Dispatchers.IO) {
-                it.tabPreferences += timeline
-                accountManager.saveAccount(it)
-                eventHub.dispatch(MainTabsChangedEvent(it.tabPreferences))
+                accountManager.setTabPreferences(it.id, it.tabPreferences + timeline)
             }
         }
     }
@@ -196,16 +202,13 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
         val tag = hashtag
         if (tag != null) {
             lifecycleScope.launch {
-                mastodonApi.followTag(tag).fold(
-                    {
-                        followTagItem?.isVisible = false
-                        unfollowTagItem?.isVisible = true
-                    },
-                    {
-                        Snackbar.make(binding.root, getString(R.string.error_following_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
-                        Timber.e(it, "Failed to follow #%s", tag)
-                    },
-                )
+                mastodonApi.followTag(tag).onSuccess {
+                    followTagItem?.isVisible = false
+                    unfollowTagItem?.isVisible = true
+                }.onFailure {
+                    Snackbar.make(binding.root, getString(R.string.error_following_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
+                    Timber.e("Failed to follow #%s: %s", tag, it)
+                }
             }
         }
 
@@ -216,16 +219,13 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
         val tag = hashtag
         if (tag != null) {
             lifecycleScope.launch {
-                mastodonApi.unfollowTag(tag).fold(
-                    {
-                        followTagItem?.isVisible = true
-                        unfollowTagItem?.isVisible = false
-                    },
-                    {
-                        Snackbar.make(binding.root, getString(R.string.error_unfollowing_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
-                        Timber.e(it, "Failed to unfollow #%s", tag)
-                    },
-                )
+                mastodonApi.unfollowTag(tag).onSuccess {
+                    followTagItem?.isVisible = true
+                    unfollowTagItem?.isVisible = false
+                }.onFailure {
+                    Snackbar.make(binding.root, getString(R.string.error_unfollowing_hashtag_format, tag), Snackbar.LENGTH_SHORT).show()
+                    Timber.e("Failed to unfollow #%s: %s", tag, it)
+                }
             }
         }
 
@@ -243,23 +243,23 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
         unmuteTagItem?.isVisible = false
 
         lifecycleScope.launch {
-            contentFiltersRepository.contentFilters.collect { result ->
-                result.onSuccess { filters ->
-                    mutedContentFilter = filters?.contentFilters?.firstOrNull { filter ->
-                        filter.contexts.contains(FilterContext.HOME) &&
-                            filter.keywords.any { it.keyword == tagWithHash }
-                    }
-                    updateTagMuteState(mutedContentFilter != null)
-                }
-                result.onFailure { error ->
-                    // If the server can't filter then it's impossible to mute hashtags,
-                    // so disable the functionality.
-                    if (error is ContentFiltersError.ServerDoesNotFilter) {
+            accountManager.getPachliAccountFlow(intent.pachliAccountId)
+                .filterNotNull()
+                .distinctUntilChangedBy { it.contentFilters }
+                .collect { account ->
+                    if (account.server.canFilterV2() || account.server.canFilterV1()) {
+                        mutedContentFilter = account.contentFilters.contentFilters.firstOrNull { filter ->
+                            filter.contexts.contains(FilterContext.HOME) &&
+                                filter.keywords.any { it.keyword == tagWithHash }
+                        }
+                        updateTagMuteState(mutedContentFilter != null)
+                    } else {
+                        // If the server can't filter then it's impossible to mute hashtags,
+                        // so disable the functionality.
                         muteTagItem?.isVisible = false
                         unmuteTagItem?.isVisible = false
                     }
                 }
-            }
         }
     }
 
@@ -292,7 +292,7 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
                 ),
             )
 
-            contentFiltersRepository.createContentFilter(newContentFilter)
+            contentFiltersRepository.createContentFilter(intent.pachliAccountId, newContentFilter)
                 .onSuccess {
                     mutedContentFilter = it
                     updateTagMuteState(true)
@@ -312,9 +312,9 @@ class TimelineActivity : BottomSheetActivity(), AppBarLayoutHost, ActionButtonAc
             val result = mutedContentFilter?.let { filter ->
                 val newContexts = filter.contexts.filter { it != FilterContext.HOME }
                 if (newContexts.isEmpty()) {
-                    contentFiltersRepository.deleteContentFilter(filter.id)
+                    contentFiltersRepository.deleteContentFilter(intent.pachliAccountId, filter.id)
                 } else {
-                    contentFiltersRepository.updateContentFilter(filter, ContentFilterEdit(filter.id, contexts = newContexts))
+                    contentFiltersRepository.updateContentFilter(intent.pachliAccountId, filter, ContentFilterEdit(filter.id, contexts = newContexts))
                 }
             }
 

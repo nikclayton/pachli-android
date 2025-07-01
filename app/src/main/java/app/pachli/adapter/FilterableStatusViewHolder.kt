@@ -20,20 +20,22 @@ package app.pachli.adapter
 import android.view.View
 import androidx.core.text.HtmlCompat
 import app.pachli.R
+import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.model.StatusDisplayOptions
+import app.pachli.core.model.ContentFilter
 import app.pachli.core.model.FilterAction
-import app.pachli.core.network.model.Filter
-import app.pachli.core.network.model.FilterAction as NetworkFilterAction
+import app.pachli.core.ui.SetStatusContent
 import app.pachli.databinding.ItemStatusWrapperBinding
 import app.pachli.interfaces.StatusActionListener
-import app.pachli.viewdata.IStatusViewData
+import com.bumptech.glide.RequestManager
 
 open class FilterableStatusViewHolder<T : IStatusViewData>(
-    private val pachliAccountId: Long,
     private val binding: ItemStatusWrapperBinding,
-) : StatusViewHolder<T>(pachliAccountId, binding.statusContainer, binding.root) {
+    glide: RequestManager,
+    setStatusContent: SetStatusContent,
+) : StatusViewHolder<T>(binding.statusContainer, glide, setStatusContent, binding.root) {
     /** The filter that matched the status, null if the status is not being filtered. */
-    var matchedFilter: Filter? = null
+    var matchedFilter: ContentFilter? = null
 
     override fun setupWithStatus(
         viewData: T,
@@ -46,16 +48,16 @@ open class FilterableStatusViewHolder<T : IStatusViewData>(
     }
 
     private fun setupFilterPlaceholder(
-        status: T,
+        viewData: T,
         listener: StatusActionListener<T>,
     ) {
-        if (status.filterAction !== FilterAction.WARN) {
+        if (viewData.contentFilterAction !== FilterAction.WARN) {
             matchedFilter = null
             setPlaceholderVisibility(false)
             return
         }
 
-        status.actionable.filtered?.find { it.filter.filterAction === NetworkFilterAction.WARN }?.let { result ->
+        viewData.actionable.filtered?.find { it.filter.filterAction === FilterAction.WARN }?.let { result ->
             this.matchedFilter = result.filter
             setPlaceholderVisibility(true)
 
@@ -70,10 +72,10 @@ open class FilterableStatusViewHolder<T : IStatusViewData>(
             binding.statusFilteredPlaceholder.statusFilterLabel.text = label
 
             binding.statusFilteredPlaceholder.statusFilterShowAnyway.setOnClickListener {
-                listener.clearWarningAction(status)
+                listener.clearContentFilter(viewData)
             }
             binding.statusFilteredPlaceholder.statusFilterEditFilter.setOnClickListener {
-                listener.onEditFilterById(pachliAccountId, result.filter.id)
+                listener.onEditFilterById(viewData.pachliAccountId, result.filter.id)
             }
         } ?: {
             matchedFilter = null

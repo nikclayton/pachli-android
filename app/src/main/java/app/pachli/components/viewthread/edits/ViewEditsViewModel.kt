@@ -21,9 +21,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pachli.components.viewthread.edits.PachliTagHandler.Companion.DELETED_TEXT_EL
 import app.pachli.components.viewthread.edits.PachliTagHandler.Companion.INSERTED_TEXT_EL
-import app.pachli.core.network.model.StatusEdit
+import app.pachli.core.model.StatusEdit
+import app.pachli.core.network.model.asModel
 import app.pachli.core.network.retrofit.MastodonApi
-import at.connyduck.calladapter.networkresult.getOrElse
+import com.github.michaelbull.result.getOrElse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +46,7 @@ import org.pageseeder.diffx.token.impl.SpaceToken
 import org.pageseeder.diffx.xml.NamespaceSet
 import org.pageseeder.xmlwriter.XML.NamespaceAware
 import org.pageseeder.xmlwriter.XMLStringWriter
+import timber.log.Timber
 
 @HiltViewModel
 class ViewEditsViewModel @Inject constructor(private val api: MastodonApi) : ViewModel() {
@@ -53,7 +55,7 @@ class ViewEditsViewModel @Inject constructor(private val api: MastodonApi) : Vie
     val uiState: StateFlow<EditsUiState> = _uiState.asStateFlow()
 
     /** The API call to fetch edit history returned less than two items */
-    object MissingEditsException : Exception()
+    data object MissingEditsException : Exception()
 
     fun loadEdits(statusId: String, force: Boolean = false, refreshing: Boolean = false) {
         if (!force && _uiState.value !is EditsUiState.Initial) return
@@ -66,9 +68,9 @@ class ViewEditsViewModel @Inject constructor(private val api: MastodonApi) : Vie
 
         viewModelScope.launch {
             val edits = api.statusEdits(statusId).getOrElse {
-                _uiState.value = EditsUiState.Error(it)
+                _uiState.value = EditsUiState.Error(it.throwable)
                 return@launch
-            }
+            }.body.asModel()
 
             // `edits` might have fewer than the minimum number of entries because of
             // https://github.com/mastodon/mastodon/issues/25398.
@@ -91,7 +93,12 @@ class ViewEditsViewModel @Inject constructor(private val api: MastodonApi) : Vie
                     // a block element ("<a ...> some text") is not. Guard against
                     // this be wrapping everything in a div.
                     // https://github.com/tuskyapp/Tusky/issues/4253
-                    .map { it.copy(content = "<div>${it.content}</div>") }
+                    .map {
+                        it.copy(
+                            content = "<div>${it.content}</div>",
+                            spoilerText = "<div>${it.spoilerText}</div>",
+                        )
+                    }
                     .sortedBy { it.createdAt }
                     .reversed()
                     .toMutableList()
@@ -105,9 +112,13 @@ class ViewEditsViewModel @Inject constructor(private val api: MastodonApi) : Vie
                 )
                 val processor = OptimisticXMLProcessor()
                 processor.setCoalesce(true)
-                val output = HtmlDiffOutput()
+                val spoilerDiff = HtmlDiffOutput()
+                val contentDiff = HtmlDiffOutput()
 
                 try {
+                    var currentSpoilerText = loader.load(sortedEdits[0].spoilerText)
+                    var previousSpoilerText = loader.load(sortedEdits[1].spoilerText)
+
                     // The XML processor expects `br` to be closed
                     var currentContent =
                         loader.load(sortedEdits[0].content.replace("<br>", "<br/>"))
@@ -115,12 +126,16 @@ class ViewEditsViewModel @Inject constructor(private val api: MastodonApi) : Vie
                         loader.load(sortedEdits[1].content.replace("<br>", "<br/>"))
 
                     for (i in 1 until sortedEdits.size) {
-                        processor.diff(previousContent, currentContent, output)
+                        processor.diff(previousSpoilerText, currentSpoilerText, spoilerDiff)
+                        processor.diff(previousContent, currentContent, contentDiff)
                         sortedEdits[i - 1] = sortedEdits[i - 1].copy(
-                            content = output.xml.toString(),
+                            spoilerText = spoilerDiff.xml.toString(),
+                            content = contentDiff.xml.toString(),
                         )
 
                         if (i < sortedEdits.size - 1) {
+                            currentSpoilerText = previousSpoilerText
+                            previousSpoilerText = loader.load(sortedEdits[i + 1].spoilerText)
                             currentContent = previousContent
                             previousContent = loader.load(
                                 sortedEdits[i + 1].content.replace("<br>", "<br/>"),
@@ -128,7 +143,8 @@ class ViewEditsViewModel @Inject constructor(private val api: MastodonApi) : Vie
                         }
                     }
                     _uiState.value = EditsUiState.Success(sortedEdits)
-                } catch (_: LoadingException) {
+                } catch (e: LoadingException) {
+                    Timber.e(e, "Could not diff")
                     // Something failed parsing the XML from the server. Rather than
                     // show an error just return the sorted edits so the user can at
                     // least visually scan the differences.

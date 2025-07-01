@@ -19,28 +19,49 @@ package app.pachli.core.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
+import android.os.Build
+import android.text.Selection
+import android.text.Spannable
 import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.text.style.URLSpan
 import android.util.AttributeSet
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.ViewConfiguration
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.content.ContextCompat.startActivity
+import androidx.core.graphics.withSave
 import androidx.core.view.doOnLayout
 import app.pachli.core.designsystem.R as DR
 import java.lang.Float.max
 import java.lang.Float.min
 import kotlin.math.abs
 import timber.log.Timber
+
+/**
+ * Represents the action to take when the user long-presses on a link.
+ *
+ * @param action The action to take.
+ */
+private class LongPressRunnable(val action: Action) : Runnable {
+    fun interface Action {
+        operator fun invoke()
+    }
+
+    override fun run() = action()
+}
 
 /**
  * Displays text to the user with optional [ClickableSpan]s. Extends the touchable area of the spans
@@ -91,6 +112,12 @@ class ClickableSpanTextView @JvmOverloads constructor(
      * Debugging helper. The paint to use to shade a span's touchable area.
      */
     private lateinit var paddingDebugPaint: Paint
+
+    /** Runnable to trigger when the user long-presses on a link. */
+    private var longPressRunnable: LongPressRunnable? = null
+
+    /** True if [longPressRunnable] has triggered, false otherwise. */
+    private var longPressTriggered = false
 
     init {
         // Initialise debugging paints, if appropriate. Only ever present in debug builds, and
@@ -191,12 +218,36 @@ class ClickableSpanTextView @JvmOverloads constructor(
         }
     }
 
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1) return super.dispatchTouchEvent(event)
+
+        // Prevent crash on Android <= O_MR1. The selection state can be lost
+        // later, causing `selectionEnd` to return -1. Fix this by explicitly
+        // resetting the selection (if present) or resetting the text.
+        //
+        // See https://issuetracker.google.com/issues/37068143.
+        val start = selectionStart
+        val end = selectionEnd
+        val content = text as? Spannable
+
+        if (content != null && (start < 0 || end < 0)) {
+            Selection.setSelection(content, content.length)
+        } else if (start != end && event.actionMasked == ACTION_DOWN) {
+            text = null
+            text = content
+        }
+
+        return super.dispatchTouchEvent(event)
+    }
+
     /**
      * Handle some touch events.
      *
-     * - [ACTION_DOWN]: Determine which, if any span, has been clicked, and save in clickedSpan
-     * - [ACTION_UP]: If a span was saved then dispatch the click to that span
-     * - [ACTION_CANCEL]: Clear the saved span
+     * - [ACTION_DOWN]: Determine which, if any span, has been clicked, and save in clickedSpan.
+     * Launch the runnable that will either be cancelled, or act as if this was a long press.
+     * - [ACTION_UP]: If a span was saved then dispatch the click to that span.
+     * - [ACTION_CANCEL]: Clear the saved span.
+     * - [ACTION_MOVE]: Cancel if the user has moved off the span they original touched.
      *
      * Defer to the parent class for other touches.
      */
@@ -207,55 +258,122 @@ class ClickableSpanTextView @JvmOverloads constructor(
 
         when (event.action) {
             ACTION_DOWN -> {
+                // Clear any existing touch actions
+                removeLongPressRunnable()
+                longPressTriggered = false
+
                 clickedSpan = null
-                val x = event.x
-                val y = event.y
 
-                // If the user has clicked directly on a span then use it, ignoring any overlap
-                for ((rect, span) in spanRects) {
-                    if (!rect.contains(x, y)) continue
-                    clickedSpan = span
-                    Timber.v("span click: %s", (clickedSpan as URLSpan).url)
-                    return super.onTouchEvent(event)
+                // Determine the span the user touched. If no span then nothing to do.
+                val span = getTouchedSpan(event, spanRects) ?: return super.onTouchEvent(event)
+
+                clickedSpan = span
+                val url = (span as URLSpan).url
+
+                // Get the text of the span, to possibly use as the title. Maybe null if
+                // getSpanStart or getSpanEnd return -1.
+                val title = let {
+                    val spanStart = (text as Spanned).getSpanStart(span)
+                    val spanEnd = (text as Spanned).getSpanEnd(span)
+
+                    if (spanStart == -1 || spanEnd == -1) return@let null
+
+                    text.subSequence(spanStart + 1, spanEnd).toString()
                 }
 
-                // Otherwise, check to see if it's in a touchable area
-                var activeEntry: MutableMap.MutableEntry<RectF, ClickableSpan>? = null
-
-                for (entry in delegateRects) {
-                    if (entry == activeEntry) continue
-                    if (!entry.key.contains(x, y)) continue
-
-                    if (activeEntry == null) {
-                        activeEntry = entry
-                        continue
-                    }
-                    Timber.v("Overlap: %s %s", (entry.value as URLSpan).url, (activeEntry.value as URLSpan).url)
-                    if (isClickOnFirst(entry.key, activeEntry.key, x, y)) {
-                        activeEntry = entry
-                    }
-                }
-                clickedSpan = activeEntry?.value
-                clickedSpan?.let { Timber.v("padding click: %s", (clickedSpan as URLSpan).url) }
-                return super.onTouchEvent(event)
-            }
-            ACTION_UP -> {
-                clickedSpan?.let {
+                // Configure and launch the runnable that will act if this is a long-press.
+                // Opens the chooser with the link the user touched. If the text of the span
+                // is not the same as the URL it's sent as the title.
+                longPressRunnable = LongPressRunnable {
+                    longPressTriggered = true
                     clickedSpan = null
-                    val duration = event.eventTime - event.downTime
-                    if (duration <= ViewConfiguration.getLongPressTimeout()) {
-                        it.onClick(this)
-                        return true
-                    }
+                    this@ClickableSpanTextView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    val shareIntent = Intent.createChooser(
+                        Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, url)
+                            if (title != null && title != url) putExtra(Intent.EXTRA_TITLE, title)
+                            type = "text/plain"
+                        },
+                        null,
+                    )
+                    startActivity(context, shareIntent, null)
                 }
+                this@ClickableSpanTextView.postDelayed(
+                    longPressRunnable,
+                    ViewConfiguration.getLongPressTimeout().toLong(),
+                )
+
                 return super.onTouchEvent(event)
             }
+
+            ACTION_UP -> {
+                removeLongPressRunnable()
+                if (longPressTriggered) return true
+
+                return clickedSpan?.let {
+                    // If the user released under a different span there's nothing to do.
+                    if (getTouchedSpan(event, spanRects) != it) {
+                        return super.onTouchEvent(event)
+                    }
+
+                    it.onClick(this@ClickableSpanTextView)
+                    clickedSpan = null
+                    return true
+                } ?: super.onTouchEvent(event)
+            }
+
             ACTION_CANCEL -> {
+                // Clear any existing touch actions
+                removeLongPressRunnable()
                 clickedSpan = null
                 return super.onTouchEvent(event)
             }
+
+            ACTION_MOVE -> {
+                if (getTouchedSpan(event, spanRects) != clickedSpan) {
+                    removeLongPressRunnable()
+                    clickedSpan = null
+                }
+                return super.onTouchEvent(event)
+            }
+
             else -> return super.onTouchEvent(event)
         }
+    }
+
+    /**
+     * Returns the span the user clicked on, or null if the click was not over a span.
+     */
+    private fun getTouchedSpan(event: MotionEvent, spanRects: MutableMap<RectF, ClickableSpan>): ClickableSpan? {
+        val x = event.x
+        val y = event.y
+
+        // If the user has clicked directly on a span then use it, ignoring any overlap
+        for ((rect, span) in spanRects) {
+            if (!rect.contains(x, y)) continue
+            Timber.v("span click: %s", (span as URLSpan).url)
+            return span
+        }
+
+        // Otherwise, check to see if it's in a touchable area
+        var activeEntry: MutableMap.MutableEntry<RectF, ClickableSpan>? = null
+
+        for (entry in delegateRects) {
+            if (entry == activeEntry) continue
+            if (!entry.key.contains(x, y)) continue
+
+            if (activeEntry == null) {
+                activeEntry = entry
+                continue
+            }
+            Timber.v("Overlap: %s %s", (entry.value as URLSpan).url, (activeEntry.value as URLSpan).url)
+            if (isClickOnFirst(entry.key, activeEntry.key, x, y)) {
+                activeEntry = entry
+            }
+        }
+        activeEntry?.let { Timber.v("padding click: %s", (activeEntry.value as URLSpan).url) }
+        return activeEntry?.value
     }
 
     /**
@@ -352,16 +470,24 @@ class ClickableSpanTextView @JvmOverloads constructor(
         // Paint span boundaries. Optimised out on release builds, or debug builds where
         // showSpanBoundaries is false.
         if (BuildConfig.DEBUG && showSpanBoundaries) {
-            canvas.save()
-            for (rect in delegateRects.keys) {
-                canvas.drawRect(rect, paddingDebugPaint)
-            }
+            canvas.withSave {
+                for (rect in delegateRects.keys) {
+                    drawRect(rect, paddingDebugPaint)
+                }
 
-            for (rect in spanRects.keys) {
-                canvas.drawRect(rect, spanDebugPaint)
+                for (rect in spanRects.keys) {
+                    drawRect(rect, spanDebugPaint)
+                }
             }
-            canvas.restore()
         }
+    }
+
+    /**
+     * Removes the long-press runnable that may have been added in [onTouchEvent].
+     */
+    private fun removeLongPressRunnable() = longPressRunnable?.let {
+        this.removeCallbacks(it)
+        longPressRunnable = null
     }
 }
 

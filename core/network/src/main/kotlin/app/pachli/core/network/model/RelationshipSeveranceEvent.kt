@@ -17,9 +17,11 @@
 
 package app.pachli.core.network.model
 
+import app.pachli.core.network.json.Default
+import app.pachli.core.network.json.HasDefault
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.util.Date
+import java.time.Instant
 
 /**
  * Summary of a moderation or block event that caused follow relationships to be severed.
@@ -35,19 +37,27 @@ data class RelationshipSeveranceEvent(
      * issue has been purged.
      */
     val purged: Boolean,
+
     /**
      * Name of the target of the moderation/block event. This is either a domain name or
      * a user handle, depending on the event type.
      */
     @Json(name = "target_name")
     val targetName: String,
-    /** Number of follow relationships (in either direction) that were severed. */
-    @Json(name = "relationships_count")
-    val relationshipsCount: Int = 0,
+
+    /** Number of follower accounts removed. */
+    @Json(name = "followers_count")
+    val followersCount: Int = 0,
+
+    /** Number of followed accounts removed. */
+    @Json(name = "following_count")
+    val followingCount: Int = 0,
+
     /** When the event took place. */
     @Json(name = "created_at")
-    val createdAt: Date,
+    val createdAt: Instant,
 ) {
+    @HasDefault
     enum class Type {
         /** A moderator suspended a whole domain */
         @Json(name = "domain_block")
@@ -60,6 +70,27 @@ data class RelationshipSeveranceEvent(
         /** A moderator suspended a specific account */
         @Json(name = "account_suspension")
         ACCOUNT_SUSPENSION,
+
+        @Default
         UNKNOWN,
+
+        ;
+
+        fun asModel(): app.pachli.core.model.RelationshipSeveranceEvent.Type = when (this) {
+            DOMAIN_BLOCK -> app.pachli.core.model.RelationshipSeveranceEvent.Type.DOMAIN_BLOCK
+            USER_DOMAIN_BLOCK -> app.pachli.core.model.RelationshipSeveranceEvent.Type.USER_DOMAIN_BLOCK
+            ACCOUNT_SUSPENSION -> app.pachli.core.model.RelationshipSeveranceEvent.Type.ACCOUNT_SUSPENSION
+            UNKNOWN -> app.pachli.core.model.RelationshipSeveranceEvent.Type.UNKNOWN
+        }
     }
+
+    fun asModel() = app.pachli.core.model.RelationshipSeveranceEvent(
+        id = id,
+        type = type.asModel(),
+        purged = purged,
+        targetName = targetName,
+        followersCount = followersCount,
+        followingCount = followingCount,
+        createdAt = createdAt,
+    )
 }

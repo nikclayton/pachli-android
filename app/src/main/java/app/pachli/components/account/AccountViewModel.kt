@@ -3,34 +3,39 @@ package app.pachli.components.account
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.pachli.appstore.BlockEvent
-import app.pachli.appstore.DomainMuteEvent
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.MuteEvent
-import app.pachli.appstore.ProfileEditedEvent
-import app.pachli.appstore.UnfollowEvent
 import app.pachli.core.data.repository.AccountManager
-import app.pachli.core.network.model.Account
-import app.pachli.core.network.model.Relationship
+import app.pachli.core.eventhub.BlockEvent
+import app.pachli.core.eventhub.DomainMuteEvent
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.MuteEvent
+import app.pachli.core.eventhub.ProfileEditedEvent
+import app.pachli.core.eventhub.UnfollowEvent
+import app.pachli.core.model.Account
+import app.pachli.core.model.Relationship
+import app.pachli.core.network.model.asModel
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.ui.getDomain
 import app.pachli.util.Error
 import app.pachli.util.Loading
 import app.pachli.util.Resource
 import app.pachli.util.Success
-import at.connyduck.calladapter.networkresult.fold
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-@HiltViewModel
-class AccountViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = AccountViewModel.Factory::class)
+class AccountViewModel @AssistedInject constructor(
+    @Assisted private val pachliAccountId: Long,
     private val mastodonApi: MastodonApi,
     private val eventHub: EventHub,
-    accountManager: AccountManager,
+    private val accountManager: AccountManager,
 ) : ViewModel() {
 
     val accountData = MutableLiveData<Resource<Account>>()
@@ -71,22 +76,21 @@ class AccountViewModel @Inject constructor(
 
             viewModelScope.launch {
                 mastodonApi.account(accountId)
-                    .fold(
-                        { account ->
-                            domain = getDomain(account.url)
-                            accountData.postValue(Success(account))
-                            isDataLoading = false
-                            isRefreshing.postValue(false)
+                    .onSuccess { result ->
+                        val account = result.body.asModel()
+                        domain = getDomain(account.url)
+                        accountData.postValue(Success(account))
+                        isDataLoading = false
+                        isRefreshing.postValue(false)
 
-                            isFromOwnDomain = domain == activeAccount.domain
-                        },
-                        { t ->
-                            Timber.w(t, "failed obtaining account")
-                            accountData.postValue(Error(cause = t))
-                            isDataLoading = false
-                            isRefreshing.postValue(false)
-                        },
-                    )
+                        isFromOwnDomain = domain == activeAccount.domain
+                    }
+                    .onFailure {
+                        Timber.w("failed obtaining account: %s", it)
+                        accountData.postValue(Error(cause = it.throwable))
+                        isDataLoading = false
+                        isRefreshing.postValue(false)
+                    }
             }
         }
     }
@@ -97,15 +101,14 @@ class AccountViewModel @Inject constructor(
 
             viewModelScope.launch {
                 mastodonApi.relationships(listOf(accountId))
-                    .fold(
-                        { relationships ->
-                            relationshipData.postValue(if (relationships.isNotEmpty()) Success(relationships[0]) else Error())
-                        },
-                        { t ->
-                            Timber.w(t, "failed obtaining relationships")
-                            relationshipData.postValue(Error(cause = t))
-                        },
-                    )
+                    .onSuccess {
+                        val relationships = it.body.asModel()
+                        relationshipData.postValue(if (relationships.isNotEmpty()) Success(relationships[0]) else Error())
+                    }
+                    .onFailure {
+                        Timber.w("failed obtaining relationships: %s", it)
+                        relationshipData.postValue(Error(cause = it.throwable))
+                    }
             }
         }
     }
@@ -149,36 +152,40 @@ class AccountViewModel @Inject constructor(
 
     fun blockDomain(instance: String) {
         viewModelScope.launch {
-            mastodonApi.blockDomain(instance).fold({
-                eventHub.dispatch(DomainMuteEvent(instance))
-                val relation = relationshipData.value?.data
-                if (relation != null) {
-                    relationshipData.postValue(Success(relation.copy(blockingDomain = true)))
+            mastodonApi.blockDomain(instance)
+                .onSuccess {
+                    eventHub.dispatch(DomainMuteEvent(pachliAccountId, instance))
+                    val relation = relationshipData.value?.data
+                    if (relation != null) {
+                        relationshipData.postValue(Success(relation.copy(blockingDomain = true)))
+                    }
                 }
-            }, { e ->
-                Timber.e(e, "Error muting %s", instance)
-            })
+                .onFailure { e ->
+                    Timber.e("Error muting %s: %s", instance, e)
+                }
         }
     }
 
     fun unblockDomain(instance: String) {
         viewModelScope.launch {
-            mastodonApi.unblockDomain(instance).fold({
-                val relation = relationshipData.value?.data
-                if (relation != null) {
-                    relationshipData.postValue(Success(relation.copy(blockingDomain = false)))
+            mastodonApi.unblockDomain(instance)
+                .onSuccess {
+                    val relation = relationshipData.value?.data
+                    if (relation != null) {
+                        relationshipData.postValue(Success(relation.copy(blockingDomain = false)))
+                    }
                 }
-            }, { e ->
-                Timber.e(e, "Error unmuting %s", instance)
-            })
+                .onFailure { e ->
+                    Timber.e("Error unmuting %s: %s", instance, e)
+                }
         }
     }
 
     fun changeShowReblogsState() {
         if (relationshipData.value?.data?.showingReblogs == true) {
-            changeRelationship(RelationShipAction.FOLLOW, false)
+            changeRelationship(RelationShipAction.HIDE_REBLOGS)
         } else {
-            changeRelationship(RelationShipAction.FOLLOW, true)
+            changeRelationship(RelationShipAction.SHOW_REBLOGS)
         }
     }
 
@@ -224,6 +231,9 @@ class AccountViewModel @Inject constructor(
                         relation.copy(subscribing = false)
                     }
                 }
+
+                RelationShipAction.SHOW_REBLOGS -> relation.copy(showingReblogs = true)
+                RelationShipAction.HIDE_REBLOGS -> relation.copy(showingReblogs = false)
             }
             relationshipData.postValue(Loading(newRelation))
         }
@@ -231,7 +241,7 @@ class AccountViewModel @Inject constructor(
         val relationshipCall = when (relationshipAction) {
             RelationShipAction.FOLLOW -> mastodonApi.followAccount(
                 accountId,
-                showReblogs = parameter ?: true,
+                showReblogs = true,
             )
             RelationShipAction.UNFOLLOW -> mastodonApi.unfollowAccount(accountId)
             RelationShipAction.BLOCK -> mastodonApi.blockAccount(accountId)
@@ -256,24 +266,30 @@ class AccountViewModel @Inject constructor(
                     mastodonApi.unsubscribeAccount(accountId)
                 }
             }
+            RelationShipAction.SHOW_REBLOGS -> mastodonApi.followAccount(accountId, showReblogs = true)
+            RelationShipAction.HIDE_REBLOGS -> mastodonApi.followAccount(accountId, showReblogs = false)
         }
 
-        relationshipCall.fold(
-            { relationship ->
-                relationshipData.postValue(Success(relationship))
+        relationshipCall
+            .onSuccess { response ->
+                relationshipData.postValue(Success(response.body.asModel()))
 
                 when (relationshipAction) {
-                    RelationShipAction.UNFOLLOW -> eventHub.dispatch(UnfollowEvent(accountId))
-                    RelationShipAction.BLOCK -> eventHub.dispatch(BlockEvent(accountId))
-                    RelationShipAction.MUTE -> eventHub.dispatch(MuteEvent(accountId))
+                    RelationShipAction.FOLLOW -> accountManager.followAccount(pachliAccountId, accountId)
+                    RelationShipAction.UNFOLLOW -> {
+                        accountManager.unfollowAccount(pachliAccountId, accountId)
+                        eventHub.dispatch(UnfollowEvent(pachliAccountId, accountId))
+                    }
+
+                    RelationShipAction.BLOCK -> eventHub.dispatch(BlockEvent(pachliAccountId, accountId))
+                    RelationShipAction.MUTE -> eventHub.dispatch(MuteEvent(pachliAccountId, accountId))
                     else -> { }
                 }
-            },
-            { t ->
-                Timber.w(t, "failed loading relationship")
-                relationshipData.postValue(Error(relation, cause = t))
-            },
-        )
+            }
+            .onFailure { e ->
+                Timber.w("failed loading relationship: %s", e)
+                relationshipData.postValue(Error(relation, cause = e.throwable))
+            }
     }
 
     fun noteChanged(newNote: String) {
@@ -282,16 +298,14 @@ class AccountViewModel @Inject constructor(
         noteUpdateJob = viewModelScope.launch {
             delay(1500)
             mastodonApi.updateAccountNote(accountId, newNote)
-                .fold(
-                    {
-                        noteSaved.postValue(true)
-                        delay(4000)
-                        noteSaved.postValue(false)
-                    },
-                    { t ->
-                        Timber.w(t, "Error updating note")
-                    },
-                )
+                .onSuccess {
+                    noteSaved.postValue(true)
+                    delay(4000)
+                    noteSaved.postValue(false)
+                }
+                .onFailure { e ->
+                    Timber.w("Error updating note: %s", e)
+                }
         }
     }
 
@@ -326,5 +340,13 @@ class AccountViewModel @Inject constructor(
         UNMUTE,
         SUBSCRIBE,
         UNSUBSCRIBE,
+        SHOW_REBLOGS,
+        HIDE_REBLOGS,
+    }
+
+    @AssistedFactory
+    interface Factory {
+        /** Creates [AccountViewModel] with [pachliAccountId] as the active account. */
+        fun create(pachliAccountId: Long): AccountViewModel
     }
 }

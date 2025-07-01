@@ -18,6 +18,7 @@
 plugins {
     alias(libs.plugins.pachli.android.library)
     alias(libs.plugins.pachli.android.hilt)
+    kotlin("kapt")
 }
 
 android {
@@ -30,15 +31,20 @@ android {
 }
 
 dependencies {
-    // Calls "openLink" from projects.core.activity
-    implementation(projects.core.activity)
     implementation(projects.core.common)
+    implementation(projects.core.data)
     implementation(projects.core.designsystem)
+    implementation(projects.core.model)
     implementation(projects.core.preferences)
         ?.because("PreferenceEnum types in EnumListPreference")
 
-    // Uses HttpException from Retrofit
+    implementation(libs.retrofit.core)
+        ?.because("Uses HttpException")
     implementation(projects.core.network)
+        ?.because("ThrowableExtensions uses getServerErrorMessage")
+
+    implementation(libs.bundles.glide)
+        ?.because("Loads account avatars and emojis")
 
     // Uses JsonDataException from Moshi
     implementation(libs.moshi)
@@ -46,6 +52,21 @@ dependencies {
     // Some views inherit from AndroidX views
     implementation(libs.bundles.androidx)
 
+    implementation(libs.bundles.glide)
+        ?.because("Loads account avatars and emojis")
+
     api(libs.material.iconics)
     api(libs.material.typeface)
+
+    // Markdown support
+    implementation(libs.markwon)
+    implementation(libs.markwon.html)
+    implementation(libs.markwon.inline.parser)
+    implementation(libs.markwon.latex)
+    implementation(libs.markwon.simple.ext)
+    implementation(libs.markwon.strikethrough)
+    implementation(libs.markwon.syntax.highlight)
+    kapt(libs.prism4j)
+    implementation(libs.ksoup.entities)
+    implementation(libs.jlatexmath.android)
 }

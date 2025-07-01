@@ -1,15 +1,19 @@
 package app.pachli
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.database.model.TranslationState
+import app.pachli.core.model.VersionAdapter
 import app.pachli.core.network.json.BooleanIfNull
 import app.pachli.core.network.json.DefaultIfNull
 import app.pachli.core.network.json.Guarded
+import app.pachli.core.network.json.InstantJsonAdapter
+import app.pachli.core.network.json.LenientRfc3339DateJsonAdapter
+import app.pachli.core.network.json.UriAdapter
 import app.pachli.core.network.model.Status
-import app.pachli.viewdata.StatusViewData
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
+import java.time.Instant
 import java.util.Date
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -19,7 +23,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class StatusComparisonTest {
     private val moshi = Moshi.Builder()
-        .add(Date::class.java, Rfc3339DateJsonAdapter())
+        .add(Date::class.java, LenientRfc3339DateJsonAdapter())
+        .add(Instant::class.java, InstantJsonAdapter())
+        .add(UriAdapter())
+        .add(VersionAdapter())
         .add(Guarded.Factory())
         .add(DefaultIfNull.Factory())
         .add(BooleanIfNull.Factory())
@@ -51,6 +58,7 @@ class StatusComparisonTest {
     @Test
     fun `two equal status view data - should be equal`() {
         val viewdata1 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
             isShowingContent = false,
@@ -58,6 +66,7 @@ class StatusComparisonTest {
             translationState = TranslationState.SHOW_ORIGINAL,
         )
         val viewdata2 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
             isShowingContent = false,
@@ -70,6 +79,7 @@ class StatusComparisonTest {
     @Test
     fun `status view data with different isExpanded - should not be equal`() {
         val viewdata1 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = true,
             isShowingContent = false,
@@ -77,6 +87,7 @@ class StatusComparisonTest {
             translationState = TranslationState.SHOW_ORIGINAL,
         )
         val viewdata2 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
             isShowingContent = false,
@@ -89,6 +100,7 @@ class StatusComparisonTest {
     @Test
     fun `status view data with different statuses- should not be equal`() {
         val viewdata1 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(content = "whatever"),
             isExpanded = true,
             isShowingContent = false,
@@ -96,6 +108,7 @@ class StatusComparisonTest {
             translationState = TranslationState.SHOW_ORIGINAL,
         )
         val viewdata2 = StatusViewData(
+            pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
             isShowingContent = false,
@@ -112,7 +125,7 @@ class StatusComparisonTest {
             \u003cp\u003e\u003cspan class=\"h-card\"\u003e\u003ca href=\"https://mastodon.social/@ConnyDuck\" class=\"u-url mention\" rel=\"nofollow noopener noreferrer\" target=\"_blank\"\u003e@\u003cspan\u003eConnyDuck@mastodon.social\u003c/span\u003e\u003c/a\u003e\u003c/span\u003e Hi\u003c/p\u003e
         """.trimIndent(),
         note: String = "",
-    ): Status {
+    ): app.pachli.core.model.Status {
         val statusJson = """
             {
                 "id": "$id",
@@ -217,6 +230,6 @@ class StatusComparisonTest {
                 "poll": null
             }
         """.trimIndent()
-        return moshi.adapter<Status>().fromJson(statusJson)!!
+        return moshi.adapter<Status>().fromJson(statusJson)!!.asModel()
     }
 }

@@ -26,6 +26,7 @@ import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
 import app.pachli.core.model.FilterKeyword
 import app.pachli.core.navigation.EditContentFilterActivityIntent
+import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.ui.extensions.await
 import app.pachli.databinding.ActivityEditContentFilterBinding
 import app.pachli.databinding.DialogFilterBinding
@@ -55,6 +56,7 @@ class EditContentFilterActivity : BaseActivity() {
         extrasProducer = {
             defaultViewModelCreationExtras.withCreationCallback<EditContentFilterViewModel.Factory> { factory ->
                 factory.create(
+                    intent.pachliAccountId,
                     EditContentFilterActivityIntent.getContentFilter(intent),
                     EditContentFilterActivityIntent.getContentFilterId(intent),
                 )
@@ -86,7 +88,7 @@ class EditContentFilterActivity : BaseActivity() {
                 filterContextHome to FilterContext.HOME,
                 filterContextNotifications to FilterContext.NOTIFICATIONS,
                 filterContextPublic to FilterContext.PUBLIC,
-                filterContextThread to FilterContext.THREAD,
+                filterContextThread to FilterContext.CONVERSATIONS,
                 filterContextAccount to FilterContext.ACCOUNT,
             )
         }

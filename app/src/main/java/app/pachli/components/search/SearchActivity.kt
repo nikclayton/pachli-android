@@ -18,7 +18,6 @@ package app.pachli.components.search
 
 import android.annotation.SuppressLint
 import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -68,12 +67,13 @@ import app.pachli.components.search.SearchOperatorViewData.IsSensitiveOperatorVi
 import app.pachli.components.search.SearchOperatorViewData.LanguageOperatorViewData
 import app.pachli.components.search.SearchOperatorViewData.WhereOperatorViewData
 import app.pachli.components.search.adapter.SearchPagerAdapter
-import app.pachli.core.activity.BottomSheetActivity
+import app.pachli.core.activity.ViewUrlActivity
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.toggleVisibility
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.extensions.visible
+import app.pachli.core.data.model.Server
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_FROM
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_AUDIO
@@ -89,7 +89,6 @@ import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_RE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_SENSITIVE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_LANGUAGE
 import app.pachli.core.navigation.pachliAccountId
-import app.pachli.core.network.Server
 import app.pachli.core.ui.extensions.await
 import app.pachli.core.ui.extensions.awaitSingleChoiceItem
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
@@ -121,7 +120,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SearchActivity :
-    BottomSheetActivity(),
+    ViewUrlActivity(),
     MenuProvider,
     SearchView.OnQueryTextListener,
     ComposeAutoCompleteAdapter.AutocompletionProvider {
@@ -537,6 +536,7 @@ class SearchActivity :
 
                 dialogBinding.account.setAdapter(
                     ComposeAutoCompleteAdapter(
+                        glide,
                         this@SearchActivity,
                         animateAvatar = false,
                         animateEmojis = false,
@@ -976,7 +976,7 @@ class SearchActivity :
         menu.findItem(R.id.action_filter_search)?.apply {
             isVisible = showFilterIcon
         }
-        return super<BottomSheetActivity>.onPrepareMenu(menu)
+        return super<ViewUrlActivity>.onPrepareMenu(menu)
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -1011,7 +1011,7 @@ class SearchActivity :
 
     private fun bindSearchView() {
         searchView.setIconifiedByDefault(false)
-        searchView.setSearchableInfo((getSystemService(Context.SEARCH_SERVICE) as? SearchManager)?.getSearchableInfo(componentName))
+        searchView.setSearchableInfo((getSystemService(SEARCH_SERVICE) as? SearchManager)?.getSearchableInfo(componentName))
 
         setSearchViewWidth(showFilterIcon)
 

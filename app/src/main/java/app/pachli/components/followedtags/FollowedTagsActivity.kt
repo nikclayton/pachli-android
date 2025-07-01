@@ -27,7 +27,9 @@ import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.databinding.ActivityFollowedTagsBinding
 import app.pachli.interfaces.HashtagActionListener
-import at.connyduck.calladapter.networkresult.fold
+import com.bumptech.glide.Glide
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -98,7 +100,7 @@ class FollowedTagsActivity :
     }
 
     private fun setupAdapter(): FollowedTagsAdapter {
-        return FollowedTagsAdapter(this, viewModel).apply {
+        return FollowedTagsAdapter(this).apply {
             addLoadStateListener { loadState ->
                 binding.followedTagsProgressBar.visible(loadState.refresh == LoadState.Loading && itemCount == 0)
 
@@ -116,60 +118,56 @@ class FollowedTagsActivity :
         }
     }
 
-    private fun follow(tagName: String, position: Int = -1) {
+    /**
+     * @param tagName Name of the tag, without the leading `#`.
+     */
+    private fun follow(tagName: String) {
         lifecycleScope.launch {
-            api.followTag(tagName).fold(
-                {
-                    if (position == -1) {
-                        viewModel.tags.add(it)
-                    } else {
-                        viewModel.tags.add(position, it)
-                    }
-                    viewModel.currentSource?.invalidate()
-                },
-                {
-                    Snackbar.make(
-                        this@FollowedTagsActivity,
-                        binding.followedTagsView,
-                        getString(R.string.error_following_hashtag_format, tagName),
-                        Snackbar.LENGTH_SHORT,
-                    )
-                        .show()
-                },
-            )
+            api.followTag(tagName).onSuccess {
+                viewModel.tags.add(it.body)
+                viewModel.currentSource?.invalidate()
+            }.onFailure {
+                Snackbar.make(
+                    this@FollowedTagsActivity,
+                    binding.followedTagsView,
+                    getString(R.string.error_following_hashtag_format, tagName),
+                    Snackbar.LENGTH_SHORT,
+                )
+                    .show()
+            }
         }
     }
 
-    override fun unfollow(tagName: String, position: Int) {
+    /**
+     * @param tagName Name of the tag, without the leading `#`.
+     */
+    override fun unfollow(tagName: String) {
         lifecycleScope.launch {
-            api.unfollowTag(tagName).fold(
-                {
-                    viewModel.tags.removeAt(position)
-                    Snackbar.make(
-                        this@FollowedTagsActivity,
-                        binding.followedTagsView,
-                        getString(R.string.confirmation_hashtag_unfollowed, tagName),
-                        Snackbar.LENGTH_LONG,
-                    )
-                        .setAction(R.string.action_undo) {
-                            follow(tagName, position)
-                        }
-                        .show()
-                    viewModel.currentSource?.invalidate()
-                },
-                {
-                    Snackbar.make(
-                        this@FollowedTagsActivity,
-                        binding.followedTagsView,
-                        getString(
-                            R.string.error_unfollowing_hashtag_format,
-                            tagName,
-                        ),
-                        Snackbar.LENGTH_SHORT,
-                    )
-                        .show()
-                },
-            )
+            api.unfollowTag(tagName).onSuccess {
+                viewModel.tags.removeIf { it.name == tagName }
+                Snackbar.make(
+                    this@FollowedTagsActivity,
+                    binding.followedTagsView,
+                    getString(R.string.confirmation_hashtag_unfollowed, tagName),
+                    Snackbar.LENGTH_LONG,
+                )
+                    .setAction(R.string.action_undo) {
+                        follow(tagName)
+                    }
+                    .show()
+                viewModel.currentSource?.invalidate()
+            }.onFailure {
+                Snackbar.make(
+                    this@FollowedTagsActivity,
+                    binding.followedTagsView,
+                    getString(
+                        R.string.error_unfollowing_hashtag_format,
+                        tagName,
+                    ),
+                    Snackbar.LENGTH_SHORT,
+                )
+                    .show()
+            }
         }
     }
 
@@ -187,6 +185,7 @@ class FollowedTagsActivity :
             val autoCompleteTextView = layout.findViewById<AutoCompleteTextView>(R.id.hashtag)!!
             autoCompleteTextView.setAdapter(
                 ComposeAutoCompleteAdapter(
+                    Glide.with(this),
                     requireActivity() as FollowedTagsActivity,
                     animateAvatar = false,
                     animateEmojis = false,

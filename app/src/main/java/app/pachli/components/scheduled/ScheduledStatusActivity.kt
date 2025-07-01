@@ -27,15 +27,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.pachli.R
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.StatusScheduledEvent
 import app.pachli.core.activity.BaseActivity
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.StatusScheduledEvent
+import app.pachli.core.model.ScheduledStatus
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
-import app.pachli.core.network.model.ScheduledStatus
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InReplyTo
+import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.databinding.ActivityScheduledStatusBinding
 import com.google.android.material.color.MaterialColors
@@ -155,17 +157,19 @@ class ScheduledStatusActivity :
     override fun edit(item: ScheduledStatus) {
         val intent = ComposeActivityIntent(
             this,
+            intent.pachliAccountId,
             ComposeOptions(
                 scheduledTootId = item.id,
                 content = item.params.text,
                 contentWarning = item.params.spoilerText,
                 mediaAttachments = item.mediaAttachments,
-                inReplyToId = item.params.inReplyToId,
+                inReplyTo = item.params.inReplyToId?.let { InReplyTo.Id(it) },
                 visibility = item.params.visibility,
                 scheduledAt = item.scheduledAt,
                 sensitive = item.params.sensitive,
                 kind = ComposeOptions.ComposeKind.EDIT_SCHEDULED,
                 poll = item.params.poll,
+                language = item.params.language,
             ),
         )
         startActivity(intent)

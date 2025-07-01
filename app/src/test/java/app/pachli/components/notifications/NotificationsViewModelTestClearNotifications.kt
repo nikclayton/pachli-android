@@ -18,7 +18,11 @@
 package app.pachli.components.notifications
 
 import app.cash.turbine.test
+import app.pachli.core.testing.failure
+import app.pachli.core.testing.success
+import com.github.michaelbull.result.getError
 import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.mockito.kotlin.doReturn
@@ -33,31 +37,32 @@ import org.mockito.kotlin.verify
  *   This is only tested in the success case; if it passed there it must also
  *   have passed in the error case.
  */
+@HiltAndroidTest
 class NotificationsViewModelTestClearNotifications : NotificationsViewModelTestBase() {
     @Test
-    fun `clearing notifications succeeds && invalidate the repository`() = runTest {
+    fun `clearing notifications succeeds`() = runTest {
         // Given
-        notificationsRepository.stub { onBlocking { clearNotifications() } doReturn emptySuccess }
+        mastodonApi.stub { onBlocking { clearNotifications() } doReturn success(Unit) }
 
         // When
-        viewModel.accept(FallibleUiAction.ClearNotifications)
+        viewModel.accept(FallibleUiAction.ClearNotifications(pachliAccountId))
 
         // Then
-        verify(notificationsRepository).clearNotifications()
-        verify(notificationsRepository).invalidate()
+        verify(notificationsRepository).clearNotifications(pachliAccountId)
     }
 
     @Test
     fun `clearing notifications fails && emits UiError`() = runTest {
         // Given
-        notificationsRepository.stub { onBlocking { clearNotifications() } doReturn emptyError }
+        notificationsRepository.stub { onBlocking { clearNotifications(pachliAccountId) } doReturn failure() }
 
-        viewModel.uiError.test {
+        viewModel.uiResult.test {
             // When
-            viewModel.accept(FallibleUiAction.ClearNotifications)
+            viewModel.accept(FallibleUiAction.ClearNotifications(pachliAccountId))
 
             // Then
-            assertThat(awaitItem()).isInstanceOf(UiError::class.java)
+            val item = awaitItem().getError() as? UiError.ClearNotifications
+            assertThat(item?.action).isEqualTo(FallibleUiAction.ClearNotifications(pachliAccountId))
         }
     }
 }

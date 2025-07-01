@@ -37,6 +37,8 @@ import app.pachli.util.setAppNightMode
 import app.pachli.worker.PruneCacheWorker
 import app.pachli.worker.PruneCachedMediaWorker
 import app.pachli.worker.PruneLogEntryEntityWorker
+import com.mikepenz.iconics.Iconics
+import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import dagger.hilt.android.HiltAndroidApp
 import de.c1710.filemojicompat_defaults.DefaultEmojiPackList
 import de.c1710.filemojicompat_ui.helpers.EmojiPackHelper
@@ -91,7 +93,7 @@ class PachliApplication : Application() {
         // Migrate shared preference keys and defaults from version to version.
         val oldVersion = sharedPreferencesRepository.getInt(PrefKeys.SCHEMA_VERSION, NEW_INSTALL_SCHEMA_VERSION)
         if (oldVersion != SCHEMA_VERSION) {
-            upgradeSharedPreferences(oldVersion, SCHEMA_VERSION)
+            sharedPreferencesRepository.upgradeSharedPreferences(oldVersion, SCHEMA_VERSION)
         }
 
         // In this case, we want to have the emoji preferences merged with the other ones
@@ -101,6 +103,8 @@ class PachliApplication : Application() {
 
         // init night mode
         setAppNightMode(sharedPreferencesRepository.appTheme)
+
+        Iconics.registerFont(GoogleMaterial)
 
         localeManager.setLocale()
 
@@ -141,19 +145,5 @@ class PachliApplication : Application() {
             ExistingPeriodicWorkPolicy.KEEP,
             pruneCachedMediaWorker,
         )
-    }
-
-    private fun upgradeSharedPreferences(oldVersion: Int, newVersion: Int) {
-        Timber.d("Upgrading shared preferences: %d -> %d", oldVersion, newVersion)
-        val editor = sharedPreferencesRepository.edit()
-
-        // General usage is:
-        //
-        // if (oldVersion < ...) {
-        //     ... use editor modify the preferences ...
-        // }
-
-        editor.putInt(PrefKeys.SCHEMA_VERSION, newVersion)
-        editor.apply()
     }
 }

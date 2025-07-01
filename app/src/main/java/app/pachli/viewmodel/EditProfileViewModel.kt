@@ -22,18 +22,21 @@ import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.ProfileEditedEvent
 import app.pachli.core.common.string.randomAlphanumericString
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.InstanceInfoRepository
-import app.pachli.core.network.model.Account
-import app.pachli.core.network.model.StringField
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.ProfileEditedEvent
+import app.pachli.core.model.CredentialAccount
+import app.pachli.core.model.StringField
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.util.Error
 import app.pachli.util.Loading
 import app.pachli.util.Resource
 import app.pachli.util.Success
-import at.connyduck.calladapter.networkresult.fold
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.File
 import javax.inject.Inject
@@ -61,17 +64,18 @@ class EditProfileViewModel @Inject constructor(
     private val mastodonApi: MastodonApi,
     private val eventHub: EventHub,
     private val application: Application,
+    private val accountManager: AccountManager,
     instanceInfoRepo: InstanceInfoRepository,
 ) : ViewModel() {
 
-    val profileData = MutableLiveData<Resource<Account>>()
+    val profileData = MutableLiveData<Resource<CredentialAccount>>()
     val avatarData = MutableLiveData<Uri>()
     val headerData = MutableLiveData<Uri>()
     val saveData = MutableLiveData<Resource<Nothing>>()
 
     val instanceData = instanceInfoRepo.instanceInfo
 
-    private var apiProfileAccount: Account? = null
+    private var apiProfileAccount: CredentialAccount? = null
 
     private val _isDirty = MutableStateFlow(false)
 
@@ -86,13 +90,13 @@ class EditProfileViewModel @Inject constructor(
         if (profileData.value == null || profileData.value is Error) {
             profileData.postValue(Loading())
 
-            mastodonApi.accountVerifyCredentials().fold(
-                { profile ->
+            mastodonApi.accountVerifyCredentials()
+                .map { it.body.asModel() }
+                .onSuccess { profile ->
                     apiProfileAccount = profile
                     profileData.postValue(Success(profile))
-                },
-                { profileData.postValue(Error()) },
-            )
+                }
+                .onFailure { profileData.postValue(Error()) }
         }
     }
 
@@ -147,29 +151,32 @@ class EditProfileViewModel @Inject constructor(
                 diff.field3?.second?.toRequestBody(MultipartBody.FORM),
                 diff.field4?.first?.toRequestBody(MultipartBody.FORM),
                 diff.field4?.second?.toRequestBody(MultipartBody.FORM),
-            ).fold(
-                { newAccountData ->
-                    saveData.postValue(Success())
-                    eventHub.dispatch(ProfileEditedEvent(newAccountData))
-                },
-                { throwable ->
-                    saveData.postValue(Error(cause = throwable))
-                },
-            )
+            ).onSuccess {
+                val newAccountData = it.body.asModel()
+                accountManager.updateAccount(pachliAccountId, newAccountData)
+                saveData.postValue(Success())
+                eventHub.dispatch(ProfileEditedEvent(newAccountData))
+            }.onFailure {
+                saveData.postValue(Error(cause = it.throwable))
+            }
         }
     }
 
     // cache activity state for rotation change
     internal fun updateProfile(newProfileData: ProfileDataInUi) {
         if (profileData.value is Success) {
-            val newProfileSource = profileData.value?.data?.source?.copy(note = newProfileData.note, fields = newProfileData.fields)
-            val newProfile = profileData.value?.data?.copy(
-                displayName = newProfileData.displayName,
-                locked = newProfileData.locked,
-                source = newProfileSource,
-            )
+            profileData.value?.data?.let { data ->
+                val newProfile = data.copy(
+                    displayName = newProfileData.displayName,
+                    locked = newProfileData.locked,
+                    source = data.source.copy(
+                        note = newProfileData.note,
+                        fields = newProfileData.fields,
+                    ),
+                )
 
-            profileData.value = Success(newProfile)
+                profileData.value = Success(newProfile)
+            }
         }
     }
 
@@ -177,7 +184,7 @@ class EditProfileViewModel @Inject constructor(
         _isDirty.value = getProfileDiff(apiProfileAccount, newProfileData).hasChanges()
     }
 
-    private fun getProfileDiff(oldProfileAccount: Account?, newProfileData: ProfileDataInUi): DiffProfileData {
+    private fun getProfileDiff(oldProfileAccount: CredentialAccount?, newProfileData: ProfileDataInUi): DiffProfileData {
         val displayName = if (oldProfileAccount?.displayName == newProfileData.displayName) {
             null
         } else {

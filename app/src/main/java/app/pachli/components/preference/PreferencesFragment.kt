@@ -19,7 +19,6 @@ package app.pachli.components.preference
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
@@ -30,37 +29,44 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import app.pachli.R
-import app.pachli.components.notifications.AccountNotificationMethod
-import app.pachli.components.notifications.AppNotificationMethod
 import app.pachli.components.notifications.getApplicationLabel
-import app.pachli.components.notifications.hasPushScope
 import app.pachli.components.notifications.notificationMethod
-import app.pachli.core.activity.NotificationConfig
+import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.network.model.Notification
+import app.pachli.core.domain.notifications.AccountNotificationMethod
+import app.pachli.core.domain.notifications.AppNotificationMethod
+import app.pachli.core.domain.notifications.NotificationConfig
+import app.pachli.core.domain.notifications.hasPushScope
+import app.pachli.core.domain.notifications.notificationMethod
 import app.pachli.core.preferences.AppTheme
 import app.pachli.core.preferences.DownloadLocation
 import app.pachli.core.preferences.MainNavigationPosition
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.preferences.ShowSelfUsername
+import app.pachli.core.preferences.TabAlignment
+import app.pachli.core.preferences.TabContents
+import app.pachli.core.preferences.TabTapBehaviour
+import app.pachli.core.preferences.UpdateNotificationFrequency
+import app.pachli.core.ui.extensions.asDdHhMmSs
 import app.pachli.core.ui.extensions.await
+import app.pachli.core.ui.extensions.instantFormatter
 import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.AccountNotificationDetailsListItemBinding
-import app.pachli.feature.about.asDdHhMmSs
-import app.pachli.feature.about.instantFormatter
 import app.pachli.settings.emojiPreference
 import app.pachli.settings.enumListPreference
 import app.pachli.settings.listPreference
@@ -71,10 +77,7 @@ import app.pachli.settings.sliderPreference
 import app.pachli.settings.switchPreference
 import app.pachli.updatecheck.UpdateCheck
 import app.pachli.updatecheck.UpdateCheckResult.AT_LATEST
-import app.pachli.updatecheck.UpdateNotificationFrequency
 import app.pachli.util.LocaleManager
-import app.pachli.util.deserialize
-import app.pachli.util.serialize
 import app.pachli.view.FontFamilyDialogFragment
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -105,6 +108,9 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
     @Inject
     lateinit var powerManager: PowerManager
+
+    @Inject
+    lateinit var proxyPreferenceSummaryProvider: ProxyPreferencesFragment.SummaryProvider
 
     private val iconSize by unsafeLazy { resources.getDimensionPixelSize(DR.dimen.preference_icon_size) }
 
@@ -281,6 +287,13 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     setTitle(R.string.pref_title_show_stat_inline)
                     isSingleLineTitle = false
                 }
+
+                switchPreference {
+                    setDefaultValue(true)
+                    key = PrefKeys.CONFIRM_STATUS_LANGUAGE
+                    setTitle(R.string.pref_title_confirm_status_language)
+                    isSingleLineTitle = false
+                }
             }
 
             preferenceCategory(app.pachli.core.preferences.R.string.pref_category_tabs) {
@@ -288,6 +301,24 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     setDefaultValue(MainNavigationPosition.TOP)
                     setTitle(R.string.pref_main_nav_position)
                     key = PrefKeys.MAIN_NAV_POSITION
+                }
+
+                enumListPreference<TabAlignment> {
+                    setDefaultValue(TabAlignment.START)
+                    setTitle(app.pachli.core.preferences.R.string.pref_title_tab_alignment)
+                    key = PrefKeys.TAB_ALIGNMENT
+                }
+
+                enumListPreference<TabContents> {
+                    setDefaultValue(TabContents.ICON_ONLY)
+                    setTitle(app.pachli.core.preferences.R.string.pref_title_tab_contents)
+                    key = PrefKeys.TAB_CONTENTS
+                }
+
+                enumListPreference<TabTapBehaviour> {
+                    setDefaultValue(TabTapBehaviour.JUMP_TO_NEXT_PAGE)
+                    setTitle(app.pachli.core.preferences.R.string.pref_title_tab_tap)
+                    key = PrefKeys.TAB_TAP_BEHAVIOUR
                 }
 
                 switchPreference {
@@ -325,7 +356,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     setOnPreferenceClickListener {
                         distributorPkg?.let { pkg ->
                             context.packageManager.getLaunchIntentForPackage(pkg)?.also {
-                                startActivity(it)
+                                startActivityWithDefaultTransition(it)
                             }
                         }
 
@@ -355,9 +386,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                                 // So work around that by setting a preference to indicate that
                                 // the chosen distributor should be ignored. This is then used
                                 // in MainActivity and passed to chooseUnifiedPushDistributor.
-                                sharedPreferencesRepository.edit().apply {
-                                    putBoolean(PrefKeys.USE_PREVIOUS_UNIFIED_PUSH_DISTRIBUTOR, false)
-                                }.commit()
+                                sharedPreferencesRepository.usePreviousUnifiedPushDistributor = false
 
                                 val packageManager = context.packageManager
                                 val intent = packageManager.getLaunchIntentForPackage(context.packageName)!!
@@ -423,7 +452,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                         if (shouldIgnore) {
                             val intent = Intent().apply {
                                 action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                                data = Uri.parse("package:${context.packageName}")
+                                data = "package:${context.packageName}".toUri()
                             }
                             context.startActivity(intent)
                         }
@@ -438,6 +467,13 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     key = PrefKeys.CUSTOM_TABS
                     setTitle(R.string.pref_title_custom_tabs)
                     isSingleLineTitle = false
+
+                    setSummaryProvider {
+                        when ((it as SwitchPreferenceCompat).isChecked) {
+                            true -> context.getString(R.string.pref_custom_tabs_true)
+                            else -> context.getString(R.string.pref_custom_tabs_false)
+                        }
+                    }
                 }
             }
 
@@ -449,31 +485,6 @@ class PreferencesFragment : PreferenceFragmentCompat() {
             }
 
             preferenceCategory(R.string.pref_title_wellbeing_mode) {
-                switchPreference {
-                    title = getString(R.string.limit_notifications)
-                    setDefaultValue(false)
-                    key = PrefKeys.WELLBEING_LIMITED_NOTIFICATIONS
-                    setOnPreferenceChangeListener { _, value ->
-                        for (account in accountManager.accounts) {
-                            val notificationFilter = deserialize(account.notificationsFilter).toMutableSet()
-
-                            if (value == true) {
-                                notificationFilter.add(Notification.Type.FAVOURITE)
-                                notificationFilter.add(Notification.Type.FOLLOW)
-                                notificationFilter.add(Notification.Type.REBLOG)
-                            } else {
-                                notificationFilter.remove(Notification.Type.FAVOURITE)
-                                notificationFilter.remove(Notification.Type.FOLLOW)
-                                notificationFilter.remove(Notification.Type.REBLOG)
-                            }
-
-                            account.notificationsFilter = serialize(notificationFilter)
-                            accountManager.saveAccount(account)
-                        }
-                        true
-                    }
-                }
-
                 switchPreference {
                     title = getString(R.string.wellbeing_hide_stats_posts)
                     setDefaultValue(false)
@@ -491,19 +502,16 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                 preference {
                     setTitle(R.string.pref_title_http_proxy_settings)
                     fragment = ProxyPreferencesFragment::class.qualifiedName
-                    summaryProvider = ProxyPreferencesFragment.SummaryProvider
+                    summaryProvider = proxyPreferenceSummaryProvider
                 }
             }
 
             preferenceCategory(R.string.pref_title_update_settings) {
                 it.icon = makeIcon(GoogleMaterial.Icon.gmd_upgrade)
 
-                listPreference {
-                    setDefaultValue(UpdateNotificationFrequency.ALWAYS.name)
-                    setEntries(R.array.pref_update_notification_frequency_names)
-                    setEntryValues(R.array.pref_update_notification_frequency_values)
+                enumListPreference<UpdateNotificationFrequency> {
+                    setDefaultValue(UpdateNotificationFrequency.ALWAYS)
                     key = PrefKeys.UPDATE_NOTIFICATION_FREQUENCY
-                    setSummaryProvider { entry }
                     setTitle(R.string.pref_title_update_notification_frequency)
                     isSingleLineTitle = false
                     icon = makeIcon(GoogleMaterial.Icon.gmd_calendar_today)
@@ -588,8 +596,8 @@ class AccountNotificationDetailsAdapter(context: Context, accounts: List<Account
     @get:StringRes
     private val AccountNotificationMethod.stringRes: Int
         get() = when (this) {
-            AccountNotificationMethod.PUSH -> R.string.pref_notification_method_push
-            AccountNotificationMethod.PULL -> R.string.pref_notification_method_pull
+            AccountNotificationMethod.PUSH -> app.pachli.core.ui.R.string.pref_notification_method_push
+            AccountNotificationMethod.PULL -> app.pachli.core.ui.R.string.pref_notification_method_pull
         }
 
     /**
@@ -605,9 +613,9 @@ class AccountNotificationDetailsAdapter(context: Context, accounts: List<Account
         return when (notificationMethod) {
             AccountNotificationMethod.PUSH -> unifiedPushUrl
             AccountNotificationMethod.PULL -> if (hasPushScope) {
-                context.getString(R.string.pref_notification_fetch_server_rejected, domain)
+                context.getString(app.pachli.core.ui.R.string.pref_notification_fetch_server_rejected, domain)
             } else {
-                context.getString(R.string.pref_notification_fetch_needs_push)
+                context.getString(app.pachli.core.ui.R.string.pref_notification_fetch_needs_push)
             }
         }
     }
@@ -642,8 +650,8 @@ class AccountNotificationDetailsAdapter(context: Context, accounts: List<Account
             val result = lastFetch.second
 
             val (resTimestamp, error) = when (result) {
-                is Ok -> Pair(R.string.pref_notification_fetch_ok_timestamp_fmt, null)
-                is Err -> Pair(R.string.pref_notification_fetch_err_timestamp_fmt, result.error)
+                is Ok -> Pair(app.pachli.core.ui.R.string.pref_notification_fetch_ok_timestamp_fmt, null)
+                is Err -> Pair(app.pachli.core.ui.R.string.pref_notification_fetch_err_timestamp_fmt, result.error)
             }
 
             lastFetchTime.text = context.getString(

@@ -17,18 +17,15 @@
 package app.pachli.components.search.fragments
 
 import android.Manifest
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
@@ -36,29 +33,34 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.pachli.R
 import app.pachli.components.search.adapter.SearchStatusesAdapter
-import app.pachli.core.activity.AccountSelectionListener
 import app.pachli.core.activity.BaseActivity
+import app.pachli.core.activity.OpenUrlUseCase
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.activity.extensions.startActivityWithTransition
-import app.pachli.core.activity.openLink
+import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.domain.DownloadUrlUseCase
+import app.pachli.core.model.Attachment
+import app.pachli.core.model.Poll
+import app.pachli.core.model.Status
+import app.pachli.core.model.Status.Mention
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InReplyTo
 import app.pachli.core.navigation.EditContentFilterActivityIntent
 import app.pachli.core.navigation.ReportActivityIntent
 import app.pachli.core.navigation.ViewMediaActivityIntent
-import app.pachli.core.network.model.Attachment
-import app.pachli.core.network.model.Poll
-import app.pachli.core.network.model.Status
-import app.pachli.core.network.model.Status.Mention
+import app.pachli.core.ui.ClipboardUseCase
+import app.pachli.core.ui.SetMarkdownContent
+import app.pachli.core.ui.SetMastodonHtmlContent
 import app.pachli.interfaces.StatusActionListener
 import app.pachli.view.showMuteAccountDialog
-import app.pachli.viewdata.StatusViewData
-import at.connyduck.calladapter.networkresult.fold
+import com.bumptech.glide.Glide
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -75,21 +77,33 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
     @Inject
     lateinit var downloadUrlUseCase: DownloadUrlUseCase
 
+    @Inject
+    lateinit var clipboard: ClipboardUseCase
+
+    @Inject
+    lateinit var openUrl: OpenUrlUseCase
+
     override val data: Flow<PagingData<StatusViewData>>
         get() = viewModel.statusesFlow
 
     override fun createAdapter(): PagingDataAdapter<StatusViewData, *> {
         val statusDisplayOptions = statusDisplayOptionsRepository.flow.value
 
+        val setStatusContent = if (statusDisplayOptions.renderMarkdown) {
+            SetMarkdownContent(requireContext())
+        } else {
+            SetMastodonHtmlContent
+        }
+
         binding.searchRecyclerView.addItemDecoration(
             MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
         )
         binding.searchRecyclerView.layoutManager = LinearLayoutManager(binding.searchRecyclerView.context)
-        return SearchStatusesAdapter(viewModel.activeAccount!!.id, statusDisplayOptions, this)
+        return SearchStatusesAdapter(Glide.with(this), setStatusContent, statusDisplayOptions, this)
     }
 
-    override fun onContentHiddenChange(viewData: StatusViewData, isShowing: Boolean) {
-        viewModel.contentHiddenChange(viewData, isShowing)
+    override fun onContentHiddenChange(viewData: StatusViewData, isShowingContent: Boolean) {
+        viewModel.contentHiddenChange(viewData, isShowingContent)
     }
 
     override fun onReply(viewData: StatusViewData) {
@@ -128,24 +142,22 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                         view,
                         url,
                     )
-                    startActivity(intent, options.toBundle())
+                    startActivityWithDefaultTransition(intent, options.toBundle())
                 } else {
-                    startActivity(intent)
+                    startActivityWithDefaultTransition(intent)
                 }
             }
-            Attachment.Type.UNKNOWN -> {
-                context?.openLink(actionable.attachments[attachmentIndex].url)
-            }
+            Attachment.Type.UNKNOWN -> openUrl(actionable.attachments[attachmentIndex].url)
         }
     }
 
     override fun onViewThread(status: Status) {
         val actionableStatus = status.actionableStatus
-        bottomSheetActivity?.viewThread(pachliAccountId, actionableStatus.id, actionableStatus.url)
+        viewUrlActivity?.viewThread(pachliAccountId, actionableStatus.id, actionableStatus.url)
     }
 
     override fun onOpenReblog(status: Status) {
-        bottomSheetActivity?.viewAccount(pachliAccountId, status.account.id)
+        viewUrlActivity?.viewAccount(pachliAccountId, status.account.id)
     }
 
     override fun onExpandedChange(viewData: StatusViewData, expanded: Boolean) {
@@ -160,14 +172,14 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         viewModel.voteInPoll(viewData, poll, choices)
     }
 
-    override fun clearWarningAction(viewData: StatusViewData) {}
+    override fun clearContentFilter(viewData: StatusViewData) {}
 
     override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
         viewModel.reblog(viewData, reblog)
     }
 
     override fun onEditFilterById(pachliAccountId: Long, filterId: String) {
-        requireActivity().startActivityWithTransition(
+        startActivityWithTransition(
             EditContentFilterActivityIntent.edit(requireContext(), pachliAccountId, filterId),
             TransitionKind.SLIDE_FROM_END,
         )
@@ -184,18 +196,17 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
 
         val intent = ComposeActivityIntent(
             requireContext(),
+            status.pachliAccountId,
             ComposeOptions(
-                inReplyToId = status.actionableId,
+                inReplyTo = InReplyTo.Status.from(status.actionable),
                 replyVisibility = actionableStatus.visibility,
                 contentWarning = actionableStatus.spoilerText,
                 mentionedUsernames = mentionedUsernames,
-                replyingStatusAuthor = actionableStatus.account.localUsername,
-                replyingStatusContent = status.content.toString(),
                 language = actionableStatus.language,
                 kind = ComposeOptions.ComposeKind.NEW,
             ),
         )
-        bottomSheetActivity?.startActivityWithDefaultTransition(intent)
+        startActivityWithDefaultTransition(intent)
     }
 
     private fun more(statusViewData: StatusViewData, view: View) {
@@ -234,7 +245,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         }
 
         val openAsItem = popup.menu.findItem(R.id.status_open_as)
-        val openAsText = bottomSheetActivity?.openAsText
+        val openAsText = viewUrlActivity?.openAsText
         if (openAsText == null) {
             openAsItem.isVisible = false
         } else {
@@ -268,7 +279,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                         statusToShare.content
                     sendIntent.putExtra(Intent.EXTRA_TEXT, stringToShare)
                     sendIntent.type = "text/plain"
-                    startActivity(Intent.createChooser(sendIntent, resources.getText(R.string.send_post_content_to)))
+                    startActivityWithDefaultTransition(Intent.createChooser(sendIntent, resources.getText(R.string.send_post_content_to)))
                     return@setOnMenuItemClickListener true
                 }
                 R.id.post_share_link -> {
@@ -276,12 +287,11 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                     sendIntent.action = Intent.ACTION_SEND
                     sendIntent.putExtra(Intent.EXTRA_TEXT, statusUrl)
                     sendIntent.type = "text/plain"
-                    startActivity(Intent.createChooser(sendIntent, resources.getText(R.string.send_post_link_to)))
+                    startActivityWithDefaultTransition(Intent.createChooser(sendIntent, resources.getText(R.string.send_post_link_to)))
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_copy_link -> {
-                    val clipboard = requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    clipboard.setPrimaryClip(ClipData.newPlainText(null, statusUrl))
+                    statusUrl?.let { clipboard.copyTextTo(it) }
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_open_as -> {
@@ -321,15 +331,15 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_delete_and_redraft -> {
-                    showConfirmEditDialog(statusViewData)
+                    showConfirmEditDialog(pachliAccountId, statusViewData)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_edit -> {
-                    editStatus(id, status)
+                    editStatus(pachliAccountId, id, status)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.pin -> {
-                    viewModel.pinAccount(status, !status.isPinned())
+                    viewModel.pinStatus(statusViewData, !status.isPinned())
                     return@setOnMenuItemClickListener true
                 }
             }
@@ -357,20 +367,16 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
 
     private fun accountIsInMentions(account: AccountEntity?, mentions: List<Mention>): Boolean {
         return mentions.firstOrNull {
-            account?.username == it.username && account.domain == Uri.parse(it.url)?.host
+            account?.username == it.username && account.domain == it.url.toUri().host
         } != null
     }
 
     private fun showOpenAsDialog(statusUrl: String, dialogTitle: CharSequence?) {
-        bottomSheetActivity?.showAccountChooserDialog(
-            dialogTitle,
-            false,
-            object : AccountSelectionListener {
-                override fun onAccountSelected(account: AccountEntity) {
-                    bottomSheetActivity?.openAsAccount(statusUrl, account)
-                }
-            },
-        )
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewUrlActivity?.chooseAccount(dialogTitle, false)?.let { account ->
+                viewUrlActivity?.openAsAccount(statusUrl, account)
+            }
+        }
     }
 
     private fun downloadAllMedia(status: Status) {
@@ -396,7 +402,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
     }
 
     private fun openReportPage(accountId: String, accountUsername: String, statusId: String) {
-        startActivity(ReportActivityIntent(requireContext(), this.pachliAccountId, accountId, accountUsername, statusId))
+        startActivityWithDefaultTransition(ReportActivityIntent(requireContext(), this.pachliAccountId, accountId, accountUsername, statusId))
     }
 
     // TODO: Identical to the same function in SFragment.kt
@@ -414,43 +420,35 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
     }
 
     // TODO: Identical to the same function in SFragment.kt
-    private fun showConfirmEditDialog(statusViewData: StatusViewData) {
+    private fun showConfirmEditDialog(pachliAccountId: Long, statusViewData: StatusViewData) {
         activity?.let {
             AlertDialog.Builder(it)
                 .setMessage(R.string.dialog_redraft_post_warning)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     lifecycleScope.launch {
-                        viewModel.deleteStatusAsync(statusViewData.id).await().fold(
-                            { deletedStatus ->
-                                viewModel.removeItem(statusViewData)
+                        viewModel.deleteStatusAsync(statusViewData.id).await().onSuccess { redraftStatus ->
+                            viewModel.removeItem(statusViewData)
 
-                                val redraftStatus = if (deletedStatus.isEmpty()) {
-                                    statusViewData.status.toDeletedStatus()
-                                } else {
-                                    deletedStatus
-                                }
-
-                                val intent = ComposeActivityIntent(
-                                    requireContext(),
-                                    ComposeOptions(
-                                        content = redraftStatus.text.orEmpty(),
-                                        inReplyToId = redraftStatus.inReplyToId,
-                                        visibility = redraftStatus.visibility,
-                                        contentWarning = redraftStatus.spoilerText,
-                                        mediaAttachments = redraftStatus.attachments,
-                                        sensitive = redraftStatus.sensitive,
-                                        poll = redraftStatus.poll?.toNewPoll(redraftStatus.createdAt),
-                                        language = redraftStatus.language,
-                                        kind = ComposeOptions.ComposeKind.NEW,
-                                    ),
-                                )
-                                startActivity(intent)
-                            },
-                            { error ->
-                                Timber.w(error, "error deleting status")
-                                Toast.makeText(context, app.pachli.core.ui.R.string.error_generic, Toast.LENGTH_SHORT).show()
-                            },
-                        )
+                            val intent = ComposeActivityIntent(
+                                requireContext(),
+                                pachliAccountId,
+                                ComposeOptions(
+                                    content = redraftStatus.text.orEmpty(),
+                                    inReplyTo = redraftStatus.inReplyToId?.let { InReplyTo.Id(it) },
+                                    visibility = redraftStatus.visibility,
+                                    contentWarning = redraftStatus.spoilerText,
+                                    mediaAttachments = redraftStatus.attachments,
+                                    sensitive = redraftStatus.sensitive,
+                                    poll = redraftStatus.poll?.toNewPoll(redraftStatus.createdAt),
+                                    language = redraftStatus.language,
+                                    kind = ComposeOptions.ComposeKind.NEW,
+                                ),
+                            )
+                            startActivityWithDefaultTransition(intent)
+                        }.onFailure { error ->
+                            Timber.w("error deleting status: %s", error)
+                            Toast.makeText(context, app.pachli.core.ui.R.string.error_generic, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)
@@ -458,32 +456,30 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         }
     }
 
-    private fun editStatus(id: String, status: Status) {
+    private fun editStatus(pachliAccountId: Long, id: String, status: Status) {
         lifecycleScope.launch {
-            mastodonApi.statusSource(id).fold(
-                { source ->
-                    val composeOptions = ComposeOptions(
-                        content = source.text,
-                        inReplyToId = status.inReplyToId,
-                        visibility = status.visibility,
-                        contentWarning = source.spoilerText,
-                        mediaAttachments = status.attachments,
-                        sensitive = status.sensitive,
-                        language = status.language,
-                        statusId = source.id,
-                        poll = status.poll?.toNewPoll(status.createdAt),
-                        kind = ComposeOptions.ComposeKind.EDIT_POSTED,
-                    )
-                    startActivity(ComposeActivityIntent(requireContext(), composeOptions))
-                },
-                {
-                    Snackbar.make(
-                        requireView(),
-                        getString(R.string.error_status_source_load),
-                        Snackbar.LENGTH_SHORT,
-                    ).show()
-                },
-            )
+            mastodonApi.statusSource(id).onSuccess { response ->
+                val source = response.body
+                val composeOptions = ComposeOptions(
+                    content = source.text,
+                    inReplyTo = status.inReplyToId?.let { InReplyTo.Id(it) },
+                    visibility = status.visibility,
+                    contentWarning = source.spoilerText,
+                    mediaAttachments = status.attachments,
+                    sensitive = status.sensitive,
+                    language = status.language,
+                    statusId = source.id,
+                    poll = status.poll?.toNewPoll(status.createdAt),
+                    kind = ComposeOptions.ComposeKind.EDIT_POSTED,
+                )
+                startActivityWithDefaultTransition(ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions))
+            }.onFailure {
+                Snackbar.make(
+                    requireView(),
+                    getString(R.string.error_status_source_load),
+                    Snackbar.LENGTH_SHORT,
+                ).show()
+            }
         }
     }
 

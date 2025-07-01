@@ -55,8 +55,6 @@
     <string name="action_block">अवरुध्यताम्</string>
     <string name="action_unfollow">अनुसरणं अपाकुरुताम्</string>
     <string name="action_follow">अनुस्रियताम्</string>
-    <string name="action_logout_confirm">नूनमेव बहिर्गन्तुमीहते %1$s इति व्यक्तित्वलेखात् \?</string>
-    <string name="action_logout">बहिर्गम्यताम्</string>
     <string name="action_compose">रच्यताम्</string>
     <string name="action_unfavourite">प्रियता निष्क्रियताम्</string>
     <string name="action_bookmark">पुटचिह्नं क्रियताम्</string>
@@ -90,11 +88,9 @@
     <string name="send_post_link_to">दौत्यजालस्थलमस्मै विभाज्यताम् …</string>
     <string name="downloading_media">सामग्री अवारोप्यमाणा</string>
     <string name="download_media">सामग्री अवारोप्यताम्</string>
-    <string name="action_share_as">एवं विभाज्यताम् …</string>
     <string name="action_copy_link">जालस्थलं प्रतिलिख्यताम्</string>
     <string name="download_image">अवारोप्यमाणम् %1$s</string>
     <string name="action_open_media_n">उद्घाट्यताम् #%d</string>
-    <string name="title_mentions_dialog">उल्लेखाः</string>
     <string name="action_open_faved_by">प्रियाणि दृश्यन्ताम्</string>
     <string name="action_open_reblogged_by">प्रकाशनानि दृश्यन्ताम्</string>
     <string name="action_open_reblogger">प्रकाशनलेखकः उद्घाट्यताम्</string>
@@ -159,7 +155,6 @@
     <string name="dialog_title_finishing_media_upload">सामग्रीणामुपारोपणसिद्धिः वर्तमाना</string>
     <string name="dialog_message_cancel_follow_request">अनुसरणानुरोधो नश्यताम् \?</string>
     <string name="add_account_description">नवमास्टोडोनलेखा युज्यताम्</string>
-    <string name="add_account_name">नवलेखा युज्यताम्</string>
     <string name="filter_add_description">शोधनार्थं वाक्यांशः</string>
     <string name="filter_dialog_whole_word_description">यदा शब्दो वा वाक्यांशश्चिह्नरहितो भवति, तर्हि विन्यासोऽयं स्थाप्यते केवलं यदा पूर्णत्वेन शब्दसमानता वर्तते</string>
     <string name="filter_dialog_whole_word">सर्वः शब्दः</string>
@@ -169,7 +164,6 @@
     <string name="filter_addition_title">शोधकं युज्यताम्</string>
     <string name="pref_title_thread_filter_keywords">आलापाः</string>
     <string name="pref_title_public_filter_keywords">सार्वजनिकतालिकाः</string>
-    <string name="replying_to">\@%s मित्रायोत्तरम्</string>
     <string name="title_media">सामग्र्यः</string>
     <string name="pref_title_alway_open_spoiler">सर्वदा विषयसतर्कतयाऽङ्कितं दौत्यं विस्तार्यताम्</string>
     <string name="pref_title_alway_show_sensitive_media">सर्वदा संवेदनशीलविषयो दृश्यताम्</string>
@@ -189,7 +183,6 @@
     <string name="post_media_images">चित्राणि</string>
     <string name="post_share_link">दौत्याय जालस्थानं विभाज्यताम्</string>
     <string name="post_share_content">दौत्यविषयो विभाज्यताम्</string>
-    <string name="about_pachli_version">टस्की %s</string>
     <string name="description_account_locked">कपाटितव्यक्तिविवरणलेखः</string>
     <plurals name="notification_title_summary">
         <item quantity="one">%d नवपरस्परक्रिया</item>
@@ -266,11 +259,6 @@
     <string name="lock_account_label_description">स्वयमेवाऽनुसर्तॄणां कृतेऽनुमतिर्दातव्या</string>
     <string name="lock_account_label">लेखा अवरुध्यताम्</string>
     <string name="action_remove">नश्यताम्</string>
-    <string name="action_set_caption">शीर्षकवाक्यं लिख्यताम्</string>
-    <plurals name="hint_describe_for_visually_impaired">
-        <item quantity="other">दृष्ट्यां येषां समस्याऽस्ति तेषांं कृते विवरणम्
-\n(%d परिमिता न्यूनाक्षरसङ्ख्या)</item>
-    </plurals>
     <string name="compose_active_account_description">%1$s लेखया प्रकटनं क्रियते</string>
     <string name="download_failed">अवारोपणे दोषः</string>
     <string name="restart">पुनः प्रारभ्यताम्</string>
@@ -320,7 +308,6 @@
     <string name="hint_additional_info">अन्याः टिप्पण्यः</string>
     <string name="report_sent_success">साफल्येनाऽऽवेदनं दत्तमस्य @%s</string>
     <string name="button_back">पूर्वम्</string>
-    <string name="button_continue">निरन्तरम्</string>
     <plurals name="poll_timespan_seconds">
         <item quantity="one">%d क्षणम्</item>
         <item quantity="other">%d क्षणे</item>
@@ -379,12 +366,12 @@
     <string name="title_favourited_by">निम्नमित्रस्य प्रीतिः</string>
     <string name="title_reblogged_by">निम्नमित्रेण प्रकाशितम्</string>
     <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> प्रकाशनम्</item>
-        <item quantity="other"><b>%s</b> प्रकाशने</item>
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; प्रकाशनम्</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; प्रकाशने</item>
     </plurals>
     <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> प्रियम्</item>
-        <item quantity="other"><b>%1$s</b> प्रिये</item>
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; प्रियम्</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; प्रिये</item>
     </plurals>
     <string name="total_usage">समस्त-उपयोगः</string>
     <string name="total_accounts">सकललेखाः</string>
@@ -461,7 +448,6 @@
     <string name="title_migration_relogin">पुनःसम्प्रवेशाय विज्ञापन-ज्ञापनसूचनाः</string>
     <string name="dialog_follow_hashtag_hint">#निश्रेणिचिह्नशीर्षकः</string>
     <string name="dialog_follow_hashtag_title">व्यक्तित्वविवरणलेखा अनुसरतु</string>
-    <string name="limit_notifications">कालानुक्रमपङ्क्त्याः सूचनाः परिमिताः कुरुताम्</string>
     <string name="notification_report_description">परिमितावेदनानि प्रति ज्ञापनसूचनाः</string>
     <string name="unsaved_changes">भवतः अरक्षितानि परिवर्तनानि सन्ति।</string>
     <string name="pref_title_notification_filter_reports">नूतनम् आवेदनमस्ति</string>

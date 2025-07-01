@@ -11,7 +11,6 @@ pluginManagement {
     }
 
     includeBuild("build-logic")
-    includeBuild("plugins/markdown2resource")
 }
 
 dependencyResolutionManagement {
@@ -30,7 +29,8 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    id("com.gradle.develocity") version "3.18.1"
+    id("com.gradle.develocity") version "4.0.2"
+    id("org.gradle.toolchains.foojay-resolver-convention") version ("1.0.0")
 }
 
 develocity {
@@ -56,6 +56,7 @@ include(":core:data")
 include(":core:database")
 include(":core:designsystem")
 include(":core:domain")
+include(":core:eventhub")
 include(":core:model")
 include(":core:preferences")
 include(":core:navigation")
@@ -64,10 +65,13 @@ include(":core:network-test")
 include(":core:testing")
 include(":core:ui")
 include(":feature:about")
+include(":feature:intentrouter")
 include(":feature:lists")
 include(":feature:login")
+include(":feature:manageaccounts")
 include(":feature:suggestions")
 include(":tools")
+include(":tools:fmtsql")
 include(":tools:mklanguages")
 include(":tools:mkserverversions")
 include(":tools:mvstring")

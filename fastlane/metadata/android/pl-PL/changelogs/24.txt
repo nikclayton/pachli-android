@@ -1,0 +1,15 @@
+Pachli 2.9.0
+
+Nowości:
+
+- Przeniesienie ustawień kart z laboratorium
+- Wstepne wspacie filtrowania powiadomień wg kont nadawcy
+- Wspacie dla Pleromy zwracającej daty bez strefy czasowej
+- Pokazuj dodatkowe akcje a11y dla popularnych odnośników i proponowanych kont
+
+Poprawki:
+
+- Klikalne elementy w dialogach a11y
+- Nie trać obrazów / podpisów po nieudanym wgrywaniu
+- Naprawione różne awarie
+- Aktualizacja tłumaczeń na fiński, irlandzki, norweski (bokmål i nynorsk) i hiszpański

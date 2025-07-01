@@ -19,9 +19,9 @@ package app.pachli.components.search.adapter
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import app.pachli.components.search.SearchType
-import app.pachli.core.network.model.SearchResult
+import app.pachli.core.model.SearchResult
 import app.pachli.core.network.retrofit.MastodonApi
-import at.connyduck.calladapter.networkresult.getOrElse
+import com.github.michaelbull.result.getOrElse
 import timber.log.Timber
 
 class SearchPagingSource<T : Any>(
@@ -63,11 +63,11 @@ class SearchPagingSource<T : Any>(
             offset = currentKey,
             following = false,
         ).getOrElse {
-            Timber.w(it)
-            return LoadResult.Error(it)
-        }
+            Timber.w(it.throwable)
+            return LoadResult.Error(it.throwable)
+        }.body
 
-        val res = parser(data)
+        val res = parser(data.asModel())
 
         val nextKey = if (res.isEmpty()) {
             null

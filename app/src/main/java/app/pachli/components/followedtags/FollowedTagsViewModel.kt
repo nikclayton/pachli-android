@@ -12,7 +12,7 @@ import app.pachli.core.network.model.HashTag
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
-import at.connyduck.calladapter.networkresult.fold
+import com.github.michaelbull.result.mapBoth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -46,22 +46,26 @@ class FollowedTagsViewModel @Inject constructor(
 
     val showFabWhileScrolling = sharedPreferencesRepository.changes
         .filter { it == null || it == PrefKeys.FAB_HIDE }
-        .map { !sharedPreferencesRepository.getBoolean(PrefKeys.FAB_HIDE, false) }
-        .onStart { emit(!sharedPreferencesRepository.getBoolean(PrefKeys.FAB_HIDE, false)) }
+        .map { !sharedPreferencesRepository.hideFabWhenScrolling }
+        .onStart { emit(!sharedPreferencesRepository.hideFabWhenScrolling) }
         .shareIn(viewModelScope, replay = 1, started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000))
 
     suspend fun searchAutocompleteSuggestions(token: String): List<ComposeAutoCompleteAdapter.AutocompleteResult> {
         return api.search(query = token, type = SearchType.Hashtag.apiParameter, limit = 10)
-            .fold({ searchResult ->
-                searchResult.hashtags.map {
-                    ComposeAutoCompleteAdapter.AutocompleteResult.HashtagResult(
-                        hashtag = it.name,
-                        usage7d = it.history.sumOf { it.uses },
-                    )
-                }
-            }, { e ->
-                Timber.e(e, "Autocomplete search for %s failed.", token)
-                emptyList()
-            })
+            .mapBoth(
+                {
+                    val searchResult = it.body
+                    searchResult.hashtags.map {
+                        ComposeAutoCompleteAdapter.AutocompleteResult.HashtagResult(
+                            hashtag = it.name,
+                            usage7d = it.history.sumOf { it.uses },
+                        )
+                    }.sortedByDescending { it.usage7d }
+                },
+                { e ->
+                    Timber.e("Autocomplete search for %s failed: %s", token, e)
+                    emptyList()
+                },
+            )
     }
 }

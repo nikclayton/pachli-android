@@ -18,11 +18,21 @@ package app.pachli.core.network.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.util.Date
 
 @JsonClass(generateAdapter = true)
 data class ScheduledStatus(
     val id: String,
-    @Json(name = "scheduled_at") val scheduledAt: String,
+    @Json(name = "scheduled_at") val scheduledAt: Date,
     val params: StatusParams,
     @Json(name = "media_attachments") val mediaAttachments: List<Attachment>,
-)
+) {
+    fun asModel() = app.pachli.core.model.ScheduledStatus(
+        id = id,
+        scheduledAt = scheduledAt,
+        params = params.asModel(),
+        mediaAttachments = mediaAttachments.asModel(),
+    )
+}
+
+fun Iterable<ScheduledStatus>.asModel() = map { it.asModel() }

@@ -16,22 +16,16 @@
 
 package app.pachli.core.ui
 
-import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
-import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.URLSpan
-import android.view.MotionEvent
-import android.view.MotionEvent.ACTION_UP
-import android.view.View
 import android.widget.TextView
 import androidx.annotation.VisibleForTesting
 import androidx.core.net.toUri
-import app.pachli.core.activity.EmojiSpan
-import app.pachli.core.common.string.unicodeWrap
-import app.pachli.core.network.model.HashTag
-import app.pachli.core.network.model.Status.Mention
+import androidx.core.text.method.LinkMovementMethodCompat
+import app.pachli.core.model.HashTag
+import app.pachli.core.model.Status.Mention
 import com.mikepenz.iconics.IconicsColor
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.IconicsSize
@@ -71,11 +65,21 @@ fun setClickableText(view: TextView, content: CharSequence, mentions: List<Menti
             setClickableText(it, this, mentions, tags, listener)
         }
     }
-    view.movementMethod = NoTrailingSpaceLinkMovementMethod.getInstance()
+    view.movementMethod = LinkMovementMethodCompat.getInstance()
 }
 
-@VisibleForTesting
-fun markupHiddenUrls(textView: TextView, content: CharSequence): SpannableStringBuilder {
+/**
+ * Ensures "hidden" URLs show the destination.
+ *
+ * For a status created through Mastodon there's no mechanism to post an
+ * `<a href="...">...</a>` link, so the link target is always visible to the
+ * user.
+ *
+ * That is not the case for statuses that may have originated from
+ * non-Mastodon servers. Find those links and insert a "🔗" marker and the
+ * link's domain.
+ */
+internal fun markupHiddenUrls(textView: TextView, content: CharSequence): SpannableStringBuilder {
     val spannableContent = SpannableStringBuilder(content)
     val originalSpans = spannableContent.getSpans(0, content.length, URLSpan::class.java)
     val obscuredLinkSpans = originalSpans.filter {
@@ -132,8 +136,11 @@ fun markupHiddenUrls(textView: TextView, content: CharSequence): SpannableString
     return spannableContent
 }
 
-@VisibleForTesting
-fun setClickableText(
+/**
+ * Replaces [span] with a more appropriate span type based on the text contents
+ * of [span].
+ */
+internal fun setClickableText(
     span: URLSpan,
     builder: SpannableStringBuilder,
     mentions: List<Mention>,
@@ -144,22 +151,33 @@ fun setClickableText(
     val end = getSpanEnd(span)
     val flags = getSpanFlags(span)
 
-    val text = subSequence(start, end)
-    // Wrap the text so that "@foo" or "#foo" is rendered that way in RTL text, and
-    // not "foo@" or "foo#".
-    val wrappedText = text.unicodeWrap()
+    // Clear the existing span.
+    removeSpan(span)
 
-    val customSpan = when (text[0]) {
+    // Determine the new span from the text content.
+    val text = subSequence(start, end)
+    val newSpan = when (text[0]) {
         '#' -> getCustomSpanForTag(text, tags, span, listener)
         '@' -> getCustomSpanForMention(mentions, span, listener)
         else -> null
-    } ?: object : NoUnderlineURLSpan(span.url) {
-        override fun onClick(view: View) = listener.onViewUrl(url)
-    }
+    } ?: NoUnderlineURLSpan(span.url, listener::onViewUrl)
 
-    removeSpan(span)
+    // Wrap the text so that "@foo" or "#foo" is rendered that way in RTL text, and
+    // not "foo@" or "foo#".
+    //
+    // Can't use CharSequence.unicodeWrap() here as that returns a String, which will
+    // remove any spans (e.g., those inserted when viewing edits to a status) that
+    // indicate where the added/removed text is, meaning that added/removed hashtags,
+    // mentions, etc, wouldn't be highlighted in the diff view.
+    val wrappedText = SpannableStringBuilder(text)
+    wrappedText.insert(0, "\u2068")
+    wrappedText.append("\u2069")
+
+    // Set the correct span on the wrapped text.
+    wrappedText.setSpan(newSpan, 0, wrappedText.length, flags)
+
+    // Replace the previous text with the wrapped and spanned text.
     replace(start, end, wrappedText)
-    setSpan(customSpan, start, end + 1, flags)
 }
 
 @VisibleForTesting
@@ -172,23 +190,15 @@ fun getTagName(text: CharSequence, tags: List<HashTag>?): String? {
 }
 
 private fun getCustomSpanForTag(text: CharSequence, tags: List<HashTag>?, span: URLSpan, listener: LinkListener): ClickableSpan? {
-    return getTagName(text, tags)?.let {
-        object : NoUnderlineURLSpan(span.url) {
-            override fun onClick(view: View) = listener.onViewTag(it)
-        }
+    return getTagName(text, tags)?.let { tagName ->
+        HashtagSpan(tagName, span.url) { listener.onViewTag(tagName) }
     }
 }
 
 private fun getCustomSpanForMention(mentions: List<Mention>, span: URLSpan, listener: LinkListener): ClickableSpan? {
     // https://github.com/tuskyapp/Tusky/pull/2339
-    return mentions.firstOrNull { it.url == span.url }?.let {
-        getCustomSpanForMentionUrl(span.url, it.id, listener)
-    }
-}
-
-private fun getCustomSpanForMentionUrl(url: String, mentionId: String, listener: LinkListener): ClickableSpan {
-    return object : MentionSpan(url) {
-        override fun onClick(view: View) = listener.onViewAccount(mentionId)
+    return mentions.firstOrNull { it.url == span.url }?.let { mention ->
+        MentionSpan(mention.url) { listener.onViewAccount(mention.id) }
     }
 }
 
@@ -213,7 +223,7 @@ fun setClickableMentions(view: TextView, mentions: List<Mention>?, listener: Lin
         var firstMention = true
 
         for (mention in mentions) {
-            val customSpan = getCustomSpanForMentionUrl(mention.url, mention.id, listener)
+            val customSpan = MentionSpan(mention.url) { listener.onViewAccount(mention.id) }
             end += 1 + mention.localUsername.length // length of @ + username
             flags = getSpanFlags(customSpan)
             if (firstMention) {
@@ -230,43 +240,16 @@ fun setClickableMentions(view: TextView, mentions: List<Mention>?, listener: Lin
             start = end
         }
     }
-    view.movementMethod = NoTrailingSpaceLinkMovementMethod.getInstance()
+    view.movementMethod = LinkMovementMethodCompat.getInstance()
 }
 
-fun createClickableText(text: String, link: String): CharSequence {
+fun createClickableText(text: String, link: String, onClickListener: OnClickListener): CharSequence {
     return SpannableStringBuilder(text).apply {
-        setSpan(NoUnderlineURLSpan(link), 0, text.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+        setSpan(
+            NoUnderlineURLSpan(link, onClickListener),
+            0,
+            text.length,
+            Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
+        )
     }
-}
-
-/**
- * [LinkMovementMethod] that doesn't add a leading/trailing clickable area.
- *
- * [LinkMovementMethod] has a bug in its calculation of the clickable width of a span on a line. If
- * the span is the last thing on the line the clickable area extends to the end of the view. So the
- * user can tap what appears to be whitespace and open a link.
- *
- * Fix this by overriding ACTION_UP touch events and calculating the true start and end of the
- * content on the line that was tapped. Then ignore clicks that are outside this area.
- *
- * See https://github.com/tuskyapp/Tusky/issues/1567.
- */
-object NoTrailingSpaceLinkMovementMethod : LinkMovementMethod() {
-    override fun onTouchEvent(widget: TextView, buffer: Spannable, event: MotionEvent): Boolean {
-        val action = event.action
-        if (action != ACTION_UP) return super.onTouchEvent(widget, buffer, event)
-
-        val x = event.x.toInt()
-        val y = event.y.toInt() - widget.totalPaddingTop + widget.scrollY
-        val line = widget.layout.getLineForVertical(y)
-        val lineLeft = widget.layout.getLineLeft(line)
-        val lineRight = widget.layout.getLineRight(line)
-        if (x > lineRight || x >= 0 && x < lineLeft) {
-            return true
-        }
-
-        return super.onTouchEvent(widget, buffer, event)
-    }
-
-    fun getInstance() = NoTrailingSpaceLinkMovementMethod
 }

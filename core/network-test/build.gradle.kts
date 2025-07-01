@@ -30,6 +30,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.model)
     api(projects.core.network)
 
     implementation(libs.hilt.android.testing)
@@ -38,4 +39,7 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.adapters)
     ksp(libs.moshi.codegen)
+
+    implementation(libs.bundles.okhttp)
+        ?.because("FakeNetworkModule mocks OkHttpClient")
 }

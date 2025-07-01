@@ -19,7 +19,6 @@
     <string name="hint_additional_info">Допълнителни коментари</string>
     <string name="report_sent_success">Успешно докладване на @%s</string>
     <string name="button_back">Назад</string>
-    <string name="button_continue">Продължаване</string>
     <plurals name="poll_timespan_seconds">
         <item quantity="one">Остава %d секунда</item>
         <item quantity="other">Остават %d секунди</item>
@@ -117,14 +116,8 @@
     <string name="lock_account_label_description">Изисква ръчно одобряване на последователи</string>
     <string name="lock_account_label">Заключване на акаунт</string>
     <string name="action_remove">Премахване</string>
-    <string name="action_set_caption">Задаване на надпис</string>
-    <plurals name="hint_describe_for_visually_impaired">
-        <item quantity="other">Опишете за хора със зрителни увреждания
-\n(%d ограничение на знаците)</item>
-    </plurals>
     <string name="compose_active_account_description">Публикуване с акаунт %1$s</string>
     <string name="add_account_description">Добавяне на нов Mastodon акаунт</string>
-    <string name="add_account_name">Добавяне на акаунт</string>
     <string name="filter_add_description">Фраза за филтриране</string>
     <string name="filter_dialog_whole_word_description">Когато ключовата дума или фраза е само буквено-цифрова, тя ще бъде приложена само ако съответства на цялата дума</string>
     <string name="filter_dialog_whole_word">Цяла дума</string>
@@ -134,7 +127,6 @@
     <string name="filter_addition_title">Добавяне на филтър</string>
     <string name="pref_title_thread_filter_keywords">Разговори</string>
     <string name="pref_title_public_filter_keywords">Публични емисии</string>
-    <string name="replying_to">Отговаряне на @%s</string>
     <string name="title_media">Мултимедия</string>
     <string name="pref_title_alway_open_spoiler">Винаги разгъване на публикации, маркирани с предупреждения за съдържание</string>
     <string name="pref_title_alway_show_sensitive_media">Винаги показване на деликатно съдържание</string>
@@ -156,7 +148,6 @@
     <string name="post_media_images">Изображения</string>
     <string name="post_share_link">Споделяне на връзка към публикация</string>
     <string name="post_share_content">Споделяне на съдържание на публикация</string>
-    <string name="about_pachli_version">Pachli %s</string>
     <string name="description_account_locked">Заключен акаунт</string>
     <plurals name="notification_title_summary">
         <item quantity="other">%d нови взаимодействия</item>
@@ -237,11 +228,9 @@
     <string name="send_post_link_to">Споделяне на URL адреса на публикацията в…</string>
     <string name="downloading_media">Теглене на мултимедия</string>
     <string name="download_media">Изтегляне на мултимедия</string>
-    <string name="action_share_as">Споделяне като …</string>
     <string name="action_copy_link">Копиране на връзката</string>
     <string name="download_image">Изтегляне на %1$s</string>
     <string name="action_open_media_n">Отваряне на мултимедия #%d</string>
-    <string name="title_mentions_dialog">Споменавания</string>
     <string name="action_open_faved_by">Показване на любими</string>
     <string name="action_open_reblogged_by">Показване на споделяния</string>
     <string name="action_open_reblogger">Отваряне на споделилия автор</string>
@@ -296,8 +285,6 @@
     <string name="action_block">Блокиране</string>
     <string name="action_unfollow">Отследване</string>
     <string name="action_follow">Последване</string>
-    <string name="action_logout_confirm">Сигурни ли сте, че искате да излезете от акаунта %1$s\?</string>
-    <string name="action_logout">Излизане</string>
     <string name="action_compose">Композиране</string>
     <string name="action_unfavourite">Премахване от любими</string>
     <string name="action_bookmark">Отмятане</string>
@@ -360,7 +347,6 @@
     </plurals>
     <string name="wellbeing_hide_stats_profile">Скриване на количествена статистика на профили</string>
     <string name="wellbeing_hide_stats_posts">Скриване на количествена статистика на публикации</string>
-    <string name="limit_notifications">Ограничаване на известия от емисия</string>
     <string name="review_notifications">Преглед на известията</string>
     <string name="wellbeing_mode_notice">Част от информацията, която може да повлияе на вашето психично състояние, ще бъде скрита. Това включва:
 \n

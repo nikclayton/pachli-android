@@ -3,7 +3,9 @@ package app.pachli.components.filters
 import android.content.DialogInterface.BUTTON_POSITIVE
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import app.pachli.R
 import app.pachli.core.activity.BaseActivity
 import app.pachli.core.activity.extensions.TransitionKind
@@ -11,7 +13,6 @@ import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.common.extensions.visible
 import app.pachli.core.model.ContentFilter
 import app.pachli.core.navigation.EditContentFilterActivityIntent
 import app.pachli.core.navigation.pachliAccountId
@@ -19,13 +20,23 @@ import app.pachli.core.ui.BackgroundMessage
 import app.pachli.databinding.ActivityContentFiltersBinding
 import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
+import java.text.Collator
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ContentFiltersActivity : BaseActivity(), ContentFiltersListener {
-
     private val binding by viewBinding(ActivityContentFiltersBinding::inflate)
-    private val viewModel: ContentFiltersViewModel by viewModels()
+    private val viewModel: ContentFiltersViewModel by viewModels(
+        extrasProducer = {
+            defaultViewModelCreationExtras.withCreationCallback<ContentFiltersViewModel.Factory> { factory ->
+                factory.create(intent.pachliAccountId)
+            }
+        },
+    )
+
+    private val adapter = ContentFiltersAdapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,58 +53,41 @@ class ContentFiltersActivity : BaseActivity(), ContentFiltersListener {
             launchEditContentFilterActivity()
         }
 
-        binding.swipeRefreshLayout.setOnRefreshListener { loadFilters() }
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            binding.swipeRefreshLayout.isRefreshing = false
+            viewModel.refreshContentFilters()
+        }
+
         binding.swipeRefreshLayout.setColorSchemeColors(MaterialColors.getColor(binding.root, androidx.appcompat.R.attr.colorPrimary))
         binding.includedToolbar.appbar.setLiftOnScrollTargetView(binding.filtersList)
 
+        binding.filtersList.adapter = adapter
+
         setTitle(R.string.pref_title_content_filters)
+
+        bind()
     }
 
-    override fun onResume() {
-        super.onResume()
-        loadFilters()
-        observeViewModel()
-    }
-
-    private fun observeViewModel() {
+    private fun bind() {
         lifecycleScope.launch {
-            viewModel.state.collect { state ->
-                binding.progressBar.visible(state.loadingState == ContentFiltersViewModel.LoadingState.LOADING)
-                binding.swipeRefreshLayout.isRefreshing = state.loadingState == ContentFiltersViewModel.LoadingState.LOADING
-                binding.addFilterButton.visible(state.loadingState == ContentFiltersViewModel.LoadingState.LOADED)
-
-                when (state.loadingState) {
-                    ContentFiltersViewModel.LoadingState.INITIAL, ContentFiltersViewModel.LoadingState.LOADING -> binding.messageView.hide()
-                    ContentFiltersViewModel.LoadingState.ERROR_NETWORK -> {
-                        binding.messageView.setup(BackgroundMessage.Network()) {
-                            loadFilters()
-                        }
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.contentFilters.collect { contentFilters ->
+                    adapter.submitList(contentFilters.contentFilters.sortedWith(comparebyTitle))
+                    if (contentFilters.contentFilters.isEmpty()) {
+                        binding.messageView.setup(BackgroundMessage.Empty())
                         binding.messageView.show()
-                    }
-
-                    ContentFiltersViewModel.LoadingState.ERROR_OTHER -> {
-                        binding.messageView.setup(BackgroundMessage.GenericError()) {
-                            loadFilters()
-                        }
-                        binding.messageView.show()
-                    }
-
-                    ContentFiltersViewModel.LoadingState.LOADED -> {
-                        binding.filtersList.adapter = FiltersAdapter(this@ContentFiltersActivity, state.contentFilters)
-                        if (state.contentFilters.isEmpty()) {
-                            binding.messageView.setup(BackgroundMessage.Empty())
-                            binding.messageView.show()
-                        } else {
-                            binding.messageView.hide()
-                        }
+                    } else {
+                        binding.messageView.hide()
                     }
                 }
             }
         }
-    }
 
-    private fun loadFilters() {
-        viewModel.load()
+        lifecycleScope.launch {
+            viewModel.operationCount.collectLatest {
+                if (it == 0) binding.progressIndicator.hide() else binding.progressIndicator.show()
+            }
+        }
     }
 
     private fun launchEditContentFilterActivity(contentFilter: ContentFilter? = null) {
@@ -113,5 +107,16 @@ class ContentFiltersActivity : BaseActivity(), ContentFiltersListener {
 
     override fun updateContentFilter(updatedContentFilter: ContentFilter) {
         launchEditContentFilterActivity(updatedContentFilter)
+    }
+
+    companion object {
+        /** Locale aware collator by text. */
+        private val text: Collator = Collator.getInstance().apply { strength = Collator.SECONDARY }
+
+        /**
+         * Locale-aware comparator for content filters. Case-insenstive comparison by
+         * the filter's title.
+         */
+        val comparebyTitle: Comparator<ContentFilter> = compareBy(text) { it.title }
     }
 }

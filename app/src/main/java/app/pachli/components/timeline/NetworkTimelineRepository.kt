@@ -22,17 +22,17 @@ import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.PagingSource
+import app.pachli.components.timeline.TimelineRepository.Companion.PAGE_SIZE
 import app.pachli.components.timeline.viewmodel.NetworkTimelinePagingSource
 import app.pachli.components.timeline.viewmodel.NetworkTimelineRemoteMediator
 import app.pachli.components.timeline.viewmodel.PageCache
-import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.database.dao.RemoteKeyDao
+import app.pachli.core.database.model.RemoteKeyEntity.RemoteKeyKind
+import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
-import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.ui.getDomain
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 
@@ -71,44 +71,46 @@ import timber.log.Timber
 /** Timeline repository where the timeline information is backed by an in-memory cache. */
 class NetworkTimelineRepository @Inject constructor(
     private val mastodonApi: MastodonApi,
-    private val accountManager: AccountManager,
-) {
+    private val remoteKeyDao: RemoteKeyDao,
+) : TimelineRepository<Status> {
     private val pageCache = PageCache()
 
     private var factory: InvalidatingPagingSourceFactory<String, Status>? = null
 
-    /** @return flow of Mastodon [Status], loaded in [pageSize] increments */
+    /** @return flow of Mastodon [Status]. */
     @OptIn(ExperimentalPagingApi::class)
-    fun getStatusStream(
-        viewModelScope: CoroutineScope,
+    override suspend fun getStatusStream(
+        pachliAccountId: Long,
         kind: Timeline,
-        pageSize: Int = PAGE_SIZE,
-        initialKey: String? = null,
     ): Flow<PagingData<Status>> {
-        Timber.d("getStatusStream(): key: %s", initialKey)
+        Timber.d("getStatusStream()")
+
+        val initialKey = kind.remoteKeyTimelineId?.let { refreshKeyPrimaryKey ->
+            remoteKeyDao.remoteKeyForKind(pachliAccountId, refreshKeyPrimaryKey, RemoteKeyKind.REFRESH)
+        }?.key
 
         factory = InvalidatingPagingSourceFactory {
             NetworkTimelinePagingSource(pageCache)
         }
 
         return Pager(
-            config = PagingConfig(pageSize = pageSize),
+            initialKey = initialKey,
+            config = PagingConfig(pageSize = PAGE_SIZE),
             remoteMediator = NetworkTimelineRemoteMediator(
-                viewModelScope,
                 mastodonApi,
-                accountManager,
+                pachliAccountId,
                 factory!!,
                 pageCache,
                 kind,
+                remoteKeyDao,
             ),
             pagingSourceFactory = factory!!,
         ).flow
     }
 
-    /** Invalidate the active paging source, see [PagingSource.invalidate] */
-    fun invalidate() {
-        factory?.invalidate()
-    }
+    override suspend fun invalidate(pachliAccountId: Long) = factory?.invalidate() ?: Unit
+
+    fun invalidate() = factory?.invalidate()
 
     fun removeAllByAccountId(accountId: String) {
         synchronized(pageCache) {
@@ -163,6 +165,7 @@ class NetworkTimelineRepository @Inject constructor(
                 }
             }
         }
+        invalidate()
     }
 
     fun reload() {
@@ -170,9 +173,5 @@ class NetworkTimelineRepository @Inject constructor(
             pageCache.clear()
         }
         invalidate()
-    }
-
-    companion object {
-        private const val PAGE_SIZE = 30
     }
 }

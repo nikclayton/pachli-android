@@ -18,20 +18,27 @@ package app.pachli.core.database
 
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import app.pachli.core.database.model.ConversationAccountEntity
-import app.pachli.core.database.model.DraftAttachment
+import app.pachli.core.database.model.TimelineStatusEntity
+import app.pachli.core.model.AccountFilterDecision
+import app.pachli.core.model.Announcement
+import app.pachli.core.model.Attachment
+import app.pachli.core.model.Card
+import app.pachli.core.model.ContentFilter
+import app.pachli.core.model.ConversationAccount
+import app.pachli.core.model.DraftAttachment
+import app.pachli.core.model.Emoji
+import app.pachli.core.model.FilterResult
+import app.pachli.core.model.HashTag
+import app.pachli.core.model.NewPoll
+import app.pachli.core.model.Poll
+import app.pachli.core.model.ServerOperation
+import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
-import app.pachli.core.network.model.Attachment
-import app.pachli.core.network.model.Emoji
-import app.pachli.core.network.model.FilterResult
-import app.pachli.core.network.model.HashTag
-import app.pachli.core.network.model.NewPoll
-import app.pachli.core.network.model.Poll
-import app.pachli.core.network.model.Status
-import app.pachli.core.network.model.TranslatedAttachment
-import app.pachli.core.network.model.TranslatedPoll
+import app.pachli.core.model.TranslatedAttachment
+import app.pachli.core.model.TranslatedPoll
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
+import io.github.z4kn4fein.semver.Version
 import java.net.URLDecoder
 import java.time.Instant
 import java.util.Date
@@ -111,23 +118,23 @@ class Converters @Inject constructor(
     }
 
     @TypeConverter
-    fun accountToJson(account: ConversationAccountEntity?): String {
-        return moshi.adapter<ConversationAccountEntity>().toJson(account)
+    fun accountToJson(account: ConversationAccount?): String {
+        return moshi.adapter<ConversationAccount>().toJson(account)
     }
 
     @TypeConverter
-    fun jsonToAccount(accountJson: String?): ConversationAccountEntity? {
-        return accountJson?.let { moshi.adapter<ConversationAccountEntity>().fromJson(it) }
+    fun jsonToAccount(accountJson: String?): ConversationAccount? {
+        return accountJson?.let { moshi.adapter<ConversationAccount>().fromJson(it) }
     }
 
     @TypeConverter
-    fun accountListToJson(accountList: List<ConversationAccountEntity>?): String {
-        return moshi.adapter<List<ConversationAccountEntity>>().toJson(accountList)
+    fun accountListToJson(accountList: List<ConversationAccount>?): String {
+        return moshi.adapter<List<ConversationAccount>>().toJson(accountList)
     }
 
     @TypeConverter
-    fun jsonToAccountList(accountListJson: String?): List<ConversationAccountEntity>? {
-        return accountListJson?.let { moshi.adapter<List<ConversationAccountEntity>?>().fromJson(it) }
+    fun jsonToAccountList(accountListJson: String?): List<ConversationAccount>? {
+        return accountListJson?.let { moshi.adapter<List<ConversationAccount>?>().fromJson(it) }
     }
 
     @TypeConverter
@@ -168,6 +175,16 @@ class Converters @Inject constructor(
     @TypeConverter
     fun longToDate(date: Long?): Date? {
         return date?.let { Date(it) }
+    }
+
+    @TypeConverter
+    fun instantToEpochMilli(instant: Instant?): Long? {
+        return instant?.toEpochMilli()
+    }
+
+    @TypeConverter
+    fun epochMilliToInstant(epochMilli: Long?): Instant? {
+        return epochMilli?.let { Instant.ofEpochMilli(it) }
     }
 
     @TypeConverter
@@ -241,4 +258,68 @@ class Converters @Inject constructor(
 
     @TypeConverter
     fun stringToThrowable(s: String) = Throwable(message = s)
+
+    @TypeConverter
+    fun capabilitiesMapToJson(capabilities: Map<ServerOperation, Version>): String {
+        return moshi.adapter<Map<ServerOperation, Version>>().toJson(capabilities)
+    }
+
+    @TypeConverter
+    fun jsonToCapabiltiesMap(capabilitiesJson: String?): Map<ServerOperation, Version>? {
+        return capabilitiesJson?.let { moshi.adapter<Map<ServerOperation, Version>>().fromJson(it) }
+    }
+
+    @TypeConverter
+    fun contentFiltersToJson(contentFilters: List<ContentFilter>): String = moshi.adapter<List<ContentFilter>>().toJson(contentFilters)
+
+    @TypeConverter
+    fun jsonToContentFilters(s: String?) = s?.let { moshi.adapter<List<ContentFilter>>().fromJson(it) }
+
+    @TypeConverter
+    fun versionToString(version: Version): String = version.toString()
+
+    @TypeConverter
+    fun stringToVersion(s: String?) = s?.let { Version.parse(it) }
+
+    @TypeConverter
+    fun announcementToJson(announcement: Announcement): String = moshi.adapter<Announcement>().toJson(announcement)
+
+    @TypeConverter
+    fun jsonToAnnouncement(s: String?) = s?.let { moshi.adapter<Announcement>().fromJson(it) }
+
+    @TypeConverter
+    fun applicationToJson(application: Status.Application): String = moshi.adapter<Status.Application>().toJson(application)
+
+    @TypeConverter
+    fun jsonToApplication(s: String?) = s?.let { moshi.adapter<Status.Application>().fromJson(it) }
+
+    @TypeConverter
+    fun cardToJson(card: Card): String = moshi.adapter<Card>().toJson(card)
+
+    @TypeConverter
+    fun jsonToCard(s: String?) = s?.let { moshi.adapter<Card>().fromJson(it) }
+
+    @TypeConverter
+    fun listStringToJson(l: List<String>): String = moshi.adapter<List<String>>().toJson(l)
+
+    @TypeConverter
+    fun stringToListString(s: String?) = s?.let { moshi.adapter<List<String>>().fromJson(it) }
+
+    @TypeConverter
+    fun accountFilterDecisionToJson(accountFilterDecision: AccountFilterDecision): String = moshi.adapter<AccountFilterDecision>().toJson(accountFilterDecision)
+
+    @TypeConverter
+    fun jsonToAccountFilterDecision(s: String?) = s?.let { moshi.adapter<AccountFilterDecision>().fromJson(it) }
+
+    @TypeConverter
+    fun timelineKindToJson(kind: TimelineStatusEntity.Kind): String = moshi.adapter<TimelineStatusEntity.Kind>().toJson(kind)
+
+    @TypeConverter
+    fun jsonToTimelineKind(s: String?) = s?.let { moshi.adapter<TimelineStatusEntity.Kind>().fromJson(it) }
+
+    @TypeConverter
+    fun draftAttachmentToJson(a: DraftAttachment): String = moshi.adapter<DraftAttachment>().toJson(a)
+
+    @TypeConverter
+    fun jsonToDraftAttachment(s: String?) = s?.let { moshi.adapter<DraftAttachment>().fromJson(it) }
 }

@@ -19,27 +19,30 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.IntentCompat
 import app.pachli.R
-import app.pachli.appstore.EventHub
-import app.pachli.appstore.StatusComposedEvent
-import app.pachli.appstore.StatusEditedEvent
-import app.pachli.appstore.StatusScheduledEvent
 import app.pachli.components.compose.MediaUploader
 import app.pachli.components.drafts.DraftHelper
 import app.pachli.components.notifications.pendingIntentFlags
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.navigation.MainActivityIntent
-import app.pachli.core.network.model.Attachment
-import app.pachli.core.network.model.MediaAttribute
-import app.pachli.core.network.model.NewPoll
-import app.pachli.core.network.model.NewStatus
-import app.pachli.core.network.model.Status
+import app.pachli.core.eventhub.EventHub
+import app.pachli.core.eventhub.StatusComposedEvent
+import app.pachli.core.eventhub.StatusEditedEvent
+import app.pachli.core.eventhub.StatusScheduledEvent
+import app.pachli.core.model.Attachment
+import app.pachli.core.model.MediaAttribute
+import app.pachli.core.model.NewPoll
+import app.pachli.core.model.NewStatus
+import app.pachli.core.model.Status
+import app.pachli.core.navigation.IntentRouterActivityIntent
+import app.pachli.core.network.model.asNetworkModel
 import app.pachli.core.network.retrofit.MastodonApi
-import at.connyduck.calladapter.networkresult.fold
 import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.IOException
+import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -106,7 +109,7 @@ class SendStatusService : Service() {
                 .setColor(getColor(DR.color.notification_color))
                 .addAction(0, getString(android.R.string.cancel), cancelSendingIntent(sendingNotificationId))
 
-            if (statusesToSend.size == 0 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (statusesToSend.isEmpty() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
                 startForeground(sendingNotificationId, builder.build())
             } else {
@@ -144,43 +147,35 @@ class SendStatusService : Service() {
             // first, wait for media uploads to finish
             val media = statusToSend.media.map { mediaItem ->
                 if (mediaItem.id == null) {
-                    val uploadState = mediaUploader.getMediaUploadState(mediaItem.localId)
+                    val uploadState = mediaUploader.waitForUploadToFinish(mediaItem.localId)
                     val media = uploadState.getOrElse {
                         Timber.w("failed uploading media: %s", it.fmt(this@SendStatusService))
                         failSending(statusId)
                         stopSelfWhenDone()
                         return@launch
-                    }.media
-                    mediaItem.copy(id = media.mediaId, processed = media.processed)
+                    }
+                    mediaItem.copy(id = media.serverId)
                 } else {
                     mediaItem
                 }
             }
 
             // then wait until server finished processing the media
-            try {
-                var mediaCheckRetries = 0
-                while (media.any { mediaItem -> !mediaItem.processed }) {
-                    delay(1000L * mediaCheckRetries)
-                    media.forEach { mediaItem ->
-                        if (!mediaItem.processed) {
-                            when (mastodonApi.getMedia(mediaItem.id!!).code()) {
-                                200 -> mediaItem.processed = true // success
-                                206 -> { } // media is still being processed, continue checking
-                                else -> { // some kind of server error, retrying probably doesn't make sense
-                                    failSending(statusId)
-                                    stopSelfWhenDone()
-                                    return@launch
-                                }
+            var mediaCheckRetries = 0
+            while (media.any { mediaItem -> !mediaItem.processed }) {
+                delay(1000L * mediaCheckRetries)
+                media.forEach { mediaItem ->
+                    if (!mediaItem.processed) {
+                        mastodonApi.getMedia(mediaItem.id!!)
+                            .onSuccess { mediaItem.processed = it.code == 200 }
+                            .onFailure {
+                                failSending(statusId)
+                                stopSelfWhenDone()
+                                return@launch
                             }
-                        }
                     }
-                    mediaCheckRetries++
                 }
-            } catch (e: Exception) {
-                Timber.w(e, "failed getting media status")
-                retrySending(statusId)
-                return@launch
+                mediaCheckRetries++
             }
 
             val isNew = statusToSend.statusId == null
@@ -189,13 +184,11 @@ class SendStatusService : Service() {
                 media.forEach { mediaItem ->
                     if (mediaItem.processed && (mediaItem.description != null || mediaItem.focus != null)) {
                         mastodonApi.updateMedia(mediaItem.id!!, mediaItem.description, mediaItem.focus?.toMastodonApiString())
-                            .fold({
-                            }, { throwable ->
-                                Timber.w(throwable, "failed to update media on status send")
-                                failOrRetry(throwable, statusId)
-
+                            .onFailure { error ->
+                                Timber.w("failed to update media on status send: %s", error)
+                                failOrRetry(error.throwable, statusId)
                                 return@launch
-                            })
+                            }
                     }
                 }
             }
@@ -224,30 +217,31 @@ class SendStatusService : Service() {
             val sendResult = if (isNew) {
                 if (newStatus.scheduledAt == null) {
                     mastodonApi.createStatus(
-                        "Bearer " + account.accessToken,
+                        account.authHeader,
                         account.domain,
                         statusToSend.idempotencyKey,
-                        newStatus,
+                        newStatus.asNetworkModel(),
                     )
                 } else {
                     mastodonApi.createScheduledStatus(
-                        "Bearer " + account.accessToken,
+                        account.authHeader,
                         account.domain,
                         statusToSend.idempotencyKey,
-                        newStatus,
+                        newStatus.asNetworkModel(),
                     )
                 }
             } else {
                 mastodonApi.editStatus(
-                    statusToSend.statusId!!,
-                    "Bearer " + account.accessToken,
+                    statusToSend.statusId,
+                    account.authHeader,
                     account.domain,
                     statusToSend.idempotencyKey,
-                    newStatus,
+                    newStatus.asNetworkModel(),
                 )
             }
 
-            sendResult.fold({ sentStatus ->
+            sendResult.onSuccess {
+                val sentStatus = it.body
                 statusesToSend.remove(statusId)
                 // If the status was loaded from a draft, delete the draft and associated media files.
                 if (statusToSend.draftId != 0) {
@@ -256,21 +250,32 @@ class SendStatusService : Service() {
 
                 mediaUploader.cancelUploadScope(*statusToSend.media.map { it.localId }.toIntArray())
 
-                val scheduled = !statusToSend.scheduledAt.isNullOrEmpty()
+                val scheduled = statusToSend.scheduledAt != null
 
                 if (scheduled) {
                     eventHub.dispatch(StatusScheduledEvent)
                 } else if (!isNew) {
-                    eventHub.dispatch(StatusEditedEvent(statusToSend.statusId!!, sentStatus as Status))
+                    eventHub.dispatch(
+                        StatusEditedEvent(
+                            statusToSend.statusId,
+                            (sentStatus as app.pachli.core.network.model.Status).asModel(),
+                        ),
+                    )
                 } else {
-                    eventHub.dispatch(StatusComposedEvent(sentStatus as Status))
+                    eventHub.dispatch(
+                        StatusComposedEvent(
+                            (sentStatus as app.pachli.core.network.model.Status).asModel(),
+                        ),
+                    )
                 }
 
                 notificationManager.cancel(statusId)
-            }, { throwable ->
-                Timber.w(throwable, "failed sending status")
-                failOrRetry(throwable, statusId)
-            })
+            }
+                .onFailure {
+                    Timber.w("failed sending status: %s", it)
+                    failOrRetry(it.throwable, statusId)
+                }
+
             stopSelfWhenDone()
         }
     }
@@ -400,10 +405,10 @@ class SendStatusService : Service() {
     private fun buildDraftNotification(
         @StringRes title: Int,
         @StringRes content: Int,
-        accountId: Long,
+        pachliAccountId: Long,
         statusId: Int,
     ): Notification {
-        val intent = MainActivityIntent.openDrafts(this, accountId)
+        val intent = IntentRouterActivityIntent.fromDraftsNotification(this, pachliAccountId)
 
         val pendingIntent = PendingIntent.getActivity(
             this,
@@ -475,7 +480,7 @@ data class StatusToSend(
     val visibility: String,
     val sensitive: Boolean,
     val media: List<MediaToSend>,
-    val scheduledAt: String?,
+    val scheduledAt: Date?,
     val inReplyToId: String?,
     val poll: NewPoll?,
     val replyingStatusContent: String?,

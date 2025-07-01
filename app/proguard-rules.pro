@@ -39,6 +39,7 @@
 
 # keep members of our model classes, they are used in json de/serialization
 -keepclassmembers class app.pachli.core.network.model.** { *; }
+-keepclassmembers class app.pachli.core.model.** { *; }
 
 -keep public enum app.pachli.core.network.model.*$** {
     **[] $VALUES;
@@ -46,10 +47,10 @@
 }
 
 -keepclassmembers class app.pachli.core.database.model.ConversationAccountEntity { *; }
--keepclassmembers class app.pachli.core.database.model.DraftAttachment { *; }
+-keepclassmembers class app.pachli.core.model.DraftAttachment { *; }
 -keep class app.pachli.core.model.TimelineJsonAdapter { *; }
 
--keep enum app.pachli.core.database.model.DraftAttachment$Type {
+-keep enum app.pachli.core.model.DraftAttachment$Type {
     public *;
 }
 
@@ -71,10 +72,6 @@
 # preserve line numbers for crash reporting
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
-
-# Bouncy Castle -- Keep EC
--keep class org.bouncycastle.jcajce.provider.asymmetric.EC$* { *; }
--keep class org.bouncycastle.jcajce.provider.asymmetric.ec.KeyPairGeneratorSpi$EC
 
 # remove all logging from production apk
 -assumenosideeffects class android.util.Log {

@@ -18,6 +18,7 @@
 plugins {
     alias(libs.plugins.pachli.android.library)
     alias(libs.plugins.pachli.android.hilt)
+    alias(libs.plugins.pachli.android.room)
 }
 
 android {
@@ -30,12 +31,26 @@ android {
 
 dependencies {
     implementation(projects.core.common)
+    implementation(projects.core.data)
+    implementation(projects.core.database)
+    implementation(projects.core.model)
     implementation(projects.core.network)
+    implementation(projects.core.preferences)
+
+    implementation(libs.hilt.android.testing)
+
+    implementation(libs.moshi)
+    implementation(libs.moshi.adapters)
+    implementation(libs.okhttp.core)
+        ?.because("Includes testing utilities for ApiResult")
+    implementation(libs.retrofit.core)
+        ?.because("Includes testing utilities for ApiResult")
 
     api(libs.kotlinx.coroutines.test)
     api(libs.androidx.test.junit)
     api(libs.androidx.core.testing)
     api(libs.androidx.test.core.ktx)
+    api(libs.bundles.room)?.because("Allows calls to RoomDatabase.close() in tests.")
     api(libs.robolectric)
     api(libs.truth)
     api(libs.turbine)

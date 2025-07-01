@@ -31,7 +31,7 @@ import androidx.recyclerview.widget.ListAdapter
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.common.extensions.visible
+import app.pachli.core.data.repository.ListsRepository.Companion.listTitleCollator
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.BindingHolder
@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * Shows all the user's lists with a button to allow them to add/remove the given
+ * Shows all the user's lists with a checkbox to allow them to add/remove the given
  * account from each list.
  */
 @AndroidEntryPoint
@@ -58,6 +58,7 @@ class ListsForAccountFragment : DialogFragment() {
         extrasProducer = {
             defaultViewModelCreationExtras.withCreationCallback<ListsForAccountViewModel.Factory> { factory ->
                 factory.create(
+                    requireArguments().getLong(ARG_PACHLI_ACCOUNT_ID),
                     requireArguments().getString(ARG_ACCOUNT_ID)!!,
                 )
             }
@@ -146,7 +147,7 @@ class ListsForAccountFragment : DialogFragment() {
                         binding.messageView.setup(BackgroundMessage.Empty(R.string.no_lists)) { load() }
                     } else {
                         binding.listsView.show()
-                        adapter.submitList(it.listsWithMembership.values.toList())
+                        adapter.submitList(it.listsWithMembership.values.sortedWith(compareByListWithMembershipTitle))
                     }
                 }
             }
@@ -170,7 +171,7 @@ class ListsForAccountFragment : DialogFragment() {
             oldItem: ListWithMembership,
             newItem: ListWithMembership,
         ): Boolean {
-            return oldItem.list.id == newItem.list.id
+            return oldItem.list.listId == newItem.list.listId
         }
 
         override fun areContentsTheSame(
@@ -189,23 +190,30 @@ class ListsForAccountFragment : DialogFragment() {
         ): BindingHolder<ItemAddOrRemoveFromListBinding> {
             val binding =
                 ItemAddOrRemoveFromListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            return BindingHolder(binding)
+            val holder = BindingHolder(binding)
+
+            binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
+                val item = getItem(holder.bindingAdapterPosition)
+                if (isChecked == item.isMember) return@setOnCheckedChangeListener
+
+                if (isChecked) {
+                    viewModel.addAccountToList(item.list.listId)
+                } else {
+                    viewModel.deleteAccountFromList(item.list.listId)
+                }
+            }
+            return holder
         }
 
         override fun onBindViewHolder(holder: BindingHolder<ItemAddOrRemoveFromListBinding>, position: Int) {
             val item = getItem(position)
             holder.binding.listNameView.text = item.list.title
-            holder.binding.addButton.apply {
-                visible(!item.isMember)
-                setOnClickListener {
-                    viewModel.addAccountToList(item.list.id)
-                }
-            }
-            holder.binding.removeButton.apply {
-                visible(item.isMember)
-                setOnClickListener {
-                    viewModel.deleteAccountFromList(item.list.id)
-                }
+
+            with(holder.binding.checkBox) {
+                contentDescription = getString(
+                    if (item.isMember) R.string.action_remove_from_list else R.string.action_add_to_list,
+                )
+                isChecked = item.isMember
             }
         }
     }
@@ -223,5 +231,13 @@ class ListsForAccountFragment : DialogFragment() {
             }
             return ListsForAccountFragment().apply { arguments = args }
         }
+
+        /**
+         * Locale aware comparator for [ListsWithMembership]. Case-insensitive comparison
+         * by the list's title.
+         */
+        val compareByListWithMembershipTitle: Comparator<ListWithMembership> = compareBy(
+            listTitleCollator,
+        ) { it.list.title }
     }
 }

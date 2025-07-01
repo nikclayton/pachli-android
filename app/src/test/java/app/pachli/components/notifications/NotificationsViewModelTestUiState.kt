@@ -19,10 +19,12 @@ package app.pachli.components.notifications
 
 import androidx.core.content.edit
 import app.cash.turbine.test
-import app.pachli.core.network.model.Notification
+import app.pachli.core.model.Notification
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.TabTapBehaviour
 import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -32,6 +34,7 @@ import org.junit.Test
  * - Is the initial value taken from values in sharedPreferences and account?
  * - Is the correct update emitted when a relevant preference changes?
  */
+@HiltAndroidTest
 class NotificationsViewModelTestUiState : NotificationsViewModelTestBase() {
 
     private val initialUiState = UiState(
@@ -43,6 +46,7 @@ class NotificationsViewModelTestUiState : NotificationsViewModelTestBase() {
     @Test
     fun `should load initial filter from active account`() = runTest {
         viewModel.uiState.test {
+            advanceUntilIdle()
             assertThat(expectMostRecentItem()).isEqualTo(initialUiState)
         }
     }

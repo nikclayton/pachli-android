@@ -32,8 +32,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
-import app.pachli.core.activity.emojify
-import app.pachli.core.activity.loadAvatar
 import app.pachli.core.common.PachliError
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
@@ -42,12 +40,15 @@ import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.ListsError
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.network.model.TimelineAccount
+import app.pachli.core.model.TimelineAccount
 import app.pachli.core.network.retrofit.apiresult.ApiError
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.ui.BindingHolder
+import app.pachli.core.ui.emojify
+import app.pachli.core.ui.loadAvatar
 import app.pachli.feature.lists.databinding.FragmentAccountsInListBinding
 import app.pachli.feature.lists.databinding.ItemAccountInListBinding
+import com.bumptech.glide.Glide
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.mapBoth
@@ -56,6 +57,7 @@ import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import javax.inject.Inject
+import kotlin.properties.Delegates
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
@@ -65,15 +67,18 @@ import timber.log.Timber
 private typealias AccountInfo = Pair<TimelineAccount, Boolean>
 
 /**
- * Display the members of a given list with UI to add/remove existing accounts
- * and search for followers to add them to the list.
+ * Display the members of a given list with a checkbox to add/remove existing,
+ * accounts and search for followed accounts to add them to the list.
  */
 @AndroidEntryPoint
 class AccountsInListFragment : DialogFragment() {
     private val viewModel: AccountsInListViewModel by viewModels(
         extrasProducer = {
             defaultViewModelCreationExtras.withCreationCallback<AccountsInListViewModel.Factory> { factory ->
-                factory.create(requireArguments().getString(ARG_LIST_ID)!!)
+                factory.create(
+                    requireArguments().getLong(ARG_PACHLI_ACCOUNT_ID),
+                    requireArguments().getString(ARG_LIST_ID)!!,
+                )
             }
         },
     )
@@ -91,10 +96,13 @@ class AccountsInListFragment : DialogFragment() {
     private val animateAvatar by unsafeLazy { sharedPreferencesRepository.animateAvatars }
     private val animateEmojis by unsafeLazy { sharedPreferencesRepository.animateEmojis }
 
+    private var pachliAccountId by Delegates.notNull<Long>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, DR.style.AppDialogFragmentStyle)
         val args = requireArguments()
+        pachliAccountId = args.getLong(ARG_PACHLI_ACCOUNT_ID)
         listName = args.getString(ARG_LIST_NAME)!!
     }
 
@@ -229,11 +237,12 @@ class AccountsInListFragment : DialogFragment() {
             val binding = ItemAccountInListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             val holder = BindingHolder(binding)
 
-            binding.addButton.hide()
-            binding.removeButton.setOnClickListener {
-                onRemoveFromList(getItem(holder.bindingAdapterPosition).id)
+            binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
+                if (!isChecked) {
+                    onRemoveFromList(getItem(holder.bindingAdapterPosition).id)
+                }
             }
-            binding.removeButton.contentDescription =
+            binding.checkBox.contentDescription =
                 binding.root.context.getString(R.string.action_remove_from_list)
 
             return holder
@@ -241,10 +250,17 @@ class AccountsInListFragment : DialogFragment() {
 
         override fun onBindViewHolder(holder: BindingHolder<ItemAccountInListBinding>, position: Int) {
             val account = getItem(position)
-            holder.binding.displayNameTextView.text = account.name.emojify(account.emojis, holder.binding.displayNameTextView, animateEmojis)
-            holder.binding.usernameTextView.text = account.username
+            val glide = Glide.with(this@AccountsInListFragment)
+            holder.binding.displayName.text = account.name.emojify(
+                glide,
+                account.emojis,
+                holder.binding.displayName,
+                animateEmojis,
+            )
+            holder.binding.username.text = binding.root.context.getString(DR.string.post_username_format, account.username)
             holder.binding.avatarBadge.visible(account.bot)
-            loadAvatar(account.avatar, holder.binding.avatar, radius, animateAvatar)
+            holder.binding.checkBox.isChecked = true
+            loadAvatar(glide, account.avatar, holder.binding.avatar, radius, animateAvatar)
         }
     }
 
@@ -265,13 +281,13 @@ class AccountsInListFragment : DialogFragment() {
             val binding = ItemAccountInListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             val holder = BindingHolder(binding)
 
-            binding.addButton.hide()
-            binding.removeButton.setOnClickListener {
-                val (account, inAList) = getItem(holder.bindingAdapterPosition)
-                if (inAList) {
-                    onRemoveFromList(account.id)
-                } else {
+            binding.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
+                val (account, _) = getItem(holder.bindingAdapterPosition)
+
+                if (isChecked) {
                     onAddToList(account)
+                } else {
+                    onRemoveFromList(account.id)
                 }
             }
 
@@ -281,30 +297,30 @@ class AccountsInListFragment : DialogFragment() {
         override fun onBindViewHolder(holder: BindingHolder<ItemAccountInListBinding>, position: Int) {
             val (account, inAList) = getItem(position)
 
-            holder.binding.displayNameTextView.text = account.name.emojify(account.emojis, holder.binding.displayNameTextView, animateEmojis)
-            holder.binding.usernameTextView.text = account.username
-            loadAvatar(account.avatar, holder.binding.avatar, radius, animateAvatar)
+            val glide = Glide.with(this@AccountsInListFragment)
+            holder.binding.displayName.text = account.name.emojify(glide, account.emojis, holder.binding.displayName, animateEmojis)
+            holder.binding.username.text = binding.root.context.getString(DR.string.post_username_format, account.username)
+            loadAvatar(glide, account.avatar, holder.binding.avatar, radius, animateAvatar)
             holder.binding.avatarBadge.visible(account.bot)
 
-            holder.binding.removeButton.apply {
-                contentDescription = if (inAList) {
-                    setImageResource(app.pachli.core.ui.R.drawable.ic_clear_24dp)
-                    getString(R.string.action_remove_from_list)
-                } else {
-                    setImageResource(app.pachli.core.ui.R.drawable.ic_plus_24dp)
-                    getString(R.string.action_add_to_list)
-                }
+            with(holder.binding.checkBox) {
+                contentDescription = getString(
+                    if (inAList) R.string.action_remove_from_list else R.string.action_add_to_list,
+                )
+                isChecked = inAList
             }
         }
     }
 
     companion object {
-        private const val ARG_LIST_ID = "listId"
-        private const val ARG_LIST_NAME = "listName"
+        private const val ARG_PACHLI_ACCOUNT_ID = "app.pachli.ARG_PACHLI_ACCOUNT_ID"
+        private const val ARG_LIST_ID = "app.pachli.ARG_LIST_ID"
+        private const val ARG_LIST_NAME = "app.pachli.ARG_LIST_NAME"
 
         @JvmStatic
-        fun newInstance(listId: String, listName: String): AccountsInListFragment {
+        fun newInstance(pachliAccountId: Long, listId: String, listName: String): AccountsInListFragment {
             val args = Bundle().apply {
+                putLong(ARG_PACHLI_ACCOUNT_ID, pachliAccountId)
                 putString(ARG_LIST_ID, listId)
                 putString(ARG_LIST_NAME, listName)
             }
