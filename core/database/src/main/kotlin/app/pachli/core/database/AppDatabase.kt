@@ -56,6 +56,7 @@ import app.pachli.core.database.model.FollowingAccountEntity
 import app.pachli.core.database.model.InstanceInfoEntity
 import app.pachli.core.database.model.LogEntryEntity
 import app.pachli.core.database.model.MastodonListEntity
+import app.pachli.core.database.model.NotificationAccountWarningEntity
 import app.pachli.core.database.model.NotificationEntity
 import app.pachli.core.database.model.NotificationRelationshipSeveranceEventEntity
 import app.pachli.core.database.model.NotificationReportEntity
@@ -95,10 +96,11 @@ import java.util.TimeZone
         NotificationReportEntity::class,
         NotificationViewDataEntity::class,
         NotificationRelationshipSeveranceEventEntity::class,
+        NotificationAccountWarningEntity::class,
         TimelineStatusEntity::class,
         ConversationViewDataEntity::class,
     ],
-    version = 25,
+    version = 29,
     autoMigrations = [
         AutoMigration(from = 1, to = 2, spec = AppDatabase.MIGRATE_1_2::class),
         AutoMigration(from = 2, to = 3),
@@ -127,6 +129,14 @@ import java.util.TimeZone
         AutoMigration(from = 23, to = 24),
         // Added "isBot" to AccountEntity
         AutoMigration(from = 24, to = 25),
+        // Migrated from core.network.model to core.model types, some embedded
+        // JSON needs to be removed or updated.
+        AutoMigration(from = 25, to = 26, spec = AppDatabase.MIGRATE_25_26::class),
+        AutoMigration(from = 26, to = 27, spec = AppDatabase.MIGRATE_26_27::class),
+        // Added NotificationAccountWarningEntity.
+        AutoMigration(from = 27, to = 28),
+        // Saving TimelineAccount.roles to the database.
+        AutoMigration(from = 28, to = 29),
     ],
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -250,6 +260,36 @@ abstract class AppDatabase : RoomDatabase() {
     class MIGRATE_19_20 : AutoMigrationSpec {
         override fun onPostMigrate(db: SupportSQLiteDatabase) {
             super.onPostMigrate(db)
+        }
+    }
+
+    /**
+     * Deletes content from tables that may have cached an obsolete JSON
+     * serialisation format, as part of the transition from core.network.model
+     * to core.model.
+     */
+    class MIGRATE_25_26 : AutoMigrationSpec {
+        override fun onPostMigrate(db: SupportSQLiteDatabase) {
+            db.execSQL("DELETE FROM AnnouncementEntity")
+            db.execSQL("DELETE FROM ContentFiltersEntity")
+            db.execSQL("DELETE FROM ConversationViewDataEntity")
+            db.execSQL("DELETE FROM EmojisEntity")
+            db.execSQL("DELETE FROM StatusEntity")
+            db.execSQL("DELETE FROM TimelineAccountEntity")
+        }
+    }
+
+    /**
+     * Additional table updates.
+     *
+     * - InstanceInfoEntity references Emojis and is a cache.
+     * - The user's account info might have custom emojis, clear it, it will
+     *   be recreated on login.
+     */
+    class MIGRATE_26_27 : AutoMigrationSpec {
+        override fun onPostMigrate(db: SupportSQLiteDatabase) {
+            db.execSQL("DELETE FROM InstanceInfoEntity")
+            db.execSQL("UPDATE AccountEntity SET emojis = '[]'")
         }
     }
 }

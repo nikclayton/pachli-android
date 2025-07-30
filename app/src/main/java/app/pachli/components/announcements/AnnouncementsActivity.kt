@@ -21,27 +21,29 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.PopupWindow
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewGroupCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.pachli.R
-import app.pachli.adapter.EmojiAdapter
-import app.pachli.adapter.OnEmojiSelectedListener
 import app.pachli.core.activity.ViewUrlActivity
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.appbar.FadeChildScrollEffect
+import app.pachli.core.ui.emoji.ChooseEmojiDialogFragment
+import app.pachli.core.ui.extensions.addScrollEffect
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.ActivityAnnouncementsBinding
 import app.pachli.util.Error
 import app.pachli.util.Loading
 import app.pachli.util.Success
-import app.pachli.view.EmojiPicker
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.mikepenz.iconics.IconicsDrawable
@@ -49,12 +51,12 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AnnouncementsActivity :
     ViewUrlActivity(),
     AnnouncementActionListener,
-    OnEmojiSelectedListener,
     MenuProvider {
 
     private val viewModel: AnnouncementsViewModel by viewModels()
@@ -63,21 +65,16 @@ class AnnouncementsActivity :
 
     private lateinit var adapter: AnnouncementAdapter
 
-    private val picker by unsafeLazy { EmojiPicker(this) }
-    private val pickerDialog by unsafeLazy {
-        PopupWindow(this)
-            .apply {
-                contentView = picker
-                isFocusable = true
-                setOnDismissListener {
-                    currentAnnouncementId = null
-                }
-            }
-    }
     private var currentAnnouncementId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.includedToolbar.appbar.applyDefaultWindowInsets()
+        binding.includedToolbar.toolbar.addScrollEffect(FadeChildScrollEffect)
+        binding.announcementsList.applyDefaultWindowInsets()
+
         setContentView(binding.root)
         addMenuProvider(this)
 
@@ -132,10 +129,6 @@ class AnnouncementsActivity :
             }
         }
 
-        viewModel.emojis.observe(this) {
-            picker.adapter = EmojiAdapter(glide, it, this, animateEmojis)
-        }
-
         viewModel.load()
         binding.progressBar.show()
     }
@@ -170,12 +163,14 @@ class AnnouncementsActivity :
 
     override fun openReactionPicker(announcementId: String, target: View) {
         currentAnnouncementId = announcementId
-        pickerDialog.showAsDropDown(target)
-    }
-
-    override fun onEmojiSelected(shortcode: String) {
-        viewModel.addReaction(currentAnnouncementId!!, shortcode)
-        pickerDialog.dismiss()
+        lifecycleScope.launch {
+            ChooseEmojiDialogFragment.newInstance(
+                viewModel.emojis,
+                viewModel.animateEmojis,
+            ).await(supportFragmentManager)?.let {
+                viewModel.addReaction(announcementId, it.shortcode)
+            }
+        }
     }
 
     override fun addReaction(announcementId: String, name: String) {

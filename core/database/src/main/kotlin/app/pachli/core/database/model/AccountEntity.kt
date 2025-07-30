@@ -23,10 +23,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
+import app.pachli.core.model.Emoji
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
-import app.pachli.core.network.model.Emoji
-import app.pachli.core.network.model.Status
 
 @Entity(
     indices = [
@@ -77,6 +77,8 @@ data class AccountEntity(
     val notificationsReports: Boolean = true,
     @ColumnInfo(defaultValue = "true")
     val notificationsSeveredRelationships: Boolean = true,
+    @ColumnInfo(defaultValue = "true")
+    val notificationsModerationWarnings: Boolean = true,
     val notificationSound: Boolean = true,
     val notificationVibration: Boolean = true,
     val notificationLight: Boolean = true,

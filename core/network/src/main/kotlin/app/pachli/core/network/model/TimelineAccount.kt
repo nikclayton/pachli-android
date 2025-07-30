@@ -17,7 +17,6 @@
 
 package app.pachli.core.network.model
 
-import app.pachli.core.common.util.unsafeLazy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.Instant
@@ -60,6 +59,8 @@ data class TimelineAccount(
      * If true, indicates that the account should be hidden behind a warning screen.
      */
     val limited: Boolean = false,
+
+    val roles: List<Role>? = null,
 ) {
 
     /**
@@ -74,10 +75,20 @@ data class TimelineAccount(
             displayName
         }
 
-    /** The domain of the account (excluding the '@'), empty string if local. */
-    val domain: String by unsafeLazy {
-        username.indexOf('@').takeIf { it != -1 }?.let { index ->
-            username.substring(index + 1)
-        } ?: ""
-    }
+    fun asModel() = app.pachli.core.model.TimelineAccount(
+        id = id,
+        localUsername = localUsername,
+        username = username,
+        displayName = displayName,
+        url = url,
+        avatar = avatar,
+        note = note,
+        bot = bot,
+        emojis = emojis?.asModel(),
+        createdAt = createdAt,
+        limited = limited,
+        roles = roles.orEmpty().asModel(),
+    )
 }
+
+fun Iterable<TimelineAccount>.asModel() = map { it.asModel() }

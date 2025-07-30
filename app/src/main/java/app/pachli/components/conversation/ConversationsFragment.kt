@@ -50,18 +50,19 @@ import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.AccountFilterDecision
+import app.pachli.core.model.Poll
+import app.pachli.core.model.Status
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.EditContentFilterActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
-import app.pachli.core.network.model.Poll
-import app.pachli.core.network.model.Status
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentTimelineBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
@@ -169,6 +170,8 @@ class ConversationsFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.recyclerView.applyDefaultWindowInsets()
+
         requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         viewLifecycleOwner.lifecycleScope.launch {

@@ -49,7 +49,9 @@ import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.domain.DownloadUrlUseCase
+import app.pachli.core.model.Attachment
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
+import app.pachli.core.model.Status
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.ComposeActivityIntent
@@ -59,8 +61,6 @@ import app.pachli.core.navigation.ReportActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.ViewMediaActivityIntent
 import app.pachli.core.navigation.ViewThreadActivityIntent
-import app.pachli.core.network.model.Attachment
-import app.pachli.core.network.model.Status
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.ui.ClipboardUseCase
@@ -144,7 +144,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                             Snackbar.make(requireView(), msg, Snackbar.LENGTH_INDEFINITE)
                                 .setAction(app.pachli.core.ui.R.string.action_retry) { serverRepository.reload() }
                                 .show()
-                        } catch (e: IllegalArgumentException) {
+                        } catch (_: IllegalArgumentException) {
                             // On rare occasions this code is running before the fragment's
                             // view is connected to the parent. This causes Snackbar.make()
                             // to crash.  See https://issuetracker.google.com/issues/228215869.
@@ -392,7 +392,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
     private fun onMute(accountId: String, accountUsername: String) {
         showMuteAccountDialog(this.requireActivity(), accountUsername) { notifications: Boolean?, duration: Int? ->
             lifecycleScope.launch {
-                timelineCases.mute(pachliAccountId, accountId, notifications == true, duration)
+                timelineCases.muteAccount(pachliAccountId, accountId, notifications == true, duration)
             }
         }
     }
@@ -402,7 +402,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
             .setMessage(getString(R.string.dialog_block_warning, accountUsername))
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 lifecycleScope.launch {
-                    timelineCases.block(pachliAccountId, accountId)
+                    timelineCases.blockAccount(pachliAccountId, accountId)
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -478,13 +478,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 lifecycleScope.launch {
                     timelineCases.delete(statusViewData.status.id).onSuccess {
-                        val deletedStatus = it.body
-                        removeItem(statusViewData)
-                        val sourceStatus = if (deletedStatus.isEmpty()) {
-                            statusViewData.status.toDeletedStatus()
-                        } else {
-                            deletedStatus
-                        }
+                        val sourceStatus = it.body.asModel()
                         val composeOptions = ComposeOptions(
                             content = sourceStatus.text,
                             inReplyTo = statusViewData.status.inReplyToId?.let { InReplyTo.Id(it) },
@@ -562,11 +556,13 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
         Toast.makeText(context, R.string.downloading_media, Toast.LENGTH_SHORT).show()
 
         status.attachments.forEach {
-            downloadUrlUseCase(
-                it.url,
-                accountManager.activeAccount!!.fullName,
-                status.actionableStatus.account.username,
-            )
+            lifecycleScope.launch {
+                downloadUrlUseCase(
+                    it.url,
+                    accountManager.activeAccount!!.fullName,
+                    status.actionableStatus.account.username,
+                )
+            }
         }
     }
 

@@ -20,9 +20,11 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewGroupCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,12 +35,15 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.eventhub.StatusScheduledEvent
+import app.pachli.core.model.ScheduledStatus
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InReplyTo
 import app.pachli.core.navigation.pachliAccountId
-import app.pachli.core.network.model.ScheduledStatus
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.appbar.FadeChildScrollEffect
+import app.pachli.core.ui.extensions.addScrollEffect
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.ActivityScheduledStatusBinding
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -67,7 +72,12 @@ class ScheduledStatusActivity :
     private val adapter = ScheduledStatusAdapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.includedToolbar.appbar.applyDefaultWindowInsets()
+        binding.includedToolbar.toolbar.addScrollEffect(FadeChildScrollEffect)
+        binding.scheduledTootList.applyDefaultWindowInsets()
 
         setContentView(binding.root)
         addMenuProvider(this)

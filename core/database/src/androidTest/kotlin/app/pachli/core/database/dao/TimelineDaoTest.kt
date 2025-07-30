@@ -25,10 +25,10 @@ import app.pachli.core.database.model.StatusEntity
 import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.database.model.TimelineStatusEntity
 import app.pachli.core.database.model.TimelineStatusWithAccount
-import app.pachli.core.network.model.Card
-import app.pachli.core.network.model.Emoji
-import app.pachli.core.network.model.PreviewCardKind
-import app.pachli.core.network.model.Status
+import app.pachli.core.model.Card
+import app.pachli.core.model.Emoji
+import app.pachli.core.model.PreviewCardKind
+import app.pachli.core.model.Status
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -409,6 +409,7 @@ class TimelineDaoTest {
             bot = false,
             createdAt = null,
             note = "",
+            roles = null,
         )
 
         val reblogAuthor = if (reblog) {
@@ -424,6 +425,7 @@ class TimelineDaoTest {
                 bot = false,
                 createdAt = null,
                 note = "",
+                roles = null,
             )
         } else {
             null

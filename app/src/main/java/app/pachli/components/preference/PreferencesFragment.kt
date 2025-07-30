@@ -53,6 +53,7 @@ import app.pachli.core.domain.notifications.NotificationConfig
 import app.pachli.core.domain.notifications.hasPushScope
 import app.pachli.core.domain.notifications.notificationMethod
 import app.pachli.core.preferences.AppTheme
+import app.pachli.core.preferences.DefaultAudioPlayback
 import app.pachli.core.preferences.DownloadLocation
 import app.pachli.core.preferences.MainNavigationPosition
 import app.pachli.core.preferences.PrefKeys
@@ -62,6 +63,7 @@ import app.pachli.core.preferences.TabAlignment
 import app.pachli.core.preferences.TabContents
 import app.pachli.core.preferences.TabTapBehaviour
 import app.pachli.core.preferences.UpdateNotificationFrequency
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.core.ui.extensions.asDdHhMmSs
 import app.pachli.core.ui.extensions.await
 import app.pachli.core.ui.extensions.instantFormatter
@@ -293,6 +295,12 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     key = PrefKeys.CONFIRM_STATUS_LANGUAGE
                     setTitle(R.string.pref_title_confirm_status_language)
                     isSingleLineTitle = false
+                }
+
+                enumListPreference<DefaultAudioPlayback> {
+                    setDefaultValue(DefaultAudioPlayback.UNMUTED)
+                    setTitle(R.string.pref_default_audio_playback)
+                    key = PrefKeys.DEFAULT_AUDIO_PLAYBACK
                 }
             }
 
@@ -545,6 +553,11 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                 }
             }
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        listView.applyDefaultWindowInsets()
     }
 
     private fun makeIcon(icon: GoogleMaterial.Icon): IconicsDrawable {

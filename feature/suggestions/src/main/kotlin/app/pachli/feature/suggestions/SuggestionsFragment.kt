@@ -44,16 +44,17 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.throttleFirst
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
-import app.pachli.core.data.model.SuggestionSources
-import app.pachli.core.data.model.SuggestionSources.FEATURED
-import app.pachli.core.data.model.SuggestionSources.FRIENDS_OF_FRIENDS
-import app.pachli.core.data.model.SuggestionSources.MOST_FOLLOWED
-import app.pachli.core.data.model.SuggestionSources.MOST_INTERACTIONS
-import app.pachli.core.data.model.SuggestionSources.SIMILAR_TO_RECENTLY_FOLLOWED
-import app.pachli.core.data.model.SuggestionSources.UNKNOWN
+import app.pachli.core.model.SuggestionSources
+import app.pachli.core.model.SuggestionSources.FEATURED
+import app.pachli.core.model.SuggestionSources.FRIENDS_OF_FRIENDS
+import app.pachli.core.model.SuggestionSources.MOST_FOLLOWED
+import app.pachli.core.model.SuggestionSources.MOST_INTERACTIONS
+import app.pachli.core.model.SuggestionSources.SIMILAR_TO_RECENTLY_FOLLOWED
+import app.pachli.core.model.SuggestionSources.UNKNOWN
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.core.ui.makeIcon
 import app.pachli.feature.suggestions.UiAction.GetSuggestions
 import app.pachli.feature.suggestions.UiAction.NavigationAction
@@ -115,6 +116,9 @@ class SuggestionsFragment :
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.recyclerView.applyDefaultWindowInsets()
+
         requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         suggestionsAdapter = SuggestionsAdapter(

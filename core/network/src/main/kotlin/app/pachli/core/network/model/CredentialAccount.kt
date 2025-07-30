@@ -59,7 +59,7 @@ data class CredentialAccount(
     @Json(name = "followers_count") val followersCount: Int = 0,
     @Json(name = "following_count") val followingCount: Int = 0,
     @Json(name = "statuses_count") val statusesCount: Int = 0,
-    val role: Role? = null,
+    val role: CredentialedRole? = null,
     val roles: List<Role>? = emptyList(),
 ) {
     val name: String
@@ -68,6 +68,36 @@ data class CredentialAccount(
         } else {
             displayName
         }
+
+    fun asModel() = app.pachli.core.model.CredentialAccount(
+        id = id,
+        localUsername = localUsername,
+        username = username,
+        displayName = displayName,
+        note = note,
+        source = source.asModel(),
+        url = url,
+        avatar = avatar,
+        avatarStatic = avatarStatic,
+        header = header,
+        headerStatic = headerStatic,
+        locked = locked,
+        emojis = emojis.asModel(),
+        fields = fields.asModel(),
+        bot = bot,
+        discoverable = discoverable,
+        noIndex = noIndex,
+        moved = moved?.asModel(),
+        suspended = suspended,
+        limited = limited,
+        createdAt = createdAt,
+        lastStatusAt = lastStatusAt,
+        followersCount = followersCount,
+        followingCount = followingCount,
+        statusesCount = statusesCount,
+        role = role?.asModel(),
+        roles = roles?.asModel(),
+    )
 }
 
 @JsonClass(generateAdapter = true)
@@ -80,4 +110,30 @@ data class AccountSource(
     val language: String? = null,
     @DefaultIfNull
     @Json(name = "attribution_domains") val attributionDomains: List<String> = emptyList(),
-)
+) {
+
+    fun asModel() = app.pachli.core.model.AccountSource(
+        privacy = privacy?.asModel(),
+        sensitive = sensitive,
+        note = note,
+        fields = fields.asModel(),
+        language = language,
+        attributionDomains = attributionDomains,
+    )
+}
+
+@JsonClass(generateAdapter = true)
+data class CredentialedRole(
+    val id: String,
+    val name: String,
+    val color: String,
+    val permissions: String,
+    val highlighted: Boolean,
+) {
+    fun asModel() = app.pachli.core.model.CredentialedRole(
+        name = name,
+        color = color,
+        permissions = permissions,
+        highlighted = highlighted,
+    )
+}

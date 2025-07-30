@@ -29,9 +29,11 @@ import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewGroupCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
@@ -43,12 +45,15 @@ import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.data.model.MastodonList
 import app.pachli.core.data.repository.ListsRepository.Companion.compareByListTitle
+import app.pachli.core.model.MastodonList
+import app.pachli.core.model.UserListRepliesPolicy
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.pachliAccountId
-import app.pachli.core.network.model.UserListRepliesPolicy
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.appbar.FadeChildScrollEffect
+import app.pachli.core.ui.extensions.addScrollEffect
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.core.ui.extensions.await
 import app.pachli.feature.lists.databinding.ActivityListsBinding
 import app.pachli.feature.lists.databinding.DialogListBinding
@@ -82,7 +87,13 @@ class ListsActivity : BaseActivity(), MenuProvider {
     private val adapter = ListsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.includedToolbar.appbar.applyDefaultWindowInsets()
+        binding.includedToolbar.toolbar.addScrollEffect(FadeChildScrollEffect)
+        binding.listsRecycler.applyDefaultWindowInsets()
+        binding.addListButton.applyDefaultWindowInsets()
 
         setContentView(binding.root)
 
@@ -165,9 +176,7 @@ class ListsActivity : BaseActivity(), MenuProvider {
             }
 
             list?.let { list ->
-                list.exclusive?.let {
-                    binding.exclusiveCheckbox.isChecked = it
-                } ?: binding.exclusiveCheckbox.hide()
+                binding.exclusiveCheckbox.isChecked = list.exclusive
             }
 
             binding.repliesPolicyGroup.check(list?.repliesPolicy?.resourceId() ?: UserListRepliesPolicy.LIST.resourceId())
@@ -196,7 +205,7 @@ class ListsActivity : BaseActivity(), MenuProvider {
             .create()
             .await(R.string.action_delete_list, android.R.string.cancel)
 
-        if (result == AlertDialog.BUTTON_POSITIVE) viewModel.deleteList(list)
+        if (result == AlertDialog.BUTTON_POSITIVE) viewModel.deleteList(intent.pachliAccountId, list)
     }
 
     private fun bind(lists: List<MastodonList>) {

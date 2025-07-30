@@ -27,10 +27,11 @@ import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.database.model.NotificationEntity
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.network.model.TimelineAccount
+import app.pachli.core.model.TimelineAccount
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.ui.LinkListener
 import app.pachli.core.ui.emojify
+import app.pachli.core.ui.extensions.setRoles
 import app.pachli.core.ui.loadAvatar
 import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ItemFollowBinding
@@ -106,6 +107,8 @@ class FollowViewHolder(
             avatarRadius42dp,
             animateAvatars,
         )
+
+        binding.roleChipGroup.setRoles(account.roles)
 
         val emojifiedNote = account.note.parseAsMastodonHtml().emojify(
             glide,

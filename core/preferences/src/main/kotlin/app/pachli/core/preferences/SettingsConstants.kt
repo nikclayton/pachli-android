@@ -46,6 +46,7 @@ object PrefKeys {
     const val FONT_FAMILY = "fontFamily"
     const val STATUS_TEXT_SIZE = "statusTextSize"
     const val MAIN_NAV_POSITION = "mainNavPosition"
+    const val DEFAULT_AUDIO_PLAYBACK = "defaultAudioPlayback"
     const val HIDE_TOP_TOOLBAR = "hideTopToolbar"
     const val ABSOLUTE_TIME_VIEW = "absoluteTimeView"
     const val SHOW_BOT_OVERLAY = "showBotOverlay"
@@ -143,6 +144,9 @@ object PrefKeys {
 
     // Account preferences
     const val NOTIFICATION_FILTER_SEVERED_RELATIONSHIPS = "notificationFilterSeveredRelationships"
+
+    // Account preferences
+    const val NOTIFICATION_FILTER_MODERATION_WARNING = "notificationFilterModerationWarning"
 
     const val TAB_FILTER_HOME_REPLIES = "tabFilterHomeReplies_v2" // This was changed once to reset an unintentionally set default.
     const val TAB_FILTER_HOME_BOOSTS = "tabFilterHomeBoosts"

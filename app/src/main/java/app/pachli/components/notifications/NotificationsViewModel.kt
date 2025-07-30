@@ -27,15 +27,14 @@ import androidx.paging.map
 import app.pachli.R
 import app.pachli.core.common.PachliError
 import app.pachli.core.common.extensions.throttleFirst
+import app.pachli.core.data.model.ContentFilterModel
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.PachliAccount
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.data.repository.notifications.NotificationsRepository
-import app.pachli.core.data.repository.notifications.from
 import app.pachli.core.database.model.AccountEntity
-import app.pachli.core.database.model.NotificationEntity
 import app.pachli.core.eventhub.BlockEvent
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.eventhub.MuteConversationEvent
@@ -44,12 +43,11 @@ import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.ContentFilterVersion
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
-import app.pachli.core.network.model.Notification
-import app.pachli.core.network.model.Poll
+import app.pachli.core.model.Notification
+import app.pachli.core.model.Poll
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.preferences.TabTapBehaviour
-import app.pachli.network.ContentFilterModel
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.deserialize
 import app.pachli.util.serialize
@@ -587,7 +585,7 @@ class NotificationsViewModel @AssistedInject constructor(
             .flatMapLatest { account ->
                 getNotifications(
                     account,
-                    filters = deserialize(account.entity.notificationsFilter),
+                    excludeTypes = deserialize(account.entity.notificationsFilter),
                 )
             }.cachedIn(viewModelScope)
 
@@ -625,15 +623,20 @@ class NotificationsViewModel @AssistedInject constructor(
             .onFailure { _uiResult.send(Err(UiError.make(it, action))) }
     }
 
+    /**
+     * Gets notifications for [pachliAccount], excluding types of notifications in
+     * [excludeTypes], and applies content and account filters.
+     *
+     * @param pachliAccount
+     * @param excludeTypes 0 or more [Notification.Type] to exclude from the results.
+     */
     private suspend fun getNotifications(
         pachliAccount: PachliAccount,
-        filters: Set<Notification.Type>,
+        excludeTypes: Set<Notification.Type>,
     ): Flow<PagingData<NotificationViewData>> {
-        val activeFilters = filters.map { NotificationEntity.Type.from(it) }
-        return repository.notifications(pachliAccountId)
+        return repository.notifications(pachliAccountId, excludeTypes)
             .map { pagingData ->
                 pagingData
-                    .filter { !activeFilters.contains(it.notification.type) }
                     .map { notification ->
                         val contentFilterAction =
                             notification.viewData?.contentFilterAction

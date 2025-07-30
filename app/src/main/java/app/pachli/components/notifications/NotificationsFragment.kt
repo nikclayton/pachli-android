@@ -54,16 +54,17 @@ import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.model.Notification
+import app.pachli.core.model.Poll
+import app.pachli.core.model.Status
 import app.pachli.core.navigation.AttachmentViewData.Companion.list
 import app.pachli.core.navigation.EditContentFilterActivityIntent
-import app.pachli.core.network.model.Notification
-import app.pachli.core.network.model.Poll
-import app.pachli.core.network.model.Status
 import app.pachli.core.preferences.TabTapBehaviour
 import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.FragmentTimelineNotificationsBinding
 import app.pachli.fragment.SFragment
@@ -181,6 +182,7 @@ class NotificationsFragment :
         binding.swipeRefreshLayout.setColorSchemeColors(MaterialColors.getColor(binding.root, androidx.appcompat.R.attr.colorPrimary))
 
         // Setup the RecyclerView.
+        binding.recyclerView.applyDefaultWindowInsets()
         binding.recyclerView.setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
@@ -747,4 +749,5 @@ fun Notification.Type.uiString(): Int = when (this) {
     Notification.Type.UPDATE -> R.string.notification_update_name
     Notification.Type.REPORT -> R.string.notification_report_name
     Notification.Type.SEVERED_RELATIONSHIPS -> R.string.notification_severed_relationships_name
+    Notification.Type.MODERATION_WARNING -> R.string.notification_moderation_warnings_name
 }

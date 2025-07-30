@@ -44,13 +44,14 @@ import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.model.Poll
+import app.pachli.core.model.Status
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.EditContentFilterActivityIntent
-import app.pachli.core.network.model.Poll
-import app.pachli.core.network.model.Status
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentViewThreadBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.StatusActionListener
@@ -121,24 +122,25 @@ class ViewThreadFragment :
         binding.swipeRefreshLayout.setOnRefreshListener(this)
         binding.swipeRefreshLayout.setColorSchemeColors(MaterialColors.getColor(binding.root, androidx.appcompat.R.attr.colorPrimary))
 
-        binding.recyclerView.setHasFixedSize(true)
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.setAccessibilityDelegateCompat(
-            ListStatusAccessibilityDelegate(
-                pachliAccountId,
-                binding.recyclerView,
-                this,
-                openUrl,
-            ) { index -> adapter.currentList.getOrNull(index) },
-        )
-        binding.recyclerView.addItemDecoration(
-            MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
-        )
-        binding.recyclerView.addItemDecoration(ConversationLineItemDecoration(requireContext()))
-
-        binding.recyclerView.adapter = adapter
-
-        (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        with(binding.recyclerView) {
+            applyDefaultWindowInsets()
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            setAccessibilityDelegateCompat(
+                ListStatusAccessibilityDelegate(
+                    pachliAccountId,
+                    binding.recyclerView,
+                    this@ViewThreadFragment,
+                    openUrl,
+                ) { index -> this@ViewThreadFragment.adapter.currentList.getOrNull(index) },
+            )
+            addItemDecoration(
+                MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
+            )
+            addItemDecoration(ConversationLineItemDecoration(requireContext()))
+            adapter = this@ViewThreadFragment.adapter
+            (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {

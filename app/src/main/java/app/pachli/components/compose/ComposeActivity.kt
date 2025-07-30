@@ -40,6 +40,7 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
@@ -55,6 +56,7 @@ import androidx.core.content.res.use
 import androidx.core.os.BundleCompat
 import androidx.core.view.ContentInfoCompat
 import androidx.core.view.OnReceiveContentListener
+import androidx.core.view.ViewGroupCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -64,9 +66,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionManager
 import app.pachli.BuildConfig
 import app.pachli.R
-import app.pachli.adapter.EmojiAdapter
 import app.pachli.adapter.LocaleAdapter
-import app.pachli.adapter.OnEmojiSelectedListener
 import app.pachli.components.compose.ComposeViewModel.ConfirmationKind
 import app.pachli.components.compose.dialog.makeFocusDialog
 import app.pachli.components.compose.dialog.showAddPollDialog
@@ -82,18 +82,20 @@ import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.Loadable
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.model.Attachment
+import app.pachli.core.model.Emoji
 import app.pachli.core.model.InstanceInfo.Companion.DEFAULT_CHARACTER_LIMIT
 import app.pachli.core.model.InstanceInfo.Companion.DEFAULT_MAX_MEDIA_ATTACHMENTS
+import app.pachli.core.model.Status
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InReplyTo
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InitialCursorPosition
 import app.pachli.core.navigation.pachliAccountId
-import app.pachli.core.network.model.Attachment
-import app.pachli.core.network.model.Emoji
-import app.pachli.core.network.model.Status
 import app.pachli.core.preferences.AppTheme
 import app.pachli.core.ui.emojify
+import app.pachli.core.ui.extensions.InsetType
+import app.pachli.core.ui.extensions.applyWindowInsets
 import app.pachli.core.ui.extensions.await
 import app.pachli.core.ui.loadAvatar
 import app.pachli.core.ui.makeIcon
@@ -131,10 +133,12 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
@@ -146,8 +150,6 @@ class ComposeActivity :
     BaseActivity(),
     ComposeVisibilityListener,
     ComposeAutoCompleteAdapter.AutocompletionProvider,
-    OnEmojiSelectedListener,
-
     OnReceiveContentListener,
     ComposeScheduleView.OnTimeSetListener {
 
@@ -214,9 +216,9 @@ class ComposeActivity :
         val uriNew = result.uriContent
         if (result.isSuccessful && uriNew != null) {
             viewModel.cropImageItemOld?.let { itemOld ->
-                val size = getMediaSize(contentResolver, uriNew)
-
                 lifecycleScope.launch {
+                    val size = getMediaSize(contentResolver, uriNew)
+
                     viewModel.addMediaToQueue(
                         itemOld.type,
                         uriNew,
@@ -260,7 +262,44 @@ class ComposeActivity :
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.toolbar.applyWindowInsets(
+            left = InsetType.MARGIN,
+            top = InsetType.PADDING,
+            right = InsetType.MARGIN,
+        )
+        binding.composeMainScrollView.applyWindowInsets(
+            left = InsetType.MARGIN,
+            top = InsetType.MARGIN,
+            right = InsetType.MARGIN,
+            bottom = InsetType.MARGIN,
+            withIme = true,
+        )
+        binding.composeBottomBar.applyWindowInsets(
+            left = InsetType.PADDING,
+            bottom = InsetType.PADDING,
+            right = InsetType.PADDING,
+            withIme = true,
+        )
+        binding.addMediaBottomSheet.applyWindowInsets(
+            left = InsetType.PADDING,
+            right = InsetType.PADDING,
+        )
+        binding.composeOptionsBottomSheet.applyWindowInsets(
+            left = InsetType.PADDING,
+            right = InsetType.PADDING,
+        )
+        binding.composeScheduleView.applyWindowInsets(
+            left = InsetType.PADDING,
+            right = InsetType.PADDING,
+        )
+        binding.emojiPickerBottomSheet.applyWindowInsets(
+            left = InsetType.PADDING,
+            top = InsetType.MARGIN,
+            right = InsetType.PADDING,
+        )
 
         if (sharedPreferencesRepository.appTheme == AppTheme.BLACK) {
             setTheme(DR.style.AppDialogActivityBlackTheme)
@@ -315,7 +354,7 @@ class ComposeActivity :
                             viewModel.updateFocus(item.localId, newFocus)
                         }
                     },
-                    onEditImage = this@ComposeActivity::editImageInQueue,
+                    onEditImage = { lifecycleScope.launch { editImageInQueue(it) } },
                     onRemoveMedia = this@ComposeActivity::removeMediaFromQueue,
                 )
 
@@ -670,7 +709,7 @@ class ComposeActivity :
         visibilityBehavior = BottomSheetBehavior.from(binding.composeOptionsBottomSheet)
         addAttachmentBehavior = BottomSheetBehavior.from(binding.addMediaBottomSheet)
         scheduleBehavior = BottomSheetBehavior.from(binding.composeScheduleView)
-        emojiBehavior = BottomSheetBehavior.from(binding.emojiView)
+        emojiBehavior = BottomSheetBehavior.from(binding.emojiPickerBottomSheet)
 
         val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -709,7 +748,7 @@ class ComposeActivity :
 
         binding.actionPhotoTake.visible(Intent(MediaStore.ACTION_IMAGE_CAPTURE).resolveActivity(packageManager) != null)
 
-        binding.actionPhotoTake.setOnClickListener { initiateCameraApp() }
+        binding.actionPhotoTake.setOnClickListener { lifecycleScope.launch { initiateCameraApp() } }
         binding.actionAddMedia.setOnClickListener { onAddMediaClick() }
         binding.addPollTextActionTextView.setOnClickListener { onAddPollClick() }
 
@@ -941,7 +980,7 @@ class ComposeActivity :
     private fun enableButtons(enable: Boolean, editing: Boolean) {
         binding.composeAddAttachmentButton.isClickable = enable
         binding.composeChangeVisibilityButton.isClickable = enable && !editing
-        binding.composeEmojiButton.isClickable = enable
+        binding.composeEmojiButton.isClickable = enable && viewModel.emojis.value.isNotEmpty()
         binding.composeMarkSensitiveButton.isClickable = enable
         binding.composeScheduleButton.isClickable = enable && !editing
         binding.composeTootButton.isEnabled = enable
@@ -1013,21 +1052,13 @@ class ComposeActivity :
      * Shows/hides the bottom sheet displaying an emoji grid to choose from.
      */
     private fun onEmojiClick() {
-        binding.emojiView.adapter?.let {
-            if (it.itemCount == 0) {
-                val errorMessage = getString(R.string.error_no_custom_emojis, accountManager.activeAccount!!.domain)
-                displayTransientMessage(errorMessage)
-                return
-            }
-
-            if (emojiBehavior.state == BottomSheetBehavior.STATE_HIDDEN || emojiBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                emojiBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                visibilityBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-                addAttachmentBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-                scheduleBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
-            } else {
-                emojiBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
-            }
+        if (emojiBehavior.state == BottomSheetBehavior.STATE_HIDDEN || emojiBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+            emojiBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            visibilityBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            addAttachmentBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            scheduleBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+        } else {
+            emojiBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
         }
     }
 
@@ -1298,19 +1329,19 @@ class ComposeActivity :
         }
     }
 
-    private fun initiateCameraApp() {
+    private suspend fun initiateCameraApp() = withContext(Dispatchers.IO) {
         addAttachmentBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
         val photoFile: File = try {
-            createNewImageFile(this)
-        } catch (ex: IOException) {
+            createNewImageFile(this@ComposeActivity)
+        } catch (_: IOException) {
             displayTransientMessage(R.string.error_media_upload_opening)
-            return
+            return@withContext
         }
 
         // Continue only if the File was successfully created
         photoUploadUri = FileProvider.getUriForFile(
-            this,
+            this@ComposeActivity,
             BuildConfig.APPLICATION_ID + ".fileprovider",
             photoFile,
         )?.also {
@@ -1338,7 +1369,7 @@ class ComposeActivity :
         }
     }
 
-    private fun editImageInQueue(item: QueuedMedia) {
+    private suspend fun editImageInQueue(item: QueuedMedia) {
         // If input image is lossless, output image should be lossless.
         // Currently the only supported lossless format is png.
         val mimeType: String? = contentResolver.getType(item.uri)
@@ -1554,14 +1585,12 @@ class ComposeActivity :
         return viewModel.searchAutocompleteSuggestions(token)
     }
 
-    override fun onEmojiSelected(shortcode: String) {
-        replaceTextAtCaret(":$shortcode: ")
-    }
-
     private fun bindEmojiList(emojiList: List<Emoji>) {
-        val animateEmojis = sharedPreferencesRepository.animateEmojis
-        binding.emojiView.adapter = EmojiAdapter(glide, emojiList, this@ComposeActivity, animateEmojis)
-        enableButton(binding.composeEmojiButton, true, emojiList.isNotEmpty())
+        binding.emojiPickerBottomSheet.animate = sharedPreferencesRepository.animateEmojis
+        binding.emojiPickerBottomSheet.clickListener = { replaceTextAtCaret(":${it.shortcode}: ") }
+        binding.emojiPickerBottomSheet.emojis = emojiList
+
+        enableButton(binding.composeEmojiButton, emojiList.isNotEmpty(), emojiList.isNotEmpty())
     }
 
     /**

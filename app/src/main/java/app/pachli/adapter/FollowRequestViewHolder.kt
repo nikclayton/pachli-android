@@ -30,10 +30,11 @@ import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.network.model.TimelineAccount
+import app.pachli.core.model.TimelineAccount
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.ui.LinkListener
 import app.pachli.core.ui.emojify
+import app.pachli.core.ui.extensions.setRoles
 import app.pachli.core.ui.loadAvatar
 import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ItemFollowRequestBinding
@@ -78,7 +79,7 @@ class FollowRequestViewHolder(
         val emojifiedName: CharSequence = wrappedName.emojify(
             glide,
             account.emojis,
-            itemView,
+            binding.displayNameTextView,
             animateEmojis,
         )
         binding.displayNameTextView.text = emojifiedName
@@ -94,7 +95,7 @@ class FollowRequestViewHolder(
                     wrappedName.length,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
                 )
-            }.emojify(glide, account.emojis, itemView, animateEmojis)
+            }.emojify(glide, account.emojis, binding.notificationTextView, animateEmojis)
         }
         binding.notificationTextView.visible(showHeader)
         val formattedUsername = itemView.context.getString(DR.string.post_username_format, account.username)
@@ -111,6 +112,8 @@ class FollowRequestViewHolder(
         val avatarRadius = binding.avatar.context.resources.getDimensionPixelSize(DR.dimen.avatar_radius_48dp)
         loadAvatar(glide, account.avatar, binding.avatar, avatarRadius, animateAvatar)
         binding.avatarBadge.visible(showBotOverlay && account.bot)
+
+        binding.roleChipGroup.setRoles(account.roles)
     }
 
     fun setupActionListener(listener: AccountActionListener, accountId: String) {

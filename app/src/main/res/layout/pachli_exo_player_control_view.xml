@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!--
+Copied from https://github.com/androidx/media/blob/8060342/libraries/ui/src/main/res/layout/exo_player_control_view.xml
+to make local changes.
+
+Local changes:
+
+- Add a button to toggle mute state.
+- Import resources (with a `pachli_` prefix) instead of using private media3
+  resources.
+
+See res/values/exoplayer_resources.xml for the copied resources (colors, dimensions).
+
+Some lint errors are ignored:
+
+- RequiredSize, the size is part of the style.
+- Some textviews are deliberately not selectable.
+- ContentDescription on ImageViews that have a content description in the style.
+-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="RequiredSize">
+
+    <!-- 0dp dimensions are used to prevent this view from influencing the size of
+         the parent view if it uses "wrap_content". It is expanded to occupy the
+         entirety of the parent in code, after the parent's size has been
+         determined. See: https://github.com/google/ExoPlayer/issues/8726.
+    -->
+    <View android:id="@id/exo_controls_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/pachli_exo_black_opacity_60" />
+
+    <FrameLayout android:id="@id/exo_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/pachli_exo_styled_bottom_bar_height"
+        android:layout_marginTop="@dimen/pachli_exo_styled_bottom_bar_margin_top"
+        android:layout_gravity="bottom"
+        android:background="@color/pachli_exo_bottom_bar_background"
+        android:layoutDirection="ltr">
+
+        <LinearLayout android:id="@id/exo_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/pachli_exo_styled_bottom_bar_time_padding"
+            android:paddingEnd="@dimen/pachli_exo_styled_bottom_bar_time_padding"
+            android:paddingLeft="@dimen/pachli_exo_styled_bottom_bar_time_padding"
+            android:paddingRight="@dimen/pachli_exo_styled_bottom_bar_time_padding"
+            android:layout_gravity="center_vertical|start"
+            android:layoutDirection="ltr">
+
+            <TextView android:id="@id/exo_position"
+                style="@style/ExoStyledControls.TimeText.Position"
+                android:textIsSelectable="false" />
+
+            <TextView
+                style="@style/ExoStyledControls.TimeText.Separator"/>
+
+            <TextView android:id="@id/exo_duration"
+                style="@style/ExoStyledControls.TimeText.Duration"
+                android:textIsSelectable="false" />
+
+        </LinearLayout>
+
+        <LinearLayout android:id="@id/exo_basic_controls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:layoutDirection="ltr">
+
+            <ImageButton android:id="@id/exo_vr"
+                style="@style/ExoStyledControls.Button.Bottom.VR"
+                tools:ignore="ContentDescription" />
+
+            <ImageButton android:id="@id/exo_shuffle"
+                style="@style/ExoStyledControls.Button.Bottom.Shuffle"
+                tools:ignore="ContentDescription" />
+
+            <ImageButton android:id="@id/exo_repeat_toggle"
+                style="@style/ExoStyledControls.Button.Bottom.RepeatToggle"
+                tools:ignore="ContentDescription" />
+
+            <ImageButton android:id="@id/exo_subtitle"
+                style="@style/ExoStyledControls.Button.Bottom.CC"
+                tools:ignore="ContentDescription" />
+
+            <ImageButton
+                android:id="@+id/pachli_exo_mute_toggle"
+                style="@style/ExoStyledControls.Button.Bottom"
+                android:src="@drawable/ic_mute_24dp"
+                android:contentDescription="@string/action_mute"
+                app:tint="@color/white" />
+
+            <ImageButton android:id="@id/exo_settings"
+                style="@style/ExoStyledControls.Button.Bottom.Settings"
+                tools:ignore="ContentDescription" />
+
+            <ImageButton android:id="@id/exo_fullscreen"
+                style="@style/ExoStyledControls.Button.Bottom.FullScreen"
+                tools:ignore="ContentDescription" />
+
+            <ImageButton android:id="@id/exo_overflow_show"
+                style="@style/ExoStyledControls.Button.Bottom.OverflowShow"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <HorizontalScrollView android:id="@id/exo_extra_controls_scroll_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:visibility="invisible">
+
+            <LinearLayout android:id="@id/exo_extra_controls"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layoutDirection="ltr">
+
+                <ImageButton android:id="@id/exo_overflow_hide"
+                    style="@style/ExoStyledControls.Button.Bottom.OverflowHide"
+                    tools:ignore="ContentDescription" />
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+    </FrameLayout>
+
+    <View android:id="@id/exo_progress_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/pachli_exo_styled_progress_layout_height"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="@dimen/pachli_exo_styled_progress_margin_bottom" />
+
+    <LinearLayout android:id="@id/exo_minimal_controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/pachli_exo_styled_minimal_controls_margin_bottom"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layoutDirection="ltr">
+
+        <ImageButton android:id="@id/exo_minimal_fullscreen"
+            style="@style/ExoStyledControls.Button.Bottom.FullScreen"
+            tools:ignore="ContentDescription" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@id/exo_center_controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="@dimen/pachli_exo_styled_center_controls_margin_bottom"
+        android:background="@android:color/transparent"
+        android:padding="@dimen/pachli_exo_styled_controls_padding"
+        android:clipToPadding="false"
+        android:layoutDirection="ltr">
+
+        <ImageButton android:id="@id/exo_prev"
+            style="@style/ExoStyledControls.Button.Center.Previous"
+            tools:ignore="ContentDescription" />
+
+        <include
+            layout="@layout/pachli_exo_player_control_rewind_button"
+            tools:ignore="ContentDescription" />
+
+        <ImageButton android:id="@id/exo_play_pause"
+            style="@style/ExoStyledControls.Button.Center.PlayPause"
+            tools:ignore="ContentDescription" />
+
+        <include layout="@layout/pachli_exo_player_control_ffwd_button" />
+
+        <ImageButton android:id="@id/exo_next"
+            style="@style/ExoStyledControls.Button.Center.Next"
+            tools:ignore="ContentDescription" />
+
+    </LinearLayout>
+
+</merge>

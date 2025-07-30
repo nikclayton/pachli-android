@@ -35,6 +35,8 @@ data class Notification(
     val report: Report?,
     @Json(name = "event")
     val relationshipSeveranceEvent: RelationshipSeveranceEvent? = null,
+    @Json(name = "moderation_warning")
+    val accountWarning: AccountWarning? = null,
 ) {
 
     /** From https://docs.joinmastodon.org/entities/Notification/#type */
@@ -88,18 +90,35 @@ data class Notification(
         /** Some of your follow relationships have been severed as a result of a moderation or block event */
         @Json(name = "severed_relationships")
         SEVERED_RELATIONSHIPS("severed_relationships"),
+
+        /** A moderator has taken action against your account or has sent you a warning. */
+        @Json(name = "moderation_warning")
+        MODERATION_WARNING("moderation_warning"),
         ;
 
         companion object {
-            @JvmStatic
-            fun byString(s: String) = entries.firstOrNull { s == it.presentation } ?: UNKNOWN
-
             /** Notification types for UI display (omits UNKNOWN) */
             val visibleTypes = Type.entries.filter { it != UNKNOWN }
         }
 
         override fun toString(): String {
             return presentation
+        }
+
+        fun asModel(): app.pachli.core.model.Notification.Type = when (this) {
+            UNKNOWN -> app.pachli.core.model.Notification.Type.UNKNOWN
+            MENTION -> app.pachli.core.model.Notification.Type.MENTION
+            REBLOG -> app.pachli.core.model.Notification.Type.REBLOG
+            FAVOURITE -> app.pachli.core.model.Notification.Type.FAVOURITE
+            FOLLOW -> app.pachli.core.model.Notification.Type.FOLLOW
+            FOLLOW_REQUEST -> app.pachli.core.model.Notification.Type.FOLLOW_REQUEST
+            POLL -> app.pachli.core.model.Notification.Type.POLL
+            STATUS -> app.pachli.core.model.Notification.Type.STATUS
+            SIGN_UP -> app.pachli.core.model.Notification.Type.SIGN_UP
+            UPDATE -> app.pachli.core.model.Notification.Type.UPDATE
+            REPORT -> app.pachli.core.model.Notification.Type.REPORT
+            SEVERED_RELATIONSHIPS -> app.pachli.core.model.Notification.Type.SEVERED_RELATIONSHIPS
+            MODERATION_WARNING -> app.pachli.core.model.Notification.Type.MODERATION_WARNING
         }
     }
 
@@ -115,15 +134,31 @@ data class Notification(
         return notification?.id == this.id
     }
 
-    // for Pleroma compatibility that uses Mention type
-    fun rewriteToStatusTypeIfNeeded(accountId: String): Notification {
-        if (type == Type.MENTION && status != null) {
-            return if (status.mentions.any { it.id == accountId }) {
-                this
-            } else {
-                copy(type = Type.STATUS)
-            }
-        }
-        return this
-    }
+    fun asModel() = app.pachli.core.model.Notification(
+        type = type.asModel(),
+        id = id,
+        createdAt = createdAt,
+        account = account.asModel(),
+        status = status?.asModel(),
+        report = report?.asModel(),
+        relationshipSeveranceEvent = relationshipSeveranceEvent?.asModel(),
+    )
 }
+
+fun app.pachli.core.model.Notification.Type.asNetworkModel() = when (this) {
+    app.pachli.core.model.Notification.Type.UNKNOWN -> Notification.Type.UNKNOWN
+    app.pachli.core.model.Notification.Type.MENTION -> Notification.Type.MENTION
+    app.pachli.core.model.Notification.Type.REBLOG -> Notification.Type.REBLOG
+    app.pachli.core.model.Notification.Type.FAVOURITE -> Notification.Type.FAVOURITE
+    app.pachli.core.model.Notification.Type.FOLLOW -> Notification.Type.FOLLOW
+    app.pachli.core.model.Notification.Type.FOLLOW_REQUEST -> Notification.Type.FOLLOW_REQUEST
+    app.pachli.core.model.Notification.Type.POLL -> Notification.Type.POLL
+    app.pachli.core.model.Notification.Type.STATUS -> Notification.Type.STATUS
+    app.pachli.core.model.Notification.Type.SIGN_UP -> Notification.Type.SIGN_UP
+    app.pachli.core.model.Notification.Type.UPDATE -> Notification.Type.UPDATE
+    app.pachli.core.model.Notification.Type.REPORT -> Notification.Type.REPORT
+    app.pachli.core.model.Notification.Type.SEVERED_RELATIONSHIPS -> Notification.Type.SEVERED_RELATIONSHIPS
+    app.pachli.core.model.Notification.Type.MODERATION_WARNING -> Notification.Type.MODERATION_WARNING
+}
+
+fun Iterable<app.pachli.core.model.Notification.Type>.asNetworkModel() = map { it.asNetworkModel() }

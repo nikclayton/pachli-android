@@ -24,14 +24,15 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
-import app.pachli.core.network.model.Attachment
-import app.pachli.core.network.model.Card
-import app.pachli.core.network.model.Emoji
-import app.pachli.core.network.model.FilterResult
-import app.pachli.core.network.model.HashTag
-import app.pachli.core.network.model.Poll
-import app.pachli.core.network.model.Status
-import app.pachli.core.network.model.TimelineAccount
+import app.pachli.core.model.Attachment
+import app.pachli.core.model.Card
+import app.pachli.core.model.Emoji
+import app.pachli.core.model.FilterResult
+import app.pachli.core.model.HashTag
+import app.pachli.core.model.Poll
+import app.pachli.core.model.Role
+import app.pachli.core.model.Status
+import app.pachli.core.model.TimelineAccount
 import java.time.Instant
 import java.util.Date
 
@@ -142,6 +143,40 @@ data class StatusEntity(
     }
 }
 
+fun Status.asEntity(pachliAccountId: Long) = StatusEntity(
+    serverId = id,
+    url = actionableStatus.url,
+    timelineUserId = pachliAccountId,
+    authorServerId = actionableStatus.account.id,
+    inReplyToId = actionableStatus.inReplyToId,
+    inReplyToAccountId = actionableStatus.inReplyToAccountId,
+    content = actionableStatus.content,
+    createdAt = actionableStatus.createdAt.time,
+    editedAt = actionableStatus.editedAt?.time,
+    emojis = actionableStatus.emojis,
+    reblogsCount = actionableStatus.reblogsCount,
+    favouritesCount = actionableStatus.favouritesCount,
+    reblogged = actionableStatus.reblogged,
+    favourited = actionableStatus.favourited,
+    bookmarked = actionableStatus.bookmarked,
+    sensitive = actionableStatus.sensitive,
+    spoilerText = actionableStatus.spoilerText,
+    visibility = actionableStatus.visibility,
+    attachments = actionableStatus.attachments,
+    mentions = actionableStatus.mentions,
+    tags = actionableStatus.tags,
+    application = actionableStatus.application,
+    reblogServerId = reblog?.id,
+    reblogAccountId = reblog?.let { account.id },
+    poll = actionableStatus.poll,
+    muted = actionableStatus.muted,
+    pinned = actionableStatus.pinned == true,
+    card = actionableStatus.card,
+    repliesCount = actionableStatus.repliesCount,
+    language = actionableStatus.language,
+    filtered = actionableStatus.filtered,
+)
+
 /**
  * An account associated with a status on a timeline or similar (e.g., an
  * account the user is following).
@@ -188,6 +223,8 @@ data class TimelineAccountEntity(
     val limited: Boolean = false,
     @ColumnInfo(defaultValue = "")
     val note: String,
+    @ColumnInfo(defaultValue = "")
+    val roles: List<Role>?,
 ) {
     fun toTimelineAccount(): TimelineAccount {
         return TimelineAccount(
@@ -202,6 +239,7 @@ data class TimelineAccountEntity(
             emojis = emojis,
             createdAt = createdAt,
             limited = limited,
+            roles = roles.orEmpty(),
         )
     }
 
@@ -219,9 +257,43 @@ data class TimelineAccountEntity(
             bot = timelineAccount.bot,
             createdAt = timelineAccount.createdAt,
             limited = timelineAccount.limited,
+            roles = timelineAccount.roles,
         )
     }
 }
+
+fun TimelineAccount.asEntity(pachliAccountId: Long) = TimelineAccountEntity(
+    serverId = id,
+    timelineUserId = pachliAccountId,
+    localUsername = localUsername,
+    username = username,
+    displayName = name,
+    note = note,
+    url = url,
+    avatar = avatar,
+    emojis = emojis.orEmpty(),
+    bot = bot,
+    createdAt = createdAt,
+    limited = limited,
+    roles = roles,
+)
+
+fun Iterable<TimelineAccount>.asEntity(pachliAccountId: Long) = map { it.asEntity(pachliAccountId) }
+
+fun TimelineAccountEntity.asModel() = TimelineAccount(
+    id = serverId,
+    localUsername = localUsername,
+    username = username,
+    displayName = displayName,
+    url = url,
+    avatar = avatar,
+    note = note,
+    bot = bot,
+    emojis = emojis,
+    createdAt = createdAt,
+    limited = limited,
+    roles = roles.orEmpty(),
+)
 
 data class TimelineStatusWithAccount(
     @Embedded

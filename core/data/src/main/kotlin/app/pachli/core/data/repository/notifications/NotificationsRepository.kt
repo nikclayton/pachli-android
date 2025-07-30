@@ -36,10 +36,16 @@ import app.pachli.core.database.model.NotificationData
 import app.pachli.core.database.model.NotificationEntity
 import app.pachli.core.database.model.RemoteKeyEntity
 import app.pachli.core.database.model.RemoteKeyEntity.RemoteKeyKind
+import app.pachli.core.database.model.StatusEntity
+import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.Notification
 import app.pachli.core.model.Timeline
-import app.pachli.core.network.model.Notification
+import app.pachli.core.network.model.Status
+import app.pachli.core.network.model.TimelineAccount
+import app.pachli.core.network.model.asModel
+import app.pachli.core.network.model.asNetworkModel
 import app.pachli.core.network.retrofit.MastodonApi
 import com.github.michaelbull.result.onSuccess
 import javax.inject.Inject
@@ -68,10 +74,11 @@ class NotificationsRepository @Inject constructor(
     private val remoteKeyTimelineId = Timeline.Notifications.remoteKeyTimelineId
 
     /**
+     * @param excludeTypes Types to filter from the results.
      * @return Notifications for [pachliAccountId].
      */
     @OptIn(ExperimentalPagingApi::class)
-    suspend fun notifications(pachliAccountId: Long): Flow<PagingData<NotificationData>> {
+    suspend fun notifications(pachliAccountId: Long, excludeTypes: Set<Notification.Type>): Flow<PagingData<NotificationData>> {
         factory = InvalidatingPagingSourceFactory { notificationDao.pagingSource(pachliAccountId) }
 
         // Room is row-keyed, not item-keyed. Find the user's REFRESH key, then find the
@@ -93,6 +100,7 @@ class NotificationsRepository @Inject constructor(
                 remoteKeyDao,
                 notificationDao,
                 statusDao,
+                excludeTypes.asNetworkModel(),
             ),
             pagingSourceFactory = factory!!,
         ).flow
@@ -197,7 +205,19 @@ class NotificationsRepository @Inject constructor(
     }
 }
 
-fun NotificationEntity.Type.Companion.from(notificationType: Notification.Type) = when (notificationType) {
+/**
+ * @return A [NotificationEntity] from a network [Notification] for [pachliAccountId].
+ */
+fun app.pachli.core.network.model.Notification.asEntity(pachliAccountId: Long) = NotificationEntity(
+    pachliAccountId = pachliAccountId,
+    serverId = id,
+    type = type.asModel().asEntity(),
+    createdAt = createdAt.toInstant(),
+    accountServerId = account.id,
+    statusServerId = status?.id,
+)
+
+fun Notification.Type.asEntity() = when (this) {
     Notification.Type.UNKNOWN -> NotificationEntity.Type.UNKNOWN
     Notification.Type.MENTION -> NotificationEntity.Type.MENTION
     Notification.Type.REBLOG -> NotificationEntity.Type.REBLOG
@@ -210,4 +230,61 @@ fun NotificationEntity.Type.Companion.from(notificationType: Notification.Type) 
     Notification.Type.UPDATE -> NotificationEntity.Type.UPDATE
     Notification.Type.REPORT -> NotificationEntity.Type.REPORT
     Notification.Type.SEVERED_RELATIONSHIPS -> NotificationEntity.Type.SEVERED_RELATIONSHIPS
+    Notification.Type.MODERATION_WARNING -> NotificationEntity.Type.MODERATION_WARNING
 }
+
+/**
+ * Converts a timeline Account to an entity, associated with [pachliAccountId].
+ */
+fun TimelineAccount.asEntity(pachliAccountId: Long) = TimelineAccountEntity(
+    serverId = id,
+    timelineUserId = pachliAccountId,
+    localUsername = localUsername,
+    username = username,
+    displayName = name,
+    note = note,
+    url = url,
+    avatar = avatar,
+    emojis = emojis.orEmpty().asModel(),
+    bot = bot,
+    createdAt = createdAt,
+    limited = limited,
+    roles = roles.orEmpty().asModel(),
+)
+
+/**
+ * Converts a network Status to an entity, associated with [pachliAccountId].
+ */
+fun Status.asEntity(pachliAccountId: Long) = StatusEntity(
+    serverId = id,
+    url = actionableStatus.url,
+    timelineUserId = pachliAccountId,
+    authorServerId = actionableStatus.account.id,
+    inReplyToId = actionableStatus.inReplyToId,
+    inReplyToAccountId = actionableStatus.inReplyToAccountId,
+    content = actionableStatus.content,
+    createdAt = actionableStatus.createdAt.time,
+    editedAt = actionableStatus.editedAt?.time,
+    emojis = actionableStatus.emojis.asModel(),
+    reblogsCount = actionableStatus.reblogsCount,
+    favouritesCount = actionableStatus.favouritesCount,
+    reblogged = actionableStatus.reblogged,
+    favourited = actionableStatus.favourited,
+    bookmarked = actionableStatus.bookmarked,
+    sensitive = actionableStatus.sensitive,
+    spoilerText = actionableStatus.spoilerText,
+    visibility = actionableStatus.visibility.asModel(),
+    attachments = actionableStatus.attachments.asModel(),
+    mentions = actionableStatus.mentions.asModel(),
+    tags = actionableStatus.tags?.asModel(),
+    application = actionableStatus.application?.asModel(),
+    reblogServerId = reblog?.id,
+    reblogAccountId = reblog?.let { account.id },
+    poll = actionableStatus.poll?.asModel(),
+    muted = actionableStatus.muted,
+    pinned = actionableStatus.pinned == true,
+    card = actionableStatus.card?.asModel(),
+    repliesCount = actionableStatus.repliesCount,
+    language = actionableStatus.language,
+    filtered = actionableStatus.filtered?.asModel(),
+)
