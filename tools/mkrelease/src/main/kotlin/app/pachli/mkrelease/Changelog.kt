@@ -149,9 +149,27 @@ fun getChangelogHighlights(changelog: File, nextVersionName: String): Changes {
 }
 
 /**
- * Copies the contents for [nextVersionName] from [changelog] in to [fastlane].
+ * Creates a [fastlane] that links to the release notes.
+ *
+ * @param nextVersionName Version name string, format "Major.minor.patch".
  */
 fun createFastlaneFromChangelog(t: Terminal, changelog: File, fastlane: File, nextVersionName: String) {
+    if (fastlane.exists()) fastlane.delete()
+    fastlane.createNewFile()
+
+    val w = fastlane.printWriter()
+    w.println("Pachli $nextVersionName\n\nSee https://github.com/pachli/pachli-android/releases/tag/v$nextVersionName.")
+    w.close()
+}
+
+/**
+ * Copies the contents for [nextVersionName] from [changelog] in to [fastlane].
+ */
+// This is the version of the function that created the initial contents from the
+// Changelog file. There are now so many changes that it's difficult to keep this
+// under 500 characters. Rather than have to edit this on each release it's easier
+// to create a link to the final release notes.
+fun createFastlaneFromChangelogOld(t: Terminal, changelog: File, fastlane: File, nextVersionName: String) {
     val changes = getChangelogHighlights(changelog, nextVersionName)
     if (fastlane.exists()) fastlane.delete()
     fastlane.createNewFile()
