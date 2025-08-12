@@ -225,6 +225,9 @@ data class TimelineAccountEntity(
     val note: String,
     @ColumnInfo(defaultValue = "")
     val roles: List<Role>?,
+    @ColumnInfo(defaultValue = "0")
+    val followerCount: Int,
+
 ) {
     fun toTimelineAccount(): TimelineAccount {
         return TimelineAccount(
@@ -240,6 +243,7 @@ data class TimelineAccountEntity(
             createdAt = createdAt,
             limited = limited,
             roles = roles.orEmpty(),
+            followerCount = followerCount,
         )
     }
 
@@ -258,6 +262,7 @@ data class TimelineAccountEntity(
             createdAt = timelineAccount.createdAt,
             limited = timelineAccount.limited,
             roles = timelineAccount.roles,
+            followerCount = timelineAccount.followerCount,
         )
     }
 }
@@ -276,6 +281,7 @@ fun TimelineAccount.asEntity(pachliAccountId: Long) = TimelineAccountEntity(
     createdAt = createdAt,
     limited = limited,
     roles = roles,
+    followerCount = followerCount,
 )
 
 fun Iterable<TimelineAccount>.asEntity(pachliAccountId: Long) = map { it.asEntity(pachliAccountId) }
@@ -293,6 +299,7 @@ fun TimelineAccountEntity.asModel() = TimelineAccount(
     createdAt = createdAt,
     limited = limited,
     roles = roles.orEmpty(),
+    followerCount = followerCount,
 )
 
 data class TimelineStatusWithAccount(

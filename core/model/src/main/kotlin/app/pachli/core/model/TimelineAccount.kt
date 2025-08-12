@@ -62,6 +62,10 @@ data class TimelineAccount(
 
     /** Roles associated with this account on this server.*/
     val roles: List<Role>,
+
+    /** Number of accounts following this account. */
+    @DefaultIfNull
+    val followerCount: Int = 0,
 ) {
 
     /**

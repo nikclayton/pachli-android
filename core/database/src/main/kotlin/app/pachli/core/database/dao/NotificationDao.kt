@@ -63,6 +63,7 @@ SELECT
     a.limited AS 'a_limited',
     a.note AS 'a_note',
     a.roles AS 'a_roles',
+    a.followerCount AS 'a_followerCount',
 
     -- The status in the notification (if any)
     s.serverId AS 's_serverId',
@@ -111,6 +112,7 @@ SELECT
     sa.limited AS 's_a_limited',
     sa.note AS 's_a_note',
     sa.roles AS 's_a_roles',
+    sa.followerCount AS 's_a_followerCount',
 
     -- The status's reblog account (if any)
     rb.serverId AS 's_rb_serverId',
@@ -126,6 +128,7 @@ SELECT
     rb.limited AS 's_rb_limited',
     rb.note AS 's_rb_note',
     rb.roles AS 's_rb_roles',
+    rb.followerCount AS 's_rb_followerCount',
 
     -- Status view data
     svd.serverId AS 's_svd_serverId',
@@ -174,6 +177,8 @@ SELECT
     report.target_createdAt AS 'report_target_createdAt',
     report.target_limited AS 'report_target_limited',
     report.target_note AS 'report_target_note',
+    report.target_roles AS 'report_target_roles',
+    report.target_followerCount AS 'report_target_followerCount',
 
     -- NotificationRelationshipSeveranceEvent
     rse.pachliAccountId AS 'rse_pachliAccountId',

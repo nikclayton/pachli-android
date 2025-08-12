@@ -226,6 +226,7 @@ fun TimelineAccount.asEntity(pachliAccountId: Long) = TimelineAccountEntity(
     createdAt = createdAt,
     limited = limited,
     roles = roles.orEmpty().asModel(),
+    followerCount = followerCount,
 )
 
 /**

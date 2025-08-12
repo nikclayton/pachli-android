@@ -25,7 +25,6 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.common.util.SmartLengthInputFilter
-import app.pachli.core.common.util.formatNumber
 import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.Emoji
@@ -71,8 +70,8 @@ open class StatusViewHolder<T : IStatusViewData>(
         }
         statusReblogsCount.visible(statusDisplayOptions.showStatsInline)
         statusFavouritesCount.visible(statusDisplayOptions.showStatsInline)
-        setFavouritedCount(viewData.actionable.favouritesCount)
-        setReblogsCount(viewData.actionable.reblogsCount)
+        setFavouritedCount(viewData.actionable.favouritesCount, viewData.actionable.account.followerCount)
+        setReblogsCount(viewData.actionable.reblogsCount, viewData.actionable.account.followerCount)
         super.setupWithStatus(viewData, listener, statusDisplayOptions, payloads)
     }
 
@@ -98,12 +97,33 @@ open class StatusViewHolder<T : IStatusViewData>(
         statusInfo.show()
     }
 
-    private fun setReblogsCount(reblogsCount: Int) = with(binding) {
-        statusReblogsCount.text = formatNumber(reblogsCount.toLong(), 1000)
+    private fun setReblogsCount(reblogsCount: Int, followerCount: Int) = with(binding) {
+//        statusReblogsCount.text = formatNumber(reblogsCount.toLong(), 1000)
+        if (reblogsCount == 0) {
+            statusReblogsCount.text = ""
+            return
+        }
+
+        if (followerCount > 0) {
+//            statusReblogsCount.text = "%.2f%%".format((reblogsCount / followerCount) * 100F)
+            statusReblogsCount.text = String.format("%.1f%%", (reblogsCount / followerCount.toDouble()) * 100F)
+        } else {
+            statusReblogsCount.text = ""
+        }
     }
 
-    private fun setFavouritedCount(favouritedCount: Int) = with(binding) {
-        statusFavouritesCount.text = formatNumber(favouritedCount.toLong(), 1000)
+    private fun setFavouritedCount(favouritedCount: Int, followerCount: Int) = with(binding) {
+//        statusFavouritesCount.text = formatNumber(favouritedCount.toLong(), 1000)
+        if (favouritedCount == 0) {
+            statusFavouritesCount.text = ""
+            return
+        }
+
+        if (followerCount != 0) {
+            statusFavouritesCount.text = "%.1f%%".format((favouritedCount / followerCount.toDouble()) * 100F)
+        } else {
+            statusFavouritesCount.text = ""
+        }
     }
 
     protected fun hideStatusInfo() = with(binding) {

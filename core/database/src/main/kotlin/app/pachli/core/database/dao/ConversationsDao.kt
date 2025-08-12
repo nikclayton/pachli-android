@@ -114,6 +114,7 @@ SELECT
     sa.limited AS 's_a_limited',
     sa.note AS 's_a_note',
     sa.roles AS 's_a_roles',
+    sa.followerCount AS 's_a_followerCount',
 
     -- The status's reblog account (if any)
     rb.serverId AS 's_rb_serverId',
@@ -129,6 +130,7 @@ SELECT
     rb.limited AS 's_rb_limited',
     rb.note AS 's_rb_note',
     rb.roles AS 's_rb_roles',
+    rb.followerCount AS 's_rb_followerCount',
 
     -- Status view data
     svd.serverId AS 's_svd_serverId',

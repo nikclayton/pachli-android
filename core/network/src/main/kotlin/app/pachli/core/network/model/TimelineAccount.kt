@@ -61,6 +61,8 @@ data class TimelineAccount(
     val limited: Boolean = false,
 
     val roles: List<Role>? = null,
+
+    @Json(name = "followers_count") val followerCount: Int,
 ) {
 
     /**
@@ -88,6 +90,7 @@ data class TimelineAccount(
         createdAt = createdAt,
         limited = limited,
         roles = roles.orEmpty().asModel(),
+        followerCount = followerCount,
     )
 }
 
