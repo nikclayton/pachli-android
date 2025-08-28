@@ -21,6 +21,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
+import android.text.Spannable
 import android.text.style.ReplacementSpan
 import android.util.Size
 import android.view.View
@@ -28,7 +29,6 @@ import android.widget.TextView
 import androidx.core.graphics.withSave
 import androidx.core.text.toSpannable
 import app.pachli.core.model.Emoji
-import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
@@ -42,7 +42,11 @@ import com.bumptech.glide.request.transition.Transition
  * @return the text with the shortcodes replaced by EmojiSpans
  */
 fun CharSequence.emojify(glide: RequestManager, emojis: List<Emoji>?, view: View, animate: Boolean): CharSequence {
-    return view.updateEmojiTargets {
+    return toSpannable().emojify(glide, emojis, view, animate)
+}
+
+fun Spannable.emojify(glide: RequestManager, emojis: List<Emoji>?, view: View, animate: Boolean): CharSequence {
+    return view.updateEmojiTargets(glide) {
         emojify(glide, emojis, animate)
     }
 }
@@ -55,31 +59,34 @@ class EmojiTargetScope<T : View>(val view: T) {
     fun CharSequence.emojify(glide: RequestManager, emojis: List<Emoji>?, animate: Boolean): CharSequence {
         if (emojis.isNullOrEmpty()) return this
 
-        val spannable = toSpannable()
+        return toSpannable().apply { emojify(glide, emojis, animate) }
+    }
+
+    fun Spannable.emojify(glide: RequestManager, emojis: List<Emoji>?, animate: Boolean): CharSequence {
+        if (emojis.isNullOrEmpty()) return this
 
         emojis.forEach { (shortcode, url, staticUrl) ->
-            val pattern = ":$shortcode:"
-            var start = indexOf(pattern)
+            var start = indexOf(shortcode)
 
             while (start != -1) {
-                val end = start + pattern.length
+                val end = start + shortcode.length
                 val span = EmojiSpan(view)
 
-                spannable.setSpan(span, start, end, 0)
+                setSpan(span, start, end, 0)
                 val target = span.createGlideTarget(view, animate)
                 glide.asDrawable().load(if (animate) url else staticUrl).into(target)
                 _targets.add(target)
 
-                start = indexOf(pattern, end)
+                start = indexOf(shortcode, end)
             }
         }
 
-        return spannable
+        return this
     }
 }
 
-inline fun <T : View, R> T.updateEmojiTargets(body: EmojiTargetScope<T>.() -> R): R {
-    clearEmojiTargets()
+inline fun <T : View, R> T.updateEmojiTargets(glide: RequestManager, body: EmojiTargetScope<T>.() -> R): R {
+    clearEmojiTargets(glide)
     val scope = EmojiTargetScope(this)
     val result = body(scope)
     setEmojiTargets(scope.targets)
@@ -87,11 +94,10 @@ inline fun <T : View, R> T.updateEmojiTargets(body: EmojiTargetScope<T>.() -> R)
 }
 
 @Suppress("UNCHECKED_CAST")
-fun View.clearEmojiTargets() {
+fun View.clearEmojiTargets(glide: RequestManager) {
     getTag(R.id.custom_emoji_targets_tag)?.let { tag ->
         val targets = tag as List<Target<Drawable>>
-        val requestManager = Glide.with(this)
-        targets.forEach { requestManager.clear(it) }
+        targets.forEach { glide.clear(it) }
         setTag(R.id.custom_emoji_targets_tag, null)
     }
 }
@@ -135,7 +141,7 @@ class EmojiSpan(view: View) : ReplacementSpan() {
      * @return The size of the emoji drawable, scaled to fit within the
      * [textSize][Paint.getTextSize] (height) of [paint], including [scaleFactor].
      */
-    fun getScaledSize(paint: Paint): Size {
+    private fun getScaledSize(paint: Paint): Size {
         return imageDrawable?.let { drawable ->
             val maxHeight = paint.textSize * 1.2
             val drawableWidth = drawable.intrinsicWidth
@@ -173,9 +179,7 @@ class EmojiSpan(view: View) : ReplacementSpan() {
                 (imageDrawable as? Animatable)?.stop()
             }
 
-            override fun onLoadFailed(errorDrawable: Drawable?) {
-                // Nothing to do
-            }
+            override fun onLoadFailed(errorDrawable: Drawable?) = Unit
 
             override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                 if (animate && resource is Animatable) {

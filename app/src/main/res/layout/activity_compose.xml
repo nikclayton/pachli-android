@@ -294,7 +294,8 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:textColorHint="?android:attr/textColorTertiary"
-                android:textSize="?attr/status_text_large" />
+                android:textSize="?attr/status_text_large"
+                android:layerType="software" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/composeMediaPreviewBar"
@@ -379,11 +380,12 @@
         android:paddingStart="16dp"
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="60dp"
+        android:paddingBottom="52dp"
         app:behavior_hideable="true"
         app:behavior_peekHeight="0dp"
+        app:behavior_skipCollapsed="true"
+        app:behavior_draggable="false"
         app:paddingLeftSystemWindowInsets="true"
-        app:paddingTopSystemWindowInsets="true"
         app:paddingRightSystemWindowInsets="true"
         app:paddingBottomSystemWindowInsets="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />

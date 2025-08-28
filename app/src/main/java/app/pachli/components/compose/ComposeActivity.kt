@@ -36,6 +36,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -57,6 +58,8 @@ import androidx.core.os.BundleCompat
 import androidx.core.view.ContentInfoCompat
 import androidx.core.view.OnReceiveContentListener
 import androidx.core.view.ViewGroupCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -93,6 +96,7 @@ import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InReplyTo
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InitialCursorPosition
 import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.preferences.AppTheme
+import app.pachli.core.ui.EmojiSpan
 import app.pachli.core.ui.emojify
 import app.pachli.core.ui.extensions.InsetType
 import app.pachli.core.ui.extensions.applyWindowInsets
@@ -295,9 +299,9 @@ class ComposeActivity :
             left = InsetType.PADDING,
             right = InsetType.PADDING,
         )
+        // Top/bottom insets are specified in the XML.
         binding.emojiPickerBottomSheet.applyWindowInsets(
             left = InsetType.PADDING,
-            top = InsetType.MARGIN,
             right = InsetType.PADDING,
         )
 
@@ -388,9 +392,11 @@ class ComposeActivity :
                     }
                 }
 
-                binding.composeEditField.post {
-                    binding.composeEditField.requestFocus()
-                }
+                // Ensure the focus starts in the edit field. Calling requestFocus() is not enough
+                // to reliably show the keyboard, follow rec. from
+                // https://developer.android.com/develop/ui/views/touch-and-input/keyboard-input/visibility#ShowReliably
+                binding.composeEditField.requestFocus()
+                WindowCompat.getInsetsController(window, binding.composeEditField).show(WindowInsetsCompat.Type.ime())
             }
         }
     }
@@ -709,7 +715,37 @@ class ComposeActivity :
         visibilityBehavior = BottomSheetBehavior.from(binding.composeOptionsBottomSheet)
         addAttachmentBehavior = BottomSheetBehavior.from(binding.addMediaBottomSheet)
         scheduleBehavior = BottomSheetBehavior.from(binding.composeScheduleView)
-        emojiBehavior = BottomSheetBehavior.from(binding.emojiPickerBottomSheet)
+        emojiBehavior = BottomSheetBehavior.from(binding.emojiPickerBottomSheet).apply {
+            addBottomSheetCallback(
+                object : BottomSheetBehavior.BottomSheetCallback() {
+                    override fun onStateChanged(bottomSheet: View, newState: Int) {
+                        // Adjust the "Toot" button state; disabled when the emoji
+                        // sheet is open, enabled when closed, so tapping emojis
+                        // can't mis-click and send the post too early.
+                        //
+                        // When the sheet is open focus shifts to the filter view,
+                        // when closed focus shifts to the editor.
+                        when {
+                            newState == BottomSheetBehavior.STATE_SETTLING -> {
+                                binding.composeTootButton.isEnabled = !binding.composeTootButton.isEnabled
+                            }
+
+                            newState == BottomSheetBehavior.STATE_EXPANDED -> {
+                                binding.composeTootButton.isEnabled = false
+                                binding.emojiPickerBottomSheet.requestFocus()
+                            }
+
+                            newState == BottomSheetBehavior.STATE_HIDDEN -> {
+                                binding.composeTootButton.isEnabled = true
+                                binding.composeEditField.requestFocus()
+                            }
+                        }
+                    }
+
+                    override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
+                },
+            )
+        }
 
         val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -1585,12 +1621,51 @@ class ComposeActivity :
         return viewModel.searchAutocompleteSuggestions(token)
     }
 
-    private fun bindEmojiList(emojiList: List<Emoji>) {
-        binding.emojiPickerBottomSheet.animate = sharedPreferencesRepository.animateEmojis
-        binding.emojiPickerBottomSheet.clickListener = { replaceTextAtCaret(":${it.shortcode}: ") }
-        binding.emojiPickerBottomSheet.emojis = emojiList
+    private fun bindEmojiList(emojis: List<Emoji>) {
+        binding.composeEditField.text.emojify(glide, emojis, binding.composeEditField, sharedPreferencesRepository.animateEmojis)
 
-        enableButton(binding.composeEmojiButton, emojiList.isNotEmpty(), emojiList.isNotEmpty())
+        // Listen for the user auto-completing an emoji (text starting and ending with ':').
+        // Find the equivalent `Emoji`, and wrap the inserted text in an EmojiSpan.
+        binding.composeEditField.onReplaceTextListener = { view, text ->
+            if (text != null && text.startsWith(':') && text.endsWith(':')) {
+                emojis.firstOrNull { it.shortcode == text }?.let { emoji ->
+                    // Inserted an emoji, and a space. Cursor is currently after the space
+                    // that was just inserted.
+                    val end = view.selectionStart - 1
+                    val start = end - text.length
+                    view.wrapTextWithEmojiSpan(start, end, emoji)
+                }
+            }
+        }
+
+        binding.emojiPickerBottomSheet.animate = sharedPreferencesRepository.animateEmojis
+        binding.emojiPickerBottomSheet.onSelectEmoji = {
+            val selectionStart = binding.composeEditField.selectionStart
+            val codeLength = it.shortcode.length
+
+            replaceTextAtCaret("${it.shortcode} ")
+
+            binding.composeEditField.wrapTextWithEmojiSpan(
+                selectionStart,
+                selectionStart + codeLength,
+                it,
+            )
+        }
+        binding.emojiPickerBottomSheet.emojis = emojis
+
+        enableButton(binding.composeEmojiButton, emojis.isNotEmpty(), emojis.isNotEmpty())
+    }
+
+    /**
+     * Wraps the text in [this] with an [EmojiSpan] displaying [emoji]. The text
+     * starts at [start] and ends at [end] inclusive.
+     */
+    private fun EditText.wrapTextWithEmojiSpan(start: Int, end: Int, emoji: Emoji) {
+        val span = EmojiSpan(this)
+        text.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val animate = sharedPreferencesRepository.animateAvatars
+        val target = span.createGlideTarget(this, animate)
+        glide.asDrawable().load(if (animate) emoji.url else emoji.staticUrl).into(target)
     }
 
     /**

@@ -19,8 +19,8 @@ package app.pachli.usecase
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.StatusActionError
-import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.dao.RemoteKeyDao
 import app.pachli.core.database.dao.TranslatedStatusDao
 import app.pachli.core.database.model.RemoteKeyEntity
@@ -56,7 +56,7 @@ import timber.log.Timber
 class TimelineCases @Inject constructor(
     private val mastodonApi: MastodonApi,
     private val eventHub: EventHub,
-    private val statusRepository: StatusRepository,
+    private val statusRepository: OfflineFirstStatusRepository,
     private val translatedStatusDao: TranslatedStatusDao,
     private val translationService: TranslationService,
     private val remoteKeyDao: RemoteKeyDao,
@@ -202,18 +202,16 @@ class TimelineCases @Inject constructor(
 
     suspend fun translate(statusViewData: StatusViewData): Result<TranslatedStatus, TranslatorError> {
         statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.id, TranslationState.TRANSLATING)
-        val translation = translationService.translate(statusViewData)
-        translation.onSuccess {
-            translatedStatusDao.upsert(
-                it.toEntity(statusViewData.pachliAccountId, statusViewData.actionableId),
-            )
-            statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.id, TranslationState.SHOW_TRANSLATION)
-        }.onFailure {
-            // Reset the translation state
-            statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.id, TranslationState.SHOW_ORIGINAL)
-        }
-
-        return translation
+        return translationService.translate(statusViewData)
+            .onSuccess {
+                translatedStatusDao.upsert(
+                    it.toEntity(statusViewData.pachliAccountId, statusViewData.actionableId),
+                )
+                statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.id, TranslationState.SHOW_TRANSLATION)
+            }.onFailure {
+                // Reset the translation state
+                statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.id, TranslationState.SHOW_ORIGINAL)
+            }
     }
 
     suspend fun translateUndo(statusViewData: StatusViewData) {

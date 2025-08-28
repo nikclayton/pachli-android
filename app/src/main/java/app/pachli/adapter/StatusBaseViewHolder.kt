@@ -30,6 +30,7 @@ import app.pachli.core.model.Attachment
 import app.pachli.core.model.Emoji
 import app.pachli.core.model.PreviewCardKind
 import app.pachli.core.model.Status
+import app.pachli.core.model.arePreviewable
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.ViewMediaActivityIntent
 import app.pachli.core.network.parseAsMastodonHtml
@@ -145,8 +146,15 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
         statusDisplayOptions: StatusDisplayOptions,
         listener: StatusActionListener<T>,
     ) {
-        val spoilerText = viewData.actionable.spoilerText
-        val sensitive = !TextUtils.isEmpty(spoilerText)
+        val spoilerText = when (viewData.translationState) {
+            TranslationState.SHOW_ORIGINAL -> viewData.actionable.spoilerText
+            TranslationState.TRANSLATING -> viewData.actionable.spoilerText
+            TranslationState.SHOW_TRANSLATION -> viewData.translation?.spoilerText.orEmpty()
+        }
+
+        // Determine sensitive state from the original spoiler text, not the translated
+        // text, in case the translation erroneously returns empty spoiler text.
+        val sensitive = !TextUtils.isEmpty(viewData.actionable.spoilerText)
         val expanded = viewData.isExpanded
         if (sensitive) {
             val emojiSpoiler = spoilerText.emojify(
@@ -313,7 +321,6 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
                 avatarInset,
                 avatarRadius24dp,
                 statusDisplayOptions.animateAvatars,
-                null,
             )
             avatarRadius = avatarRadius36dp
         }
@@ -483,7 +490,6 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
         attachments: List<Attachment>,
         sensitive: Boolean,
         listener: StatusActionListener<T>,
-        showingContent: Boolean,
         useBlurhash: Boolean,
     ) {
         mediaPreview.visibility = View.VISIBLE
@@ -492,6 +498,7 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
             val attachment = attachments[i]
             val previewUrl = attachment.previewUrl
             val description = attachment.description
+            val showingMedia = viewData.isShowingContent
             val hasDescription = !TextUtils.isEmpty(description)
             if (hasDescription) {
                 imageView.contentDescription = description
@@ -500,12 +507,12 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
             }
             loadImage(
                 imageView,
-                if (showingContent) previewUrl else null,
+                if (showingMedia) previewUrl else null,
                 attachment.meta?.focus,
                 if (useBlurhash) attachment.blurhash else null,
             )
             val type = attachment.type
-            if (showingContent && type.isPlayable()) {
+            if (showingMedia && type.isPlayable()) {
                 imageView.foreground = AppCompatResources.getDrawable(context, R.drawable.play_indicator_overlay)
             } else {
                 imageView.foreground = null
@@ -516,21 +523,15 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
             } else {
                 sensitiveMediaWarning.setText(R.string.post_media_hidden_title)
             }
-            sensitiveMediaWarning.visibility = if (showingContent) View.GONE else View.VISIBLE
-            sensitiveMediaShow.visibility = if (showingContent) View.VISIBLE else View.GONE
+            sensitiveMediaWarning.visibility = if (showingMedia) View.GONE else View.VISIBLE
+            sensitiveMediaShow.visibility = if (showingMedia) View.VISIBLE else View.GONE
             descriptionIndicator.visibility =
-                if (hasDescription && showingContent) View.VISIBLE else View.GONE
+                if (hasDescription && showingMedia) View.VISIBLE else View.GONE
             sensitiveMediaShow.setOnClickListener { v: View ->
                 listener.onContentHiddenChange(viewData, false)
-                v.visibility = View.GONE
-                sensitiveMediaWarning.visibility = View.VISIBLE
-                descriptionIndicator.visibility = View.GONE
             }
             sensitiveMediaWarning.setOnClickListener { v: View ->
                 listener.onContentHiddenChange(viewData, true)
-                v.visibility = View.GONE
-                sensitiveMediaShow.visibility = View.VISIBLE
-                descriptionIndicator.visibility = if (hasDescription) View.VISIBLE else View.GONE
             }
         }
     }
@@ -722,13 +723,12 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
                 actionable.attachments
             }
             val sensitive = actionable.sensitive
-            if (statusDisplayOptions.mediaPreviewEnabled && hasPreviewableAttachment(attachments)) {
+            if (statusDisplayOptions.mediaPreviewEnabled && attachments.arePreviewable()) {
                 setMediaPreviews(
                     viewData,
                     attachments,
                     sensitive,
                     listener,
-                    viewData.isShowingContent,
                     statusDisplayOptions.useBlurhash,
                 )
                 if (attachments.isEmpty()) {
@@ -953,16 +953,6 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
     }
 
     companion object {
-        /**
-         * @return True if all [attachments] are previewable.
-         *
-         * @see Attachment.isPreviewable
-         */
-        @JvmStatic
-        protected fun hasPreviewableAttachment(attachments: List<Attachment>): Boolean {
-            return attachments.all { it.isPreviewable() }
-        }
-
         /** @return "{account.username} boosted", for use in a content description. */
         private fun getReblogDescription(context: Context, status: IStatusViewData): String? {
             return status.rebloggingStatus?.let {
