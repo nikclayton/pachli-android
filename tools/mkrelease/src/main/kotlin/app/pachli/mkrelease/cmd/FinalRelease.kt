@@ -39,6 +39,7 @@ class FinalRelease : CliktCommand(name = "final") {
         val steps = listOf(
             EnsureCleanReleaseSpec,
             EnsureEnvironmentHasTokens,
+            LockWeblate,
             EnsureUpToDateTranslations,
             PreparePachliForkRepository,
             GetCurrentAppVersion,
@@ -72,6 +73,7 @@ class FinalRelease : CliktCommand(name = "final") {
 
             // Announce from @Pachli account
 
+            UnlockWeblate,
             // Close out the release in the spec so that a future beta/final can bail
             SaveFinalRelease,
         )

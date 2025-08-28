@@ -50,6 +50,10 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import java.io.File
 import java.net.URL
@@ -111,6 +115,104 @@ data object EnsureEnvironmentHasTokens : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         System.getenv("GITHUB_TOKEN") ?: throw NeedGithubToken()
         System.getenv("WEBLATE_TOKEN") ?: throw NeedWeblateToken()
+        return null
+    }
+}
+
+@Serializable
+@JsonIgnoreUnknownKeys
+data class WeblateProjectResponse(
+    @SerialName("lock_url")
+    val lockUrl: String? = null,
+    val locked: Boolean? = null,
+)
+
+@Serializable
+data object LockWeblate : ReleaseStep() {
+    @Serializable
+    @JsonIgnoreUnknownKeys
+    data class WeblateLockResponse(
+        val locked: Boolean,
+    )
+
+    class WeblateNotLocked : Exception("Weblate project is not locked")
+
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val client = HttpClient(CIO) {
+            install(ContentNegotiation) { json() }
+        }
+
+        val project: WeblateProjectResponse = runBlocking {
+            client.get("https://hosted.weblate.org/api/projects/pachli/") {
+                bearerAuth(System.getenv("WEBLATE_TOKEN"))
+            }.body()
+        }
+
+        if (project.lockUrl == null) {
+            t.warning("Weblate does not support locking in the API, skipping")
+            return null
+        }
+
+        if (project.locked == true) {
+            t.info("Project is already locked, skipping")
+            return null
+        }
+
+        val response: WeblateLockResponse = runBlocking {
+            client.post(project.lockUrl) {
+                bearerAuth(System.getenv("WEBLATE_TOKEN"))
+                contentType(ContentType("application", "json"))
+                setBody("""{"lock":true}""")
+            }.body()
+        }
+
+        if (!response.locked) throw WeblateNotLocked()
+
+        return null
+    }
+}
+
+@Serializable
+data object UnlockWeblate : ReleaseStep() {
+    @Serializable
+    @JsonIgnoreUnknownKeys
+    data class WeblateLockResponse(
+        val locked: Boolean,
+    )
+
+    class WeblateLocked : Exception("Weblate project is locked")
+
+    override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        val client = HttpClient(CIO) {
+            install(ContentNegotiation) { json() }
+        }
+
+        val project: WeblateProjectResponse = runBlocking {
+            client.get("https://hosted.weblate.org/api/projects/pachli/") {
+                bearerAuth(System.getenv("WEBLATE_TOKEN"))
+            }.body()
+        }
+
+        if (project.lockUrl == null) {
+            t.warning("Weblate does not support locking in the API, skipping")
+            return null
+        }
+
+        if (project.locked == false) {
+            t.info("Project is already unlocked, skipping")
+            return null
+        }
+
+        val response: LockWeblate.WeblateLockResponse = runBlocking {
+            client.post(project.lockUrl) {
+                bearerAuth(System.getenv("WEBLATE_TOKEN"))
+                contentType(ContentType("application", "json"))
+                setBody("""{"lock":false}""")
+            }.body()
+        }
+
+        if (response.locked) throw WeblateLocked()
+
         return null
     }
 }
