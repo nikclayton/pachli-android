@@ -160,5 +160,6 @@ fun main(args: Array<String>) = App().subcommands(
     BetaRelease(),
     FinalRelease(),
     Blog(),
+    Post(),
     State(),
 ).main(args)

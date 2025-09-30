@@ -53,10 +53,12 @@ data class LogEntry(
     /** Regex to match "(#<some numbers>)" in a commit title, which refers to the PR */
     private val rxPr = """\((?<text>#(?<pr>\d+))\)""".toRegex()
 
-    // Returns a link'ified version of the LogEntry.
-    //
-    // - PR references (if present) are converted to links
-    // - A link to the author's commits on GitHub is added
+    /**
+     * Returns a link'ified version of the LogEntry.
+     *
+     * - PR references (if present) are converted to links
+     * - A link to the author's commits on GitHub is added
+     */
     fun withLinks(): String {
         val newText = rxPr.replace(text) { mr ->
             "(${prLink(mr.groups["pr"]!!.value)}, ${authorLink()})"
@@ -64,6 +66,13 @@ data class LogEntry(
         if (newText != text) return newText
 
         return "$text (${authorLink()})"
+    }
+
+    /**
+     * @return A version of the log entry without any links (to PRs, author, etc).
+     */
+    fun withoutLinks(): String {
+        return rxPr.replace(text, "")
     }
 
     private fun prLink(pr: String) = "#[$pr](https://github.com/pachli/pachli-android/pull/$pr)"

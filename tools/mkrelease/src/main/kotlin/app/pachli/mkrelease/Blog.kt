@@ -45,7 +45,7 @@ private const val INKSCAPE = "inkscape"
 
 @Serializable
 sealed interface BlogStep {
-    abstract fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec?
+    fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec?
     fun desc(): String = this.javaClass.simpleName
 }
 
