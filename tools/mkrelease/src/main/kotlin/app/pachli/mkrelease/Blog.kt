@@ -185,7 +185,7 @@ fun getChangelog(t: Terminal, git: Git, spec: ReleaseSpec): MutableMap<Section, 
             git.getActualRefObjectId("main"),
         )
         .info(t).call().mapNotNull {
-            val components = it.shortMessage.split(":", limit = 2)
+            val components = it.shortMessage.split(": ", limit = 2)
             t.info(components)
             if (components.size != 2) return@mapNotNull null
 
