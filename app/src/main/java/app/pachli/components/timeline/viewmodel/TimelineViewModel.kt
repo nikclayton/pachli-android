@@ -20,7 +20,6 @@ package app.pachli.components.timeline.viewmodel
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.bundleOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -34,6 +33,7 @@ import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.StatusActionError
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
+import app.pachli.core.database.model.TimelineStatusWithAccount
 import app.pachli.core.eventhub.BlockEvent
 import app.pachli.core.eventhub.BookmarkEvent
 import app.pachli.core.eventhub.DomainMuteEvent
@@ -48,9 +48,13 @@ import app.pachli.core.eventhub.StatusComposedEvent
 import app.pachli.core.eventhub.StatusDeletedEvent
 import app.pachli.core.eventhub.StatusEditedEvent
 import app.pachli.core.eventhub.UnfollowEvent
+import app.pachli.core.model.AttachmentDisplayAction
+import app.pachli.core.model.AttachmentDisplayReason
 import app.pachli.core.model.ContentFilterVersion
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
+import app.pachli.core.model.FilterResult
+import app.pachli.core.model.MatchingFilter
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
@@ -304,7 +308,7 @@ sealed interface UiError {
 }
 
 abstract class TimelineViewModel<T : Any, R : TimelineRepository<T>>(
-    savedStateHandle: SavedStateHandle,
+    protected val timeline: Timeline,
     protected val timelineCases: TimelineCases,
     private val eventHub: EventHub,
     protected val accountManager: AccountManager,
@@ -337,7 +341,8 @@ abstract class TimelineViewModel<T : Any, R : TimelineRepository<T>>(
         viewModelScope.launch { uiAction.emit(action) }
     }
 
-    val timeline: Timeline = savedStateHandle.get<Timeline>(TIMELINE_TAG)!!
+    /** [FilterContext] for this [timeline]. */
+    private val filterContext = FilterContext.from(timeline)
 
     /**
      * Flow of the status ID to use when initially refreshing the list, and where
@@ -345,7 +350,7 @@ abstract class TimelineViewModel<T : Any, R : TimelineRepository<T>>(
      * reading position should not be restored, or the reading position was
      * explicitly cleared.
      */
-    val initialRefreshStatusId = pachliAccountId.distinctUntilChanged().map { pachliAccountId ->
+    open val initialRefreshStatusId = pachliAccountId.distinctUntilChanged().map { pachliAccountId ->
         timeline.remoteKeyTimelineId?.let {
             timelineCases.getRefreshStatusId(pachliAccountId, it)
         }
@@ -373,7 +378,7 @@ abstract class TimelineViewModel<T : Any, R : TimelineRepository<T>>(
         }
 
         viewModelScope.launch {
-            FilterContext.from(timeline)?.let { filterContext ->
+            filterContext?.let { filterContext ->
                 pachliAccountFlow
                     .distinctUntilChangedBy { it.contentFilters }
                     .fold(false) { reload, account ->
@@ -559,10 +564,10 @@ abstract class TimelineViewModel<T : Any, R : TimelineRepository<T>>(
     abstract fun onChangeExpanded(isExpanded: Boolean, statusViewData: StatusViewData)
 
     /**
-     * Sets the content-showing state of [statusViewData] in [OfflineFirstStatusRepository] to
-     * [isShowing] and invalidates the repository.
+     * Sets the attachment display action of [statusViewData] in [OfflineFirstStatusRepository] to
+     * [newAction] and invalidates the repository.
      */
-    abstract fun onChangeContentShowing(isShowing: Boolean, statusViewData: StatusViewData)
+    abstract fun onChangeAttachmentDisplayAction(viewData: StatusViewData, newAction: AttachmentDisplayAction)
 
     /**
      * Sets the collapsed state of [statusViewData] in [OfflineFirstStatusRepository] to [isCollapsed] and
@@ -589,18 +594,30 @@ abstract class TimelineViewModel<T : Any, R : TimelineRepository<T>>(
     /** Triggered when currently displayed data must be reloaded. */
     protected abstract suspend fun invalidate(pachliAccountId: Long)
 
-    protected fun shouldFilterStatus(status: Status): FilterAction {
-        return if (
-            (status.inReplyToId != null && filterRemoveReplies) ||
-            (status.reblog != null && filterRemoveReblogs) ||
-            // To determine if the boost is boosting your own toot
-            ((status.account.id == status.reblog?.account?.id) && filterRemoveSelfReblogs)
-        ) {
-            FilterAction.HIDE
-        } else {
-            contentFilterModel?.filterActionFor(status) ?: FilterAction.NONE
+    /**
+     * @return The correct [FilterAction] for [timelineStatus] given the user's
+     * preferences and any filters attached to the status.
+     */
+    protected fun shouldFilterStatus(timelineStatus: TimelineStatusWithAccount): FilterAction {
+        // Local user preferences first
+
+        // Remove self-boosts.
+        if (timelineStatus.account.serverId == timelineStatus.reblogAccount?.serverId && filterRemoveSelfReblogs) {
+            return FilterAction.HIDE
         }
+
+        val status = timelineStatus.status
+        // Remove replies
+        if (status.inReplyToId != null && filterRemoveReplies) return FilterAction.HIDE
+
+        // Remove boosts
+        if (status.reblogged && filterRemoveReblogs) return FilterAction.HIDE
+
+        // Apply content filters.
+        return contentFilterModel?.filterActionFor(status) ?: FilterAction.NONE
     }
+
+    protected fun getAttachmentDisplayAction(status: TimelineStatusWithAccount, alwaysShowSensitiveMedia: Boolean, cachedDecision: AttachmentDisplayAction?) = status.getAttachmentDisplayAction(filterContext, alwaysShowSensitiveMedia, cachedDecision)
 
     // TODO: Update this so that the list of UIPrefs is correct
     private suspend fun onPreferenceChanged(key: String) {
@@ -685,4 +702,104 @@ abstract class TimelineViewModel<T : Any, R : TimelineRepository<T>>(
             TIMELINE_TAG to timeline,
         )
     }
+}
+
+/**
+ * Returns the [AttachmentDisplayAction] for [this] given the current [filterContext],
+ * whether [showSensitiveMedia] is true, and the [cachedAction] (if any).
+ *
+ * @param filterContext Applicable filter context. May be null for timelines that are
+ * not filtered (e.g., private messages).
+ * @param showSensitiveMedia True if the user's preference is to show attachments
+ * marked sensitive.
+ * @param cachedAction
+ */
+fun Status.getAttachmentDisplayAction(filterContext: FilterContext?, showSensitiveMedia: Boolean, cachedAction: AttachmentDisplayAction?) = getAttachmentDisplayAction(
+    filterContext,
+    filtered,
+    sensitive,
+    showSensitiveMedia = showSensitiveMedia,
+    cachedAction = cachedAction,
+)
+
+/**
+ * Returns the [AttachmentDisplayAction] for [this] given the current [filterContext],
+ * whether [showSensitiveMedia] is true, and the [cachedAction] (if any).
+ *
+ * @param filterContext Applicable filter context. May be null for timelines that are
+ * not filtered (e.g., private messages).
+ * @param showSensitiveMedia True if the user's preference is to show attachments
+ * marked sensitive.
+ * @param cachedAction
+ */
+fun TimelineStatusWithAccount.getAttachmentDisplayAction(filterContext: FilterContext?, showSensitiveMedia: Boolean, cachedAction: AttachmentDisplayAction?) = getAttachmentDisplayAction(
+    filterContext,
+    status.filtered,
+    status.sensitive,
+    showSensitiveMedia = showSensitiveMedia,
+    cachedAction = cachedAction,
+)
+
+/**
+ * Returns the [AttachmentDisplayAction] for given the current [filterContext], based on
+ * the [matchingFilters], whether the content is [sensitive], if [showSensitiveMedia]
+ * is true, and the [cachedAction] (if any).
+ *
+ * @param filterContext Applicable filter context. May be null for timelines that are
+ * not filtered (e.g., private messages).
+ * @param matchingFilters List of filters that matched the status.
+ * @param sensitive True if the status was marked senstive.
+ * @param showSensitiveMedia True if the user's preference is to show attachments
+ * marked sensitive.
+ * @param cachedAction
+ */
+private fun getAttachmentDisplayAction(
+    filterContext: FilterContext?,
+    matchingFilters: List<FilterResult>?,
+    sensitive: Boolean,
+    showSensitiveMedia: Boolean,
+    cachedAction: AttachmentDisplayAction?,
+): AttachmentDisplayAction {
+    // Hide attachments if there is any matching "blur" filter.
+    val matchingBlurFilters = filterContext?.let {
+        matchingFilters
+            ?.filter { it.filter.filterAction == FilterAction.BLUR }
+            ?.filter { it.filter.contexts.contains(filterContext) }
+            ?.map { MatchingFilter(filterId = it.filter.id, title = it.filter.title) }
+    }.orEmpty()
+
+    // Any matching filters probably hides the attachment.
+    if (matchingBlurFilters.isNotEmpty()) {
+        val hideAction = AttachmentDisplayAction.Hide(
+            reason = AttachmentDisplayReason.BlurFilter(matchingBlurFilters),
+        )
+
+        // If the cached decision is a Show then return the Show, but with an updated
+        // originalDecision. This ensures that if the user then hides the attachment
+        // the description that shows which filters matched reflects the user's latest
+        // set of filters.
+        //
+        // The filters changing *doesn't* cause this to reset to Hide because the
+        // user has already seen the attachment, and decided to keep seeing it.
+        // Hiding it from them again isn't helpful.
+        (cachedAction as? AttachmentDisplayAction.Show)?.let {
+            return it.copy(originalAction = hideAction)
+        }
+
+        // Otherwise, the decision to hide is good.
+        return hideAction
+    }
+
+    // Now safe to use the cached decision, if present. If the user overrode a Hide with
+    // a Show this will be returned here.
+    cachedAction?.let { return it }
+
+    // Hide attachments if the status is marked sensitive and the user doesn't want to
+    // see them.
+    if (sensitive && !showSensitiveMedia) {
+        return AttachmentDisplayAction.Hide(reason = AttachmentDisplayReason.Sensitive)
+    }
+
+    // Attachment is OK, and can be shown.
+    return AttachmentDisplayAction.Show()
 }

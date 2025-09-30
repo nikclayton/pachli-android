@@ -16,11 +16,11 @@ import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.preferences.CardViewMode
 import app.pachli.core.ui.NoUnderlineURLSpan
 import app.pachli.core.ui.SetStatusContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.core.ui.createClickableText
+import app.pachli.core.ui.extensions.description
+import app.pachli.core.ui.extensions.icon
 import app.pachli.databinding.ItemStatusDetailedBinding
-import app.pachli.interfaces.StatusActionListener
-import app.pachli.util.description
-import app.pachli.util.icon
 import com.bumptech.glide.RequestManager
 import java.text.DateFormat
 import java.util.Locale
@@ -115,7 +115,7 @@ class StatusDetailedViewHolder(
         viewData: StatusViewData,
         listener: StatusActionListener<StatusViewData>,
         statusDisplayOptions: StatusDisplayOptions,
-        payloads: Any?,
+        payloads: List<List<Any?>>?,
     ) {
         // We never collapse statuses in the detail view
         val uncollapsedViewdata =
@@ -128,7 +128,7 @@ class StatusDetailedViewHolder(
             statusDisplayOptions,
             listener,
         ) // Always show card for detailed status
-        if (payloads == null) {
+        if (payloads.isNullOrEmpty()) {
             val reblogsCount = uncollapsedViewdata.actionable.reblogsCount
             val favouritesCount = uncollapsedViewdata.actionable.favouritesCount
             if (!statusDisplayOptions.hideStatsInDetailedView) {

@@ -30,4 +30,64 @@
     <string name="title_logout_fmt">Esci %1$s</string>
     <string name="notification_details_last_fetch_label">Ultima richiesta di notifiche/api/v1</string>
     <string name="emoji_picker_show_detail">Mostra in dettaglio</string>
+    <string name="preview_card_byline_fediverse_account_fmt">Di <b>%1$s</b>. Vedi altri post</string>
+    <string name="preview_card_byline_name_only_fmt">Di <b>%1$s</b></string>
+    <string name="poll_vote">Vota</string>
+    <string name="poll_show_votes">Mostra voti</string>
+    <plurals name="poll_timespan_seconds">
+        <item quantity="one">%d secondo rimasto</item>
+        <item quantity="many">%d secondi rimasti</item>
+        <item quantity="other">%d secondi rimasti</item>
+    </plurals>
+    <plurals name="poll_timespan_minutes">
+        <item quantity="one">%d minuto rimasto</item>
+        <item quantity="many">%d minuti rimasti</item>
+        <item quantity="other">%d minuti rimasti</item>
+    </plurals>
+    <plurals name="poll_timespan_hours">
+        <item quantity="one">%d ora rimasta</item>
+        <item quantity="many">%d ore rimaste</item>
+        <item quantity="other">%d ore rimaste</item>
+    </plurals>
+    <plurals name="poll_timespan_days">
+        <item quantity="one">%d giorno rimasto</item>
+        <item quantity="many">%d giorni rimasti</item>
+        <item quantity="other">%d giorni rimasti</item>
+    </plurals>
+    <plurals name="poll_info_votes">
+        <item quantity="one">%s voto</item>
+        <item quantity="many">%s voti</item>
+        <item quantity="other">%s voti</item>
+    </plurals>
+    <plurals name="poll_info_people">
+        <item quantity="one">%s persona</item>
+        <item quantity="many">%s persone</item>
+        <item quantity="other">%s persone</item>
+    </plurals>
+    <string name="poll_info_closed">concluso</string>
+    <string name="poll_info_time_absolute">si conclude alle %s</string>
+    <string name="poll_info_format"><!-- 15 votes • 1 hour left -->%1$s • %2$s</string>
+    <string name="description_poll">Sondaggio con scelte: %1$s, %2$s, %3$s, %4$s; %5$s</string>
+    <string name="post_media_alt">ALT</string>
+    <string name="status_created_at_now">adesso</string>
+    <string name="abbreviated_in_seconds">in %ds</string>
+    <string name="abbreviated_seconds_ago">%ds</string>
+    <string name="abbreviated_in_minutes">in %d min</string>
+    <string name="abbreviated_minutes_ago">%dmin</string>
+    <string name="abbreviated_in_hours">in %do</string>
+    <string name="abbreviated_hours_ago">%do</string>
+    <string name="abbreviated_in_days">in %dg</string>
+    <string name="abbreviated_days_ago">%dg</string>
+    <string name="abbreviated_in_years">in %d a</string>
+    <string name="abbreviated_years_ago">%da</string>
+    <string name="description_post_media_no_description_placeholder">Nessuna descrizione</string>
+    <string name="description_visibility_public">Pubblico</string>
+    <string name="description_visibility_unlisted">Non in elenco</string>
+    <string name="description_visibility_private">Solo seguaci</string>
+    <string name="description_visibility_direct">Diretti</string>
+    <string name="post_sensitive_media_title">Contenuto sensibile</string>
+    <string name="post_media_images">Immagini</string>
+    <string name="post_media_audio">Audio</string>
+    <string name="post_media_video">Video</string>
+    <string name="post_media_attachments">Allegati</string>
 </resources>

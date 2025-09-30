@@ -27,7 +27,7 @@ import android.text.style.StyleSpan
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
-import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.common.util.AbsoluteTimeFormatter
 import app.pachli.core.common.util.SmartLengthInputFilter
@@ -38,11 +38,11 @@ import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.Emoji
 import app.pachli.core.ui.LinkListener
 import app.pachli.core.ui.SetStatusContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.core.ui.emojify
+import app.pachli.core.ui.getRelativeTimeSpanString
 import app.pachli.core.ui.loadAvatar
 import app.pachli.databinding.ItemStatusNotificationBinding
-import app.pachli.interfaces.StatusActionListener
-import app.pachli.util.getRelativeTimeSpanString
 import app.pachli.viewdata.NotificationViewData
 import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.RequestManager
@@ -78,7 +78,7 @@ internal class StatusNotificationViewHolder(
 
     override fun bind(
         viewData: NotificationViewData,
-        payloads: List<*>?,
+        payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
     ) {
         val statusViewData = viewData.statusViewData
@@ -123,8 +123,8 @@ internal class StatusNotificationViewHolder(
             }
             setMessage(viewData, statusActionListener, statusDisplayOptions)
         } else {
-            for (item in payloads) {
-                if (StatusBaseViewHolder.Key.KEY_CREATED == item && statusViewData != null) {
+            payloads.flatten().forEach { item ->
+                if (item == StatusViewDataDiffCallback.Payload.CREATED == item && statusViewData != null) {
                     setCreatedAt(
                         viewData.actionable.createdAt,
                         statusDisplayOptions.useAbsoluteTime,

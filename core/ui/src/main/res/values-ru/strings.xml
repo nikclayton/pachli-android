@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="error_network">Произошла ошибка сети! Пожалуйста, проверьте интернет-соединение и попробуйте снова.</string>
     <string name="error_generic">Произошла ошибка.</string>
     <string name="message_empty">Ничего нет.</string>
@@ -33,4 +33,81 @@
     <string name="hint_search_emojis">Поиск эмодзи…</string>
     <string name="label_emoji_no_category">Без категории</string>
     <string name="emoji_picker_show_detail">Подробности</string>
+    <string name="preview_card_byline_fediverse_account_fmt">От <b>%1$s</b>. Посмотреть другие публикации</string>
+    <string name="preview_card_byline_name_only_fmt">От <b>%1$s</b></string>
+    <string name="preview_card_timeline_link_fmt">Смотреть <b>%1$s</b> публикаций об этой ссылке</string>
+    <string name="poll_vote">Голосовать</string>
+    <string name="poll_show_votes">Показать голоса</string>
+    <plurals name="poll_timespan_seconds">
+        <item quantity="one">осталась %d секунда</item>
+        <item quantity="few">осталось %d секунды</item>
+        <item quantity="many">осталось %d секунд</item>
+        <item quantity="other">осталось %d секунд</item>
+    </plurals>
+    <plurals name="poll_timespan_minutes">
+        <item quantity="one">осталась %d минута</item>
+        <item quantity="few">осталось %d минуты</item>
+        <item quantity="many">осталось %d минут</item>
+        <item quantity="other">осталось %d минут</item>
+    </plurals>
+    <plurals name="poll_timespan_hours">
+        <item quantity="one">остался %d час</item>
+        <item quantity="few">осталось %d часа</item>
+        <item quantity="many">осталось %d часов</item>
+        <item quantity="other">осталось %d часов</item>
+    </plurals>
+    <plurals name="poll_timespan_days">
+        <item quantity="one">остался %d день</item>
+        <item quantity="few">осталось %d дня</item>
+        <item quantity="many">осталось %d дней</item>
+        <item quantity="other">осталось %d дней</item>
+    </plurals>
+    <plurals name="poll_info_votes">
+        <item quantity="one">%s голос</item>
+        <item quantity="few">%s голоса</item>
+        <item quantity="many">%s голосов</item>
+        <item quantity="other">%s голосов</item>
+    </plurals>
+    <plurals name="poll_info_people">
+        <item quantity="one">%s человек</item>
+        <item quantity="few">%s людей</item>
+        <item quantity="many">%s людей</item>
+        <item quantity="other">%s людей</item>
+    </plurals>
+    <string name="poll_info_closed">завершён</string>
+    <string name="poll_info_time_absolute">завершится %s</string>
+    <string name="poll_info_format"><!-- 15 votes • 1 hour left -->%1$s • %2$s</string>
+    <string name="description_poll">Опрос с выбором: %1$s, %2$s, %3$s, %4$s; %5$s</string>
+    <string name="post_media_alt">Альт</string>
+    <string name="status_created_at_now">сейчас</string>
+    <string name="abbreviated_in_seconds">через %dс</string>
+    <string name="abbreviated_seconds_ago">%dс</string>
+    <string name="abbreviated_in_minutes">через %dм</string>
+    <string name="abbreviated_minutes_ago">%dм</string>
+    <string name="abbreviated_in_hours">через %dч</string>
+    <string name="abbreviated_hours_ago">%dч</string>
+    <string name="abbreviated_in_days">через %dд</string>
+    <string name="abbreviated_days_ago">%dд</string>
+    <string name="abbreviated_in_years">через %dг</string>
+    <string name="abbreviated_years_ago">%dг</string>
+    <string name="description_post_media_no_description_placeholder">
+        Без описания
+    </string>
+    <string name="description_visibility_public">
+        Публичный
+    </string>
+    <string name="description_visibility_unlisted">Не в списке</string>
+    <string name="description_visibility_private">Подписчики</string>
+    <string name="description_visibility_direct">Непосредственно</string>
+    <string name="post_sensitive_media_title">Чувствительный контент</string>
+    <string name="post_media_images">Изображения</string>
+    <string name="post_media_audio">Аудио</string>
+    <string name="post_media_video">Видео</string>
+    <string name="post_media_attachments">Вложения</string>
+    <plurals name="description_post_roles">
+        <item quantity="one" tools:ignore="ImpliedQuantity">с ролью:</item>
+        <item quantity="few">с ролями:</item>
+        <item quantity="many">с ролями:</item>
+        <item quantity="other">с ролями:</item>
+    </plurals>
 </resources>

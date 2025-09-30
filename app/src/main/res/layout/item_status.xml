@@ -55,7 +55,7 @@
         tools:src="#000"
         tools:visibility="visible" />
 
-    <com.google.android.material.chip.ChipGroup
+    <app.pachli.core.ui.RoleChipGroup
         android:id="@+id/roleChipGroup"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -185,7 +185,7 @@
         tools:text="@string/post_content_show_less"
         tools:visibility="visible" />
 
-    <app.pachli.view.PreviewCardView
+    <app.pachli.core.ui.PreviewCardView
         android:id="@+id/status_card_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -213,7 +213,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <app.pachli.view.PollView
+    <app.pachli.core.ui.PollView
         android:id="@+id/status_poll"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

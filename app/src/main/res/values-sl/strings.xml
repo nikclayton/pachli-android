@@ -28,8 +28,6 @@
     <string name="title_follow_requests">Zahteve za Sledenje</string>
     <string name="title_edit_profile">Uredi svoj profil</string>
     <string name="title_drafts">Osnutki</string>
-    <string name="post_sensitive_media_title">Občutljiva vsebina</string>
-    <string name="post_media_hidden_title">Medij je skrit</string>
     <string name="post_sensitive_media_directions">Kliknite za ogled</string>
     <string name="post_content_warning_show_more">Pokaži več</string>
     <string name="post_content_warning_show_less">Pokaži manj</string>
@@ -63,7 +61,6 @@
     <string name="action_view_mutes">Utišani uporabniki</string>
     <string name="action_view_blocks">Blokirani uporabniki</string>
     <string name="action_view_follow_requests">Prošnje za sledenje</string>
-    <string name="action_view_media">Mediji</string>
     <string name="action_open_in_web">Odpri v brskalniku</string>
     <string name="action_add_media">Dodaj medij</string>
     <string name="action_photo_take">Posnemi fotografijo</string>
@@ -173,19 +170,7 @@
     <string name="description_account_locked">Zaklenjen račun</string>
     <string name="post_share_content">Deli vsebino tuta</string>
     <string name="post_share_link">Deli povezavo do tuta</string>
-    <string name="post_media_images">Slike</string>
-    <string name="post_media_video">Video</string>
     <string name="state_follow_requested">Prošnja za sledenje</string>
-    <string name="abbreviated_in_years">v %dy</string>
-    <string name="abbreviated_in_days">v %dd</string>
-    <string name="abbreviated_in_hours">v %dh</string>
-    <string name="abbreviated_in_minutes">in %dm</string>
-    <string name="abbreviated_in_seconds">v %ds</string>
-    <string name="abbreviated_years_ago">%dy</string>
-    <string name="abbreviated_days_ago">%dd</string>
-    <string name="abbreviated_hours_ago">%dh</string>
-    <string name="abbreviated_minutes_ago">%dm</string>
-    <string name="abbreviated_seconds_ago">%ds</string>
     <string name="follows_you">Vam sledi</string>
     <string name="pref_title_alway_show_sensitive_media">Vedno prikaži občutljivo vsebino</string>
     <string name="title_media">Mediji</string>
@@ -243,13 +228,8 @@
     <string name="conversation_more_recipients">%1$s, %2$s in %3$d več</string>
     <string name="description_post_media">Mediji: %s</string>
     <string name="description_post_cw">Opozorila o vsebini: %s</string>
-    <string name="description_post_media_no_description_placeholder">Brez opisa</string>
     <string name="description_post_reblogged">Ponovno objavljen</string>
     <string name="description_post_favourited">Priljubljene</string>
-    <string name="description_visibility_public">Javno</string>
-    <string name="description_visibility_unlisted">Ni prikazano</string>
-    <string name="description_visibility_private">Sledilci</string>
-    <string name="description_visibility_direct">Neposredno</string>
     <string name="edit_hashtag_hint">Ključnik brez #</string>
     <string name="notifications_clear">Počisti</string>
     <string name="notifications_apply_filter">Filter</string>
@@ -260,16 +240,6 @@
     <string name="notification_clear_text">Ali ste prepričani, da želite trajno izbrisati vsa obvestila\?</string>
     <string name="action_delete_and_redraft">Izbriši in preoblikuj</string>
     <string name="dialog_redraft_post_warning">Izbriši in preoblikuj tut\?</string>
-    <string name="poll_info_format"><!-- 15 votes • 1 hour left -->%1$s • %2$s</string>
-    <plurals name="poll_info_votes">
-        <item quantity="one">%s glas</item>
-        <item quantity="two">%s glasova</item>
-        <item quantity="few">%s glasovi</item>
-        <item quantity="other">%s glasov</item>
-    </plurals>
-    <string name="poll_info_time_absolute">se konča ob %s</string>
-    <string name="poll_info_closed">zaprto</string>
-    <string name="poll_vote">Glasovanje</string>
     <string name="pref_title_notification_filter_poll">ankete so se končala</string>
     <string name="post_privacy_public">Javno</string>
     <string name="post_privacy_unlisted">Ni prikazano</string>
@@ -284,32 +254,7 @@
     <string name="compose_preview_image_description">Dejanje za sliko %s</string>
     <string name="poll_ended_voted">Anketa, na kateri ste glasovali, se je končala</string>
     <string name="poll_ended_created">Anketa, ki ste jo ustvarili, se je končala</string>
-    <plurals name="poll_timespan_days">
-        <item quantity="one">še %d dan</item>
-        <item quantity="two">še %d dni</item>
-        <item quantity="few">še %d dni</item>
-        <item quantity="other">še %d dni</item>
-    </plurals>
-    <plurals name="poll_timespan_hours">
-        <item quantity="one">še %d ura</item>
-        <item quantity="two">še %d uri</item>
-        <item quantity="few">še %d ure</item>
-        <item quantity="other">še %d ur</item>
-    </plurals>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">še %d minuta</item>
-        <item quantity="two">še %d minuti</item>
-        <item quantity="few">še %d minute</item>
-        <item quantity="other">še %d minut</item>
-    </plurals>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">%d sekunda</item>
-        <item quantity="two">%d sekundi</item>
-        <item quantity="few">%d sekunde</item>
-        <item quantity="other">%d sekund</item>
-    </plurals>
     <string name="pref_title_animate_gif_avatars">Animirane podobe GIF</string>
-    <string name="description_poll">Anketa z izbiro: %1$s, %2$s, %3$s, %4$s; %5$s</string>
     <string name="button_back">Nazaj</string>
     <string name="report_sent_success">\@%s je uspešno prijavljen</string>
     <string name="hint_additional_info">Dodatni komentarji</string>

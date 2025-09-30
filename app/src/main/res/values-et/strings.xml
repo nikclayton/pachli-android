@@ -20,29 +20,9 @@
         <item quantity="one">%1$d päev</item>
         <item quantity="other">%1$d päeva</item>
     </plurals>
-    <plurals name="poll_timespan_days">
-        <item quantity="one">Jäänud on %d päev</item>
-        <item quantity="other">Jäänud on %d päeva</item>
-    </plurals>
-    <plurals name="poll_timespan_hours">
-        <item quantity="one">Jäänud on %d tund</item>
-        <item quantity="other">Jäänud on %d tundi</item>
-    </plurals>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">Jäänud on %d minut</item>
-        <item quantity="other">Jäänud on %d minutit</item>
-    </plurals>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">Jäänud on %d sekund</item>
-        <item quantity="other">Jäänud on %d sekundit</item>
-    </plurals>
     <plurals name="notification_severed_relationships_summary_following_fmt">
         <item quantity="one">%1$s sinu jälgitud kasutajakonto on eemaldatud.</item>
         <item quantity="other">%1$s sinu jälgitud kasutajakontot on eemaldatud.</item>
-    </plurals>
-    <plurals name="poll_info_votes">
-        <item quantity="one">%s hääl</item>
-        <item quantity="other">%s häält</item>
     </plurals>
     <plurals name="notification_title_summary">
         <item quantity="one">%d uus vastasmõju</item>
@@ -55,10 +35,6 @@
     <plurals name="reblogs">
         <item quantity="one"><b>%s</b> hooandmine</item>
         <item quantity="other"><b>%s</b> hooandmist</item>
-    </plurals>
-    <plurals name="poll_info_people">
-        <item quantity="one">%s hääletaja</item>
-        <item quantity="other">%s hääletajat</item>
     </plurals>
     <plurals name="error_upload_max_media_reached">
         <item quantity="one">Sa ei saa üles laadida enam, kui %1$d meediamanuse.</item>
@@ -131,9 +107,6 @@
     <string name="dialog_follow_hashtag_title">Jälgi teemaviidet</string>
     <string name="dialog_follow_hashtag_hint">#teemaviide</string>
     <string name="post_boosted_format">%s lisas hoogu</string>
-    <string name="post_sensitive_media_title">Delikaatne sisu</string>
-    <string name="post_media_hidden_title">Meedium on peidetud</string>
-    <string name="post_media_alt">ALT</string>
     <string name="post_sensitive_media_directions">Vaatamiseks klõpsi</string>
     <string name="notification_unknown">Tundmatu teavituse tüüp</string>
     <string name="notification_header_report_format">%s saatis teatise: %s</string>
@@ -184,7 +157,6 @@
     <string name="action_view_blocks">Blokeeritud kasutajad</string>
     <string name="action_view_domain_mutes">Peidetud domeenid</string>
     <string name="action_view_follow_requests">Jälgimispäringud</string>
-    <string name="action_view_media">Meedia</string>
     <string name="action_open_in_web">Ava veebibrauseris</string>
     <string name="action_add_media">Lisa meediat</string>
     <string name="action_add_poll">Lisa küsitlus</string>
@@ -223,7 +195,7 @@
     <string name="action_suggestions">Kasutajakontode soovitused</string>
     <string name="action_translate">Tõlgi</string>
     <string name="action_translate_undo">Eemalda tõlge</string>
-    <string name="action_open_media_n">Ava meedia #%d</string>
+    <string name="action_open_media_n">Ava manus #%d</string>
     <string name="download_image">%1$s on allalaadimisel</string>
     <string name="action_copy_link">Kopeeri link</string>
     <string name="action_refresh_account">Uuenda kasutajakontot</string>
@@ -274,16 +246,10 @@
     <string name="conversation_more_recipients" tools:ignore="PluralsCandidate">%1$s, %2$s ja veel %3$d</string>
     <string name="description_post_media">Meedia: %s</string>
     <string name="description_post_cw">Sisuhoiatus: %s</string>
-    <string name="description_post_media_no_description_placeholder">Kirjeldus puudub</string>
     <string name="description_post_edited">Muudetud</string>
     <string name="description_post_reblogged">Korduspostitus</string>
     <string name="description_post_favourited">Lemmikuks märgitud</string>
     <string name="description_post_bookmarked">Lisatud järjehoidjaks</string>
-    <string name="description_visibility_public">Avalik</string>
-    <string name="description_visibility_unlisted">Ajajooneväline</string>
-    <string name="description_visibility_private">Vaid jälgijatele</string>
-    <string name="description_visibility_direct">Otsesõnum</string>
-    <string name="description_poll">Valikutega küsitlus: %1$s, %2$s, %3$s, %4$s; %5$s</string>
     <string name="description_post_language">Postituse keel</string>
     <string name="description_login">Üldjuhul toimib. Mitte mingeid andmeid ei leki teistele rakendustele.</string>
     <string name="description_browser_login">Võib toetada täiendavaid autentimismeetodeid, aga eeldab toetatud veebibrauserit.</string>
@@ -302,11 +268,6 @@
     <string name="compose_schedule_date_time_fmt">%1$s %2$s</string>
     <string name="notification_clear_text">Kas oled kindel, et soovid jäädavalt kõik teavitused kustutada?</string>
     <string name="compose_preview_image_description">Tegevused %s pildi jaoks</string>
-    <string name="poll_info_format"><!-- 15 häält • 1 tund jäänud -->%1$s • %2$s</string>
-    <string name="poll_info_time_absolute">lõppeb %s</string>
-    <string name="poll_info_closed">suletud</string>
-    <string name="poll_vote">Hääleta</string>
-    <string name="poll_show_votes">Näita hääletustulemusi</string>
     <string name="poll_ended_voted">Küsitlus, milles osalesid, on lõppenud</string>
     <string name="poll_ended_created">Sinu koostatud küsitlus on lõppenud</string>
     <string name="button_back">Tagasi</string>
@@ -491,25 +452,10 @@
     <string name="description_account_locked">Lukustatud kasutajakonto</string>
     <string name="post_share_content">Jaga postituse sisu</string>
     <string name="post_share_link">Jaga postituse linki</string>
-    <string name="post_media_images">Pildid</string>
-    <string name="post_media_video">Video</string>
-    <string name="post_media_audio">Helifail</string>
-    <string name="post_media_attachments">Manused</string>
     <string name="status_count_one_plus">1+</string>
-    <string name="status_created_at_now">nüüd</string>
     <string name="status_filtered_show_anyway">Näita ikkagi</string>
     <string name="status_filter_placeholder_label_format">Filtreeritud: <b>%1$s</b></string>
     <string name="state_follow_requested">Oled saanud jälgimispäringu</string>
-    <string name="abbreviated_in_years">%d a</string>
-    <string name="abbreviated_in_days">%d p</string>
-    <string name="abbreviated_in_hours">%d t</string>
-    <string name="abbreviated_in_minutes">%d min</string>
-    <string name="abbreviated_in_seconds">%d sek</string>
-    <string name="abbreviated_years_ago">%d a</string>
-    <string name="abbreviated_days_ago">%d p</string>
-    <string name="abbreviated_hours_ago">%d t</string>
-    <string name="abbreviated_minutes_ago">%d min</string>
-    <string name="abbreviated_seconds_ago">%d sek</string>
     <string name="follows_you">Jälgib sind</string>
     <string name="pref_title_alway_show_sensitive_media">Alati näita delikaatset sisu</string>
     <string name="pref_title_alway_open_spoiler">Näita sisuhoiatusega postitusi alati täisvaates</string>
@@ -651,10 +597,6 @@
     <string name="wellbeing_hide_stats_posts">Peida postituste statistika</string>
     <string name="wellbeing_hide_stats_profile">Peida profiilide statistika</string>
     <string name="pref_title_labs">Arendamisel lahendused ja katsetused</string>
-    <plurals name="description_post_roles">
-        <item quantity="one">rollis:</item>
-        <item quantity="other">rollides:</item>
-    </plurals>
     <string name="notification_moderation_warning_title">Sõnum sinu koduserveri moderaatoritelt</string>
     <string name="notification_moderation_warning_body_none_fmt">Moderaatorid on saatnud sulle hoiatuse: %1$s</string>
     <string name="notification_moderation_warning_body_disable_fmt">Sinu konto on kasutuselt eemaldatud: %1$s</string>
@@ -683,10 +625,8 @@
     <string name="action_open_byline_account">Näita artikli autori profiili</string>
     <string name="action_open_link">Ava link</string>
     <string name="action_timeline_link">Postitused selle lingi kohta</string>
-    <string name="error_load_filter_failed_fmt">Filtri laadimine ei õnnestunud: %1$s</string>
     <string name="error_save_filter_failed_fmt">Filtri salvestamine ei õnnestunud: %1$s</string>
     <string name="error_delete_filter_failed_fmt">Filtri kustutamine ei õnnestunud: %1$s</string>
-    <string name="preview_card_timeline_link_fmt">Vaata <b>%1$s</b> postitusi selle lingi kohta</string>
     <string name="search_operator_attachment_has_media_except_1_label_fmt">Kõik, välja arvatud %1$s</string>
     <string name="search_operator_attachment_has_media_except_2_label_fmt">Kõik, välja arvatud %1$s, %2$s</string>
     <string name="search_operator_attachment_has_media_except_3_label_fmt">Kõik, välja arvatud %1$s, %2$s, %3$s</string>
@@ -707,8 +647,6 @@
     <string name="error_prepare_media_unsupported_mime_type_fmt">server ei toeta failitüüpi: %1$s</string>
     <string name="error_prepare_media_unknown_mime_type">failitüüp pole teada</string>
     <string name="error_pick_media_fmt">Faili lisamine postitusele ei õnnestunud: %1$s</string>
-    <string name="preview_card_byline_fediverse_account_fmt">Kasutajalt <b>%1$s</b>. Vaata ka teisi postitusi</string>
-    <string name="preview_card_byline_name_only_fmt">Kasutajalt <b>%1$s</b></string>
     <string name="error_share_media">pole kausta, kuhu salvestada ajutisi meediafaile</string>
     <string name="search_operator_where_all">Kõik postitused ▾</string>
     <string name="search_operator_where_library">Sinu meediakogu</string>
@@ -821,4 +759,6 @@
     <string name="error_prepare_media_content_resolver_missing_path_fmt">sisulahendaja URI asukoht on puudu: %1$s</string>
     <string name="error_prepare_media_content_resolver_unsupported_scheme_fmt">sisulahendaja URI skeem pole toetatud: %1$s</string>
     <string name="error_prepare_media_io_fmt">%1$s</string>
+    <string name="filter_action_blur">Peida manused</string>
+    <string name="filter_description_blur">Näita sisu, peida manused hoiatuse taha</string>
 </resources>

@@ -30,11 +30,9 @@ import android.widget.Toast.LENGTH_LONG
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
@@ -46,7 +44,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.BuildConfig
 import app.pachli.R
-import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.components.timeline.viewmodel.CachedTimelineViewModel
 import app.pachli.components.timeline.viewmodel.FallibleStatusAction
 import app.pachli.components.timeline.viewmodel.InfallibleStatusAction
@@ -66,6 +64,7 @@ import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.database.model.TranslationState
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
@@ -77,12 +76,12 @@ import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentTimelineBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.interfaces.AppBarLayoutHost
-import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.ListStatusAccessibilityDelegate
 import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.Glide
@@ -97,6 +96,7 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -123,8 +123,7 @@ class TimelineFragment :
 
     // Create the correct view model. Do this lazily because it depends on the value of
     // `timelineKind`, which won't be known until part way through `onCreate`. Pass this in
-    // the "extras" to the view model, which are populated in to the `SavedStateHandle` it
-    // takes as a parameter.
+    // the "extras" to the view model.
     //
     // If the navigation library was being used this would happen automatically, so this
     // workaround can be removed when that change happens.
@@ -132,16 +131,16 @@ class TimelineFragment :
         if (timeline == Timeline.Home) {
             viewModels<CachedTimelineViewModel>(
                 extrasProducer = {
-                    MutableCreationExtras(defaultViewModelCreationExtras).apply {
-                        set(DEFAULT_ARGS_KEY, TimelineViewModel.creationExtras(timeline))
+                    defaultViewModelCreationExtras.withCreationCallback<CachedTimelineViewModel.Factory> {
+                        it.create(timeline)
                     }
                 },
             ).value
         } else {
             viewModels<NetworkTimelineViewModel>(
                 extrasProducer = {
-                    MutableCreationExtras(defaultViewModelCreationExtras).apply {
-                        set(DEFAULT_ARGS_KEY, TimelineViewModel.creationExtras(timeline))
+                    defaultViewModelCreationExtras.withCreationCallback<NetworkTimelineViewModel.Factory> {
+                        it.create(timeline)
                     }
                 },
             ).value
@@ -178,7 +177,11 @@ class TimelineFragment :
             emit(Unit)
         }
     }.onEach {
-        adapter.notifyItemRangeChanged(0, adapter.itemCount, listOf(StatusBaseViewHolder.Key.KEY_CREATED))
+        adapter.notifyItemRangeChanged(
+            0,
+            adapter.itemCount,
+            listOf(StatusViewDataDiffCallback.Payload.CREATED),
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -629,8 +632,8 @@ class TimelineFragment :
         viewModel.onChangeExpanded(expanded, viewData)
     }
 
-    override fun onContentHiddenChange(viewData: StatusViewData, isShowingContent: Boolean) {
-        viewModel.onChangeContentShowing(isShowingContent, viewData)
+    override fun onAttachmentDisplayActionChange(viewData: StatusViewData, newAction: AttachmentDisplayAction) {
+        viewModel.onChangeAttachmentDisplayAction(viewData, newAction)
     }
 
     override fun onShowReblogs(statusId: String) {
@@ -671,7 +674,7 @@ class TimelineFragment :
     }
 
     override fun onViewThread(status: Status) {
-        super.viewThread(status.id, status.url)
+        super.viewThread(status.actionableId, status.url)
     }
 
     override fun onViewTag(tag: String) {

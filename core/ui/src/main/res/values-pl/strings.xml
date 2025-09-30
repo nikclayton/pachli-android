@@ -33,4 +33,87 @@
     <string name="hint_search_emojis">Wyszukaj emoji…</string>
     <string name="label_emoji_no_category">Bez kategorii</string>
     <string name="emoji_picker_show_detail">Pokaż szczegóły</string>
+    <string name="preview_card_byline_fediverse_account_fmt">Od: <b>%1$s</b>. Zobacz więcej wpisów</string>
+    <string name="preview_card_byline_name_only_fmt">Od: <b>%1$s</b></string>
+    <string name="preview_card_timeline_link_fmt">Zobacz <b>%1$s</b> wpisów na ten temat</string>
+    <string name="poll_vote">Głosuj</string>
+    <string name="poll_show_votes">Pokaż wyniki</string>
+    <plurals name="poll_timespan_seconds">
+        <item quantity="one">Została %d sekunda</item>
+        <item quantity="few">Zostały %d sekundy</item>
+        <item quantity="many">Zostało %d sekund</item>
+        <item quantity="other">Zostało %d sekund</item>
+    </plurals>
+    <plurals name="poll_timespan_minutes">
+        <item quantity="one">Została %d minuta</item>
+        <item quantity="few">Zostały %d minuty</item>
+        <item quantity="many">Zostało %d minut</item>
+        <item quantity="other">Zostało %d minut</item>
+    </plurals>
+    <plurals name="poll_timespan_hours">
+        <item quantity="one">Została %d godzina</item>
+        <item quantity="few">Zostały %d godziny</item>
+        <item quantity="many">Zostało %d godzin</item>
+        <item quantity="other">Zostało %d godzin</item>
+    </plurals>
+    <plurals name="poll_timespan_days">
+        <item quantity="one">Został %d dzień</item>
+        <item quantity="few">Zostały %d dni</item>
+        <item quantity="many">Zostało %d dni</item>
+        <item quantity="other">Zostało %d dni</item>
+    </plurals>
+    <plurals name="poll_info_votes">
+        <item quantity="one">%s głos</item>
+        <item quantity="few">%s głosy</item>
+        <item quantity="many">%s głosów</item>
+        <item quantity="other">%s głosów</item>
+    </plurals>
+    <plurals name="poll_info_people">
+        <item quantity="one">%s osoba</item>
+        <item quantity="few">%s osoby</item>
+        <item quantity="many">%s osób</item>
+        <item quantity="other">%s osób</item>
+    </plurals>
+    <string name="poll_info_closed">zakończona</string>
+    <string name="poll_info_time_absolute">kończy się %s</string>
+    <string name="poll_info_format"><!-- 15 głosów • 1 godzina pozostała -->%1$s • %2$s</string>
+    <string name="description_poll">Ankieta z opcjami: %1$s, %2$s, %3$s, %4$s; %5$s</string>
+    <string name="post_media_alt">ALT</string>
+    <string name="status_created_at_now">teraz</string>
+    <string name="abbreviated_in_seconds">za %d s</string>
+    <string name="abbreviated_seconds_ago">%d s temu</string>
+    <string name="abbreviated_in_minutes">za %d min</string>
+    <string name="abbreviated_minutes_ago">%d min temu</string>
+    <string name="abbreviated_in_hours">za %d godz</string>
+    <string name="abbreviated_hours_ago">%d godz. temu</string>
+    <string name="abbreviated_in_days">za %d dni</string>
+    <string name="abbreviated_days_ago">%d dni temu</string>
+    <string name="abbreviated_in_years">za %d lata</string>
+    <string name="abbreviated_years_ago">%d lat temu</string>
+    <string name="description_post_media_no_description_placeholder">Brak opisu</string>
+    <string name="description_visibility_public">Publiczny</string>
+    <string name="description_visibility_unlisted">Niewidoczny</string>
+    <string name="description_visibility_private">Obserwujący</string>
+    <string name="description_visibility_direct">Bezpośrednio</string>
+    <string name="post_sensitive_media_title">Treści drażliwe</string>
+    <string name="post_media_images">Obrazy</string>
+    <string name="post_media_audio">Dźwięk</string>
+    <string name="post_media_video">Wideo</string>
+    <string name="post_media_attachments">Załączniki</string>
+    <plurals name="description_post_roles">
+        <item quantity="one">z rolą:</item>
+        <item quantity="few">z rolami:</item>
+        <item quantity="many">z rolami:</item>
+        <item quantity="other">z rolami:</item>
+    </plurals>
+    <string name="attachment_matches_filter_one_fmt">Pasuje do filtra: „%1$s”. Dotknij, by pokazać.</string>
+    <string name="attachment_matches_filter_two_fmt">Pasuje do filtrów: „%1$s” i „%2$s”. Dotknij, by pokazać.</string>
+    <string name="attachment_matches_filter_other_fmt">Pasuje do filtrów: „%1$s”, „%2$s” i innych. Dotknij, by pokazać.</string>
+    <string name="attachment_hidden_user_action">Ukrywasz to. Dotknij, by pokazać.</string>
+    <string name="action_show_attachments">Pokaż załączniki</string>
+    <string name="action_hide_attachments">Ukryj załączniki</string>
+    <string name="dot_in_name">kropka</string>
+    <string name="role_content_description_fmt">%1$s, na %2$s</string>
+    <string name="handle_contentdescription_fmt">Konto, @%1$s</string>
+    <string name="account_contentdescription_fmt">%1$s, %2$s, %3$s</string>
 </resources>

@@ -25,8 +25,8 @@ import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.ContentFilter
 import app.pachli.core.model.FilterAction
 import app.pachli.core.ui.SetStatusContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.databinding.ItemStatusWrapperBinding
-import app.pachli.interfaces.StatusActionListener
 import com.bumptech.glide.RequestManager
 
 open class FilterableStatusViewHolder<T : IStatusViewData>(
@@ -41,7 +41,7 @@ open class FilterableStatusViewHolder<T : IStatusViewData>(
         viewData: T,
         listener: StatusActionListener<T>,
         statusDisplayOptions: StatusDisplayOptions,
-        payloads: Any?,
+        payloads: List<List<Any?>>?,
     ) {
         super.setupWithStatus(viewData, listener, statusDisplayOptions, payloads)
         setupFilterPlaceholder(viewData, listener)

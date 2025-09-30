@@ -60,7 +60,7 @@ import app.pachli.core.navigation.ViewThreadActivityIntent
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.ui.ClipboardUseCase
-import app.pachli.interfaces.StatusActionListener
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.translation.TranslationService
 import app.pachli.usecase.TimelineCases
 import app.pachli.view.showMuteAccountDialog
@@ -542,6 +542,13 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
         } else {
             downloadAllMedia(status)
         }
+    }
+
+    override fun onViewMedia(pachliAccountId: Long, username: String, url: String) {
+        startActivityWithTransition(
+            ViewMediaActivityIntent(requireContext(), pachliAccountId, username, url),
+            TransitionKind.SLIDE_FROM_END,
+        )
     }
 
     companion object {

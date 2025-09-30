@@ -21,12 +21,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
+import app.pachli.components.timeline.viewmodel.getAttachmentDisplayAction
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.PachliAccount
 import app.pachli.core.database.dao.ConversationsDao
 import app.pachli.core.database.model.ConversationData
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.AccountFilterReason
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.FilterAction
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.preferences.PrefKeys
@@ -67,32 +69,39 @@ class ConversationsViewModel @AssistedInject constructor(
     private val uiAction = MutableSharedFlow<UiAction>()
     val accept: (UiAction) -> Unit = { action -> viewModelScope.launch { uiAction.emit(action) } }
 
-    val conversationFlow = accountFlow
-        .flatMapLatest { pachliAccount ->
-            repository.conversations(pachliAccount.id)
-                .map { pagingData ->
-                    pagingData
-                        .map { conversation ->
-                            val accountFilterDecision = if (conversation.isConversationStarter) {
-                                conversation.viewData?.accountFilterDecision
-                                    ?: filterConversationByAccount(pachliAccount, conversation)
-                            } else {
-                                null
-                            }
-
-                            ConversationViewData.make(
-                                pachliAccount,
-                                conversation,
-                                defaultIsExpanded = pachliAccount.entity.alwaysOpenSpoiler,
-                                defaultIsShowingContent = (pachliAccount.entity.alwaysShowSensitiveMedia || !conversation.lastStatus.status.sensitive),
-                                contentFilterAction = FilterAction.NONE,
-                                accountFilterDecision = accountFilterDecision,
-                            )
-                        }
-                        .filter { it.accountFilterDecision !is AccountFilterDecision.Hide }
+    val conversationFlow = accountFlow.flatMapLatest { pachliAccount ->
+        repository.conversations(pachliAccount.id).map { pagingData ->
+            pagingData
+                .map { conversation ->
+                    val accountFilterDecision = if (conversation.isConversationStarter) {
+                        conversation.viewData?.accountFilterDecision
+                            ?: filterConversationByAccount(pachliAccount, conversation)
+                    } else {
+                        null
+                    }
+                    Pair(conversation, accountFilterDecision)
+                }
+                .filter { it.second !is AccountFilterDecision.Hide }
+                .map { (conversation, accountFilterDecision) ->
+                    ConversationViewData.make(
+                        pachliAccount,
+                        conversation,
+                        defaultIsExpanded = pachliAccount.entity.alwaysOpenSpoiler,
+                        // Mastodon filters don't apply to direct messages, so this
+                        // is always FilterAction.NONE.
+                        contentFilterAction = FilterAction.NONE,
+                        accountFilterDecision = accountFilterDecision,
+                        attachmentDisplayAction = conversation.lastStatus.getAttachmentDisplayAction(
+                            // There is no filter context for private messages (FilterContext.CONVERSATIONS
+                            // is for threads).
+                            null,
+                            pachliAccount.entity.alwaysShowSensitiveMedia,
+                            conversation.lastStatus.viewData?.attachmentDisplayAction,
+                        ),
+                    )
                 }
         }
-        .cachedIn(viewModelScope)
+    }.cachedIn(viewModelScope)
 
     val showFabWhileScrolling = sharedPreferencesRepository.changes
         .filter { it == null || it == PrefKeys.FAB_HIDE }
@@ -123,7 +132,7 @@ class ConversationsViewModel @AssistedInject constructor(
     }
 
     /**
-     * Returns the [AccountFilterDecision] for [conversationData] based on the notification
+     * Returns the [AccountFilterDecision] for [conversationData] based on the
      * filters in [accountWithFilters].
      *
      * @return The most severe [AccountFilterDecision], in order [Hide][AccountFilterDecision.Hide],
@@ -239,9 +248,9 @@ class ConversationsViewModel @AssistedInject constructor(
         }
     }
 
-    fun showContent(pachliAccountId: Long, showingHiddenContent: Boolean, lastStatusId: String) {
+    fun changeAttachmentDisplayAction(pachliAccountId: Long, statusId: String, attachmentDisplayAction: AttachmentDisplayAction) {
         viewModelScope.launch {
-            repository.setContentShowing(pachliAccountId, lastStatusId, showingHiddenContent)
+            repository.setAttachmentDisplayAction(pachliAccountId, statusId, attachmentDisplayAction)
         }
     }
 

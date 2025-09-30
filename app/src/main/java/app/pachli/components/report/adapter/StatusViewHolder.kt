@@ -17,7 +17,6 @@
 package app.pachli.components.report.adapter
 
 import android.text.TextUtils
-import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.components.report.model.StatusViewState
@@ -27,21 +26,20 @@ import app.pachli.core.common.util.AbsoluteTimeFormatter
 import app.pachli.core.common.util.shouldTrimStatus
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.data.model.StatusViewData
-import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.Emoji
 import app.pachli.core.model.HashTag
 import app.pachli.core.model.Status
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.ui.LinkListener
+import app.pachli.core.ui.PollViewData
 import app.pachli.core.ui.SetStatusContent
 import app.pachli.core.ui.emojify
+import app.pachli.core.ui.getRelativeTimeSpanString
 import app.pachli.core.ui.setClickableMentions
 import app.pachli.databinding.ItemReportStatusBinding
 import app.pachli.util.StatusViewHelper
 import app.pachli.util.StatusViewHelper.Companion.COLLAPSE_INPUT_FILTER
 import app.pachli.util.StatusViewHelper.Companion.NO_INPUT_FILTER
-import app.pachli.util.getRelativeTimeSpanString
-import app.pachli.viewdata.PollViewData
 import com.bumptech.glide.RequestManager
 import java.util.Date
 
@@ -54,24 +52,8 @@ open class StatusViewHolder(
     private val adapterHandler: AdapterHandler,
     private val getStatusForPosition: (Int) -> StatusViewData?,
 ) : RecyclerView.ViewHolder(binding.root) {
-
-    private val mediaViewHeight = itemView.context.resources.getDimensionPixelSize(DR.dimen.status_media_preview_height)
-    private val statusViewHelper = StatusViewHelper(glide, itemView)
+    private val statusViewHelper = StatusViewHelper(glide, itemView, adapterHandler)
     private val absoluteTimeFormatter = AbsoluteTimeFormatter()
-
-    private val previewListener = object : StatusViewHelper.MediaPreviewListener {
-        override fun onViewMedia(v: View?, idx: Int) {
-            viewdata()?.let { viewdata ->
-                adapterHandler.showMedia(v, viewdata.status, idx)
-            }
-        }
-
-        override fun onContentHiddenChange(isShowing: Boolean) {
-            viewdata()?.id?.let { id ->
-                viewState.setMediaShow(id, isShowing)
-            }
-        }
-    }
 
     init {
         binding.statusSelection.setOnCheckedChangeListener { _, isChecked ->
@@ -87,15 +69,10 @@ open class StatusViewHolder(
 
         updateTextView()
 
-        val sensitive = viewData.status.sensitive
-
-        statusViewHelper.setMediasPreview(
+        statusViewHelper.setMediaPreviews(
+            viewData,
             statusDisplayOptions,
-            viewData.status.attachments,
-            sensitive,
-            previewListener,
             viewState.isMediaShow(viewData.id, viewData.status.sensitive),
-            mediaViewHeight,
         )
 
         viewData.status.poll?.let {

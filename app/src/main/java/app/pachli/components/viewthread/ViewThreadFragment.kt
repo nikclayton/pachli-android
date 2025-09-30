@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.components.viewthread.edits.ViewEditsFragment
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
@@ -44,17 +45,19 @@ import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.EditContentFilterActivityIntent
+import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentViewThreadBinding
 import app.pachli.fragment.SFragment
-import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.ListStatusAccessibilityDelegate
 import com.bumptech.glide.Glide
 import com.github.michaelbull.result.Result
@@ -64,7 +67,10 @@ import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlin.properties.Delegates
+import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -74,6 +80,9 @@ class ViewThreadFragment :
     OnRefreshListener,
     StatusActionListener<StatusViewData>,
     MenuProvider {
+
+    @Inject
+    lateinit var sharedPreferencesRepository: SharedPreferencesRepository
 
     private val viewModel: ViewThreadViewModel by viewModels()
 
@@ -147,6 +156,18 @@ class ViewThreadFragment :
                 launch { viewModel.uiResult.collect(::bindUiResult) }
 
                 launch { viewModel.errors.collectLatest(::bindError) }
+
+                launch {
+                    val useAbsoluteTime = sharedPreferencesRepository.useAbsoluteTime
+                    while (!useAbsoluteTime) {
+                        delay(1.minutes)
+                        adapter.notifyItemRangeChanged(
+                            0,
+                            adapter.itemCount,
+                            listOf(StatusViewDataDiffCallback.Payload.CREATED),
+                        )
+                    }
+                }
             }
         }
 
@@ -259,7 +280,7 @@ class ViewThreadFragment :
         actionReveal.isVisible = revealButtonState != RevealButtonState.NO_BUTTON
         actionReveal.setIcon(
             when (revealButtonState) {
-                RevealButtonState.REVEAL -> R.drawable.ic_eye_24dp
+                RevealButtonState.REVEAL -> app.pachli.core.ui.R.drawable.ic_eye_24dp
                 else -> R.drawable.ic_hide_media_24dp
             },
         )
@@ -336,7 +357,7 @@ class ViewThreadFragment :
     }
 
     override fun onViewThread(status: Status) {
-        if (thisThreadsStatusId == status.id) {
+        if (thisThreadsStatusId == status.actionableId) {
             // If already viewing this thread, don't reopen it.
             return
         }
@@ -370,8 +391,8 @@ class ViewThreadFragment :
         viewModel.changeExpanded(expanded, viewData)
     }
 
-    override fun onContentHiddenChange(viewData: StatusViewData, isShowingContent: Boolean) {
-        viewModel.changeContentShowing(isShowingContent, viewData)
+    override fun onAttachmentDisplayActionChange(viewData: StatusViewData, newAction: AttachmentDisplayAction) {
+        viewModel.changeAttachmentDisplayAction(viewData, newAction)
     }
 
     override fun onShowReblogs(statusId: String) {

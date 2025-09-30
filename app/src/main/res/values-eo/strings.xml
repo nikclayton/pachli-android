@@ -29,8 +29,6 @@
     <string name="title_edit_profile">Redakti vian profilon</string>
     <string name="title_drafts">Malnetoj</string>
     <string name="post_boosted_format">%s diskonigis</string>
-    <string name="post_sensitive_media_title">Tikla enhavo</string>
-    <string name="post_media_hidden_title">Kaŝitaj aŭdovidaĵoj</string>
     <string name="post_sensitive_media_directions">Alklaki por vidi</string>
     <string name="post_content_warning_show_more">Montri pli</string>
     <string name="post_content_warning_show_less">Montri malpli</string>
@@ -65,7 +63,6 @@
     <string name="action_view_mutes">Silentigitaj uzantoj</string>
     <string name="action_view_blocks">Blokitaj uzantoj</string>
     <string name="action_view_follow_requests">Petoj de sekvado</string>
-    <string name="action_view_media">Aŭdovidaĵo</string>
     <string name="action_open_in_web">Malfermi en retumilo</string>
     <string name="action_add_media">Aldoni aŭdovidaĵon</string>
     <string name="action_photo_take">Foti</string>
@@ -189,20 +186,8 @@
     -->
     <string name="post_share_content">Konigi enhavon de la mesaĝo</string>
     <string name="post_share_link">Konigi ligilon al mesaĝo</string>
-    <string name="post_media_images">Bildoj</string>
-    <string name="post_media_video">Video</string>
     <string name="state_follow_requested">Sekvado petita</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
-    <string name="abbreviated_in_years">post %dj</string>
-    <string name="abbreviated_in_days">post %dt</string>
-    <string name="abbreviated_in_hours">post %dh</string>
-    <string name="abbreviated_in_minutes">post %dm</string>
-    <string name="abbreviated_in_seconds">post %ds</string>
-    <string name="abbreviated_years_ago">%dj</string>
-    <string name="abbreviated_days_ago">%dt</string>
-    <string name="abbreviated_hours_ago">%dh</string>
-    <string name="abbreviated_minutes_ago">%dm</string>
-    <string name="abbreviated_seconds_ago">%ds</string>
     <string name="follows_you">Sekvas vin</string>
     <string name="pref_title_alway_show_sensitive_media">Ĉiam montri tiklan enhavon</string>
     <string name="title_media">Aŭdovidaĵoj</string>
@@ -264,18 +249,10 @@
     </string>
     <string name="description_post_cw">        Enhava averto: %s
     </string>
-    <string name="description_post_media_no_description_placeholder">        Neniu priskribo
-    </string>
     <string name="description_post_reblogged">        Diskonigita
     </string>
     <string name="description_post_favourited">        Stelumita
     </string>
-    <string name="description_visibility_public">        Publika
-    </string>
-    <string name="description_visibility_unlisted">        Nelistigita    </string>
-    <string name="description_visibility_private">        Sekvantoj
-    </string>
-    <string name="description_visibility_direct">        Rekta    </string>
     <string name="action_delete_and_redraft">Forigi kaj reskribi</string>
     <string name="dialog_redraft_post_warning">Ĉu forigi kaj reskribi ĉi tiun mesaĝon\?</string>
     <string name="pref_title_notification_filter_poll">enketoj finiĝis</string>
@@ -291,14 +268,6 @@
     <string name="compose_shortcut_short_label">Verki</string>
     <string name="notification_clear_text">Ĉu vi certas, ke vi volas porĉiame viŝi ĉiujn viajn sciigojn\?</string>
     <string name="compose_preview_image_description">Agoj por bildo %s</string>
-    <string name="poll_info_format"><!-- 15 votes • 1 hour left -->%1$s • %2$s</string>
-    <plurals name="poll_info_votes">
-        <item quantity="one">%s voĉdono</item>
-        <item quantity="other">%s voĉdonoj</item>
-    </plurals>
-    <string name="poll_info_time_absolute">finiĝos je %s</string>
-    <string name="poll_info_closed">finita</string>
-    <string name="poll_vote">Voĉdoni</string>
     <string name="poll_ended_voted">Enketo, al kiu vi voĉdonis, finiĝis</string>
     <string name="poll_ended_created">Enketo, kiun vi kreis, finiĝis</string>
     <string name="title_domain_mutes">Kaŝitaj domajnoj</string>
@@ -307,7 +276,6 @@
     <string name="confirmation_domain_unmuted">%s malsilentigita</string>
     <string name="mute_domain_warning">Ĉu vi certas ke vi volas tute bloki %s\? Vi ne vidos enhavon de tiu domajno en publika tempolinio aŭ en viaj sciigoj. Viaj sekvantoj el tiu domajno estos forigitaj.</string>
     <string name="mute_domain_warning_dialog_ok">Kaŝi la tutan domajnon</string>
-    <string name="description_poll">Balotenketo kun elektoj: %1$s, %2$s, %3$s, %4$s, %5$s</string>
     <string name="button_back">Reveni</string>
     <string name="report_sent_success">\@%s sukcese signalita</string>
     <string name="hint_additional_info">Pliaj komentoj</string>
@@ -349,10 +317,6 @@
     <string name="no_scheduled_posts">Vi havas neniun planitan mesaĝon.</string>
     <string name="notification_follow_request_name">Petoj de sekvado</string>
     <string name="hashtags">Kradvortoj</string>
-    <plurals name="poll_info_people">
-        <item quantity="one">%s homo</item>
-        <item quantity="other">%s homoj</item>
-    </plurals>
     <string name="add_hashtag_title">Aldoni kradvorton</string>
     <string name="notification_follow_request_description">Sciigoj pri petoj de sekvado</string>
     <string name="pref_title_gradient_for_media">Montri buntajn transirojn por kaŝitaj aŭdovidaĵoj</string>
@@ -365,22 +329,6 @@
     <string name="action_unmute_desc">Malsilentigi %s</string>
     <string name="notification_follow_request_format">%s petis sekvi vin</string>
     <string name="title_announcements">Anoncoj</string>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">%d minuto restas</item>
-        <item quantity="other">%d minutoj restas</item>
-    </plurals>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">%d sekundo restas</item>
-        <item quantity="other">%d sekundoj restas</item>
-    </plurals>
-    <plurals name="poll_timespan_hours">
-        <item quantity="one">%d horo restas</item>
-        <item quantity="other">%d horoj restas</item>
-    </plurals>
-    <plurals name="poll_timespan_days">
-        <item quantity="one">%d tago restas</item>
-        <item quantity="other">%d tagoj restas</item>
-    </plurals>
     <string name="pref_main_nav_position">Pozicio de la ĉefa naviga breto</string>
     <string name="pref_title_notification_filter_follow_requests">iu petas sekvi min</string>
     <string name="account_note_saved">Konservita!</string>
@@ -391,9 +339,7 @@
     <string name="no_announcements">Estas neniu anonco.</string>
     <string name="pref_title_enable_swipe_for_tabs">Ebligi ŝovumadon por ŝanĝi inter la langetoj</string>
     <string name="warning_scheduling_interval">Mastodon havas minimuman intervalon de planado de 5 minutoj.</string>
-    <string name="post_media_attachments">Kunsendaĵoj</string>
     <string name="pref_title_notification_filter_subscriptions">iu, kiun mi sekvas, afiŝis novan mesaĝon</string>
-    <string name="post_media_audio">Aŭdaĵo</string>
     <string name="action_subscribe_account">Aboni</string>
     <string name="draft_deleted">Malneto forigita</string>
     <plurals name="error_upload_max_media_reached">

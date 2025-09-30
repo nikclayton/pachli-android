@@ -22,16 +22,16 @@ import android.view.View
 import android.widget.ImageView
 import app.pachli.R
 import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.util.SmartLengthInputFilter
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.ConversationAccount
-import app.pachli.core.model.arePreviewable
 import app.pachli.core.ui.SetStatusContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.core.ui.loadAvatar
 import app.pachli.databinding.ItemConversationBinding
-import app.pachli.interfaces.StatusActionListener
 import com.bumptech.glide.RequestManager
 
 class ConversationViewHolder internal constructor(
@@ -46,13 +46,11 @@ class ConversationViewHolder internal constructor(
         binding.statusAvatar2,
     )
 
-    override fun bind(viewData: ConversationViewData, payloads: List<*>?, statusDisplayOptions: StatusDisplayOptions) {
+    override fun bind(viewData: ConversationViewData, payloads: List<List<Any?>>?, statusDisplayOptions: StatusDisplayOptions) {
         val account = viewData.actionable.account
         val inReplyToId = viewData.actionable.inReplyToId
         val favourited = viewData.actionable.favourited
         val bookmarked = viewData.actionable.bookmarked
-        val sensitive = viewData.actionable.sensitive
-        val attachments = viewData.actionable.attachments
 
         if (payloads.isNullOrEmpty()) {
             setupCollapsedState(viewData, listener)
@@ -62,27 +60,12 @@ class ConversationViewHolder internal constructor(
             setIsReply(inReplyToId != null)
             setFavourited(favourited)
             setBookmarked(bookmarked)
-            if (statusDisplayOptions.mediaPreviewEnabled && attachments.arePreviewable()) {
-                setMediaPreviews(
-                    viewData,
-                    attachments,
-                    sensitive,
-                    listener,
-                    statusDisplayOptions.useBlurhash,
-                )
-                if (attachments.isEmpty()) {
-                    hideSensitiveMediaWarning()
-                }
-                // Hide the unused label.
-                for (mediaLabel in mediaLabels) {
-                    mediaLabel.visibility = View.GONE
-                }
-            } else {
-                setMediaLabel(viewData, attachments, sensitive, listener, viewData.isShowingContent)
-                // Hide all unused views.
-                mediaPreview.visibility = View.GONE
-                hideSensitiveMediaWarning()
-            }
+            setMediaPreviews(
+                viewData,
+                statusDisplayOptions.mediaPreviewEnabled,
+                listener,
+                statusDisplayOptions.useBlurhash,
+            )
             setupButtons(
                 viewData,
                 listener,
@@ -93,11 +76,9 @@ class ConversationViewHolder internal constructor(
             setConversationName(viewData.accounts)
             setAvatars(viewData.accounts, statusDisplayOptions.animateAvatars)
         } else {
-            if (payloads is List<*>) {
-                for (item in payloads) {
-                    if (Key.KEY_CREATED == item) {
-                        setMetaData(viewData, statusDisplayOptions, listener)
-                    }
+            payloads.flatten().forEach { item ->
+                if (item == StatusViewDataDiffCallback.Payload.CREATED) {
+                    setMetaData(viewData, statusDisplayOptions, listener)
                 }
             }
         }

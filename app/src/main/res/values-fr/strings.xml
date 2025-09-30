@@ -29,8 +29,6 @@
     <string name="title_edit_profile">Modifier votre profil</string>
     <string name="title_drafts">Brouillons</string>
     <string name="post_boosted_format">%s a partagé</string>
-    <string name="post_sensitive_media_title">Contenu sensible</string>
-    <string name="post_media_hidden_title">Média caché</string>
     <string name="post_sensitive_media_directions">Appuyer pour voir</string>
     <string name="post_content_warning_show_more">Voir plus</string>
     <string name="post_content_warning_show_less">Voir moins</string>
@@ -65,7 +63,6 @@
     <string name="action_view_mutes">Comptes masqués</string>
     <string name="action_view_blocks">Comptes bloqués</string>
     <string name="action_view_follow_requests">Demandes d’abonnement</string>
-    <string name="action_view_media">Média</string>
     <string name="action_open_in_web">Ouvrir dans votre navigateur</string>
     <string name="action_add_media">Ajouter un média</string>
     <string name="action_photo_take">Prendre une photo</string>
@@ -190,20 +187,8 @@
     -->
     <string name="post_share_content">Partager le contenu du message</string>
     <string name="post_share_link">Partager le lien du message</string>
-    <string name="post_media_images">Images</string>
-    <string name="post_media_video">Vidéo</string>
     <string name="state_follow_requested">Demande d’abonnement effectuée</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
-    <string name="abbreviated_in_years">dans %da</string>
-    <string name="abbreviated_in_days">dans %dj</string>
-    <string name="abbreviated_in_hours">dans %dh</string>
-    <string name="abbreviated_in_minutes">dans %dm</string>
-    <string name="abbreviated_in_seconds">dans %ds</string>
-    <string name="abbreviated_years_ago">%d a</string>
-    <string name="abbreviated_days_ago">%dj</string>
-    <string name="abbreviated_hours_ago">%d h</string>
-    <string name="abbreviated_minutes_ago">%dm</string>
-    <string name="abbreviated_seconds_ago">%ds</string>
     <string name="follows_you">Vous suit</string>
     <string name="pref_title_alway_show_sensitive_media">Toujours afficher les contenus sensibles</string>
     <string name="title_media">Média</string>
@@ -266,14 +251,8 @@
     <string name="description_post_media">Média : %s</string>
     <string name="description_post_cw">        Avertissement : %s
     </string>
-    <string name="description_post_media_no_description_placeholder">Aucune description</string>
     <string name="description_post_reblogged">Partagé</string>
     <string name="description_post_favourited">Mis en favoris</string>
-    <string name="description_visibility_public">Public</string>
-    <string name="description_visibility_unlisted">Non listé</string>
-    <string name="description_visibility_private">        Abonné·e·s
-    </string>
-    <string name="description_visibility_direct">Direct</string>
     <string name="edit_hashtag_hint">Hashtag sans #</string>
     <string name="notifications_clear">Nettoyer</string>
     <string name="notifications_apply_filter">Filtrer</string>
@@ -284,38 +263,13 @@
     <string name="notification_clear_text">Désirez-vous nettoyer toutes vos notifications de façon permanente \?</string>
     <string name="action_delete_and_redraft">Effacer et ré-écrire</string>
     <string name="dialog_redraft_post_warning">Effacer et ré-écrire ce message \?</string>
-    <string name="poll_info_time_absolute">Termina à %s</string>
-    <string name="poll_info_closed">Terminé</string>
-    <string name="poll_vote">Voter</string>
     <string name="notification_poll_name">Sondages</string>
     <string name="pref_title_notification_filter_poll">les sondages se terminent</string>
     <string name="notification_poll_description">Notifications pour les sondages terminés</string>
     <string name="poll_ended_created">Un sondage que vous avez créé est terminé</string>
-    <plurals name="poll_timespan_days">
-        <item quantity="one">%d jour restant</item>
-        <item quantity="many">%d jours restants</item>
-        <item quantity="other">%d jours restants</item>
-    </plurals>
-    <plurals name="poll_timespan_hours">
-        <item quantity="one">%d heure restante</item>
-        <item quantity="many">%d heures restantes</item>
-        <item quantity="other">%d heures restantes</item>
-    </plurals>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">%d minute restante</item>
-        <item quantity="many">%d minutes restantes</item>
-        <item quantity="other">%d minutes restantes</item>
-    </plurals>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">%d seconde restante</item>
-        <item quantity="many">%d secondes restantes</item>
-        <item quantity="other">%d secondes restantes</item>
-    </plurals>
     <string name="pref_title_animate_gif_avatars">Activer l’animation des avatars</string>
     <string name="compose_preview_image_description">Actions pour l’image %s</string>
-    <string name="poll_info_format"><!-- 15 votes • 1 heure restante -->%1$s • %2$s</string>
     <string name="poll_ended_voted">Un sondage auquel vous avez participé vient de se terminer</string>
-    <string name="description_poll">Sondage avec des choix : %1$s, %2$s, %3$s, %4$s ; %5$s</string>
     <string name="title_domain_mutes">Domaines cachés</string>
     <string name="action_view_domain_mutes">Domaines cachés</string>
     <string name="action_mute_domain">Masquer %s</string>
@@ -380,17 +334,7 @@
     <string name="action_unmute_domain">Ne plus masquer %s</string>
     <string name="dialog_mute_hide_notifications">Cacher les notifications</string>
     <string name="action_unmute_desc">Ne plus masquer %s</string>
-    <plurals name="poll_info_people">
-        <item quantity="one">%s personne</item>
-        <item quantity="many">%s personnes</item>
-        <item quantity="other">%s personnes</item>
-    </plurals>
     <string name="pref_title_hide_top_toolbar">Cacher le titre de la barre d’outils supérieure</string>
-    <plurals name="poll_info_votes">
-        <item quantity="one">%s voix</item>
-        <item quantity="many">%s voix</item>
-        <item quantity="other">%s voix</item>
-    </plurals>
     <string name="account_note_saved">Sauvegardé !</string>
     <string name="account_note_hint">Votre note privée sur ce compte</string>
     <string name="no_announcements">Il n’y a pas d’annonce.</string>
@@ -416,7 +360,6 @@
     <string name="wellbeing_hide_stats_profile">Cacher les statistiques quantitatives sur les profils</string>
     <string name="wellbeing_hide_stats_posts">Cacher les statistiques quantitatives sur les messages</string>
     <string name="action_unbookmark">Supprimer le signet</string>
-    <string name="post_media_attachments">Pièces jointes</string>
     <string name="action_subscribe_account">S’abonner</string>
     <string name="dialog_delete_conversation_warning">Supprimer cette conversation \?</string>
     <string name="pref_title_animate_custom_emojis">Animer les émojis personnalisés</string>
@@ -425,7 +368,6 @@
     <string name="duration_indefinite">Indéfinie</string>
     <string name="action_unsubscribe_account">Se désabonner</string>
     <string name="action_delete_conversation">Supprimer la conversation</string>
-    <string name="post_media_audio">Audio</string>
     <string name="pref_title_confirm_favourites">Demander confirmation avant de mettre en favoris</string>
     <string name="drafts_post_reply_removed">Le message auquel répondait ce brouillon a été supprimé</string>
     <string name="drafts_post_failed_to_send">Échec d’envoi du message !</string>
@@ -477,7 +419,6 @@
     <string name="action_post_failed">Le téléversement a échoué</string>
     <string name="action_post_failed_show_drafts">Afficher les brouillons</string>
     <string name="action_post_failed_do_nothing">Ignorer</string>
-    <string name="post_media_alt">ALT</string>
     <string name="notification_report_format">Nouveau signalement sur %s</string>
     <string name="notification_header_report_format">%s a signalé %s</string>
     <plurals name="notification_summary_report_format">
@@ -502,7 +443,6 @@
     <string name="status_filter_placeholder_label_format">Caché : &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="title_public_trending_hashtags">Hashtags tendance</string>
     <string name="send_account_username_to">Partager le nom du compte avec…</string>
-    <string name="status_created_at_now">maintenant</string>
     <string name="action_unfollow_hashtag_format">Arrêter de suivre #%s \?</string>
     <string name="failed_to_pin">Échec de l\'épinglage</string>
     <string name="status_edit_info">Modification de %1$s</string>

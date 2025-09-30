@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Pachli Association
+ * Copyright (c) 2025 Pachli Association
  *
  * This file is a part of Pachli.
  *
@@ -17,28 +17,20 @@
 
 package app.pachli.core.ui.extensions
 
-import app.pachli.core.common.extensions.hide
-import app.pachli.core.common.extensions.show
+import android.content.Context
 import app.pachli.core.model.Role
-import app.pachli.core.ui.RoleChip
-import com.google.android.material.chip.ChipGroup
+import app.pachli.core.ui.R
 
 /**
- * Clears chips from this [ChipGroup], sets them to [roles], and shows
- * the group.
- *
- * Hides the group if [roles] is empty.
+ * @return String suitable for use as a [contentDescription][android.view.View.setContentDescription]
+ * for a view displaying a role (e.g., [RoleChip].
  */
-fun ChipGroup.setRoles(roles: List<Role>) {
-    removeAllViews()
-    if (roles.isEmpty()) {
-        hide()
-        return
+fun Role.contentDescription(context: Context, domain: String? = null): String {
+    if (domain.isNullOrBlank()) {
+        return this.name
     }
 
-    roles.forEach { role ->
-        val roleChip = RoleChip(context).apply { this.role = role.name }
-        addView(roleChip)
-    }
-    show()
+    val dotInName = context.getString(R.string.dot_in_name)
+    val domainDescription = domain.replace(".", " $dotInName ")
+    return context.getString(R.string.role_content_description_fmt, name, domainDescription)
 }

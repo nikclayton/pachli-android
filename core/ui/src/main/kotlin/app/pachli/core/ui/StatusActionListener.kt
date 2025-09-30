@@ -15,13 +15,13 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package app.pachli.interfaces
+package app.pachli.core.ui
 
 import android.view.View
 import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
-import app.pachli.core.ui.LinkListener
 
 interface StatusActionListener<T : IStatusViewData> : LinkListener {
     fun onReply(viewData: T)
@@ -37,7 +37,8 @@ interface StatusActionListener<T : IStatusViewData> : LinkListener {
      */
     fun onOpenReblog(status: Status)
     fun onExpandedChange(viewData: T, expanded: Boolean)
-    fun onContentHiddenChange(viewData: T, isShowingContent: Boolean)
+
+    fun onAttachmentDisplayActionChange(viewData: T, newAction: AttachmentDisplayAction)
 
     /**
      * Called when the status [android.widget.ToggleButton] responsible for collapsing long
@@ -72,4 +73,13 @@ interface StatusActionListener<T : IStatusViewData> : LinkListener {
 
     /** Edit the filter that matched this status. */
     fun onEditFilterById(pachliAccountId: Long, filterId: String)
+
+    /**
+     * View non-attached media referenced by URL.
+     *
+     * @param pachliAccountId
+     * @param username The username that owns the media.
+     * @param url The URL of the media.
+     */
+    fun onViewMedia(pachliAccountId: Long, username: String, url: String)
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Pachli Association
+ * Copyright (c) 2025 Pachli Association
  *
  * This file is a part of Pachli.
  *
@@ -15,17 +15,13 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package app.pachli.util
+package app.pachli.core.ui.extensions
 
-import androidx.annotation.DrawableRes
-import app.pachli.R
-import app.pachli.core.model.Attachment
+import android.content.Context
+import app.pachli.core.model.Account
 
-/** @return a drawable resource for an icon to indicate the attachment type */
-@DrawableRes
-fun Attachment.iconResource() = when (this.type) {
-    Attachment.Type.IMAGE -> R.drawable.ic_photo_24dp
-    Attachment.Type.GIFV, Attachment.Type.VIDEO -> R.drawable.ic_videocam_24dp
-    Attachment.Type.AUDIO -> R.drawable.ic_music_box_24dp
-    Attachment.Type.UNKNOWN -> R.drawable.ic_attach_file_24dp
-}
+/** @see [app.pachli.core.model.TimelineAccount.nameContentDescription] */
+fun Account.nameContentDescription(context: Context) = nameContentDescription(context, name)
+
+/** @see [app.pachli.core.model.TimelineAccount.handleContentDescription] */
+fun Account.handleContentDescription(context: Context) = handleContentDescription(context, username)

@@ -24,16 +24,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.FilterableStatusViewHolder
-import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.AccountFilterReason
 import app.pachli.core.model.FilterAction
 import app.pachli.core.ui.SetStatusContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.databinding.ItemConversationBinding
 import app.pachli.databinding.ItemConversationFilteredBinding
 import app.pachli.databinding.ItemStatusWrapperBinding
-import app.pachli.interfaces.StatusActionListener
 import com.bumptech.glide.RequestManager
 
 internal class ConversationAdapter(
@@ -48,7 +48,7 @@ internal class ConversationAdapter(
         /** Bind the data from the notification and payloads to the view. */
         fun bind(
             viewData: ConversationViewData,
-            payloads: List<*>?,
+            payloads: List<List<Any?>>?,
             statusDisplayOptions: StatusDisplayOptions,
         )
     }
@@ -108,10 +108,10 @@ internal class ConversationAdapter(
     override fun onBindViewHolder(
         holder: RecyclerView.ViewHolder,
         position: Int,
-        payloads: List<Any>,
+        payloads: List<Any?>,
     ) {
         getItem(position)?.let { conversationViewData ->
-            (holder as ViewHolder).bind(conversationViewData, payloads, statusDisplayOptions)
+            (holder as ViewHolder).bind(conversationViewData, payloads as? List<List<Any?>>, statusDisplayOptions)
         }
     }
 
@@ -128,7 +128,7 @@ internal class ConversationAdapter(
             override fun getChangePayload(oldItem: ConversationViewData, newItem: ConversationViewData): Any? {
                 return if (oldItem == newItem) {
                     // If items are equal - update timestamp only
-                    listOf(StatusBaseViewHolder.Key.KEY_CREATED)
+                    listOf(StatusViewDataDiffCallback.Payload.CREATED)
                 } else {
                     // If items are different - update the whole view holder
                     null
@@ -165,7 +165,7 @@ class FilterableConversationStatusViewHolder internal constructor(
     setStatusContent: SetStatusContent,
     private val listener: StatusActionListener<ConversationViewData>,
 ) : ConversationAdapter.ViewHolder, FilterableStatusViewHolder<ConversationViewData>(binding, glide, setStatusContent) {
-    override fun bind(viewData: ConversationViewData, payloads: List<*>?, statusDisplayOptions: StatusDisplayOptions) {
+    override fun bind(viewData: ConversationViewData, payloads: List<List<Any?>>?, statusDisplayOptions: StatusDisplayOptions) {
         if (payloads.isNullOrEmpty()) {
             showStatusContent(true)
         }
@@ -173,7 +173,7 @@ class FilterableConversationStatusViewHolder internal constructor(
             viewData,
             listener,
             statusDisplayOptions,
-            payloads?.firstOrNull(),
+            payloads,
         )
     }
 }
@@ -221,7 +221,7 @@ class FilterableConversationViewHolder internal constructor(
         }
     }
 
-    override fun bind(viewData: ConversationViewData, payloads: List<*>?, statusDisplayOptions: StatusDisplayOptions) {
+    override fun bind(viewData: ConversationViewData, payloads: List<List<Any?>>?, statusDisplayOptions: StatusDisplayOptions) {
         this.viewData = viewData
         binding.accountFilterDomain.text = HtmlCompat.fromHtml(
             context.getString(

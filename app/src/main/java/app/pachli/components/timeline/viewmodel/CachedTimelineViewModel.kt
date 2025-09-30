@@ -17,7 +17,6 @@
 
 package app.pachli.components.timeline.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.filter
@@ -32,11 +31,15 @@ import app.pachli.core.eventhub.EventHub
 import app.pachli.core.eventhub.FavoriteEvent
 import app.pachli.core.eventhub.PinEvent
 import app.pachli.core.eventhub.ReblogEvent
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.Timeline
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.usecase.TimelineCases
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
@@ -47,9 +50,9 @@ import kotlinx.coroutines.launch
  * TimelineViewModel that caches all statuses in a local database
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
-class CachedTimelineViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = CachedTimelineViewModel.Factory::class)
+class CachedTimelineViewModel @AssistedInject constructor(
+    @Assisted("timeline") timeline: Timeline,
     repository: CachedTimelineRepository,
     timelineCases: TimelineCases,
     eventHub: EventHub,
@@ -57,25 +60,32 @@ class CachedTimelineViewModel @Inject constructor(
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     sharedPreferencesRepository: SharedPreferencesRepository,
 ) : TimelineViewModel<TimelineStatusWithAccount, CachedTimelineRepository>(
-    savedStateHandle,
-    timelineCases,
-    eventHub,
-    accountManager,
-    repository,
-    statusDisplayOptionsRepository,
-    sharedPreferencesRepository,
+    timeline = timeline,
+    timelineCases = timelineCases,
+    eventHub = eventHub,
+    accountManager = accountManager,
+    repository = repository,
+    statusDisplayOptionsRepository = statusDisplayOptionsRepository,
+    sharedPreferencesRepository = sharedPreferencesRepository,
 ) {
     override val statuses = pachliAccountFlow.distinctUntilChangedBy { it.id }.flatMapLatest { pachliAccount ->
         repository.getStatusStream(pachliAccount.id, timeline).map { pagingData ->
-            pagingData.map {
-                StatusViewData.from(
-                    pachliAccountId = pachliAccount.id,
-                    it,
-                    isExpanded = pachliAccount.entity.alwaysOpenSpoiler,
-                    isShowingContent = pachliAccount.entity.alwaysShowSensitiveMedia,
-                    contentFilterAction = shouldFilterStatus(it.toStatus()),
-                )
-            }.filter { it.contentFilterAction != FilterAction.HIDE }
+            pagingData
+                .map { Pair(it, shouldFilterStatus(it)) }
+                .filter { it.second != FilterAction.HIDE }
+                .map { (timelineStatusWithAccount, contentFilterAction) ->
+                    StatusViewData.from(
+                        pachliAccountId = pachliAccount.id,
+                        timelineStatusWithAccount,
+                        isExpanded = pachliAccount.entity.alwaysOpenSpoiler,
+                        contentFilterAction = contentFilterAction,
+                        attachmentDisplayAction = getAttachmentDisplayAction(
+                            timelineStatusWithAccount,
+                            pachliAccount.entity.alwaysShowSensitiveMedia,
+                            timelineStatusWithAccount.viewData?.attachmentDisplayAction,
+                        ),
+                    )
+                }
         }
     }.cachedIn(viewModelScope)
 
@@ -125,9 +135,9 @@ class CachedTimelineViewModel @Inject constructor(
         }
     }
 
-    override fun onChangeContentShowing(isShowing: Boolean, statusViewData: StatusViewData) {
+    override fun onChangeAttachmentDisplayAction(viewData: StatusViewData, newAction: AttachmentDisplayAction) {
         viewModelScope.launch {
-            repository.setContentShowing(statusViewData.pachliAccountId, statusViewData.id, isShowing)
+            repository.setAttachmentDisplayAction(viewData.pachliAccountId, viewData.actionableId, newAction)
         }
     }
 
@@ -168,5 +178,13 @@ class CachedTimelineViewModel @Inject constructor(
 
     override suspend fun invalidate(pachliAccountId: Long) {
         repository.invalidate(pachliAccountId)
+    }
+
+    @AssistedFactory
+    interface Factory {
+        /** Creates [CachedTimelineViewModel] for [timeline]. */
+        fun create(
+            @Assisted("timeline") timeline: Timeline,
+        ): CachedTimelineViewModel
     }
 }

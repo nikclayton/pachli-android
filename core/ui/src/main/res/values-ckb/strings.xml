@@ -17,4 +17,51 @@
     <string name="action_logout_confirm">ئایا دڵنیایت لەوەی دەتەوێت بچیتەدەرەوە لە هەژماری %1$s؟</string>
     <string name="add_account_name">زیادکردنی ئەژمێر</string>
     <string name="action_logout">چوونەدەرەوە</string>
+    <string name="poll_vote">دەنگ</string>
+    <plurals name="poll_timespan_seconds">
+        <item quantity="one">%d چرکەی ماوەو</item>
+        <item quantity="other">%d دووەم چەپ</item>
+    </plurals>
+    <plurals name="poll_timespan_minutes">
+        <item quantity="one">%d خولەک ماوە</item>
+        <item quantity="other">%d خولەک ماوە</item>
+    </plurals>
+    <plurals name="poll_timespan_hours">
+        <item quantity="one">%d کاژێرماوە</item>
+        <item quantity="other">%d کاژێرماوە</item>
+    </plurals>
+    <plurals name="poll_timespan_days">
+        <item quantity="one">%d ڕۆژ ماوە</item>
+        <item quantity="other">%d ڕۆژ ماوە</item>
+    </plurals>
+    <plurals name="poll_info_votes">
+        <item quantity="one">%s دەنگ</item>
+        <item quantity="other">%s دەنگ</item>
+    </plurals>
+    <plurals name="poll_info_people">
+        <item quantity="one">%s کەس</item>
+        <item quantity="other">%s کەس</item>
+    </plurals>
+    <string name="poll_info_closed">کۆتایی هاتووە</string>
+    <string name="poll_info_time_absolute">کۆتایی دێت لە %s</string>
+    <string name="poll_info_format"><!-- 15 دەنگ • 1 کاتژمێر ماوە -->%1$s • %2$s</string>
+    <string name="description_poll">ڕاپرسی لەگەڵ هەڵبژاردنەکان: %1$s, %2$s, %3$s, %4$s; %5$s</string>
+    <string name="abbreviated_in_seconds">لە %ds</string>
+    <string name="abbreviated_seconds_ago">%ds</string>
+    <string name="abbreviated_in_minutes">لە %dm</string>
+    <string name="abbreviated_minutes_ago">%dm</string>
+    <string name="abbreviated_in_hours">لە %dh</string>
+    <string name="abbreviated_hours_ago">%dh</string>
+    <string name="abbreviated_in_days">لە %dd</string>
+    <string name="abbreviated_days_ago">%dd</string>
+    <string name="abbreviated_in_years">لە %dy</string>
+    <string name="abbreviated_years_ago">%dy</string>
+    <string name="description_post_media_no_description_placeholder">هیچ وەسفێک</string>
+    <string name="description_visibility_public">گشتی</string>
+    <string name="description_visibility_unlisted">لە لیست نەکراو</string>
+    <string name="description_visibility_private">شوێنکەوتوانی</string>
+    <string name="description_visibility_direct">ڕاستەوخۆ</string>
+    <string name="post_sensitive_media_title">ناوەڕۆکی هەستیار</string>
+    <string name="post_media_images">وێنەکان</string>
+    <string name="post_media_video">ڤیدیۆ</string>
 </resources>

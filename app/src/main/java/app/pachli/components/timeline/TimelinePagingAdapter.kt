@@ -19,19 +19,18 @@ package app.pachli.components.timeline
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.FilterableStatusViewHolder
-import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.model.FilterAction
 import app.pachli.core.ui.SetStatusContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.databinding.ItemStatusBinding
 import app.pachli.databinding.ItemStatusWrapperBinding
-import app.pachli.interfaces.StatusActionListener
 import com.bumptech.glide.RequestManager
 
 class TimelinePagingAdapter(
@@ -39,7 +38,7 @@ class TimelinePagingAdapter(
     private val setStatusContent: SetStatusContent,
     private val statusListener: StatusActionListener<StatusViewData>,
     var statusDisplayOptions: StatusDisplayOptions,
-) : PagingDataAdapter<StatusViewData, RecyclerView.ViewHolder>(TimelineDifferCallback) {
+) : PagingDataAdapter<StatusViewData, RecyclerView.ViewHolder>(StatusViewDataDiffCallback) {
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(viewGroup.context)
         return when (viewType) {
@@ -65,19 +64,11 @@ class TimelinePagingAdapter(
         bindViewHolder(viewHolder, position, null)
     }
 
-    override fun onBindViewHolder(
-        viewHolder: RecyclerView.ViewHolder,
-        position: Int,
-        payloads: List<*>,
-    ) {
-        bindViewHolder(viewHolder, position, payloads)
+    override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int, payloads: List<Any?>) {
+        bindViewHolder(viewHolder, position, payloads as? List<List<Any?>>)
     }
 
-    private fun bindViewHolder(
-        viewHolder: RecyclerView.ViewHolder,
-        position: Int,
-        payloads: List<*>?,
-    ) {
+    private fun bindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int, payloads: List<List<Any?>>?) {
         try {
             getItem(position)
         } catch (_: IndexOutOfBoundsException) {
@@ -87,7 +78,7 @@ class TimelinePagingAdapter(
                 it,
                 statusListener,
                 statusDisplayOptions,
-                payloads?.getOrNull(0),
+                payloads,
             )
         }
     }
@@ -114,34 +105,5 @@ class TimelinePagingAdapter(
         private const val VIEW_TYPE_STATUS = 0
         private const val VIEW_TYPE_STATUS_FILTERED = 1
         private const val VIEW_TYPE_PLACEHOLDER = -1
-
-        val TimelineDifferCallback = object : DiffUtil.ItemCallback<StatusViewData>() {
-            override fun areItemsTheSame(
-                oldItem: StatusViewData,
-                newItem: StatusViewData,
-            ): Boolean {
-                return oldItem.id == newItem.id
-            }
-
-            override fun areContentsTheSame(
-                oldItem: StatusViewData,
-                newItem: StatusViewData,
-            ): Boolean {
-                return oldItem == newItem
-            }
-
-            override fun getChangePayload(
-                oldItem: StatusViewData,
-                newItem: StatusViewData,
-            ): Any? {
-                return if (oldItem == newItem) {
-                    // If items are equal - update timestamp only
-                    listOf(StatusBaseViewHolder.Key.KEY_CREATED)
-                } else {
-                    // If items are different - update the whole view holder
-                    null
-                }
-            }
-        }
     }
 }

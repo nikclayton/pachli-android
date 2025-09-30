@@ -29,8 +29,6 @@
     <string name="title_edit_profile">Редактировать профиль</string>
     <string name="title_drafts">Черновики</string>
     <string name="post_boosted_format">%s продвинул(а)</string>
-    <string name="post_sensitive_media_title">Чувствительный контент</string>
-    <string name="post_media_hidden_title">Медиа скрыто</string>
     <string name="post_sensitive_media_directions">Нажмите для просмотра</string>
     <string name="post_content_warning_show_more">Показать больше</string>
     <string name="post_content_warning_show_less">Показать меньше</string>
@@ -66,7 +64,6 @@
     <string name="action_view_mutes">Заглушенные пользователи</string>
     <string name="action_view_blocks">Заблокированные пользователи</string>
     <string name="action_view_follow_requests">Запросы на подписку</string>
-    <string name="action_view_media">Медиаконтент</string>
     <string name="action_open_in_web">Открыть в браузере</string>
     <string name="action_add_media">Добавить медиаконтент</string>
     <string name="action_photo_take">Сфотографировать</string>
@@ -190,45 +187,9 @@
     <!-- note to translators: the url can be changed to link to the localized version of the license -->
     <string name="post_share_content">Поделиться содержанием гудка</string>
     <string name="post_share_link">Поделиться ссылкой на гудок</string>
-    <string name="post_media_images">Изображения</string>
-    <string name="post_media_video">Видео</string>
     <string name="state_follow_requested">Запрошенные подписки</string>
     <!--Отметки времени у постов: "16s" or "2d"-->
-    <string name="abbreviated_in_years">через %dг</string>
-    <string name="abbreviated_in_days">через %dд</string>
-    <string name="abbreviated_in_hours">через %dч</string>
-    <string name="abbreviated_in_minutes">через %dм</string>
-    <string name="abbreviated_in_seconds">через %dс</string>
-    <string name="abbreviated_years_ago">%dг</string>
-    <string name="abbreviated_days_ago">%dд</string>
-    <string name="abbreviated_hours_ago">%dч</string>
-    <string name="abbreviated_minutes_ago">%dм</string>
-    <string name="abbreviated_seconds_ago">%dс</string>
     <!--Оставшееся время в опросах -->
-    <plurals name="poll_timespan_days">
-        <item quantity="one">остался %d день</item>
-        <item quantity="few">осталось %d дня</item>
-        <item quantity="many">осталось %d дней</item>
-        <item quantity="other">осталось %d дней</item>
-    </plurals>
-    <plurals name="poll_timespan_hours">
-        <item quantity="one">остался %d час</item>
-        <item quantity="few">осталось %d часа</item>
-        <item quantity="many">осталось %d часов</item>
-        <item quantity="other">осталось %d часов</item>
-    </plurals>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">осталась %d минута</item>
-        <item quantity="few">осталось %d минуты</item>
-        <item quantity="many">осталось %d минут</item>
-        <item quantity="other">осталось %d минут</item>
-    </plurals>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">осталась %d секунда</item>
-        <item quantity="few">осталось %d секунды</item>
-        <item quantity="many">осталось %d секунд</item>
-        <item quantity="other">осталось %d секунд</item>
-    </plurals>
     <string name="follows_you">Подписан(а) на вас</string>
     <string name="pref_title_alway_show_sensitive_media">Всегда показывать чувствительный контент</string>
     <string name="title_media">Медиа</string>
@@ -294,17 +255,8 @@
         Медиафайл: %s
     </string>
     <string name="description_post_cw">Предупреждение о содержании: %s</string>
-    <string name="description_post_media_no_description_placeholder">
-        Без описания
-    </string>
     <string name="description_post_reblogged">Реблогнуто</string>
     <string name="description_post_favourited">Понравилось</string>
-    <string name="description_visibility_public">
-        Публичный
-    </string>
-    <string name="description_visibility_unlisted">Не в списке</string>
-    <string name="description_visibility_private">Подписчики</string>
-    <string name="description_visibility_direct">Непосредственно</string>
     <string name="edit_hashtag_hint">Хэштег без #</string>
     <string name="notifications_clear">Очистить</string>
     <string name="notifications_apply_filter">Фильтр</string>
@@ -313,16 +265,6 @@
     <string name="compose_shortcut_short_label">Сочинить</string>
     <string name="pref_title_bot_overlay">Показывать индикатор ботов</string>
     <string name="notification_clear_text">Вы действительно хотите безвозвратно удалить все уведомления?</string>
-    <string name="poll_info_format"><!-- 15 votes • 1 hour left -->%1$s • %2$s</string>
-    <plurals name="poll_info_votes">
-        <item quantity="one">%s голос</item>
-        <item quantity="few">%s голоса</item>
-        <item quantity="many">%s голосов</item>
-        <item quantity="other">%s голосов</item>
-    </plurals>
-    <string name="poll_info_time_absolute">завершится %s</string>
-    <string name="poll_info_closed">завершён</string>
-    <string name="poll_vote">Голосовать</string>
     <string name="poll_ended_voted">Опрос, в котором вы приняли участие, завершился</string>
     <string name="poll_ended_created">Созданный вами опрос завершился</string>
     <string name="button_back">Назад</string>
@@ -337,7 +279,6 @@
     <string name="pref_title_animate_gif_avatars">Анимировать GIF-аватары</string>
     <string name="filter_dialog_whole_word">Слово целиком</string>
     <string name="filter_dialog_whole_word_description">Если слово или фраза состоит только из букв и цифр, будет учитываться полное совпадение</string>
-    <string name="description_poll">Опрос с выбором: %1$s, %2$s, %3$s, %4$s; %5$s</string>
     <string name="compose_preview_image_description">Действия для изображения %s</string>
     <string name="report_sent_success">Жалоба на @%s отправлена</string>
     <string name="report_remote_instance">Переслать в %s</string>
@@ -378,12 +319,6 @@
     <string name="pref_title_confirm_reblogs">Показывать диалог подтверждения перед продвижением</string>
     <string name="pref_title_show_cards_in_timelines">Показывать предпросмотр ссылок в лентах</string>
     <string name="pref_title_enable_swipe_for_tabs">Включить переключение между вкладками смахиванием</string>
-    <plurals name="poll_info_people">
-        <item quantity="one">%s человек</item>
-        <item quantity="few">%s людей</item>
-        <item quantity="many">%s людей</item>
-        <item quantity="other">%s людей</item>
-    </plurals>
     <string name="notification_follow_request_description">Уведомления о запросах на подписку</string>
     <string name="notification_follow_request_name">Запросы на подписку</string>
     <string name="pref_title_notification_filter_follow_requests">Запросил подписку</string>
@@ -414,8 +349,6 @@
     <string name="pref_title_wellbeing_mode">Самочувствие</string>
     <string name="duration_indefinite">Неопределённая</string>
     <string name="label_duration">Продолжительность</string>
-    <string name="post_media_attachments">Вложения</string>
-    <string name="post_media_audio">Аудио</string>
     <string name="notification_subscription_format">%s только что опубликовал(а)</string>
     <string name="follow_requests_info">Несмотря на то, что ваша профиль не закрыт, наши сотрудники %1$s решили, что вы, возможно, захотите просмотреть запросы на отслеживание от этих профилей вручную.</string>
     <plurals name="error_upload_max_media_reached">
@@ -466,7 +399,6 @@
     <string name="followed_hashtags_summary_fmt">%1$s из %2$s (последние %3$s)</string>
     <string name="dialog_follow_hashtag_title">Подписаться на метки</string>
     <string name="dialog_follow_hashtag_hint">#метка</string>
-    <string name="post_media_alt">Альт</string>
     <string name="post_edited">Изменено %s</string>
     <string name="notification_sign_up_format">%s зарегистрировался</string>
     <string name="notification_update_format">%s изменил свою запись</string>
@@ -552,7 +484,6 @@
     <string name="notification_notification_worker">Получение уведомлений…</string>
     <string name="notification_prune_cache">Обслуживание кеша…</string>
     <string name="status_count_one_plus">1+</string>
-    <string name="status_created_at_now">сейчас</string>
     <string name="status_filtered_show_anyway">Показать всё равно</string>
     <string name="status_filter_placeholder_label_format">Фильтр: <b>%1$s</b></string>
     <string name="pref_title_public_filter_home_and_lists">Домашняя и списки</string>
@@ -576,7 +507,6 @@
     <string name="select_list_empty">У вас пока нет списков</string>
     <string name="select_list_manage">Управление списками</string>
     <string name="compose_schedule_date_time_fmt">%1$s %2$s</string>
-    <string name="poll_show_votes">Показать голоса</string>
     <string name="pref_title_show_stat_inline">Показать статистику записи в ленте</string>
     <string name="duration_14_days">14 дней</string>
     <string name="duration_30_days">30 дней</string>
@@ -688,13 +618,9 @@
     <string name="error_prepare_media_unsupported_mime_type_fmt">сервер не поддерживает тип файла: %1$s</string>
     <string name="error_prepare_media_unknown_mime_type">тип файла неизвестен</string>
     <string name="error_pick_media_fmt">Не удалось прикрепить файл к записи: %1$s</string>
-    <string name="preview_card_byline_fediverse_account_fmt">От <b>%1$s</b>. Посмотреть другие публикации</string>
-    <string name="preview_card_byline_name_only_fmt">От <b>%1$s</b></string>
     <string name="action_open_byline_account">Показать профиль автора статьи</string>
     <string name="action_open_link">Открыть ссылку</string>
-    <string name="preview_card_timeline_link_fmt">Смотреть <b>%1$s</b> публикаций об этой ссылке</string>
     <string name="action_timeline_link">Публикации об этой ссылке</string>
-    <string name="error_load_filter_failed_fmt">Не удалось загрузить фильтр: %1$s</string>
     <string name="error_save_filter_failed_fmt">Не удалось сохранить фильтр: %1$s</string>
     <string name="error_delete_filter_failed_fmt">Не удалось удалить фильтр: %1$s</string>
     <string name="search_operator_attachment_dialog_title">Ограничить публикациями с медиафайлами?</string>
@@ -856,12 +782,6 @@
         <item quantity="other">%1$s · %2$d прикреплённых записей</item>
     </plurals>
     <string name="action_post_failed_detail">Ваша публикация не была закачана и сохранена в черновиках.\n\nЛибо сервер недоступен, либо он отклонил публикацию.</string>
-    <plurals name="description_post_roles">
-        <item quantity="one" tools:ignore="ImpliedQuantity">с ролью:</item>
-        <item quantity="few">с ролями:</item>
-        <item quantity="many">с ролями:</item>
-        <item quantity="other">с ролями:</item>
-    </plurals>
     <string name="error_missing_edits">Ваш сервер знает, что это сообщение было отредактировано, но не сохраняет копию правок, поэтому не может их вам показать.\n\nЭто <a href="https://github.com/mastodon/mastodon/issues/25398">проблема в Mastodon #25398</a>.</string>
     <string name="pref_change_unified_push_distributor_msg">Это приведет к сбросу выбора распределителя UnifiedPush и перезапуску Pachli.\n\nЕсли установлено несколько распределителей UnifiedPush, то вам будет предложено выбрать один.</string>
     <string name="upload_failed_msg_fmt">Не удалось закачать вложение. Закачка будет повторена после отправки публикации. Если снова возникнет ошибка, публикация будет сохранена в черновиках.\n\nОшибка: %1$s</string>

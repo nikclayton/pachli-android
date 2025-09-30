@@ -56,6 +56,7 @@ import app.pachli.core.navigation.TabPreferenceActivityIntent
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.ui.extensions.applyDefaultWindowInsets
+import app.pachli.core.ui.extensions.iconRes
 import app.pachli.core.ui.makeIcon
 import app.pachli.settings.listPreference
 import app.pachli.settings.makePreferenceScreen
@@ -65,7 +66,6 @@ import app.pachli.settings.switchPreference
 import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
 import app.pachli.util.getPachliDisplayName
-import app.pachli.util.iconRes
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import com.google.android.material.snackbar.Snackbar
@@ -296,7 +296,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
 
                 switchPreference {
                     setTitle(R.string.pref_default_media_sensitivity)
-                    setIcon(R.drawable.ic_eye_24dp)
+                    setIcon(app.pachli.core.ui.R.drawable.ic_eye_24dp)
                     key = PrefKeys.DEFAULT_MEDIA_SENSITIVITY
                     isSingleLineTitle = false
                     val sensitivity = accountManager.activeAccount?.defaultMediaSensitivity ?: false
@@ -396,7 +396,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
         return if (sensitive) {
             R.drawable.ic_hide_media_24dp
         } else {
-            R.drawable.ic_eye_24dp
+            app.pachli.core.ui.R.drawable.ic_eye_24dp
         }
     }
 

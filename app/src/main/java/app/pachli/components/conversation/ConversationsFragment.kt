@@ -35,7 +35,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
-import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.components.preference.accountfilters.AccountConversationFiltersPreferenceDialogFragment
 import app.pachli.core.activity.ReselectableFragment
 import app.pachli.core.activity.extensions.TransitionKind
@@ -49,6 +49,7 @@ import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.AccountFilterDecision
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
 import app.pachli.core.navigation.AccountActivityIntent
@@ -61,11 +62,11 @@ import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentTimelineBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.ListStatusAccessibilityDelegate
 import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.Glide
@@ -265,12 +266,12 @@ class ConversationsFragment :
                 launch {
                     val useAbsoluteTime = sharedPreferencesRepository.useAbsoluteTime
                     while (!useAbsoluteTime) {
+                        delay(1.minutes)
                         adapter.notifyItemRangeChanged(
                             0,
                             adapter.itemCount,
-                            listOf(StatusBaseViewHolder.Key.KEY_CREATED),
+                            listOf(StatusViewDataDiffCallback.Payload.CREATED),
                         )
-                        delay(1.minutes)
                     }
                 }
 
@@ -383,7 +384,7 @@ class ConversationsFragment :
     }
 
     override fun onViewThread(status: Status) {
-        viewThread(status.id, status.url)
+        viewThread(status.actionableId, status.url)
     }
 
     override fun onOpenReblog(status: Status) {
@@ -394,8 +395,8 @@ class ConversationsFragment :
         viewModel.expandHiddenStatus(viewData.pachliAccountId, expanded, viewData.lastStatus.id)
     }
 
-    override fun onContentHiddenChange(viewData: ConversationViewData, isShowingContent: Boolean) {
-        viewModel.showContent(viewData.pachliAccountId, isShowingContent, viewData.lastStatus.id)
+    override fun onAttachmentDisplayActionChange(viewData: ConversationViewData, newAction: AttachmentDisplayAction) {
+        viewModel.changeAttachmentDisplayAction(viewData.pachliAccountId, viewData.lastStatus.id, newAction)
     }
 
     override fun onContentCollapsedChange(viewData: ConversationViewData, isCollapsed: Boolean) {

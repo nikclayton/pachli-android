@@ -45,7 +45,7 @@ import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
-import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.components.preference.accountfilters.AccountNotificationFiltersPreferencesDialogFragment
 import app.pachli.components.timeline.TimelineLoadStateAdapter
 import app.pachli.core.activity.ReselectableFragment
@@ -54,6 +54,7 @@ import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.Notification
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
@@ -64,13 +65,13 @@ import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.FragmentTimelineNotificationsBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.AccountActionListener
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.ListStatusAccessibilityDelegate
 import app.pachli.viewdata.NotificationViewData
 import at.connyduck.sparkbutton.helpers.Utils
@@ -133,7 +134,11 @@ class NotificationsFragment :
             emit(Unit)
         }
     }.onEach {
-        adapter.notifyItemRangeChanged(0, adapter.itemCount, listOf(StatusBaseViewHolder.Key.KEY_CREATED))
+        adapter.notifyItemRangeChanged(
+            0,
+            adapter.itemCount,
+            listOf(StatusViewDataDiffCallback.Payload.CREATED),
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -550,15 +555,12 @@ class NotificationsFragment :
         )
     }
 
-    override fun onContentHiddenChange(
-        viewData: NotificationViewData,
-        isShowingContent: Boolean,
-    ) {
+    override fun onAttachmentDisplayActionChange(viewData: NotificationViewData, newAction: AttachmentDisplayAction) {
         viewModel.accept(
-            InfallibleUiAction.SetShowingContent(
+            InfallibleUiAction.SetAttachmentDisplayAction(
                 viewData.pachliAccountId,
                 viewData.statusViewData!!,
-                isShowingContent,
+                newAction,
             ),
         )
     }
@@ -694,7 +696,7 @@ class NotificationsFragment :
                 ): Any? {
                     return if (oldItem == newItem) {
                         //  If items are equal - update timestamp only
-                        listOf(StatusBaseViewHolder.Key.KEY_CREATED)
+                        listOf(StatusViewDataDiffCallback.Payload.CREATED)
                     } else {
                         // If items are different - update a whole view holder
                         null

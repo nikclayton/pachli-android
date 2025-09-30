@@ -1,23 +1,17 @@
-package app.pachli.view
+package app.pachli.core.ui
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
-import app.pachli.R
-import app.pachli.core.designsystem.R as DR
 import kotlin.math.roundToInt
 
 /**
  * Lays out a set of [MediaPreviewImageView]s keeping their aspect ratios into account.
  */
-class MediaPreviewLayout(context: Context, attrs: AttributeSet? = null) :
-    ViewGroup(context, attrs) {
-
-    private val spacing = context.resources.getDimensionPixelOffset(DR.dimen.preview_image_spacing)
+class MediaPreviewLayout(context: Context, attrs: AttributeSet? = null) : ViewGroup(context, attrs) {
+    private val spacing = context.resources.getDimensionPixelOffset(app.pachli.core.designsystem.R.dimen.preview_image_spacing)
 
     /**
      * An ordered list of aspect ratios used for layout. An image view for each aspect ratio passed
@@ -29,16 +23,16 @@ class MediaPreviewLayout(context: Context, attrs: AttributeSet? = null) :
             attachImageViews()
         }
 
-    private val imageViewCache = Array(4) {
-        LayoutInflater.from(context).inflate(R.layout.item_image_preview_overlay, this, false)
+    private val attachmentPreviewViewCache = Array(4) {
+        AttachmentPreviewView(context)
     }
 
     private var measuredOrientation = LinearLayout.VERTICAL
 
     private fun attachImageViews() {
         removeAllViews()
-        for (i in 0 until aspectRatios.size.coerceAtMost(imageViewCache.size)) {
-            addView(imageViewCache[i])
+        for (i in 0 until aspectRatios.size.coerceAtMost(attachmentPreviewViewCache.size)) {
+            addView(attachmentPreviewViewCache[i])
         }
     }
 
@@ -131,7 +125,7 @@ class MediaPreviewLayout(context: Context, attrs: AttributeSet? = null) :
             }
             2 -> {
                 if (measuredOrientation == LinearLayout.VERTICAL) {
-                    val y = imageViewCache[0].measuredHeight
+                    val y = attachmentPreviewViewCache[0].measuredHeight
                     getChildAt(0).layout(0, 0, width, y)
                     getChildAt(1).layout(
                         0,
@@ -168,7 +162,7 @@ class MediaPreviewLayout(context: Context, attrs: AttributeSet? = null) :
                 getChildAt(0).layout(0, 0, halfWidth, topHeight)
                 getChildAt(1).layout(halfWidth + spacing, 0, width, topHeight)
                 val bottomHeight =
-                    (imageViewCache[2].measuredHeight + imageViewCache[3].measuredHeight) / 2
+                    (attachmentPreviewViewCache[2].measuredHeight + attachmentPreviewViewCache[3].measuredHeight) / 2
                 getChildAt(2).layout(
                     0,
                     topHeight + spacing,
@@ -185,16 +179,26 @@ class MediaPreviewLayout(context: Context, attrs: AttributeSet? = null) :
         }
     }
 
-    inline fun forEachIndexed(action: (Int, MediaPreviewImageView, TextView) -> Unit) {
+    /**
+     * Calls [action] for each child preview view.
+     *
+     * @see [MediaPreviewForEachAction.invoke]
+     */
+    fun forEachIndexed(action: MediaPreviewForEachAction) {
         for (index in 0 until childCount) {
-            val wrapper = getChildAt(index)
-            action(
-                index,
-                wrapper.findViewById(R.id.preview_image_view)!!,
-                wrapper.findViewById(R.id.preview_media_description_indicator)!!,
-            )
+            val attachmentPreviewView = getChildAt(index) as AttachmentPreviewView
+            action(index, attachmentPreviewView)
         }
     }
+}
+
+/** @see [invoke] */
+fun interface MediaPreviewForEachAction {
+    /**
+     * @param index Index of this attachment.
+     * @param attachmentPreviewView View the preview image should be loaded in to.
+     */
+    operator fun invoke(index: Int, attachmentPreviewView: AttachmentPreviewView)
 }
 
 private fun rowHeight(halfWidth: Int, aspect1: Double, aspect2: Double): Int {
