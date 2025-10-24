@@ -20,11 +20,15 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import app.pachli.adapter.FilterableStatusViewHolder
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReblog
+import app.pachli.adapter.OnReply
 import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.adapter.StatusDetailedViewHolder
 import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.adapter.StatusViewHolder
-import app.pachli.core.activity.OpenUrlUseCase
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.model.FilterAction
@@ -40,7 +44,12 @@ class ThreadAdapter(
     private val statusDisplayOptions: StatusDisplayOptions,
     private val statusActionListener: StatusActionListener<StatusViewData>,
     private val setStatusContent: SetStatusContent,
-    private val openUrl: OpenUrlUseCase,
+    private val onReply: OnReply<StatusViewData>,
+    private val onReblog: OnReblog<StatusViewData>,
+    private val onFavourite: OnFavourite<StatusViewData>,
+    private val onBookmark: OnBookmark<StatusViewData>,
+    private val onMore: OnMore<StatusViewData>,
+
 ) : ListAdapter<StatusViewData, StatusBaseViewHolder<StatusViewData>>(StatusViewDataDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatusBaseViewHolder<StatusViewData> {
@@ -51,6 +60,13 @@ class ThreadAdapter(
                     ItemStatusBinding.inflate(inflater, parent, false),
                     glide,
                     setStatusContent,
+                    null,
+                    onReply,
+                    onReblog,
+                    onFavourite,
+                    onBookmark,
+                    onMore,
+
                 )
             }
             VIEW_TYPE_STATUS_FILTERED -> {
@@ -58,6 +74,11 @@ class ThreadAdapter(
                     ItemStatusWrapperBinding.inflate(inflater, parent, false),
                     glide,
                     setStatusContent,
+                    onReply,
+                    onReblog,
+                    onFavourite,
+                    onBookmark,
+                    onMore,
                 )
             }
             VIEW_TYPE_STATUS_DETAILED -> {
@@ -65,6 +86,11 @@ class ThreadAdapter(
                     ItemStatusDetailedBinding.inflate(inflater, parent, false),
                     glide,
                     setStatusContent,
+                    onReply,
+                    onReblog,
+                    onFavourite,
+                    onBookmark,
+                    onMore,
                 )
             }
             else -> error("Unknown item type: $viewType")
@@ -73,12 +99,22 @@ class ThreadAdapter(
 
     override fun onBindViewHolder(viewHolder: StatusBaseViewHolder<StatusViewData>, position: Int) {
         val status = getItem(position)
-        viewHolder.setupWithStatus(status, statusActionListener, statusDisplayOptions, null)
+        viewHolder.setupWithStatus(
+            status,
+            statusActionListener,
+            statusDisplayOptions,
+            null,
+        )
     }
 
     override fun onBindViewHolder(holder: StatusBaseViewHolder<StatusViewData>, position: Int, payloads: List<Any?>) {
         val status = getItem(position)
-        holder.setupWithStatus(status, statusActionListener, statusDisplayOptions, payloads as? List<List<Any?>>)
+        holder.setupWithStatus(
+            status,
+            statusActionListener,
+            statusDisplayOptions,
+            payloads as? List<List<Any?>>,
+        )
     }
 
     override fun getItemViewType(position: Int): Int {

@@ -32,10 +32,35 @@ import app.pachli.core.ui.StatusControlView
 import app.pachli.core.ui.StatusView
 import com.bumptech.glide.RequestManager
 
+fun interface OnReply<T : IStatusViewData> {
+    operator fun invoke(viewData: T)
+}
+
+fun interface OnReblog<T : IStatusViewData> {
+    operator fun invoke(viewData: T, reblog: Boolean)
+}
+
+fun interface OnFavourite<T : IStatusViewData> {
+    operator fun invoke(viewData: T, favourite: Boolean)
+}
+
+fun interface OnBookmark<T : IStatusViewData> {
+    operator fun invoke(viewData: T, bookmark: Boolean)
+}
+
+fun interface OnMore<T : IStatusViewData> {
+    operator fun invoke(view: View, viewData: T)
+}
+
 abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
     itemView: View,
     protected val glide: RequestManager,
     protected val setStatusContent: SetStatusContent,
+    protected val onReply: OnReply<T>,
+    protected val onReblog: OnReblog<T>?,
+    protected val onFavourite: OnFavourite<T>,
+    protected val onBookmark: OnBookmark<T>,
+    protected val onMore: OnMore<T>,
 ) : RecyclerView.ViewHolder(itemView) {
     protected val context: Context = itemView.context
 
@@ -47,6 +72,10 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
 
     fun toggleContentWarning() = statusView.toggleContentWarning()
 
+    /**
+     * @param onReblogClick (optional) Not all statuses can be reblogged (e.g., statuses
+     * in a conversation)
+     */
     open fun setupWithStatus(
         viewData: T,
         listener: StatusActionListener<T>,
@@ -78,11 +107,16 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
                 replyCount = actionable.repliesCount,
                 reblogCount = actionable.reblogsCount,
                 favouriteCount = actionable.favouritesCount,
-                onReplyClick = { listener.onReply(viewData) },
-                onReblogClick = { reblog -> listener.onReblog(viewData, reblog) },
-                onFavouriteClick = { favourite -> listener.onFavourite(viewData, favourite) },
-                onBookmarkClick = { bookmark -> listener.onBookmark(viewData, bookmark) },
-                onMoreClick = { view -> listener.onMore(view, viewData) },
+                onReplyClick = { onReply(viewData) },
+                onReblogClick = onReblog?.let { { it(viewData, it) } },
+                onFavouriteClick = { onFavourite(viewData, it) },
+                onBookmarkClick = { onBookmark(viewData, it) },
+                onMoreClick = { onMore(it, viewData) },
+//                onReplyClick = onReplyClick,
+//                onReblogClick = onReblogClick,
+//                onFavouriteClick = onFavouriteClick,
+//                onBookmarkClick = onBookmarkClick,
+//                onMoreClick = onMoreClick,
             )
 
             // Workaround for RecyclerView 1.0.0 / androidx.core 1.0.0

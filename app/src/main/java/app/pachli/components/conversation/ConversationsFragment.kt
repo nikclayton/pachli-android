@@ -184,7 +184,17 @@ class ConversationsFragment :
                 SetMastodonHtmlContent
             }
 
-            adapter = ConversationAdapter(glide, statusDisplayOptions, setStatusContent, this@ConversationsFragment, accept)
+            adapter = ConversationAdapter(
+                glide,
+                statusDisplayOptions,
+                setStatusContent,
+                this@ConversationsFragment,
+                accept,
+                onReply = this@ConversationsFragment::onReply,
+                onFavourite = this@ConversationsFragment::onFavourite,
+                onBookmark = this@ConversationsFragment::onBookmark,
+                this@ConversationsFragment::onMore,
+            )
 
             setupRecyclerView()
 

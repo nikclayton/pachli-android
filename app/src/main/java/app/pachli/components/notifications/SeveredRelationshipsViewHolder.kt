@@ -20,7 +20,13 @@ package app.pachli.components.notifications
 import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReblog
+import app.pachli.adapter.OnReply
 import app.pachli.adapter.StatusViewDataDiffCallback
+import app.pachli.core.data.model.NotificationViewData
 import app.pachli.core.data.model.NotificationViewData.SeveredRelationshipsNotificationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.RelationshipSeveranceEvent.Type.ACCOUNT_SUSPENSION
@@ -37,6 +43,11 @@ class SeveredRelationshipsViewHolder(
         viewData: SeveredRelationshipsNotificationViewData,
         payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
+        onReply: OnReply<NotificationViewData.WithStatus>,
+        onReblog: OnReblog<NotificationViewData.WithStatus>,
+        onFavourite: OnFavourite<NotificationViewData.WithStatus>,
+        onBookmark: OnBookmark<NotificationViewData.WithStatus>,
+        onMore: OnMore<NotificationViewData.WithStatus>,
     ) {
         val context = itemView.context
         val event = viewData.relationshipSeveranceEvent

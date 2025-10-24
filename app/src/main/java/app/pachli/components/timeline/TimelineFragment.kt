@@ -207,7 +207,17 @@ class TimelineFragment :
             SetMastodonHtmlContent
         }
 
-        adapter = TimelinePagingAdapter(Glide.with(this), setStatusContent, this, viewModel.statusDisplayOptions.value)
+        adapter = TimelinePagingAdapter(
+            Glide.with(this),
+            setStatusContent,
+            this,
+            viewModel.statusDisplayOptions.value,
+            onReply = this@TimelineFragment::onReply,
+            onReblog = this@TimelineFragment::onReblog,
+            onFavourite = this@TimelineFragment::onFavourite,
+            onBookmark = this@TimelineFragment::onBookmark,
+            onMore = this@TimelineFragment::onMore,
+        )
 
         layoutManager = LinearLayoutManager(context)
 

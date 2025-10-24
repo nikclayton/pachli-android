@@ -116,7 +116,17 @@ class ViewThreadFragment :
             SetMastodonHtmlContent
         }
 
-        adapter = ThreadAdapter(Glide.with(this), viewModel.statusDisplayOptions.value, this, setStatusContent, openUrl)
+        adapter = ThreadAdapter(
+            Glide.with(this),
+            viewModel.statusDisplayOptions.value,
+            this,
+            setStatusContent,
+            onReply = this::onReply,
+            onReblog = this::onReblog,
+            onFavourite = this::onFavourite,
+            onBookmark = this::onBookmark,
+            onMore = this::onMore,
+        )
     }
 
     override fun onCreateView(

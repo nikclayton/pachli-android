@@ -22,6 +22,11 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.FilterableStatusViewHolder
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReblog
+import app.pachli.adapter.OnReply
 import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.data.model.StatusDisplayOptions
@@ -38,22 +43,38 @@ class TimelinePagingAdapter(
     private val setStatusContent: SetStatusContent,
     private val statusListener: StatusActionListener<StatusViewData>,
     var statusDisplayOptions: StatusDisplayOptions,
+    private val onReply: OnReply<StatusViewData>,
+    private val onReblog: OnReblog<StatusViewData>,
+    private val onFavourite: OnFavourite<StatusViewData>,
+    private val onBookmark: OnBookmark<StatusViewData>,
+    private val onMore: OnMore<StatusViewData>,
 ) : PagingDataAdapter<StatusViewData, RecyclerView.ViewHolder>(StatusViewDataDiffCallback) {
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(viewGroup.context)
         return when (viewType) {
             VIEW_TYPE_STATUS_FILTERED -> {
-                FilterableStatusViewHolder<StatusViewData>(
+                FilterableStatusViewHolder(
                     ItemStatusWrapperBinding.inflate(inflater, viewGroup, false),
                     glide,
                     setStatusContent,
+                    onReply,
+                    onReblog,
+                    onFavourite,
+                    onBookmark,
+                    onMore,
                 )
             }
             VIEW_TYPE_STATUS -> {
-                StatusViewHolder<StatusViewData>(
+                StatusViewHolder(
                     ItemStatusBinding.inflate(inflater, viewGroup, false),
                     glide,
                     setStatusContent,
+                    null,
+                    onReply,
+                    onReblog,
+                    onFavourite,
+                    onBookmark,
+                    onMore,
                 )
             }
             else -> return object : RecyclerView.ViewHolder(inflater.inflate(R.layout.item_placeholder, viewGroup, false)) {}

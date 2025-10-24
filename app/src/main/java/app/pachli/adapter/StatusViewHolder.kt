@@ -39,7 +39,21 @@ open class StatusViewHolder<T : IStatusViewData>(
     glide: RequestManager,
     setStatusContent: SetStatusContent,
     root: View? = null,
-) : StatusBaseViewHolder<T>(root ?: binding.root, glide, setStatusContent) {
+    onReply: OnReply<T>,
+    onReblog: OnReblog<T>?,
+    onFavourite: OnFavourite<T>,
+    onBookmark: OnBookmark<T>,
+    onMore: OnMore<T>,
+) : StatusBaseViewHolder<T>(
+    root ?: binding.root,
+    glide,
+    setStatusContent,
+    onReply,
+    onReblog,
+    onFavourite,
+    onBookmark,
+    onMore,
+) {
 
     override fun setupWithStatus(
         viewData: T,
@@ -64,7 +78,12 @@ open class StatusViewHolder<T : IStatusViewData>(
                     }
                 }
             }
-            super.setupWithStatus(viewData, listener, statusDisplayOptions, payloads)
+            super.setupWithStatus(
+                viewData,
+                listener,
+                statusDisplayOptions,
+                payloads,
+            )
         }
     }
 

@@ -20,6 +20,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReblog
+import app.pachli.adapter.OnReply
 import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.data.model.StatusDisplayOptions
@@ -34,6 +39,11 @@ class SearchStatusesAdapter(
     private val setStatusContent: SetStatusContent,
     private val statusDisplayOptions: StatusDisplayOptions,
     private val statusListener: StatusActionListener<StatusViewData>,
+    private val onReply: OnReply<StatusViewData>,
+    private val onReblog: OnReblog<StatusViewData>,
+    private val onFavourite: OnFavourite<StatusViewData>,
+    private val onBookmark: OnBookmark<StatusViewData>,
+    private val onMore: OnMore<StatusViewData>,
 ) : PagingDataAdapter<StatusViewData, StatusViewHolder<StatusViewData>>(STATUS_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatusViewHolder<StatusViewData> {
@@ -41,18 +51,35 @@ class SearchStatusesAdapter(
             ItemStatusBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             glide,
             setStatusContent,
+            null,
+            onReply,
+            onReblog,
+            onFavourite,
+            onBookmark,
+            onMore,
+
         )
     }
 
     override fun onBindViewHolder(holder: StatusViewHolder<StatusViewData>, position: Int) {
         getItem(position)?.let { item ->
-            holder.setupWithStatus(item, statusListener, statusDisplayOptions, null)
+            holder.setupWithStatus(
+                item,
+                statusListener,
+                statusDisplayOptions,
+                null,
+            )
         }
     }
 
     override fun onBindViewHolder(holder: StatusViewHolder<StatusViewData>, position: Int, payloads: List<Any?>) {
         getItem(position)?.let { item ->
-            holder.setupWithStatus(item, statusListener, statusDisplayOptions, payloads as? List<List<Any?>>?)
+            holder.setupWithStatus(
+                item,
+                statusListener,
+                statusDisplayOptions,
+                payloads as? List<List<Any?>>?,
+            )
         }
     }
 

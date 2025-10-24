@@ -23,6 +23,14 @@ import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
 
+interface StatusControlListener<T : IStatusViewData> {
+    fun onReply(viewData: T)
+    fun onReblog(viewData: T, reblog: Boolean)
+    fun onFavourite(viewData: T, favourite: Boolean)
+    fun onBookmark(viewData: T, bookmark: Boolean)
+    fun onMore(view: View, viewData: T)
+}
+
 interface StatusActionListener<T : IStatusViewData> : LinkListener {
     fun onReply(viewData: T)
     fun onReblog(viewData: T, reblog: Boolean)

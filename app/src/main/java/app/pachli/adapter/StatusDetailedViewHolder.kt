@@ -28,7 +28,21 @@ class StatusDetailedViewHolder(
     binding: ItemStatusDetailedBinding,
     glide: RequestManager,
     setStatusContent: SetStatusContent,
-) : StatusBaseViewHolder<StatusViewData>(binding.root, glide, setStatusContent) {
+    onReply: OnReply<StatusViewData>,
+    onReblog: OnReblog<StatusViewData>?,
+    onFavourite: OnFavourite<StatusViewData>,
+    onBookmark: OnBookmark<StatusViewData>,
+    onMore: OnMore<StatusViewData>,
+) : StatusBaseViewHolder<StatusViewData>(
+    binding.root,
+    glide,
+    setStatusContent,
+    onReply,
+    onReblog,
+    onFavourite,
+    onBookmark,
+    onMore,
+) {
 
     override fun setupWithStatus(
         viewData: StatusViewData,
@@ -41,9 +55,7 @@ class StatusDetailedViewHolder(
         super.setupWithStatus(
             viewData,
             listener,
-            statusDisplayOptions.copy(
-                showStatsInline = false,
-            ),
+            statusDisplayOptions.copy(showStatsInline = false),
             payloads,
         )
     }

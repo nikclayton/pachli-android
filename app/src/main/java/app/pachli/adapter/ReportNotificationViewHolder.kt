@@ -28,6 +28,7 @@ import app.pachli.components.notifications.NotificationsPagingAdapter
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.string.unicodeWrap
+import app.pachli.core.data.model.NotificationViewData
 import app.pachli.core.data.model.NotificationViewData.ReportNotificationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.database.model.NotificationReportEntity
@@ -49,6 +50,11 @@ class ReportNotificationViewHolder(
         viewData: ReportNotificationViewData,
         payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
+        onReply: OnReply<NotificationViewData.WithStatus>,
+        onReblog: OnReblog<NotificationViewData.WithStatus>,
+        onFavourite: OnFavourite<NotificationViewData.WithStatus>,
+        onBookmark: OnBookmark<NotificationViewData.WithStatus>,
+        onMore: OnMore<NotificationViewData.WithStatus>,
     ) {
         // Skip updates with payloads. That indicates a timestamp update, and
         // this view does not have timestamps.

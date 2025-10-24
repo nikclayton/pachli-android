@@ -21,6 +21,12 @@ import android.content.Intent
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReblog
+import app.pachli.adapter.OnReply
+import app.pachli.core.data.model.NotificationViewData
 import app.pachli.core.data.model.NotificationViewData.ModerationWarningNotificationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.AccountWarning
@@ -40,7 +46,16 @@ class ModerationWarningViewHolder(
         }
     }
 
-    override fun bind(viewData: ModerationWarningNotificationViewData, payloads: List<List<Any?>>?, statusDisplayOptions: StatusDisplayOptions) {
+    override fun bind(
+        viewData: ModerationWarningNotificationViewData,
+        payloads: List<List<Any?>>?,
+        statusDisplayOptions: StatusDisplayOptions,
+        onReply: OnReply<NotificationViewData.WithStatus>,
+        onReblog: OnReblog<NotificationViewData.WithStatus>,
+        onFavourite: OnFavourite<NotificationViewData.WithStatus>,
+        onBookmark: OnBookmark<NotificationViewData.WithStatus>,
+        onMore: OnMore<NotificationViewData.WithStatus>,
+    ) {
         this.viewData = viewData
         val context = itemView.context
         val warning = viewData.accountWarning

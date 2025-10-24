@@ -126,7 +126,17 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
             MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
         )
         binding.searchRecyclerView.layoutManager = LinearLayoutManager(binding.searchRecyclerView.context)
-        return SearchStatusesAdapter(Glide.with(this), setStatusContent, statusDisplayOptions, this)
+        return SearchStatusesAdapter(
+            Glide.with(this),
+            setStatusContent,
+            statusDisplayOptions,
+            this,
+            onReply = this::onReply,
+            onReblog = this::onReblog,
+            onFavourite = this::onFavourite,
+            onBookmark = this::onBookmark,
+            onMore = this::onMore,
+        )
     }
 
     override fun onAttachmentDisplayActionChange(viewData: StatusViewData, newAction: AttachmentDisplayAction) {

@@ -33,7 +33,15 @@ open class FilterableStatusViewHolder<T : IStatusViewData>(
     private val binding: ItemStatusWrapperBinding,
     glide: RequestManager,
     setStatusContent: SetStatusContent,
-) : StatusViewHolder<T>(binding.statusContainer, glide, setStatusContent, binding.root) {
+    onReply: OnReply<T>,
+    onReblog: OnReblog<T>?,
+    onFavourite: OnFavourite<T>,
+    onBookmark: OnBookmark<T>,
+    onMore: OnMore<T>,
+) : StatusViewHolder<T>(
+    binding.statusContainer, glide, setStatusContent, binding.root,
+    onReply, onReblog, onFavourite, onBookmark, onMore,
+) {
     /** The filter that matched the status, null if the status is not being filtered. */
     var matchedFilter: ContentFilter? = null
 
@@ -43,7 +51,12 @@ open class FilterableStatusViewHolder<T : IStatusViewData>(
         statusDisplayOptions: StatusDisplayOptions,
         payloads: List<List<Any?>>?,
     ) {
-        super.setupWithStatus(viewData, listener, statusDisplayOptions, payloads)
+        super.setupWithStatus(
+            viewData,
+            listener,
+            statusDisplayOptions,
+            payloads,
+        )
         setupFilterPlaceholder(viewData, listener)
     }
 

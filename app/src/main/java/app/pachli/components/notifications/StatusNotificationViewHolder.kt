@@ -23,6 +23,11 @@ import android.text.Spanned
 import android.text.style.StyleSpan
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReblog
+import app.pachli.adapter.OnReply
 import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.string.unicodeWrap
@@ -57,6 +62,11 @@ internal class StatusNotificationViewHolder(
         viewData: NotificationViewData.WithStatus,
         payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
+        onReply: OnReply<NotificationViewData.WithStatus>,
+        onReblog: OnReblog<NotificationViewData.WithStatus>,
+        onFavourite: OnFavourite<NotificationViewData.WithStatus>,
+        onBookmark: OnBookmark<NotificationViewData.WithStatus>,
+        onMore: OnMore<NotificationViewData.WithStatus>,
     ) {
         if (payloads.isNullOrEmpty()) {
             binding.notificationTopText.setOnClickListener {

@@ -24,6 +24,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.FollowRequestViewHolder
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReblog
+import app.pachli.adapter.OnReply
 import app.pachli.adapter.ReportNotificationViewHolder
 import app.pachli.core.data.model.NotificationViewData
 import app.pachli.core.data.model.NotificationViewData.FollowNotificationViewData
@@ -157,6 +162,11 @@ class NotificationsPagingAdapter(
     private val notificationActionListener: NotificationActionListener,
     private val accountActionListener: AccountActionListener,
     var statusDisplayOptions: StatusDisplayOptions = StatusDisplayOptions(),
+    private val onReply: OnReply<NotificationViewData.WithStatus>,
+    private val onReblog: OnReblog<NotificationViewData.WithStatus>,
+    private val onFavourite: OnFavourite<NotificationViewData.WithStatus>,
+    private val onBookmark: OnBookmark<NotificationViewData.WithStatus>,
+    private val onMore: OnMore<NotificationViewData.WithStatus>,
 ) : PagingDataAdapter<NotificationViewData, RecyclerView.ViewHolder>(diffCallback) {
 
     /** View holders in this adapter must implement this interface. */
@@ -166,6 +176,11 @@ class NotificationsPagingAdapter(
             viewData: T,
             payloads: List<List<Any?>>?,
             statusDisplayOptions: StatusDisplayOptions,
+            onReply: OnReply<NotificationViewData.WithStatus>,
+            onReblog: OnReblog<NotificationViewData.WithStatus>,
+            onFavourite: OnFavourite<NotificationViewData.WithStatus>,
+            onBookmark: OnBookmark<NotificationViewData.WithStatus>,
+            onMore: OnMore<NotificationViewData.WithStatus>,
         )
     }
 
@@ -192,6 +207,11 @@ class NotificationsPagingAdapter(
                     glide,
                     setStatusContent,
                     notificationActionListener,
+                    onReply,
+                    onReblog,
+                    onFavourite,
+                    onBookmark,
+                    onMore,
                 )
             }
             NotificationViewKind.STATUS_FILTERED -> {
@@ -200,6 +220,11 @@ class NotificationsPagingAdapter(
                     glide,
                     setStatusContent,
                     notificationActionListener,
+                    onReply,
+                    onReblog,
+                    onFavourite,
+                    onBookmark,
+                    onMore,
                 )
             }
             NotificationViewKind.ACCOUNT_FILTERED -> {
@@ -272,7 +297,16 @@ class NotificationsPagingAdapter(
 
     private fun bindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: List<List<Any?>>?) {
         getItem(position)?.let {
-            (holder as ViewHolder<NotificationViewData>).bind(it, payloads, statusDisplayOptions)
+            (holder as ViewHolder<NotificationViewData>).bind(
+                it,
+                payloads,
+                statusDisplayOptions,
+                onReply,
+                onReblog,
+                onFavourite,
+                onBookmark,
+                onMore,
+            )
         }
     }
 
@@ -287,6 +321,11 @@ class NotificationsPagingAdapter(
             viewData: UnknownNotificationViewData,
             payloads: List<List<Any?>>?,
             statusDisplayOptions: StatusDisplayOptions,
+            onReply: OnReply<NotificationViewData.WithStatus>,
+            onReblog: OnReblog<NotificationViewData.WithStatus>,
+            onFavourite: OnFavourite<NotificationViewData.WithStatus>,
+            onBookmark: OnBookmark<NotificationViewData.WithStatus>,
+            onMore: OnMore<NotificationViewData.WithStatus>,
         ) {
             binding.text1.text = binding.root.context.getString(R.string.notification_unknown)
         }

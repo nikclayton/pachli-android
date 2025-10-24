@@ -18,6 +18,10 @@
 package app.pachli.components.conversation
 
 import app.pachli.R
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReply
 import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.core.data.model.ConversationViewData
@@ -33,9 +37,26 @@ class ConversationViewHolder internal constructor(
     glide: RequestManager,
     setStatusContent: SetStatusContent,
     private val listener: StatusActionListener<ConversationViewData>,
-) : ConversationAdapter.ViewHolder, StatusBaseViewHolder<ConversationViewData>(binding.root, glide, setStatusContent) {
+    onReply: OnReply<ConversationViewData>,
+    onFavourite: OnFavourite<ConversationViewData>,
+    onBookmark: OnBookmark<ConversationViewData>,
+    onMore: OnMore<ConversationViewData>,
+) : ConversationAdapter.ViewHolder, StatusBaseViewHolder<ConversationViewData>(
+    binding.root,
+    glide,
+    setStatusContent,
+    onReply,
+    onReblog = null,
+    onFavourite,
+    onBookmark,
+    onMore,
+) {
 
-    override fun bind(viewData: ConversationViewData, payloads: List<List<Any?>>?, statusDisplayOptions: StatusDisplayOptions) {
+    override fun bind(
+        viewData: ConversationViewData,
+        payloads: List<List<Any?>>?,
+        statusDisplayOptions: StatusDisplayOptions,
+    ) {
         if (payloads.isNullOrEmpty()) {
             val actionable = viewData.actionable
 
@@ -53,10 +74,10 @@ class ConversationViewHolder internal constructor(
                 replyCount = actionable.repliesCount,
                 reblogCount = actionable.reblogsCount,
                 favouriteCount = actionable.favouritesCount,
-                onReplyClick = { listener.onReply(viewData) },
-                onFavouriteClick = { favourite -> listener.onFavourite(viewData, favourite) },
-                onBookmarkClick = { bookmark -> listener.onBookmark(viewData, bookmark) },
-                onMoreClick = { view -> listener.onMore(view, viewData) },
+                onReplyClick = { onReply(viewData) },
+                onFavouriteClick = { onFavourite(viewData, it) },
+                onBookmarkClick = { onBookmark(viewData, it) },
+                onMoreClick = { onMore(it, viewData) },
             )
             setConversationName(viewData.accounts)
         } else {

@@ -18,6 +18,11 @@
 package app.pachli.components.notifications
 
 import app.pachli.adapter.FilterableStatusViewHolder
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReblog
+import app.pachli.adapter.OnReply
 import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.data.model.NotificationViewData.WithStatus
 import app.pachli.core.data.model.StatusDisplayOptions
@@ -36,12 +41,24 @@ internal class StatusViewHolder(
     glide: RequestManager,
     setStatusContent: SetStatusContent,
     private val statusActionListener: NotificationActionListener,
-) : NotificationsPagingAdapter.ViewHolder<WithStatus>, StatusViewHolder<WithStatus>(binding, glide, setStatusContent) {
+    onReply: OnReply<WithStatus>,
+    onReblog: OnReblog<WithStatus>?,
+    onFavourite: OnFavourite<WithStatus>,
+    onBookmark: OnBookmark<WithStatus>,
+    onMore: OnMore<WithStatus>,
+) : NotificationsPagingAdapter.ViewHolder<WithStatus>, StatusViewHolder<WithStatus>(
+    binding, glide, setStatusContent, null, onReply, onReblog, onFavourite, onBookmark, onMore,
+) {
 
     override fun bind(
         viewData: WithStatus,
         payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
+        onReply: OnReply<WithStatus>,
+        onReblog: OnReblog<WithStatus>,
+        onFavourite: OnFavourite<WithStatus>,
+        onBookmark: OnBookmark<WithStatus>,
+        onMore: OnMore<WithStatus>,
     ) {
         if (payloads.isNullOrEmpty()) {
             showStatusContent(true)
@@ -65,12 +82,31 @@ class FilterableStatusViewHolder(
     glide: RequestManager,
     setStatusContent: SetStatusContent,
     private val statusActionListener: StatusActionListener<WithStatus>,
-) : NotificationsPagingAdapter.ViewHolder<WithStatus>, FilterableStatusViewHolder<WithStatus>(binding, glide, setStatusContent) {
+    onReply: OnReply<WithStatus>,
+    onReblog: OnReblog<WithStatus>?,
+    onFavourite: OnFavourite<WithStatus>,
+    onBookmark: OnBookmark<WithStatus>,
+    onMore: OnMore<WithStatus>,
+) : NotificationsPagingAdapter.ViewHolder<WithStatus>, FilterableStatusViewHolder<WithStatus>(
+    binding,
+    glide,
+    setStatusContent,
+    onReply,
+    onReblog,
+    onFavourite,
+    onBookmark,
+    onMore,
+) {
     // Note: Identical to bind() in StatusViewHolder above
     override fun bind(
         viewData: WithStatus,
         payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
+        onReply: OnReply<WithStatus>,
+        onReblog: OnReblog<WithStatus>,
+        onFavourite: OnFavourite<WithStatus>,
+        onBookmark: OnBookmark<WithStatus>,
+        onMore: OnMore<WithStatus>,
     ) {
         if (payloads.isNullOrEmpty()) {
             showStatusContent(true)

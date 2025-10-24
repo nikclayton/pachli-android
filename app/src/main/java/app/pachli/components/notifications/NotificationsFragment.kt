@@ -177,6 +177,11 @@ class NotificationsFragment :
             setStatusContent,
             notificationActionListener = this,
             accountActionListener = this,
+            onReply = this@NotificationsFragment::onReply,
+            onReblog = this@NotificationsFragment::onReblog,
+            onFavourite = this@NotificationsFragment::onFavourite,
+            onBookmark = this@NotificationsFragment::onBookmark,
+            onMore = this@NotificationsFragment::onMore,
         )
 
         // Setup the SwipeRefreshLayout.

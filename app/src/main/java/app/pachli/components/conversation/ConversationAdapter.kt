@@ -24,6 +24,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.FilterableStatusViewHolder
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReply
 import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.core.data.model.ConversationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
@@ -43,6 +47,10 @@ internal class ConversationAdapter(
     private val setStatusContent: SetStatusContent,
     private val listener: StatusActionListener<ConversationViewData>,
     private val accept: (UiAction) -> Unit,
+    private val onReply: OnReply<ConversationViewData>,
+    private val onFavourite: OnFavourite<ConversationViewData>,
+    private val onBookmark: OnBookmark<ConversationViewData>,
+    private val onMore: OnMore<ConversationViewData>,
 ) : PagingDataAdapter<ConversationViewData, RecyclerView.ViewHolder>(CONVERSATION_COMPARATOR) {
     /** View holders in this adapter must implement this interface. */
     interface ViewHolder {
@@ -86,6 +94,10 @@ internal class ConversationAdapter(
                     glide,
                     setStatusContent,
                     listener,
+                    onReply,
+                    onFavourite,
+                    onBookmark,
+                    onMore,
                 )
             ConversationViewKind.STATUS_FILTERED ->
                 FilterableConversationStatusViewHolder(
@@ -93,6 +105,10 @@ internal class ConversationAdapter(
                     glide,
                     setStatusContent,
                     listener,
+                    onReply,
+                    onFavourite,
+                    onBookmark,
+                    onMore,
                 )
             ConversationViewKind.ACCOUNT_FILTERED ->
                 FilterableConversationViewHolder(
@@ -112,7 +128,11 @@ internal class ConversationAdapter(
         payloads: List<Any?>,
     ) {
         getItem(position)?.let { conversationViewData ->
-            (holder as ViewHolder).bind(conversationViewData, payloads as? List<List<Any?>>, statusDisplayOptions)
+            (holder as ViewHolder).bind(
+                conversationViewData,
+                payloads as? List<List<Any?>>,
+                statusDisplayOptions,
+            )
         }
     }
 
@@ -165,8 +185,25 @@ class FilterableConversationStatusViewHolder internal constructor(
     glide: RequestManager,
     setStatusContent: SetStatusContent,
     private val listener: StatusActionListener<ConversationViewData>,
-) : ConversationAdapter.ViewHolder, FilterableStatusViewHolder<ConversationViewData>(binding, glide, setStatusContent) {
-    override fun bind(viewData: ConversationViewData, payloads: List<List<Any?>>?, statusDisplayOptions: StatusDisplayOptions) {
+    onReply: OnReply<ConversationViewData>,
+    onFavourite: OnFavourite<ConversationViewData>,
+    onBookmark: OnBookmark<ConversationViewData>,
+    onMore: OnMore<ConversationViewData>,
+) : ConversationAdapter.ViewHolder, FilterableStatusViewHolder<ConversationViewData>(
+    binding,
+    glide,
+    setStatusContent,
+    onReply,
+    onReblog = null,
+    onFavourite,
+    onBookmark,
+    onMore,
+) {
+    override fun bind(
+        viewData: ConversationViewData,
+        payloads: List<List<Any?>>?,
+        statusDisplayOptions: StatusDisplayOptions,
+    ) {
         if (payloads.isNullOrEmpty()) {
             showStatusContent(true)
         }
@@ -174,7 +211,7 @@ class FilterableConversationStatusViewHolder internal constructor(
             viewData,
             listener,
             statusDisplayOptions,
-            payloads,
+            payloads = payloads,
         )
     }
 }
@@ -222,7 +259,11 @@ class FilterableConversationViewHolder internal constructor(
         }
     }
 
-    override fun bind(viewData: ConversationViewData, payloads: List<List<Any?>>?, statusDisplayOptions: StatusDisplayOptions) {
+    override fun bind(
+        viewData: ConversationViewData,
+        payloads: List<List<Any?>>?,
+        statusDisplayOptions: StatusDisplayOptions,
+    ) {
         this.viewData = viewData
         binding.accountFilterDomain.text = HtmlCompat.fromHtml(
             context.getString(
