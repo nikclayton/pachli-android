@@ -239,48 +239,56 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     isSingleLineTitle = false
                 }
 
-                switchPreference {
-                    setDefaultValue(false)
-                    key = PrefKeys.ABSOLUTE_TIME_VIEW
-                    setTitle(R.string.pref_title_absolute_time)
-                    isSingleLineTitle = false
+                preferenceCategory(R.string.pref_title_labs) {
+                    it.icon = makeIcon(GoogleMaterial.Icon.gmd_science)
+                    preference {
+                        setTitle(R.string.pref_title_labs)
+                        fragment = StatusDisplayPreferenceFragment::class.qualifiedName
+                    }
                 }
 
-                switchPreference {
-                    setDefaultValue(true)
-                    key = PrefKeys.SHOW_BOT_OVERLAY
-                    setTitle(R.string.pref_title_bot_overlay)
-                    isSingleLineTitle = false
-                    setIcon(R.drawable.ic_bot_24dp)
-                }
-
-                switchPreference {
-                    setDefaultValue(false)
-                    key = PrefKeys.ANIMATE_GIF_AVATARS
-                    setTitle(R.string.pref_title_animate_gif_avatars)
-                    isSingleLineTitle = false
-                }
-
-                switchPreference {
-                    setDefaultValue(false)
-                    key = PrefKeys.ANIMATE_CUSTOM_EMOJIS
-                    setTitle(R.string.pref_title_animate_custom_emojis)
-                    isSingleLineTitle = false
-                }
-
-                switchPreference {
-                    setDefaultValue(true)
-                    key = PrefKeys.USE_BLURHASH
-                    setTitle(R.string.pref_title_gradient_for_media)
-                    isSingleLineTitle = false
-                }
-
-                switchPreference {
-                    setDefaultValue(false)
-                    key = PrefKeys.SHOW_CARDS_IN_TIMELINES
-                    setTitle(R.string.pref_title_show_cards_in_timelines)
-                    isSingleLineTitle = false
-                }
+//                switchPreference {
+//                    setDefaultValue(false)
+//                    key = PrefKeys.ABSOLUTE_TIME_VIEW
+//                    setTitle(R.string.pref_title_absolute_time)
+//                    isSingleLineTitle = false
+//                }
+//
+//                switchPreference {
+//                    setDefaultValue(true)
+//                    key = PrefKeys.SHOW_BOT_OVERLAY
+//                    setTitle(R.string.pref_title_bot_overlay)
+//                    isSingleLineTitle = false
+//                    setIcon(R.drawable.ic_bot_24dp)
+//                }
+//
+//                switchPreference {
+//                    setDefaultValue(false)
+//                    key = PrefKeys.ANIMATE_GIF_AVATARS
+//                    setTitle(R.string.pref_title_animate_gif_avatars)
+//                    isSingleLineTitle = false
+//                }
+//
+//                switchPreference {
+//                    setDefaultValue(false)
+//                    key = PrefKeys.ANIMATE_CUSTOM_EMOJIS
+//                    setTitle(R.string.pref_title_animate_custom_emojis)
+//                    isSingleLineTitle = false
+//                }
+//
+//                switchPreference {
+//                    setDefaultValue(true)
+//                    key = PrefKeys.USE_BLURHASH
+//                    setTitle(R.string.pref_title_gradient_for_media)
+//                    isSingleLineTitle = false
+//                }
+//
+//                switchPreference {
+//                    setDefaultValue(false)
+//                    key = PrefKeys.SHOW_CARDS_IN_TIMELINES
+//                    setTitle(R.string.pref_title_show_cards_in_timelines)
+//                    isSingleLineTitle = false
+//                }
 
                 switchPreference {
                     setDefaultValue(true)
