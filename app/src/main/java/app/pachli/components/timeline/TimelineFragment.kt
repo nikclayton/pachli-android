@@ -212,10 +212,10 @@ class TimelineFragment :
             setStatusContent,
             this,
             viewModel.statusDisplayOptions.value,
-            onReply = { super.reply(it.pachliAccountId, it.actionable) },
-            onReblog = { viewData, reblog -> viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData)) },
-            onFavourite = { viewData, favourite -> viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData)) },
-            onBookmark = { viewData, bookmark -> viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData)) },
+            onReply = ::onReply,
+            onReblog = ::onReblog,
+            onFavourite = ::onFavourite,
+            onBookmark = ::onBookmark,
             onMore = ::more,
         )
 
@@ -536,13 +536,24 @@ class TimelineFragment :
     private fun setupRecyclerView() {
         binding.recyclerView.applyDefaultWindowInsets()
         binding.recyclerView.setAccessibilityDelegateCompat(
-            ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this, openUrl) { pos ->
-                if (pos in 0 until adapter.itemCount) {
-                    adapter.peek(pos)
-                } else {
-                    null
-                }
-            },
+            ListStatusAccessibilityDelegate(
+                pachliAccountId,
+                binding.recyclerView,
+                this,
+                openUrl,
+                { pos ->
+                    if (pos in 0 until adapter.itemCount) {
+                        adapter.peek(pos)
+                    } else {
+                        null
+                    }
+                },
+                ::onReply,
+                ::onReblog,
+                ::onFavourite,
+                ::onBookmark,
+                ::more,
+            ),
         )
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.layoutManager = layoutManager
@@ -596,6 +607,22 @@ class TimelineFragment :
 
         binding.swipeRefreshLayout.isRefreshing = false
         adapter.refresh()
+    }
+
+    fun onReply(viewData: StatusViewData) {
+        super.reply(viewData.pachliAccountId, viewData.actionable)
+    }
+
+    fun onReblog(viewData: StatusViewData, reblog: Boolean) {
+        viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData))
+    }
+
+    fun onFavourite(viewData: StatusViewData, favourite: Boolean) {
+        viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData))
+    }
+
+    fun onBookmark(viewData: StatusViewData, bookmark: Boolean) {
+        viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData))
     }
 
     override fun onVoteInPoll(viewData: StatusViewData, poll: Poll, choices: List<Int>) {

@@ -190,9 +190,9 @@ class ConversationsFragment :
                 setStatusContent,
                 this@ConversationsFragment,
                 accept,
-                onReply = { reply(it.pachliAccountId, it.lastStatus.actionable) },
-                onFavourite = { viewData, favourite -> viewModel.favourite(favourite, viewData.lastStatus.actionableId) },
-                onBookmark = { viewData, bookmark -> viewModel.bookmark(bookmark, viewData.lastStatus.actionableId) },
+                onReply = ::onReply,
+                onFavourite = ::onFavourite,
+                onBookmark = ::onBookmark,
                 onMore = ::more,
             )
 
@@ -328,13 +328,24 @@ class ConversationsFragment :
 
     private fun setupRecyclerView() {
         binding.recyclerView.setAccessibilityDelegateCompat(
-            ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this, openUrl) { pos ->
-                if (pos in 0 until adapter.itemCount) {
-                    adapter.peek(pos)
-                } else {
-                    null
-                }
-            },
+            ListStatusAccessibilityDelegate(
+                pachliAccountId,
+                binding.recyclerView,
+                this,
+                openUrl,
+                { pos ->
+                    if (pos in 0 until adapter.itemCount) {
+                        adapter.peek(pos)
+                    } else {
+                        null
+                    }
+                },
+                ::onReply,
+                onReblog = null,
+                ::onFavourite,
+                ::onBookmark,
+                ::more,
+            ),
         )
 
         binding.recyclerView.setHasFixedSize(true)
@@ -367,6 +378,18 @@ class ConversationsFragment :
     override fun onRefresh() {
         binding.statusView.hide()
         adapter.refresh()
+    }
+
+    fun onReply(viewData: ConversationViewData) {
+        reply(viewData.pachliAccountId, viewData.lastStatus.actionable)
+    }
+
+    fun onFavourite(viewData: ConversationViewData, favourite: Boolean) {
+        viewModel.favourite(favourite, viewData.lastStatus.actionableId)
+    }
+
+    fun onBookmark(viewData: ConversationViewData, bookmark: Boolean) {
+        viewModel.bookmark(bookmark, viewData.lastStatus.actionableId)
     }
 
     override fun onViewAttachment(view: View?, viewData: ConversationViewData, attachmentIndex: Int) {

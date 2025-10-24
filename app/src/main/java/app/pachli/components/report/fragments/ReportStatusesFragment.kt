@@ -173,7 +173,13 @@ class ReportStatusesFragment :
                     this,
                     this@ReportStatusesFragment,
                     openUrl,
-                ) { index -> this@ReportStatusesFragment.adapter.snapshot().getOrNull(index) },
+                    { index -> this@ReportStatusesFragment.adapter.snapshot().getOrNull(index) },
+                    onReply = null,
+                    onReblog = null,
+                    onFavourite = null,
+                    onBookmark = null,
+                    onMore = null,
+                ),
             )
         }
 

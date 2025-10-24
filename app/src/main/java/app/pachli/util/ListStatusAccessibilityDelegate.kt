@@ -11,6 +11,11 @@ import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.FilterableStatusViewHolder
+import app.pachli.adapter.OnBookmark
+import app.pachli.adapter.OnFavourite
+import app.pachli.adapter.OnMore
+import app.pachli.adapter.OnReblog
+import app.pachli.adapter.OnReply
 import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.core.activity.OpenUrlUseCase
 import app.pachli.core.data.model.IStatusViewData
@@ -34,6 +39,11 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
     private val statusActionListener: StatusActionListener<T>,
     private val openUrl: OpenUrlUseCase,
     private val statusProvider: StatusProvider<T>,
+    private val onReply: OnReply<T>?,
+    private val onReblog: OnReblog<T>?,
+    private val onFavourite: OnFavourite<T>?,
+    private val onBookmark: OnBookmark<T>?,
+    private val onMore: OnMore<T>?,
 ) : PachliRecyclerViewAccessibilityDelegate(recyclerView) {
     override fun getItemDelegate(): AccessibilityDelegateCompat = itemDelegate
 
@@ -137,14 +147,15 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
             when (action) {
                 app.pachli.core.ui.R.id.action_reply -> {
                     interrupt()
-                    statusActionListener.onReply(status)
+                    onReply?.let { it(status) }
                 }
-                app.pachli.core.ui.R.id.action_favourite -> statusActionListener.onFavourite(status, true)
-                app.pachli.core.ui.R.id.action_unfavourite -> statusActionListener.onFavourite(status, false)
-                app.pachli.core.ui.R.id.action_bookmark -> statusActionListener.onBookmark(status, true)
-                app.pachli.core.ui.R.id.action_unbookmark -> statusActionListener.onBookmark(status, false)
-                app.pachli.core.ui.R.id.action_reblog -> statusActionListener.onReblog(status, true)
-                app.pachli.core.ui.R.id.action_unreblog -> statusActionListener.onReblog(status, false)
+
+                app.pachli.core.ui.R.id.action_favourite -> onFavourite?.let { it(status, true) }
+                app.pachli.core.ui.R.id.action_unfavourite -> onFavourite?.let { it(status, false) }
+                app.pachli.core.ui.R.id.action_bookmark -> onBookmark?.let { it(status, true) }
+                app.pachli.core.ui.R.id.action_unbookmark -> onBookmark?.let { it(status, false) }
+                app.pachli.core.ui.R.id.action_reblog -> onReblog?.let { it(status, true) }
+                app.pachli.core.ui.R.id.action_unreblog -> onReblog?.let { it(status, false) }
                 app.pachli.core.ui.R.id.action_open_profile -> {
                     interrupt()
                     statusActionListener.onViewAccount(status.actionable.account.id)
@@ -223,7 +234,7 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
                     }
                 }
                 app.pachli.core.ui.R.id.action_more -> {
-                    statusActionListener.onMore(host, status)
+                    onMore?.let { it(host, status) }
                 }
                 app.pachli.core.ui.R.id.action_show_anyway -> statusActionListener.clearContentFilter(status)
                 app.pachli.core.ui.R.id.action_edit_filter -> {

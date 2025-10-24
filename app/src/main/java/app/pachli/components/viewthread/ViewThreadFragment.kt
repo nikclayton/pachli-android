@@ -121,10 +121,10 @@ class ViewThreadFragment :
             viewModel.statusDisplayOptions.value,
             this,
             setStatusContent,
-            onReply = { super.reply(it.pachliAccountId, it.actionable) },
-            onReblog = viewModel::reblog,
-            onFavourite = viewModel::favorite,
-            onBookmark = viewModel::bookmark,
+            onReply = ::onReply,
+            onReblog = ::onReblog,
+            onFavourite = ::onFavourite,
+            onBookmark = ::onBookmark,
             onMore = ::more,
         )
     }
@@ -154,7 +154,13 @@ class ViewThreadFragment :
                     binding.recyclerView,
                     this@ViewThreadFragment,
                     openUrl,
-                ) { index -> this@ViewThreadFragment.adapter.currentList.getOrNull(index) },
+                    { index -> this@ViewThreadFragment.adapter.currentList.getOrNull(index) },
+                    ::onReply,
+                    ::onReblog,
+                    ::onFavourite,
+                    ::onBookmark,
+                    ::more,
+                ),
             )
             addItemDecoration(
                 MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
@@ -335,6 +341,22 @@ class ViewThreadFragment :
 
     override fun onRefresh() {
         viewModel.refresh(thisThreadsStatusId)
+    }
+
+    fun onReply(viewData: StatusViewData) {
+        super.reply(viewData.pachliAccountId, viewData.actionable)
+    }
+
+    fun onReblog(viewData: StatusViewData, reblog: Boolean) {
+        viewModel.reblog(viewData, reblog)
+    }
+
+    fun onFavourite(viewData: StatusViewData, favourite: Boolean) {
+        viewModel.favorite(viewData, favourite)
+    }
+
+    fun onBookmark(viewData: StatusViewData, bookmark: Boolean) {
+        viewModel.bookmark(viewData, bookmark)
     }
 
     override fun onViewAttachment(view: View?, viewData: StatusViewData, attachmentIndex: Int) {

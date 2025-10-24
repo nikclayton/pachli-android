@@ -177,11 +177,11 @@ class NotificationsFragment :
             setStatusContent,
             notificationActionListener = this,
             accountActionListener = this,
-            onReply = { super.reply(it.pachliAccountId, it.statusViewData.actionable) },
-            onReblog = { viewData, reblog -> viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData.statusViewData)) },
-            onFavourite = { viewData, favourite -> viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData.statusViewData)) },
-            onBookmark = { viewData, bookmark -> viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData.statusViewData)) },
-            onMore = { view, viewData -> super.more(view, viewData) },
+            onReply = ::onReply,
+            onReblog = ::onReblog,
+            onFavourite = ::onFavourite,
+            onBookmark = ::onBookmark,
+            onMore = ::more,
         )
 
         // Setup the SwipeRefreshLayout.
@@ -216,13 +216,21 @@ class NotificationsFragment :
             false
 
         binding.recyclerView.setAccessibilityDelegateCompat(
-            ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this@NotificationsFragment, openUrl) { pos: Int ->
-                if (pos in 0 until adapter.itemCount) {
-                    adapter.peek(pos) as? NotificationViewData.WithStatus
-                } else {
-                    null
-                }
-            },
+            ListStatusAccessibilityDelegate(
+                pachliAccountId, binding.recyclerView, this@NotificationsFragment, openUrl,
+                { pos: Int ->
+                    if (pos in 0 until adapter.itemCount) {
+                        adapter.peek(pos) as? NotificationViewData.WithStatus
+                    } else {
+                        null
+                    }
+                },
+                ::onReply,
+                ::onReblog,
+                ::onFavourite,
+                ::onBookmark,
+                ::more,
+            ),
         )
 
         val saveIdListener = object : RecyclerView.OnScrollListener() {
@@ -492,6 +500,22 @@ class NotificationsFragment :
         }
 
         clearNotificationsForAccount(requireContext(), pachliAccountId)
+    }
+
+    fun onReply(viewData: NotificationViewData.WithStatus) {
+        super.reply(viewData.pachliAccountId, viewData.statusViewData.actionable)
+    }
+
+    fun onReblog(viewData: NotificationViewData.WithStatus, reblog: Boolean) {
+        viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData.statusViewData))
+    }
+
+    fun onFavourite(viewData: NotificationViewData.WithStatus, favourite: Boolean) {
+        viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData.statusViewData))
+    }
+
+    fun onBookmark(viewData: NotificationViewData.WithStatus, bookmark: Boolean) {
+        viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData.statusViewData))
     }
 
     override fun onVoteInPoll(viewData: NotificationViewData.WithStatus, poll: Poll, choices: List<Int>) {
