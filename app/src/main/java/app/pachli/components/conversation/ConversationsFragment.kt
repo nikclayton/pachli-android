@@ -190,10 +190,10 @@ class ConversationsFragment :
                 setStatusContent,
                 this@ConversationsFragment,
                 accept,
-                onReply = this@ConversationsFragment::onReply,
-                onFavourite = this@ConversationsFragment::onFavourite,
-                onBookmark = this@ConversationsFragment::onBookmark,
-                this@ConversationsFragment::onMore,
+                onReply = { reply(it.pachliAccountId, it.lastStatus.actionable) },
+                onFavourite = { viewData, favourite -> viewModel.favourite(favourite, viewData.lastStatus.actionableId) },
+                onBookmark = { viewData, bookmark -> viewModel.bookmark(bookmark, viewData.lastStatus.actionableId) },
+                onMore = ::more,
             )
 
             setupRecyclerView()
@@ -369,22 +369,6 @@ class ConversationsFragment :
         adapter.refresh()
     }
 
-    override fun onReblog(viewData: ConversationViewData, reblog: Boolean) {
-        // its impossible to reblog private messages
-    }
-
-    override fun onFavourite(viewData: ConversationViewData, favourite: Boolean) {
-        viewModel.favourite(favourite, viewData.lastStatus.actionableId)
-    }
-
-    override fun onBookmark(viewData: ConversationViewData, bookmark: Boolean) {
-        viewModel.bookmark(bookmark, viewData.lastStatus.actionableId)
-    }
-
-    override fun onMore(view: View, viewData: ConversationViewData) {
-        super.more(view, viewData)
-    }
-
     override fun onViewAttachment(view: View?, viewData: ConversationViewData, attachmentIndex: Int) {
         viewMedia(
             viewData.lastStatus.actionable.account.username,
@@ -426,10 +410,6 @@ class ConversationsFragment :
 
     override fun removeItem(viewData: ConversationViewData) {
         // not needed
-    }
-
-    override fun onReply(viewData: ConversationViewData) {
-        reply(viewData.pachliAccountId, viewData.lastStatus.actionable)
     }
 
     override fun onVoteInPoll(viewData: ConversationViewData, poll: Poll, choices: List<Int>) {

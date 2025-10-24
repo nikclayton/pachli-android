@@ -112,11 +112,6 @@ abstract class StatusBaseViewHolder<T : IStatusViewData> protected constructor(
                 onFavouriteClick = { onFavourite(viewData, it) },
                 onBookmarkClick = { onBookmark(viewData, it) },
                 onMoreClick = { onMore(it, viewData) },
-//                onReplyClick = onReplyClick,
-//                onReblogClick = onReblogClick,
-//                onFavouriteClick = onFavouriteClick,
-//                onBookmarkClick = onBookmarkClick,
-//                onMoreClick = onMoreClick,
             )
 
             // Workaround for RecyclerView 1.0.0 / androidx.core 1.0.0

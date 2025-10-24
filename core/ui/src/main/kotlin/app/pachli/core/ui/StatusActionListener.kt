@@ -32,11 +32,6 @@ interface StatusControlListener<T : IStatusViewData> {
 }
 
 interface StatusActionListener<T : IStatusViewData> : LinkListener {
-    fun onReply(viewData: T)
-    fun onReblog(viewData: T, reblog: Boolean)
-    fun onFavourite(viewData: T, favourite: Boolean)
-    fun onBookmark(viewData: T, bookmark: Boolean)
-    fun onMore(view: View, viewData: T)
     fun onViewAttachment(view: View?, viewData: T, attachmentIndex: Int)
     fun onViewThread(status: Status)
 

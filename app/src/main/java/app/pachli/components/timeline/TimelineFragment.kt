@@ -212,11 +212,11 @@ class TimelineFragment :
             setStatusContent,
             this,
             viewModel.statusDisplayOptions.value,
-            onReply = this@TimelineFragment::onReply,
-            onReblog = this@TimelineFragment::onReblog,
-            onFavourite = this@TimelineFragment::onFavourite,
-            onBookmark = this@TimelineFragment::onBookmark,
-            onMore = this@TimelineFragment::onMore,
+            onReply = { super.reply(it.pachliAccountId, it.actionable) },
+            onReblog = { viewData, reblog -> viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData)) },
+            onFavourite = { viewData, favourite -> viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData)) },
+            onBookmark = { viewData, bookmark -> viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData)) },
+            onMore = ::more,
         )
 
         layoutManager = LinearLayoutManager(context)
@@ -598,22 +598,6 @@ class TimelineFragment :
         adapter.refresh()
     }
 
-    override fun onReply(viewData: StatusViewData) {
-        super.reply(viewData.pachliAccountId, viewData.actionable)
-    }
-
-    override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
-        viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData))
-    }
-
-    override fun onFavourite(viewData: StatusViewData, favourite: Boolean) {
-        viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData))
-    }
-
-    override fun onBookmark(viewData: StatusViewData, bookmark: Boolean) {
-        viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData))
-    }
-
     override fun onVoteInPoll(viewData: StatusViewData, poll: Poll, choices: List<Int>) {
         viewModel.accept(FallibleStatusAction.VoteInPoll(poll, choices, viewData))
     }
@@ -627,10 +611,6 @@ class TimelineFragment :
             EditContentFilterActivityIntent.edit(requireContext(), pachliAccountId, filterId),
             TransitionKind.SLIDE_FROM_END,
         )
-    }
-
-    override fun onMore(view: View, viewData: StatusViewData) {
-        super.more(view, viewData)
     }
 
     override fun onOpenReblog(status: Status) {

@@ -121,11 +121,11 @@ class ViewThreadFragment :
             viewModel.statusDisplayOptions.value,
             this,
             setStatusContent,
-            onReply = this::onReply,
-            onReblog = this::onReblog,
-            onFavourite = this::onFavourite,
-            onBookmark = this::onBookmark,
-            onMore = this::onMore,
+            onReply = { super.reply(it.pachliAccountId, it.actionable) },
+            onReblog = viewModel::reblog,
+            onFavourite = viewModel::favorite,
+            onBookmark = viewModel::bookmark,
+            onMore = ::more,
         )
     }
 
@@ -335,26 +335,6 @@ class ViewThreadFragment :
 
     override fun onRefresh() {
         viewModel.refresh(thisThreadsStatusId)
-    }
-
-    override fun onReply(viewData: StatusViewData) {
-        super.reply(viewData.pachliAccountId, viewData.actionable)
-    }
-
-    override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
-        viewModel.reblog(reblog, viewData)
-    }
-
-    override fun onFavourite(viewData: StatusViewData, favourite: Boolean) {
-        viewModel.favorite(favourite, viewData)
-    }
-
-    override fun onBookmark(viewData: StatusViewData, bookmark: Boolean) {
-        viewModel.bookmark(bookmark, viewData)
-    }
-
-    override fun onMore(view: View, viewData: StatusViewData) {
-        super.more(view, viewData)
     }
 
     override fun onViewAttachment(view: View?, viewData: StatusViewData, attachmentIndex: Int) {

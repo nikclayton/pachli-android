@@ -131,11 +131,11 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
             setStatusContent,
             statusDisplayOptions,
             this,
-            onReply = this::onReply,
+            onReply = ::reply,
             onReblog = this::onReblog,
-            onFavourite = this::onFavourite,
-            onBookmark = this::onBookmark,
-            onMore = this::onMore,
+            onFavourite = viewModel::favorite,
+            onBookmark = viewModel::bookmark,
+            onMore = ::more,
         )
     }
 
@@ -143,20 +143,8 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         viewModel.attachmentDisplayActionChange(viewData, newAction)
     }
 
-    override fun onReply(viewData: StatusViewData) {
-        reply(viewData)
-    }
-
-    override fun onFavourite(viewData: StatusViewData, favourite: Boolean) {
-        viewModel.favorite(viewData, favourite)
-    }
-
-    override fun onBookmark(viewData: StatusViewData, bookmark: Boolean) {
-        viewModel.bookmark(viewData, bookmark)
-    }
-
-    override fun onMore(view: View, viewData: StatusViewData) {
-        more(viewData, view)
+    fun onReblog(viewData: StatusViewData, reblog: Boolean) {
+        viewModel.reblog(viewData, reblog)
     }
 
     override fun onViewAttachment(view: View?, viewData: StatusViewData, attachmentIndex: Int) {
@@ -211,10 +199,6 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
 
     override fun clearContentFilter(viewData: StatusViewData) {}
 
-    override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
-        viewModel.reblog(viewData, reblog)
-    }
-
     override fun onEditFilterById(pachliAccountId: Long, filterId: String) {
         startActivityWithTransition(
             EditContentFilterActivityIntent.edit(requireContext(), pachliAccountId, filterId),
@@ -253,7 +237,7 @@ class SearchStatusesFragment : SearchFragment<StatusViewData>(), StatusActionLis
         startActivityWithDefaultTransition(intent)
     }
 
-    private fun more(statusViewData: StatusViewData, view: View) {
+    private fun more(view: View, statusViewData: StatusViewData) {
         val id = statusViewData.actionableId
         val status = statusViewData.actionable
         val accountId = status.account.id

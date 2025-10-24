@@ -294,11 +294,6 @@ class ReportStatusesFragment :
     override fun onViewUrl(url: String) = viewModel.checkClickedUrl(url)
 
     override fun removeItem(viewData: StatusViewData) = Unit
-    override fun onReply(viewData: StatusViewData) = Unit
-    override fun onReblog(viewData: StatusViewData, reblog: Boolean) = Unit
-    override fun onFavourite(viewData: StatusViewData, favourite: Boolean) = Unit
-    override fun onBookmark(viewData: StatusViewData, bookmark: Boolean) = Unit
-    override fun onMore(view: View, viewData: StatusViewData) = Unit
     override fun onOpenReblog(status: Status) = Unit
     override fun onVoteInPoll(viewData: StatusViewData, poll: Poll, choices: List<Int>) = Unit
     override fun onTranslate(viewData: StatusViewData) = Unit

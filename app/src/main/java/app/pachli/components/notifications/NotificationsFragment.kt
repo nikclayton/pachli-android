@@ -177,11 +177,11 @@ class NotificationsFragment :
             setStatusContent,
             notificationActionListener = this,
             accountActionListener = this,
-            onReply = this@NotificationsFragment::onReply,
-            onReblog = this@NotificationsFragment::onReblog,
-            onFavourite = this@NotificationsFragment::onFavourite,
-            onBookmark = this@NotificationsFragment::onBookmark,
-            onMore = this@NotificationsFragment::onMore,
+            onReply = { super.reply(it.pachliAccountId, it.statusViewData.actionable) },
+            onReblog = { viewData, reblog -> viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData.statusViewData)) },
+            onFavourite = { viewData, favourite -> viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData.statusViewData)) },
+            onBookmark = { viewData, bookmark -> viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData.statusViewData)) },
+            onMore = { view, viewData -> super.more(view, viewData) },
         )
 
         // Setup the SwipeRefreshLayout.
@@ -494,28 +494,8 @@ class NotificationsFragment :
         clearNotificationsForAccount(requireContext(), pachliAccountId)
     }
 
-    override fun onReply(viewData: NotificationViewData.WithStatus) {
-        super.reply(viewData.pachliAccountId, viewData.statusViewData.actionable)
-    }
-
-    override fun onReblog(viewData: NotificationViewData.WithStatus, reblog: Boolean) {
-        viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData.statusViewData))
-    }
-
-    override fun onFavourite(viewData: NotificationViewData.WithStatus, favourite: Boolean) {
-        viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData.statusViewData))
-    }
-
-    override fun onBookmark(viewData: NotificationViewData.WithStatus, bookmark: Boolean) {
-        viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData.statusViewData))
-    }
-
     override fun onVoteInPoll(viewData: NotificationViewData.WithStatus, poll: Poll, choices: List<Int>) {
         viewModel.accept(FallibleStatusAction.VoteInPoll(poll, choices, viewData.statusViewData))
-    }
-
-    override fun onMore(view: View, viewData: NotificationViewData.WithStatus) {
-        super.more(view, viewData)
     }
 
     override fun onTranslate(viewData: NotificationViewData.WithStatus) {

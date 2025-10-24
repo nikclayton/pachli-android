@@ -16,14 +16,12 @@
 
 package app.pachli.adapter
 
-import android.text.InputFilter
 import android.view.View
 import androidx.core.util.TypedValueCompat.dpToPx
 import app.pachli.R
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.string.unicodeWrap
-import app.pachli.core.common.util.SmartLengthInputFilter
 import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.Emoji
@@ -113,10 +111,5 @@ open class StatusViewHolder<T : IStatusViewData>(
 
     protected fun hideStatusInfo() = with(binding) {
         statusInfo.hide()
-    }
-
-    companion object {
-        private val COLLAPSE_INPUT_FILTER = arrayOf<InputFilter>(SmartLengthInputFilter)
-        private val NO_INPUT_FILTER = arrayOfNulls<InputFilter>(0)
     }
 }

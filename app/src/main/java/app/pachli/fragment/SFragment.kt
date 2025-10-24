@@ -289,11 +289,11 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_unreblog_private -> {
-                    onReblog(viewData, false)
+//                    onReblog(viewData, false)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_reblog_private -> {
-                    onReblog(viewData, true)
+//                    onReblog(viewData, true)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.status_delete -> {

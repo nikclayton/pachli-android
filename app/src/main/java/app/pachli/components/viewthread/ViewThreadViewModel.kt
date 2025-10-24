@@ -331,7 +331,7 @@ class ViewThreadViewModel @Inject constructor(
         }
     }
 
-    fun reblog(reblog: Boolean, status: StatusViewData) = viewModelScope.launch {
+    fun reblog(status: StatusViewData, reblog: Boolean) = viewModelScope.launch {
         updateStatus(status.id) {
             it.copy(
                 reblogged = reblog,
@@ -348,7 +348,7 @@ class ViewThreadViewModel @Inject constructor(
         }
     }
 
-    fun favorite(favorite: Boolean, status: StatusViewData) = viewModelScope.launch {
+    fun favorite(status: StatusViewData, favorite: Boolean) = viewModelScope.launch {
         updateStatus(status.id) {
             it.copy(
                 favourited = favorite,
@@ -361,7 +361,7 @@ class ViewThreadViewModel @Inject constructor(
         }
     }
 
-    fun bookmark(bookmark: Boolean, status: StatusViewData) = viewModelScope.launch {
+    fun bookmark(status: StatusViewData, bookmark: Boolean) = viewModelScope.launch {
         updateStatus(status.id) { it.copy(bookmarked = bookmark) }
         repository.bookmark(status.pachliAccountId, status.actionableId, bookmark).onFailure {
             updateStatus(status.id) { it }
