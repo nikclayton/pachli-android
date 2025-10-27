@@ -27,6 +27,7 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.ViewGroupCompat
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import app.pachli.core.activity.ReselectableFragment
 import app.pachli.core.activity.ViewUrlActivity
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
@@ -118,6 +119,10 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 val fragment = tabViewData.fragment()
                 replace(R.id.fragmentContainer, fragment)
                 binding.composeButton.show()
+
+                (fragment as? ReselectableFragment)?.let {
+                    binding.includedToolbar.toolbar.setOnClickListener { fragment.onReselect() }
+                }
             }
         }
 
