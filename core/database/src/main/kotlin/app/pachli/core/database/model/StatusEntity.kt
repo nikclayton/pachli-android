@@ -21,6 +21,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
@@ -46,6 +47,12 @@ import java.util.Date
  * serialization).
  * "Reblog status", if present, is marked by [reblogServerId], and [reblogAccountId]
  * fields.
+ *
+ * @property reblogged True if [timelineUserId] reblogged this status.
+ * @property isReblog True if this status is a reblog of another status (see
+ * [reblogServerId] and [reblogAccountId])
+ * @property isReply True if this status is a reply to another status (see
+ * [inReplyToId] and [inReplyToAccountId])
  */
 @Entity(
     primaryKeys = ["serverId", "timelineUserId"],
@@ -106,9 +113,15 @@ data class StatusEntity(
     val language: String?,
     val filtered: List<FilterResult>?,
 ) {
+    @Ignore
+    val isReblog = reblogServerId != null
+
+    @Ignore
+    val isReply = inReplyToId != null
+
     companion object {
         fun from(status: Status, timelineUserId: Long) = StatusEntity(
-            serverId = status.id,
+            serverId = status.statusId,
             url = status.actionableStatus.url,
             timelineUserId = timelineUserId,
             authorServerId = status.actionableStatus.account.id,
@@ -130,7 +143,7 @@ data class StatusEntity(
             mentions = status.actionableStatus.mentions,
             tags = status.actionableStatus.tags,
             application = status.actionableStatus.application,
-            reblogServerId = status.reblog?.id,
+            reblogServerId = status.reblog?.statusId,
             reblogAccountId = status.reblog?.let { status.account.id },
             poll = status.actionableStatus.poll,
             muted = status.actionableStatus.muted,
@@ -144,7 +157,7 @@ data class StatusEntity(
 }
 
 fun Status.asEntity(pachliAccountId: Long) = StatusEntity(
-    serverId = id,
+    serverId = statusId,
     url = actionableStatus.url,
     timelineUserId = pachliAccountId,
     authorServerId = actionableStatus.account.id,
@@ -166,7 +179,7 @@ fun Status.asEntity(pachliAccountId: Long) = StatusEntity(
     mentions = actionableStatus.mentions,
     tags = actionableStatus.tags,
     application = actionableStatus.application,
-    reblogServerId = reblog?.id,
+    reblogServerId = reblog?.statusId,
     reblogAccountId = reblog?.let { account.id },
     poll = actionableStatus.poll,
     muted = actionableStatus.muted,
@@ -295,6 +308,15 @@ fun TimelineAccountEntity.asModel() = TimelineAccount(
     roles = roles.orEmpty(),
 )
 
+/**
+ * @property status
+ * @property account
+ * @property reblogAccount
+ * @property viewData
+ * @property translatedStatus
+ * @property replyAccount If [status] is a reply, this is the details of the
+ * account it is replying to. Null otherwise.
+ */
 data class TimelineStatusWithAccount(
     @Embedded
     val status: StatusEntity,
@@ -307,6 +329,8 @@ data class TimelineStatusWithAccount(
     val viewData: StatusViewDataEntity? = null,
     @Embedded(prefix = "t_")
     val translatedStatus: TranslatedStatusEntity? = null,
+    @Embedded(prefix = "reply_")
+    val replyAccount: TimelineAccountEntity? = null,
 ) {
     fun toStatus(): Status {
         val attachments: List<Attachment> = status.attachments.orEmpty()
@@ -319,7 +343,7 @@ data class TimelineStatusWithAccount(
 
         val reblog = status.reblogServerId?.let { id ->
             Status(
-                id = id,
+                statusId = id,
                 url = status.url,
                 account = account.toTimelineAccount(),
                 inReplyToId = status.inReplyToId,
@@ -352,7 +376,7 @@ data class TimelineStatusWithAccount(
         }
         return if (reblog != null) {
             Status(
-                id = status.serverId,
+                statusId = status.serverId,
                 // no url for reblogs
                 url = null,
                 account = reblogAccount!!.toTimelineAccount(),
@@ -386,7 +410,7 @@ data class TimelineStatusWithAccount(
             )
         } else {
             Status(
-                id = status.serverId,
+                statusId = status.serverId,
                 url = status.url,
                 account = account.toTimelineAccount(),
                 inReplyToId = status.inReplyToId,

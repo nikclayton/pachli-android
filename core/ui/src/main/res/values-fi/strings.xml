@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="error_network">Verkkovirhe. Tarkista yhteytesi ja yritä uudelleen.</string>
     <string name="error_generic">Tapahtui virhe.</string>
@@ -90,4 +90,47 @@
         <item quantity="one">roolissa:</item>
         <item quantity="other">rooleissa:</item>
     </plurals>
+    <string name="action_reply">Vastaa</string>
+    <string name="action_reblog">Jaa</string>
+    <string name="action_favourite">Lisää suosikiksi</string>
+    <string name="action_bookmark">Kirjanmerkki</string>
+    <string name="status_count_one_plus">1+</string>
+    <string name="action_unreblog">Poista jako</string>
+    <string name="action_unfavourite">Poista suosikki</string>
+    <string name="action_hide_attachments">Piilota liitteet</string>
+    <string name="action_show_attachments">Näytä liitteet</string>
+    <string name="attachment_hidden_user_action">Piilotit tämän. Napauta näyttääksesi.</string>
+    <string name="attachment_matches_filter_other_fmt">Sopii suodattimiin: \"%1$s\", \"%2$s\", ja muihin. Napauta näyttääksesi.</string>
+    <string name="attachment_matches_filter_two_fmt">Sopii suodattimiin: \"%1$s\" ja \"%2$s\". Napauta näyttääksesi.</string>
+    <string name="attachment_matches_filter_one_fmt">Sopii suodattimeen: \"%1$s\". Napauta näyttääksesi.</string>
+    <string name="emoji_picker_show_detail">Näytä yksityiskohdat</string>
+    <string name="post_content_warning_show_less">Näytä vähemmän</string>
+    <string name="post_content_warning_show_more">Näytä lisää</string>
+    <string name="post_content_show_less">Vähennä</string>
+    <string name="translating">Käännetään…</string>
+    <string name="translation_provider_fmt">%1$s</string>
+    <string name="description_post_edited">Muokattu</string>
+    <string name="description_post_reblogged">Tehostettu</string>
+    <string name="description_post_favourited">Tykätty</string>
+    <string name="description_post_bookmarked">Kirjanmerkki lisätty</string>
+    <string name="description_post_media">Media: %s</string>
+    <string name="description_post_cw">Sisältövaroitus: %s</string>
+    <plurals name="reblogs">
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Tehostus</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Tehostusta</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Tykkäys</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Tykkäystä</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt; jakoi</string>
+    <string name="post_edited">Muokattu %s</string>
+    <string name="post_replied_to_fmt">Vastasi käyttäjälle &lt;b>%1$s&lt;/b></string>
+    <string name="post_continued_thread">Ketju jatkuu</string>
+    <string name="post_replied">Vastasi</string>
+    <string name="action_unselect_status">Poista julkaisun valinta</string>
+    <string name="action_select_status">Valitse julkaisu</string>
+    <string name="handle_contentdescription_fmt">Tili, @%1$s</string>
+    <string name="role_content_description_fmt">%1$s, aikaan %2$s</string>
+    <string name="dot_in_name">piste</string>
 </resources>

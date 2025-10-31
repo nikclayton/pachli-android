@@ -21,6 +21,7 @@ import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.StatusViewDataDiffCallback
+import app.pachli.core.data.model.NotificationViewData.SeveredRelationshipsNotificationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.RelationshipSeveranceEvent.Type.ACCOUNT_SUSPENSION
 import app.pachli.core.model.RelationshipSeveranceEvent.Type.DOMAIN_BLOCK
@@ -28,18 +29,17 @@ import app.pachli.core.model.RelationshipSeveranceEvent.Type.UNKNOWN
 import app.pachli.core.model.RelationshipSeveranceEvent.Type.USER_DOMAIN_BLOCK
 import app.pachli.core.ui.getRelativeTimeSpanString
 import app.pachli.databinding.ItemSeveredRelationshipsBinding
-import app.pachli.viewdata.NotificationViewData
 
 class SeveredRelationshipsViewHolder(
     private val binding: ItemSeveredRelationshipsBinding,
-) : NotificationsPagingAdapter.ViewHolder, RecyclerView.ViewHolder(binding.root) {
+) : NotificationsPagingAdapter.ViewHolder<SeveredRelationshipsNotificationViewData>, RecyclerView.ViewHolder(binding.root) {
     override fun bind(
-        viewData: NotificationViewData,
+        viewData: SeveredRelationshipsNotificationViewData,
         payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
     ) {
         val context = itemView.context
-        val event = viewData.relationshipSeveranceEvent!!
+        val event = viewData.relationshipSeveranceEvent
 
         if (payloads.isNullOrEmpty()) {
             val topTextHtml = when (event.type) {

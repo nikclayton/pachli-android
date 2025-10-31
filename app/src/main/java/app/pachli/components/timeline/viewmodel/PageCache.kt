@@ -45,7 +45,7 @@ data class Page(
      */
     val nextKey: String? = null,
 ) {
-    override fun toString() = "size: ${"%2d".format(data.size)}, range: ${data.firstOrNull()?.id}..${data.lastOrNull()?.id}, prevKey: $prevKey, nextKey: $nextKey"
+    override fun toString() = "size: ${"%2d".format(data.size)}, range: ${data.firstOrNull()?.statusId}..${data.lastOrNull()?.statusId}, prevKey: $prevKey, nextKey: $nextKey"
 
     companion object {
         fun tryFrom(response: ApiResult<List<app.pachli.core.network.model.Status>>): Result<Page, ApiError> = response.map {
@@ -237,12 +237,12 @@ class PageCache private constructor(private val mutex: Mutex) : Mutex by mutex {
         page.data.forEach { status ->
             // There should never be duplicate items across all pages. Enforce this in debug mode
             if (BuildConfig.DEBUG) {
-                if (idToPage.containsKey(status.id)) {
+                if (idToPage.containsKey(status.statusId)) {
                     debug()
 //                    throw IllegalStateException("Duplicate item ID ${status.id} in pagesById")
                 }
             }
-            idToPage[status.id] = page
+            idToPage[status.statusId] = page
         }
     }
 
@@ -278,25 +278,37 @@ class PageCache private constructor(private val mutex: Mutex) : Mutex by mutex {
      * Finds [statusId] in the cache and calls [updater] on the status (if found),
      * saves the result back to the cache.
      *
-     * @throws IllegalStateException if the cache is unlocked.*
+     * @throws IllegalStateException if the cache is unlocked.
      */
     fun updateStatusById(statusId: String, updater: (Status) -> Status) {
         assertLocked()
         idToPage[statusId]?.let { page ->
-            val index = page.data.indexOfFirst { it.id == statusId }
+            val index = page.data.indexOfFirst { it.statusId == statusId }
             if (index == -1) return
             page.data[index] = updater(page.data[index])
         }
     }
 
+    /**
+     * Finds [statusId] in the cache and calls [updater] on the *actionable* status
+     * for that status (if found), saves the result back to the cache.
+     *
+     * Note: [statusId] is **not** the ID of the actionable status, it's the ID
+     * of the status that (possibly) contains it.
+     *
+     * @param statusId
+     * @param updater Function to call, receives a copy of the actionable status
+     * and returns the modified version.
+     * @throws IllegalStateException if the cache is unlocked.
+     */
     fun updateActionableStatusById(statusId: String, updater: (Status) -> Status) {
         assertLocked()
         idToPage[statusId]?.let { page ->
-            val index = page.data.indexOfFirst { it.id == statusId }
+            val index = page.data.indexOfFirst { it.statusId == statusId }
             if (index == -1) return
             val status = page.data[index]
             page.data[index] = status.reblog?.let {
-                status.copy(reblog = it)
+                status.copy(reblog = updater(it))
             } ?: updater(status)
         }
     }

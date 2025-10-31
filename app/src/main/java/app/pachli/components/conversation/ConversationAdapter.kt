@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.FilterableStatusViewHolder
 import app.pachli.adapter.StatusViewDataDiffCallback
+import app.pachli.core.data.model.ConversationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.AccountFilterReason
@@ -118,7 +119,7 @@ internal class ConversationAdapter(
     companion object {
         val CONVERSATION_COMPARATOR = object : DiffUtil.ItemCallback<ConversationViewData>() {
             override fun areItemsTheSame(oldItem: ConversationViewData, newItem: ConversationViewData): Boolean {
-                return oldItem.id == newItem.id
+                return oldItem.conversationId == newItem.conversationId
             }
 
             override fun areContentsTheSame(oldItem: ConversationViewData, newItem: ConversationViewData): Boolean {
@@ -210,7 +211,7 @@ class FilterableConversationViewHolder internal constructor(
             accept(
                 ConversationAction.OverrideAccountFilter(
                     viewData.pachliAccountId,
-                    viewData.id,
+                    viewData.conversationId,
                     viewData.accountFilterDecision!!,
                 ),
             )
@@ -231,8 +232,9 @@ class FilterableConversationViewHolder internal constructor(
             HtmlCompat.FROM_HTML_MODE_LEGACY,
         )
 
-        if (viewData.accountFilterDecision is AccountFilterDecision.Warn) {
-            binding.accountFilterReason.text = when (viewData.accountFilterDecision.reason) {
+        val accountFilterDecision = viewData.accountFilterDecision
+        if (accountFilterDecision is AccountFilterDecision.Warn) {
+            binding.accountFilterReason.text = when (accountFilterDecision.reason) {
                 AccountFilterReason.NOT_FOLLOWING -> notFollowing
                 AccountFilterReason.YOUNGER_30D -> younger30d
                 AccountFilterReason.LIMITED_BY_SERVER -> limitedByServer

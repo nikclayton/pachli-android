@@ -24,8 +24,8 @@ import android.text.style.StyleSpan
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.core.common.string.unicodeWrap
+import app.pachli.core.data.model.NotificationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
-import app.pachli.core.database.model.NotificationEntity
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.TimelineAccount
 import app.pachli.core.network.parseAsMastodonHtml
@@ -35,15 +35,13 @@ import app.pachli.core.ui.extensions.handleContentDescription
 import app.pachli.core.ui.loadAvatar
 import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ItemFollowBinding
-import app.pachli.viewdata.NotificationViewData
 import com.bumptech.glide.RequestManager
 
 class FollowViewHolder(
     private val binding: ItemFollowBinding,
     private val glide: RequestManager,
-    private val notificationActionListener: NotificationActionListener,
     private val linkListener: LinkListener,
-) : NotificationsPagingAdapter.ViewHolder, RecyclerView.ViewHolder(binding.root) {
+) : NotificationsPagingAdapter.ViewHolder<NotificationViewData>, RecyclerView.ViewHolder(binding.root) {
     private val avatarRadius42dp = itemView.context.resources.getDimensionPixelSize(
         DR.dimen.avatar_radius_42dp,
     )
@@ -59,11 +57,10 @@ class FollowViewHolder(
 
         setMessage(
             viewData.account,
-            viewData.type === NotificationEntity.Type.SIGN_UP,
+            viewData is NotificationViewData.SignupNotificationViewData,
             statusDisplayOptions.animateAvatars,
             statusDisplayOptions.animateEmojis,
         )
-        setupButtons(notificationActionListener, viewData.account.id)
     }
 
     private fun setMessage(
@@ -118,9 +115,7 @@ class FollowViewHolder(
             animateEmojis,
         )
         setClickableText(binding.notificationAccountNote, emojifiedNote, emptyList(), null, linkListener)
-    }
-
-    private fun setupButtons(listener: NotificationActionListener, accountId: String) {
-        binding.root.setOnClickListener { listener.onViewAccount(accountId) }
+        binding.notificationAccountNote.setOnClickListener { linkListener.onViewAccount(account.id) }
+        itemView.setOnClickListener { linkListener.onViewAccount(account.id) }
     }
 }

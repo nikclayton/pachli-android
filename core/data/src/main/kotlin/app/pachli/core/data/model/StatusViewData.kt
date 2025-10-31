@@ -24,6 +24,7 @@ import app.pachli.core.database.model.TranslationState
 import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.Status
+import app.pachli.core.model.TimelineAccount
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.network.replaceCrashingCharacters
 
@@ -36,6 +37,11 @@ interface IStatusViewData {
     /** ID of the Pachli account that loaded this status. */
     val pachliAccountId: Long
     val username: String
+
+    // TODO: rebloggedAvatar is the wrong name for this property. This is the avatar to show
+    // inset in the main avatar view. When viewing a boosted status in a timeline this is
+    // avatar that boosted it, but when viewing a notification about a boost or favourite
+    // this the avatar that boosted/favourited it
     val rebloggedAvatar: String?
 
     var translation: TranslatedStatusEntity?
@@ -103,6 +109,17 @@ interface IStatusViewData {
 
     /** How to display attachments on this status. */
     val attachmentDisplayAction: AttachmentDisplayAction
+
+    /**
+     * If this is a reply, the account being replied to.
+     *
+     * Null in two cases:
+     *
+     * 1. The status is not a reply.
+     * 2. The status is a reply, and we do not have a local copy of the account
+     * details to show, and a generic "Reply" indicator should be shown.
+     */
+    val replyToAccount: TimelineAccount?
 }
 
 /**
@@ -117,6 +134,7 @@ data class StatusViewData(
     override var contentFilterAction: FilterAction = FilterAction.NONE,
     override val translationState: TranslationState,
     override val attachmentDisplayAction: AttachmentDisplayAction,
+    override val replyToAccount: TimelineAccount?,
 
     /**
      * Specifies whether this status should be shown with the "detailed" layout, meaning it is
@@ -125,7 +143,7 @@ data class StatusViewData(
     val isDetailed: Boolean = false,
 ) : IStatusViewData {
     val id: String
-        get() = status.id
+        get() = status.statusId
 
     override val isCollapsible: Boolean
 
@@ -151,7 +169,7 @@ data class StatusViewData(
         get() = status.actionableStatus
 
     override val actionableId: String
-        get() = status.actionableStatus.id
+        get() = status.actionableStatus.statusId
 
     override val rebloggedAvatar: String?
         get() = if (status.reblog != null) {
@@ -196,6 +214,7 @@ data class StatusViewData(
             attachmentDisplayAction: AttachmentDisplayAction = AttachmentDisplayAction.Show(),
             translationState: TranslationState = TranslationState.SHOW_ORIGINAL,
             translation: TranslatedStatusEntity? = null,
+            replyToAccount: TimelineAccount?,
         ): StatusViewData {
             if (BuildConfig.DEBUG) {
                 // TODO: Ensure that invalid state is not representable.
@@ -218,6 +237,7 @@ data class StatusViewData(
                 attachmentDisplayAction = attachmentDisplayAction,
                 translationState = translationState,
                 translation = translation,
+                replyToAccount = replyToAccount,
             )
         }
 
@@ -253,6 +273,7 @@ data class StatusViewData(
                 contentFilterAction = contentFilterAction,
                 attachmentDisplayAction = attachmentDisplayAction,
                 translationState = timelineStatusWithAccount.viewData?.translationState ?: translationState,
+                replyToAccount = timelineStatusWithAccount.replyAccount?.toTimelineAccount(),
             )
         }
     }

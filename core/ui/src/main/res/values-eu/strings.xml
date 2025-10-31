@@ -67,4 +67,28 @@
     <string name="post_media_audio">Audioa</string>
     <string name="post_media_video">Bideoa</string>
     <string name="post_media_attachments">Eranskinak</string>
+    <string name="action_reply">Erantzun</string>
+    <string name="action_reblog">Bultzatu</string>
+    <string name="action_favourite">Gogokoa</string>
+    <string name="action_bookmark">Laster-marka</string>
+    <string name="action_unreblog">Bultzada kendu</string>
+    <string name="action_unfavourite">Gogokoa kendu</string>
+    <string name="post_content_warning_show_less">Gutxiago erakutsi</string>
+    <string name="post_content_warning_show_more">Gehiago erakutsi</string>
+    <string name="post_content_show_less">Itxi</string>
+    <string name="description_post_reblogged">Partekatua</string>
+    <string name="description_post_favourited">Gogokoa</string>
+    <string name="description_post_bookmarked">Laster-marketara gehitua</string>
+    <string name="description_post_media">Media: %s</string>
+    <string name="description_post_cw">Edukiarekiko abisua: %s</string>
+    <plurals name="reblogs">
+        <item quantity="one">Bultzada &lt;b&gt;%s&lt;/b&gt;</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Bultzada</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">Gogoko &lt;b&gt;%1$s&lt;/b&gt;</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Gogoko</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt;-(e)k bultzatu du</string>
+    <string name="post_edited">%s editatua</string>
 </resources>

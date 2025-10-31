@@ -28,12 +28,7 @@
     <string name="title_follow_requests">关注请求</string>
     <string name="title_edit_profile">编辑个人资料</string>
     <string name="title_drafts">草稿</string>
-    <string name="post_boosted_format">%s 转嘟了</string>
     <string name="post_sensitive_media_directions">点击查看</string>
-    <string name="post_content_warning_show_more">显示更多</string>
-    <string name="post_content_warning_show_less">折叠内容</string>
-    <string name="post_content_show_more">展开</string>
-    <string name="post_content_show_less">折叠</string>
     <string name="footer_empty">还没有内容，向下拉动即可刷新！</string>
     <string name="notification_reblog_format">%s 转嘟了你的嘟文</string>
     <string name="notification_favourite_format">%s 喜欢了你的嘟文</string>
@@ -41,11 +36,6 @@
     <string name="report_username_format">举报 @%s</string>
     <string name="report_comment_hint">报告更多信息？</string>
     <string name="action_quick_reply">快速回复</string>
-    <string name="action_reply">回复</string>
-    <string name="action_reblog">转嘟</string>
-    <string name="action_unreblog">取消转嘟</string>
-    <string name="action_favourite">喜欢</string>
-    <string name="action_unfavourite">取消喜欢</string>
     <string name="action_compose">发表嘟文</string>
     <string name="action_follow">关注</string>
     <string name="action_unfollow">取消关注</string>
@@ -236,21 +226,11 @@
     <string name="label_remote_account">以下信息可能并不完整，要查看完整资料请使用浏览器打开。</string>
     <string name="unpin_action">取消置顶</string>
     <string name="pin_action">置顶</string>
-    <plurals name="favs">
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; 次喜欢</item>
-    </plurals>
-    <plurals name="reblogs">
-        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; 次转嘟</item>
-    </plurals>
     <string name="title_reblogged_by">转嘟</string>
     <string name="title_favourited_by">喜欢</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s 和 %2$s</string>
     <string name="conversation_more_recipients">%1$s，%2$s 和 %3$d 等人</string>
-    <string name="description_post_media">媒体：%s</string>
-    <string name="description_post_cw">内容警告：%s</string>
-    <string name="description_post_reblogged">被转嘟</string>
-    <string name="description_post_favourited">被喜欢</string>
     <string name="edit_hashtag_hint">话题名（不含前面的 # 号）</string>
     <string name="notifications_clear">清空</string>
     <string name="notifications_apply_filter">分类</string>
@@ -266,7 +246,6 @@
     <string name="title_bookmarks">书签</string>
     <string name="title_domain_mutes">被隐藏的域名</string>
     <string name="title_scheduled_posts">定时嘟文</string>
-    <string name="action_bookmark">书签</string>
     <string name="action_edit">编辑</string>
     <string name="action_view_bookmarks">书签</string>
     <string name="action_view_domain_mutes">隐藏的域名</string>
@@ -279,7 +258,6 @@
     <string name="pref_title_alway_open_spoiler">始终扩展有内容警告的嘟文</string>
     <string name="filter_dialog_whole_word">整个单词</string>
     <string name="filter_dialog_whole_word_description">如果关键字或缩写只有字母或数字，则只有在匹配整个单词时才会应用</string>
-    <string name="description_post_bookmarked">被加入书签</string>
     <string name="select_list_title">选择列表</string>
     <string name="list">列表</string>
     <string name="button_back">返回</string>
@@ -383,7 +361,6 @@
     <string name="saving_draft">正在保存草稿…</string>
     <string name="title_migration_relogin">重新登陆以启用通知推送</string>
     <string name="account_date_joined">加入于%1$s</string>
-    <string name="status_count_one_plus">1+</string>
     <string name="action_edit_image">编辑图片</string>
     <string name="error_image_edit_failed">无法编辑图片。</string>
     <string name="error_following_hashtag_format">关注 #%s 出错</string>
@@ -416,8 +393,6 @@
     <string name="title_followed_hashtags">关注的话题标签</string>
     <string name="language_display_name_format">%s (%s)</string>
     <string name="pref_default_post_language">发嘟文默认使用的语言</string>
-    <string name="description_post_edited">已编辑</string>
-    <string name="post_edited">编辑了 %s</string>
     <string name="error_muting_hashtag_format">对 #%s 静音时出错</string>
     <string name="error_unmuting_hashtag_format">对 #%s 取消静音时出错</string>
     <string name="hint_media_description_missing">媒体文件应该有描述。</string>
@@ -539,13 +514,11 @@
     <string name="error_prepare_media_unknown_file_size">无法确定文件大小</string>
     <string name="error_pick_media_fmt">无法添加附件到嘟文：%1$s</string>
     <string name="filter_action_none">显示</string>
-    <string name="translation_provider_fmt">%1$s</string>
     <string name="pref_update_check_no_updates">没有可用的更新</string>
     <string name="pref_labs_reverse_home_timeline_title">反转时间线顺序</string>
     <string name="pref_labs_reverse_home_timeline_off_summary">嘟文从新到旧排序</string>
     <string name="search_operator_language_checked_fmt">%1$s</string>
     <string name="search_operator_language_dialog_all">任何语言</string>
-    <string name="translating">正在翻译……</string>
     <string name="pref_title_show_self_boosts">显示自转发</string>
     <string name="pref_title_show_self_boosts_description">转发自己的帖子的人</string>
     <string name="action_send_public_content_description">发送公开嘟文</string>
@@ -621,14 +594,14 @@
     <string name="error_prepare_media_unknown_mime_type">文件类型未知</string>
     <string name="load_newest_statuses">加载最新嘟文</string>
     <string name="followed_hashtags_summary_fmt">%1$s 来自 %2$s (最后 %3$s)</string>
-    <string name="notification_severed_relationships_format">与 <b>%1$s</b> 的关系已中断</string>
+    <string name="notification_severed_relationships_format">与 &lt;b>%1$s&lt;/b> 的关系已中断</string>
     <string name="notification_severed_relationships_domain_block_body">一名管理员暂停了该域</string>
     <string name="notification_severed_relationships_user_domain_block_body">您已屏蔽该域名</string>
     <string name="notification_severed_relationships_account_suspension_body">一名管理员暂停了该账户</string>
-    <string name="notification_severed_relationships_domain_block_fmt">%1$s 的管理员阻止了 <b>%2$s</b></string>
-    <string name="notification_severed_relationships_user_domain_block_fmt">你屏蔽了 <b>%1$s</b></string>
-    <string name="notification_severed_relationships_account_suspension_fmt">%1$s 的管理员屏蔽了 <b>%2$s</b></string>
-    <string name="notification_severed_relationships_unknown_fmt"><b>%1$s</b> 被屏蔽了（未知原因）</string>
+    <string name="notification_severed_relationships_domain_block_fmt">%1$s 的管理员阻止了 &lt;b>%2$s&lt;/b></string>
+    <string name="notification_severed_relationships_user_domain_block_fmt">你屏蔽了 &lt;b>%1$s&lt;/b></string>
+    <string name="notification_severed_relationships_account_suspension_fmt">%1$s 的管理员屏蔽了 &lt;b>%2$s&lt;/b></string>
+    <string name="notification_severed_relationships_unknown_fmt">&lt;b>%1$s&lt;/b> 被屏蔽了（未知原因）</string>
     <string name="notification_moderation_warning_title">来自您的管理员的消息</string>
     <string name="notification_moderation_warning_body_none_fmt">您收到了一个审核警告：%1$s</string>
     <string name="notification_moderation_warning_body_disable_fmt">您的账户被禁用：%1$s</string>
@@ -706,14 +679,14 @@
     <string name="pref_title_account_conversation_filters">对话过滤器</string>
     <string name="pref_summary_account_conversation_filters">您的服务器不支持对话过滤器</string>
     <string name="pref_account_conversation_filters_subtitle">由账户启动的对话应该发生什么…</string>
-    <string name="account_filter_placeholder_type_favourite_fmt">用户 @<b>%1s</b> 收藏了你的帖子</string>
-    <string name="account_filter_placeholder_type_follow_fmt">用户 @<b>%1s</b> 关注了你</string>
-    <string name="account_filter_placeholder_type_follow_request_fmt">来自用户 @<b>%1s</b> 的关注请求</string>
-    <string name="account_filter_placeholder_type_mention_fmt">用户 @<b>%1s</b> 提及了你</string>
-    <string name="account_filter_placeholder_type_reblog_fmt">用户 @<b>%1s</b> 转发了你的帖文</string>
-    <string name="account_filter_placeholder_label_domain">来自用户 @<b>%1s</b></string>
-    <string name="account_filter_placeholder_label_not_following">过滤原因：<b>您没有关注他们</b></string>
-    <string name="account_filter_placeholder_label_younger_30d">过滤原因：<b>在过去30天内创建</b></string>
-    <string name="account_filter_placeholder_label_limited_by_server">过滤原因：<b>受到您的管理员限制</b></string>
+    <string name="account_filter_placeholder_type_favourite_fmt">用户 @&lt;b>%1s&lt;/b> 收藏了你的帖子</string>
+    <string name="account_filter_placeholder_type_follow_fmt">用户 @&lt;b>%1s&lt;/b> 关注了你</string>
+    <string name="account_filter_placeholder_type_follow_request_fmt">来自用户 @&lt;b>%1s&lt;/b> 的关注请求</string>
+    <string name="account_filter_placeholder_type_mention_fmt">用户 @&lt;b>%1s&lt;/b> 提及了你</string>
+    <string name="account_filter_placeholder_type_reblog_fmt">用户 @&lt;b>%1s&lt;/b> 转发了你的帖文</string>
+    <string name="account_filter_placeholder_label_domain">来自用户 @&lt;b>%1s&lt;/b></string>
+    <string name="account_filter_placeholder_label_not_following">过滤原因：&lt;b>您没有关注他们&lt;/b></string>
+    <string name="account_filter_placeholder_label_younger_30d">过滤原因：&lt;b>在过去30天内创建&lt;/b></string>
+    <string name="account_filter_placeholder_label_limited_by_server">过滤原因：&lt;b>受到您的管理员限制&lt;/b></string>
     <string name="error_share_media">没有可保存临时媒体的目录</string>
 </resources>

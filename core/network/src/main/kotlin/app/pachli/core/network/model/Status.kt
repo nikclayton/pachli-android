@@ -85,16 +85,6 @@ data class Status(
         DIRECT,
         ;
 
-        fun serverString(): String {
-            return when (this) {
-                PUBLIC -> "public"
-                UNLISTED -> "unlisted"
-                PRIVATE -> "private"
-                DIRECT -> "direct"
-                UNKNOWN -> "unknown"
-            }
-        }
-
         fun asModel() = when (this) {
             UNKNOWN -> app.pachli.core.model.Status.Visibility.UNKNOWN
             PUBLIC -> app.pachli.core.model.Status.Visibility.PUBLIC
@@ -105,7 +95,7 @@ data class Status(
     }
 
     fun asModel(): app.pachli.core.model.Status = app.pachli.core.model.Status(
-        id = id,
+        statusId = id,
         url = url,
         account = account.asModel(),
         inReplyToId = inReplyToId,

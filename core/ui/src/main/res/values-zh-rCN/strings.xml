@@ -19,9 +19,9 @@
     <string name="action_logout_confirm">你确定要退出登录 %1$s 吗？这会删除账户的所有本地数据，包括草稿和选项。</string>
     <string name="add_account_name">添加账号</string>
     <string name="action_logout">注销</string>
-    <string name="preview_card_byline_fediverse_account_fmt">由 <b>%1$s</b> 发布。查看更多帖文</string>
-    <string name="preview_card_byline_name_only_fmt">由 <b>%1$s</b> 发布</string>
-    <string name="preview_card_timeline_link_fmt">查看 <b>%1$s</b> 关于此链接的帖文</string>
+    <string name="preview_card_byline_fediverse_account_fmt">由 &lt;b>%1$s&lt;/b> 发布。查看更多帖文</string>
+    <string name="preview_card_byline_name_only_fmt">由 &lt;b>%1$s&lt;/b> 发布</string>
+    <string name="preview_card_timeline_link_fmt">查看 &lt;b>%1$s&lt;/b> 关于此链接的帖文</string>
     <string name="poll_vote">投票</string>
     <string name="poll_show_votes">显示投票</string>
     <plurals name="poll_timespan_seconds">
@@ -77,4 +77,30 @@
     <plurals name="description_post_roles">
         <item quantity="other">具有身份：</item>
     </plurals>
+    <string name="action_reply">回复</string>
+    <string name="action_reblog">转嘟</string>
+    <string name="action_favourite">喜欢</string>
+    <string name="action_bookmark">书签</string>
+    <string name="status_count_one_plus">1+</string>
+    <string name="action_unreblog">取消转嘟</string>
+    <string name="action_unfavourite">取消喜欢</string>
+    <string name="post_content_warning_show_less">折叠内容</string>
+    <string name="post_content_warning_show_more">显示更多</string>
+    <string name="post_content_show_less">折叠</string>
+    <string name="translating">正在翻译……</string>
+    <string name="translation_provider_fmt">%1$s</string>
+    <string name="description_post_edited">已编辑</string>
+    <string name="description_post_reblogged">被转嘟</string>
+    <string name="description_post_favourited">被喜欢</string>
+    <string name="description_post_bookmarked">被加入书签</string>
+    <string name="description_post_media">媒体：%s</string>
+    <string name="description_post_cw">内容警告：%s</string>
+    <plurals name="reblogs">
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; 次转嘟</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; 次喜欢</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt; 转嘟了</string>
+    <string name="post_edited">编辑了 %s</string>
 </resources>

@@ -28,6 +28,7 @@ import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.core.content.ContextCompat
+import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -81,9 +82,7 @@ import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentTimelineBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.AppBarLayoutHost
 import app.pachli.util.ListStatusAccessibilityDelegate
-import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.Glide
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.onFailure
@@ -576,10 +575,10 @@ class TimelineFragment :
             adapter.postPrepend {
                 binding.recyclerView.post {
                     view ?: return@post
-                    Timber.d("scrolling up by -30px because peeking after refresh")
+                    Timber.d("scrolling up by -30dp because peeking after refresh")
                     binding.recyclerView.smoothScrollBy(
                         0,
-                        Utils.dpToPx(requireContext(), -30),
+                        dpToPx(-30f, requireContext().resources.displayMetrics).toInt(),
                     )
                 }
             }
@@ -658,7 +657,7 @@ class TimelineFragment :
         viewModel.accept(InfallibleStatusAction.TranslateUndo(viewData))
     }
 
-    override fun onViewMedia(viewData: StatusViewData, attachmentIndex: Int, view: View?) {
+    override fun onViewAttachment(view: View?, viewData: StatusViewData, attachmentIndex: Int) {
         // Pass the translated media descriptions through (if appropriate)
         val actionable = if (viewData.translationState == TranslationState.SHOW_TRANSLATION) {
             viewData.actionable.copy(
@@ -674,7 +673,7 @@ class TimelineFragment :
     }
 
     override fun onViewThread(status: Status) {
-        super.viewThread(status.actionableId, status.url)
+        super.viewThread(status.actionableId, status.actionableStatus.url)
     }
 
     override fun onViewTag(tag: String) {
@@ -742,8 +741,6 @@ class TimelineFragment :
         if (talkBackWasEnabled && !wasEnabled) {
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
         }
-
-        (requireActivity() as? AppBarLayoutHost)?.appBarLayout?.setLiftOnScrollTargetView(binding.recyclerView)
     }
 
     override fun onPause() {

@@ -28,12 +28,7 @@
     <string name="title_follow_requests">Folgeanfragen</string>
     <string name="title_edit_profile">Dein Profil bearbeiten</string>
     <string name="title_drafts">Entwürfe</string>
-    <string name="post_boosted_format">%s teilte</string>
     <string name="post_sensitive_media_directions">Zum Anzeigen tippen</string>
-    <string name="post_content_warning_show_more">Mehr anzeigen</string>
-    <string name="post_content_warning_show_less">Weniger anzeigen</string>
-    <string name="post_content_show_more">Ausklappen</string>
-    <string name="post_content_show_less">Einklappen</string>
     <string name="footer_empty">Noch keine Beiträge. Ziehe zum Aktualisieren nach unten!</string>
     <string name="notification_reblog_format">%s teilte deinen Beitrag</string>
     <string name="notification_favourite_format">%s favorisierte deinen Beitrag</string>
@@ -41,11 +36,6 @@
     <string name="report_username_format">\@%s melden</string>
     <string name="report_comment_hint">Zusätzliche Anmerkungen\?</string>
     <string name="action_quick_reply">Schnell antworten</string>
-    <string name="action_reply">Antworten</string>
-    <string name="action_reblog">Teilen</string>
-    <string name="action_unreblog">Teilen rückgängig machen</string>
-    <string name="action_favourite">Favorisieren</string>
-    <string name="action_unfavourite">Aus Favoriten entfernen</string>
     <string name="action_compose">Beitrag erstellen</string>
     <string name="action_follow">Folgen</string>
     <string name="action_unfollow">Entfolgen</string>
@@ -233,21 +223,13 @@
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s und %2$s</string>
     <string name="conversation_more_recipients">%1$s, %2$s und %3$d mehr</string>
-    <string name="description_post_favourited">Favorisiert    </string>
     <string name="download_media">Dateien herunterladen</string>
     <string name="downloading_media">Dateien werden heruntergeladen</string>
     <string name="filter_add_description">zu filternder Ausdruck</string>
     <string name="edit_hashtag_hint">Hashtag ohne #</string>
     <string name="action_open_reblogger">Autor*in des geteilten Beitrags öffnen</string>
     <string name="pref_title_public_filter_keywords">Öffentliche Timelines</string>
-    <plurals name="favs">
-        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Favorit</item>
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Favoriten</item>
-    </plurals>
     <string name="title_reblogged_by">Geteilt von</string>
-    <string name="description_post_media">Medien: %s</string>
-    <string name="description_post_cw">Inhaltswarnung: %s</string>
-    <string name="description_post_reblogged">Geteilt</string>
     <string name="action_delete_and_redraft">Löschen und neu erstellen</string>
     <string name="dialog_redraft_post_warning">Diesen Beitrag löschen und neu erstellen\?</string>
     <string name="pref_title_notification_filter_poll">Umfragen beendet wurden</string>
@@ -302,9 +284,7 @@
     <string name="action_schedule_post">Beitrag planen</string>
     <string name="action_reset_schedule">Zurücksetzen</string>
     <string name="title_bookmarks">Lesezeichen</string>
-    <string name="action_bookmark">Lesezeichen</string>
     <string name="action_view_bookmarks">Lesezeichen</string>
-    <string name="description_post_bookmarked">Als Lesezeichen gespeichert</string>
     <string name="select_list_title">Liste auswählen</string>
     <string name="select_list_empty">Du hast noch keine Listen</string>
     <string name="select_list_manage">Listen verwalten</string>
@@ -327,10 +307,6 @@
     <string name="pref_title_enable_swipe_for_tabs">Wischgeste zum Wechseln zwischen Tabs aktivieren</string>
     <string name="pref_title_gradient_for_media">Farbverlauf für verborgene Medien anzeigen</string>
     <string name="action_unmute_domain">%s nicht mehr stummschalten</string>
-    <plurals name="reblogs">
-        <item quantity="one">&lt;b&gt;%s&lt;/b&gt;-mal geteilt</item>
-        <item quantity="other">&lt;b&gt;%s&lt;/b&gt;-mal geteilt</item>
-    </plurals>
     <string name="pref_main_nav_position">Position der Hauptnavigation</string>
     <string name="dialog_mute_hide_notifications">Benachrichtigungen ausblenden</string>
     <string name="action_unmute_desc">%s nicht mehr stummschalten</string>
@@ -389,7 +365,6 @@
     <string name="notification_update_name">Beitragsbearbeitungen</string>
     <string name="title_migration_relogin">Neuanmeldung für Push-Benachrichtigungen</string>
     <string name="account_date_joined">%1$s beigetreten</string>
-    <string name="status_count_one_plus">1+</string>
     <string name="action_edit_image">Bild bearbeiten</string>
     <string name="error_image_edit_failed">Das Bild konnte nicht bearbeitet werden.</string>
     <string name="saving_draft">Entwurf wird gespeichert …</string>
@@ -420,7 +395,6 @@
     <string name="error_following_hashtags_unsupported">Diese Instanz unterstützt das Folgen von Hashtags nicht.</string>
     <string name="title_followed_hashtags">Gefolgte Hashtags</string>
     <string name="action_unfollow_hashtag_format">#%s entfolgen\?</string>
-    <string name="description_post_edited">Bearbeitet</string>
     <string name="a11y_label_loading_thread">Thread wird geladen</string>
     <string name="mute_notifications_switch">Benachrichtigungen stummschalten</string>
     <string name="title_edits">Bearbeitungen</string>
@@ -439,7 +413,6 @@
 \nEntweder ist die Verbindung zum Server fehlgeschlagen oder der Server hat die Beiträge abgelehnt.</string>
     <string name="action_post_failed_show_drafts">Entwürfe anzeigen</string>
     <string name="action_post_failed_do_nothing">Abbrechen</string>
-    <string name="post_edited">Bearbeitet %s</string>
     <string name="action_discard">Änderungen verwerfen</string>
     <string name="action_continue_edit">Bearbeiten fortsetzen</string>
     <string name="action_share_account_username">Name des Profils teilen</string>
@@ -505,7 +478,6 @@
 \nHierbei handelt es sich um <a href="https://github.com/mastodon/mastodon/issues/25398">Mastodon Issue #25398</a>.</string>
     <string name="ui_error_translate_status_fmt">Übersetzung fehlgeschlagen: %1$s</string>
     <string name="update_dialog_negative">Erinnere mich nie</string>
-    <string name="translating">Übersetze…</string>
     <string name="dialog_delete_filter_positive_action">Löschen</string>
     <string name="pref_title_update_notification_frequency">Benachrichtige mich über neue Versionen von Pachli</string>
     <string name="title_public_trending_links">Angesagte Links</string>
@@ -514,7 +486,6 @@
     <string name="dialog_delete_filter_text">Filter \'%1$s\' löschen?</string>
     <string name="error_media_playback">Wiedergabe fehlgeschlagen: %s</string>
     <string name="title_public_trending">Trends</string>
-    <string name="translation_provider_fmt">%1$s</string>
     <string name="pref_title_update_settings">Softwareaktualisierungen</string>
     <string name="title_public_trending_statuses">Angesagte Beiträge</string>
     <string name="load_newest_statuses">Neueste Beiträge laden</string>
@@ -544,15 +515,15 @@
         <item quantity="other">%1$d Tage</item>
     </plurals>
     <string name="followed_hashtags_summary_fmt">%1$s von %2$s (letzte %3$s)</string>
-    <string name="notification_severed_relationships_format">Verbindung zu <b>%1$s</b> getrennt</string>
+    <string name="notification_severed_relationships_format">Verbindung zu &lt;b>%1$s&lt;/b> getrennt</string>
     <string name="notification_severed_relationships_domain_block_body">Ein Moderator hat die Domain gesperrt</string>
     <string name="notification_severed_relationships_account_suspension_body">Ein Moderator hat das Konto gesperrt</string>
     <string name="notification_severed_relationships_unknown_body">Unbekannter Grund</string>
-    <string name="notification_severed_relationships_domain_block_fmt">Ein Admin von %1$s hat <b>%2$s</b> blockiert</string>
-    <string name="notification_severed_relationships_user_domain_block_fmt">Du hast <b>%1$s</b> blockiert</string>
-    <string name="notification_severed_relationships_account_suspension_fmt">Ein Admin von %1$s hat <b>%2$s</b> blockiert</string>
-    <string name="notification_severed_relationships_unknown_fmt"><b>%1$s</b> ist blockiert (unbekannter Grund)</string>
-    <string name="account_filter_placeholder_type_conversation">Ein*e Benutzer*in @<b>%1$s</b> hat eine Unterhaltung gestartet</string>
+    <string name="notification_severed_relationships_domain_block_fmt">Ein Admin von %1$s hat &lt;b>%2$s&lt;/b> blockiert</string>
+    <string name="notification_severed_relationships_user_domain_block_fmt">Du hast &lt;b>%1$s&lt;/b> blockiert</string>
+    <string name="notification_severed_relationships_account_suspension_fmt">Ein Admin von %1$s hat &lt;b>%2$s&lt;/b> blockiert</string>
+    <string name="notification_severed_relationships_unknown_fmt">&lt;b>%1$s&lt;/b> ist blockiert (unbekannter Grund)</string>
+    <string name="account_filter_placeholder_type_conversation">Ein*e Benutzer*in @&lt;b>%1$s&lt;/b> hat eine Unterhaltung gestartet</string>
     <string name="ui_error_reload_reply_fmt">Konnte Beitrag nicht laden: %1$s</string>
     <string name="export_preferences_ok_fmt">Einstellungen exportiert nach %1$s</string>
     <string name="error_export_preferences_fmt">Konnte Einstellungen nicht nach %1$s exportieren: %2$s</string>
@@ -750,15 +721,15 @@
     <string name="pref_account_conversation_filters_label_not_followed">… denen du nicht folgst</string>
     <string name="pref_account_conversation_filters_label_younger_30d">… die in den letzten 30 Tagen erstellt wurden</string>
     <string name="pref_account_conversation_filters_label_limited_by_server">… die von deinen Moderatoren eingeschränkt wurden</string>
-    <string name="account_filter_placeholder_type_favourite_fmt">Ein Nutzer @<b>%1s</b> hat deinen Beitrag favorisiert</string>
-    <string name="account_filter_placeholder_type_follow_fmt">Ein*e Nutzer*in @<b>%1s</b> folgt dir</string>
-    <string name="account_filter_placeholder_type_follow_request_fmt">Folgeanfrage von Benutzer*in @<b>%1s</b></string>
-    <string name="account_filter_placeholder_type_mention_fmt">Ein*e Nutzer*in @<b>%1s</b> hat dich erwähnt</string>
-    <string name="account_filter_placeholder_type_reblog_fmt">Ein*e Nutzer*in @<b>%1s</b> hat deinen Beitrag geboostet</string>
-    <string name="account_filter_placeholder_label_domain">Von einem/einer Nutzer*in @<b>%1s</b></string>
-    <string name="account_filter_placeholder_label_not_following">Gefiltert weil: <b>nicht von dir gefolgt</b></string>
-    <string name="account_filter_placeholder_label_younger_30d">Gefiltert weil: <b>in den letzten 30 Tagen erstellt</b></string>
-    <string name="account_filter_placeholder_label_limited_by_server">Gefiltert weil: <b>von deinen Moderator*innen eingeschränkt</b></string>
+    <string name="account_filter_placeholder_type_favourite_fmt">Ein Nutzer @&lt;b>%1s&lt;/b> hat deinen Beitrag favorisiert</string>
+    <string name="account_filter_placeholder_type_follow_fmt">Ein*e Nutzer*in @&lt;b>%1s&lt;/b> folgt dir</string>
+    <string name="account_filter_placeholder_type_follow_request_fmt">Folgeanfrage von Benutzer*in @&lt;b>%1s&lt;/b></string>
+    <string name="account_filter_placeholder_type_mention_fmt">Ein*e Nutzer*in @&lt;b>%1s&lt;/b> hat dich erwähnt</string>
+    <string name="account_filter_placeholder_type_reblog_fmt">Ein*e Nutzer*in @&lt;b>%1s&lt;/b> hat deinen Beitrag geboostet</string>
+    <string name="account_filter_placeholder_label_domain">Von einem/einer Nutzer*in @&lt;b>%1s&lt;/b></string>
+    <string name="account_filter_placeholder_label_not_following">Gefiltert weil: &lt;b>nicht von dir gefolgt&lt;/b></string>
+    <string name="account_filter_placeholder_label_younger_30d">Gefiltert weil: &lt;b>in den letzten 30 Tagen erstellt&lt;/b></string>
+    <string name="account_filter_placeholder_label_limited_by_server">Gefiltert weil: &lt;b>von deinen Moderator*innen eingeschränkt&lt;/b></string>
     <string name="pref_default_audio_playback">Standard-Audiowiedergabe</string>
     <string name="notification_moderation_warnings_description">Benachrichtigungen zu Moderationswarnungen</string>
     <string name="notification_moderation_warnings_name">Moderationswarnungen</string>
@@ -780,4 +751,6 @@
     <string name="translator_error_download_required_fmt">Übersetzung in %1$s erfordert das Herunterladen des Sprachpakets und es besteht keine WLAN-Verbindung</string>
     <string name="filter_description_blur">Inhalt anzeigen, Medien mit Inhaltswarnung ausblenden</string>
     <string name="filter_action_blur">Anhänge ausblenden</string>
+    <string name="action_move_down">Herunterschieben</string>
+    <string name="action_move_up">Hochschieben</string>
 </resources>

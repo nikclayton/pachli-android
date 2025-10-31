@@ -39,6 +39,7 @@ import app.pachli.core.activity.ViewUrlActivity
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
 import app.pachli.core.activity.extensions.startActivityWithTransition
+import app.pachli.core.data.model.ConversationViewData
 import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.OfflineFirstStatusRepository
@@ -222,7 +223,11 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
 
         menu.findItem(R.id.status_mute_conversation)?.isVisible = status.muted == false && (statusIsByCurrentUser || accountIsInMentions(activeAccount, status.mentions))
         menu.findItem(R.id.status_unmute_conversation)?.isVisible = status.muted == true && (statusIsByCurrentUser || accountIsInMentions(activeAccount, status.mentions))
-        menu.findItem(R.id.conversation_delete)?.isVisible = status.visibility == Status.Visibility.DIRECT
+
+        // Can't rely on the visibility here, as statuses with Visibility.DIRECT can appear in
+        // the home timeline, threads, notifications, etc, and none of those places can delete
+        // conversations.
+        menu.findItem(R.id.conversation_delete).isVisible = viewData is ConversationViewData
 
         popup.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
@@ -305,7 +310,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                 }
                 R.id.pin -> {
                     lifecycleScope.launch {
-                        statusRepository.pin(pachliAccountId, status.id, !status.isPinned()).onFailure { e ->
+                        statusRepository.pin(pachliAccountId, status.statusId, !status.isPinned()).onFailure { e ->
                             val message = e.fmt(requireContext())
                             Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()
                         }
@@ -314,14 +319,14 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                 }
                 R.id.status_mute_conversation -> {
                     lifecycleScope.launch {
-                        timelineCases.muteConversation(pachliAccountId, status.id, true)
+                        timelineCases.muteConversation(pachliAccountId, status.statusId, true)
                     }
                     return@setOnMenuItemClickListener true
                 }
 
                 R.id.status_unmute_conversation -> {
                     lifecycleScope.launch {
-                        timelineCases.muteConversation(pachliAccountId, status.id, false)
+                        timelineCases.muteConversation(pachliAccountId, status.statusId, false)
                     }
                 }
 
@@ -412,7 +417,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
             .setMessage(R.string.dialog_delete_post_warning)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 lifecycleScope.launch {
-                    timelineCases.delete(viewData.status.id).onFailure {
+                    timelineCases.delete(viewData.status.statusId).onFailure {
                         Timber.w("error deleting status: %s", it)
                         Toast.makeText(context, app.pachli.core.ui.R.string.error_generic, Toast.LENGTH_SHORT).show()
                     }
@@ -436,7 +441,7 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
             .setMessage(R.string.dialog_redraft_post_warning)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
                 lifecycleScope.launch {
-                    timelineCases.delete(statusViewData.status.id).onSuccess {
+                    timelineCases.delete(statusViewData.status.statusId).onSuccess {
                         val sourceStatus = it.body.asModel()
                         val composeOptions = ComposeOptions(
                             content = sourceStatus.text,

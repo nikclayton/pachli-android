@@ -81,13 +81,7 @@
     <string name="title_edits">Edits</string>
     <string name="dialog_follow_hashtag_title">Follow hashtag</string>
     <string name="dialog_follow_hashtag_hint">#hashtag</string>
-    <string name="post_boosted_format">%s boosted</string>
     <string name="post_sensitive_media_directions">Click to view</string>
-    <string name="post_content_warning_show_more">Show More</string>
-    <string name="post_content_warning_show_less">Show Less</string>
-    <string name="post_content_show_more">Expand</string>
-    <string name="post_content_show_less">Collapse</string>
-    <string name="post_edited">Edited %s</string>
     <string name="footer_empty">Nothing here. Pull down to refresh!</string>
     <string name="notification_reblog_format">%s boosted your post</string>
     <string name="notification_favourite_format">%s favorited your post</string>
@@ -132,12 +126,6 @@
     <string name="report_username_format">Report @%s</string>
     <string name="report_comment_hint">Additional comments?</string>
     <string name="action_quick_reply">Quick Reply</string>
-    <string name="action_reply">Reply</string>
-    <string name="action_reblog">Boost</string>
-    <string name="action_unreblog">Remove boost</string>
-    <string name="action_favourite">Favorite</string>
-    <string name="action_unfavourite">Remove favorite</string>
-    <string name="action_bookmark">Bookmark</string>
     <string name="action_unbookmark">Remove bookmark</string>
     <string name="action_compose">Compose</string>
     <string name="action_post_failed">Upload failed</string>
@@ -382,7 +370,6 @@
     -->
     <string name="post_share_content">Share content of post</string>
     <string name="post_share_link">Share link to post</string>
-    <string name="status_count_one_plus">1+</string>
     <string name="status_filtered_show_anyway">Show anyway</string>
     <string name="status_filter_placeholder_label_format">Filtered: &lt;b>%1$s&lt;/b></string>
     <string name="state_follow_requested">Follow requested</string>
@@ -411,6 +398,8 @@
     <string name="action_set_focus">Set focus point</string>
     <string name="action_edit_image">Edit image</string>
     <string name="action_remove">Remove</string>
+    <string name="action_move_up">Move up</string>
+    <string name="action_move_down">Move down</string>
     <string name="lock_account_label">Lock account</string>
     <string name="lock_account_label_description">Requires you to manually approve followers</string>
     <string name="compose_delete_draft">Delete draft?</string>
@@ -447,38 +436,12 @@
     <string name="pin_action">Pin</string>
     <string name="failed_to_pin">Failed to Pin</string>
     <string name="failed_to_unpin">Failed to Unpin</string>
-    <plurals name="favs">
-        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Favorite</item>
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Favorites</item>
-    </plurals>
-    <plurals name="reblogs">
-        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Boost</item>
-        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Boosts</item>
-    </plurals>
     <string name="title_reblogged_by">Boosted by</string>
     <string name="title_favourited_by">Favorited by</string>
     <string name="conversation_0_recipients">No other participants</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s and %2$s</string>
     <string name="conversation_more_recipients" tools:ignore="PluralsCandidate">%1$s, %2$s and %3$d more</string>
-    <string name="description_post_media">
-        Media: %s
-    </string>
-    <string name="description_post_cw">
-        Content warning: %s
-    </string>
-    <string name="description_post_edited">
-        Edited
-    </string>
-    <string name="description_post_reblogged">
-        Reblogged
-    </string>
-    <string name="description_post_favourited">
-        Favorited
-    </string>
-    <string name="description_post_bookmarked">
-        Bookmarked
-    </string>
     <string name="description_post_language">Post language</string>
     <string name="description_login">Works in most cases. No data is leaked to other apps.</string>
     <string name="description_browser_login">May support additional authentication methods, but requires a supported browser.</string>
@@ -643,8 +606,6 @@
     <string name="pref_labs_reverse_home_timeline_title">Reverse timeline order</string>
     <string name="pref_labs_reverse_home_timeline_off_summary">Posts are ordered newest first</string>
     <string name="pref_labs_reverse_home_timeline_on_summary">Posts are ordered oldest first</string>
-    <string name="translating">Translating…</string>
-    <string name="translation_provider_fmt">%1$s</string>
 
     <string name="pref_title_notification_up_distributor">Unified push distributor</string>
     <string name="pref_notification_up_distributor_name_fmt">%1$s. Tap to open</string>

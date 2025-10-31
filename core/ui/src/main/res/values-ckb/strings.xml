@@ -64,4 +64,27 @@
     <string name="post_sensitive_media_title">ناوەڕۆکی هەستیار</string>
     <string name="post_media_images">وێنەکان</string>
     <string name="post_media_video">ڤیدیۆ</string>
+    <string name="action_reply">وەڵام</string>
+    <string name="action_reblog">بەهێزکردن</string>
+    <string name="action_favourite">دڵخواز</string>
+    <string name="action_bookmark">نیشانه</string>
+    <string name="action_unreblog">پۆستکردنەوەکە بگەڕێنەوە</string>
+    <string name="action_unfavourite">لابردنی دڵخوازەکان</string>
+    <string name="post_content_warning_show_less">کەمتر نیشان بدە</string>
+    <string name="post_content_warning_show_more">زیاتر پیشان بدە</string>
+    <string name="post_content_show_less">نوشتانەوە</string>
+    <string name="description_post_reblogged">دووبارە بڵاگ کرا</string>
+    <string name="description_post_favourited">پەسەندکراو</string>
+    <string name="description_post_bookmarked">نیشانکراوە</string>
+    <string name="description_post_media">میدیا: %s</string>
+    <string name="description_post_cw">ئاگاداری ناوەڕۆک: %s</string>
+    <plurals name="reblogs">
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; پۆستکردنەوە</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; پۆستکردنەوە</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; دڵخواز</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; دڵخواز</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt; پۆستی کردەوە</string>
 </resources>

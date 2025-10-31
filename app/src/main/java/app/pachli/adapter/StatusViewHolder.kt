@@ -16,25 +16,21 @@
 
 package app.pachli.adapter
 
-import android.text.InputFilter
-import android.text.TextUtils
 import android.view.View
+import androidx.core.text.HtmlCompat
+import androidx.core.util.TypedValueCompat.dpToPx
 import app.pachli.R
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
-import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.string.unicodeWrap
-import app.pachli.core.common.util.SmartLengthInputFilter
-import app.pachli.core.common.util.formatNumber
 import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.model.StatusDisplayOptions
-import app.pachli.core.model.Emoji
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.TimelineAccount
 import app.pachli.core.ui.SetStatusContent
 import app.pachli.core.ui.StatusActionListener
 import app.pachli.core.ui.emojify
 import app.pachli.databinding.ItemStatusBinding
-import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.RequestManager
 
 open class StatusViewHolder<T : IStatusViewData>(
@@ -49,43 +45,120 @@ open class StatusViewHolder<T : IStatusViewData>(
         listener: StatusActionListener<T>,
         statusDisplayOptions: StatusDisplayOptions,
         payloads: List<List<Any?>>?,
-    ) = with(binding) {
-        if (payloads.isNullOrEmpty()) {
-            val sensitive = !TextUtils.isEmpty(viewData.actionable.spoilerText)
-            val expanded = viewData.isExpanded
-            setupCollapsedState(viewData, sensitive, expanded, listener)
-            val reblogging = viewData.rebloggingStatus
-            if (reblogging == null || viewData.contentFilterAction === FilterAction.WARN) {
-                statusInfo.hide()
-            } else {
-                val rebloggedByDisplayName = reblogging.account.name
-                setRebloggedByDisplayName(
-                    rebloggedByDisplayName,
-                    reblogging.account.emojis,
-                    statusDisplayOptions,
-                )
-                statusInfo.setOnClickListener {
-                    listener.onOpenReblog(viewData.status)
-                }
+    ) {
+        with(binding) {
+            if (payloads.isNullOrEmpty()) {
+                setStatusInfo(viewData, statusDisplayOptions, listener)
             }
+            super.setupWithStatus(viewData, listener, statusDisplayOptions, payloads)
         }
-        statusReblogsCount.visible(statusDisplayOptions.showStatsInline)
-        statusFavouritesCount.visible(statusDisplayOptions.showStatsInline)
-        setFavouritedCount(viewData.actionable.favouritesCount)
-        setReblogsCount(viewData.actionable.reblogsCount)
-        super.setupWithStatus(viewData, listener, statusDisplayOptions, payloads)
     }
 
-    private fun setRebloggedByDisplayName(
-        name: CharSequence,
-        accountEmoji: List<Emoji>?,
+    /**
+     * Sets the (optional) content of the "status info" text that appears
+     * above the status.
+     */
+    private fun ItemStatusBinding.setStatusInfo(
+        viewData: T,
         statusDisplayOptions: StatusDisplayOptions,
-    ) = with(binding) {
-        val wrappedName: CharSequence = name.unicodeWrap()
-        val boostedText: CharSequence = context.getString(R.string.post_boosted_format, wrappedName)
-        val emojifiedText =
-            boostedText.emojify(glide, accountEmoji, statusInfo, statusDisplayOptions.animateEmojis)
-        statusInfo.text = emojifiedText
+        listener: StatusActionListener<T>,
+    ) {
+        if (!statusDisplayOptions.showStatusInfo) {
+            statusInfo.hide()
+            return
+        }
+
+        val status = viewData.actionable
+
+        if (status.inReplyToAccountId != null) {
+            setStatusInfoAsReply(viewData, statusDisplayOptions)
+            return
+        }
+
+        val reblogging = viewData.rebloggingStatus
+        if (reblogging == null || viewData.contentFilterAction === FilterAction.WARN) {
+            statusInfo.hide()
+            return
+        }
+
+        setStatusInfoAsReblog(viewData, reblogging.account, statusDisplayOptions, listener)
+    }
+
+    /**
+     * Sets [statusInfo] assuming [viewData] contains a status that is a reply
+     * to another status.
+     *
+     * @param viewData
+     * @param statusDisplayOptions
+     */
+    private fun ItemStatusBinding.setStatusInfoAsReply(
+        viewData: T,
+        statusDisplayOptions: StatusDisplayOptions,
+    ) {
+        // Belt and braces. Caller should have checked this, but just in case.
+        val status = viewData.actionable
+        if (status.inReplyToAccountId == null) {
+            statusInfo.hide()
+            return
+        }
+
+        statusInfo.text = when {
+            // Self-replies are marked as such.
+            status.isSelfReply -> context.getString(app.pachli.core.ui.R.string.post_continued_thread)
+
+            // If we have the account info we can show the name.
+            viewData.replyToAccount != null -> {
+                HtmlCompat.fromHtml(
+                    context.getString(
+                        app.pachli.core.ui.R.string.post_replied_to_fmt,
+                        viewData.replyToAccount?.name.unicodeWrap(),
+                    ),
+                    HtmlCompat.FROM_HTML_MODE_LEGACY,
+                ).emojify(
+                    glide,
+                    viewData.replyToAccount?.emojis,
+                    statusInfo,
+                    statusDisplayOptions.animateEmojis,
+                )
+            }
+
+            // Otherwise a generic "Replied" message.
+            else -> context.getString(app.pachli.core.ui.R.string.post_replied)
+        }
+
+        statusInfo.setCompoundDrawablesRelativeWithIntrinsicBounds(app.pachli.core.ui.R.drawable.ic_reply_18dp, 0, 0, 0)
+        statusInfo.isClickable = false
+        statusInfo.show()
+    }
+
+    /**
+     * @param viewData
+     * @param rebloggingAccount The account doing the reblogging (not the account
+     * being reblogged).
+     * @param statusDisplayOptions
+     * @param listener
+     */
+    private fun ItemStatusBinding.setStatusInfoAsReblog(
+        viewData: T,
+        rebloggingAccount: TimelineAccount,
+        statusDisplayOptions: StatusDisplayOptions,
+        listener: StatusActionListener<T>,
+    ) {
+        statusInfo.text = HtmlCompat.fromHtml(
+            context.getString(
+                app.pachli.core.ui.R.string.post_boosted_fmt,
+                rebloggingAccount.name.unicodeWrap(),
+            ),
+            HtmlCompat.FROM_HTML_MODE_LEGACY,
+        ).emojify(
+            glide,
+            rebloggingAccount.emojis,
+            statusInfo,
+            statusDisplayOptions.animateEmojis,
+        )
+
+        statusInfo.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_reblog_18dp, 0, 0, 0)
+        statusInfo.setOnClickListener { listener.onOpenReblog(viewData.status) }
         statusInfo.show()
     }
 
@@ -93,66 +166,12 @@ open class StatusViewHolder<T : IStatusViewData>(
     protected fun setPollInfo(ownPoll: Boolean) = with(binding) {
         statusInfo.setText(if (ownPoll) R.string.poll_ended_created else R.string.poll_ended_voted)
         statusInfo.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_poll_24dp, 0, 0, 0)
-        statusInfo.compoundDrawablePadding = Utils.dpToPx(context, 10)
-        statusInfo.setPaddingRelative(Utils.dpToPx(context, 28), 0, 0, 0)
+        statusInfo.compoundDrawablePadding = dpToPx(10f, context.resources.displayMetrics).toInt()
+        statusInfo.setPaddingRelative(dpToPx(28f, context.resources.displayMetrics).toInt(), 0, 0, 0)
         statusInfo.show()
-    }
-
-    private fun setReblogsCount(reblogsCount: Int) = with(binding) {
-        statusReblogsCount.text = formatNumber(reblogsCount.toLong(), 1000)
-    }
-
-    private fun setFavouritedCount(favouritedCount: Int) = with(binding) {
-        statusFavouritesCount.text = formatNumber(favouritedCount.toLong(), 1000)
     }
 
     protected fun hideStatusInfo() = with(binding) {
         statusInfo.hide()
-    }
-
-    private fun setupCollapsedState(
-        viewData: T,
-        sensitive: Boolean,
-        expanded: Boolean,
-        listener: StatusActionListener<T>,
-    ) = with(binding) {
-        /* input filter for TextViews have to be set before text */
-        if (viewData.isCollapsible && (!sensitive || expanded)) {
-            buttonToggleContent.setOnClickListener {
-                listener.onContentCollapsedChange(viewData, !viewData.isCollapsed)
-            }
-            buttonToggleContent.show()
-            if (viewData.isCollapsed) {
-                buttonToggleContent.setText(R.string.post_content_warning_show_more)
-                content.filters = COLLAPSE_INPUT_FILTER
-            } else {
-                buttonToggleContent.setText(R.string.post_content_warning_show_less)
-                content.filters = NO_INPUT_FILTER
-            }
-        } else {
-            buttonToggleContent.hide()
-            content.filters = NO_INPUT_FILTER
-        }
-    }
-
-    override fun showStatusContent(show: Boolean) = with(binding) {
-        super.showStatusContent(show)
-        buttonToggleContent.visibility = if (show) View.VISIBLE else View.GONE
-    }
-
-    override fun toggleExpandedState(
-        viewData: T,
-        sensitive: Boolean,
-        expanded: Boolean,
-        statusDisplayOptions: StatusDisplayOptions,
-        listener: StatusActionListener<T>,
-    ) {
-        setupCollapsedState(viewData, sensitive, expanded, listener)
-        super.toggleExpandedState(viewData, sensitive, expanded, statusDisplayOptions, listener)
-    }
-
-    companion object {
-        private val COLLAPSE_INPUT_FILTER = arrayOf<InputFilter>(SmartLengthInputFilter)
-        private val NO_INPUT_FILTER = arrayOfNulls<InputFilter>(0)
     }
 }

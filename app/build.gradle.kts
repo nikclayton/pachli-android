@@ -21,6 +21,7 @@ plugins {
     alias(libs.plugins.pachli.android.application)
     alias(libs.plugins.pachli.android.hilt)
     alias(libs.plugins.kotlin.parcelize)
+    kotlin("kapt")
 }
 
 apply(from = "gitTools.gradle")
@@ -32,8 +33,8 @@ android {
 
     defaultConfig {
         applicationId = "app.pachli"
-        versionCode = 36
-        versionName = "2.16.1"
+        versionCode = 37
+        versionName = "3.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -152,6 +153,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.bundles.androidx)
+    implementation(libs.androidx.core.animation)
 
     implementation(libs.android.material)
 
@@ -165,8 +167,6 @@ dependencies {
     implementation(libs.okio)
 
     implementation(libs.conscrypt.android)
-
-    implementation(libs.sparkbutton)
 
     implementation(libs.touchimageview)
 

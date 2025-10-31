@@ -19,7 +19,6 @@ package app.pachli.components.viewthread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pachli.components.timeline.CachedTimelineRepository
-import app.pachli.components.timeline.viewmodel.getAttachmentDisplayAction
 import app.pachli.core.common.PachliError
 import app.pachli.core.data.model.ContentFilterModel
 import app.pachli.core.data.model.StatusViewData
@@ -48,6 +47,7 @@ import app.pachli.core.model.Status
 import app.pachli.core.network.model.asModel
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.network.retrofit.apiresult.ApiError
+import app.pachli.core.ui.extensions.getAttachmentDisplayAction
 import app.pachli.usecase.TimelineCases
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -170,6 +170,9 @@ class ViewThreadViewModel @Inject constructor(
                         ),
                         translationState = timelineStatusWithAccount.viewData?.translationState ?: TranslationState.SHOW_ORIGINAL,
                         translation = timelineStatusWithAccount.translatedStatus,
+                        // All posts in threads are replies, no need to fetch this, since it won't
+                        // be displayed.
+                        replyToAccount = null,
                     )
                 } else {
                     StatusViewData.from(
@@ -234,6 +237,7 @@ class ViewThreadViewModel @Inject constructor(
                         ),
                         translationState = detailedStatus.translationState,
                         translation = detailedStatus.translation,
+                        replyToAccount = null,
                     )
                 }
             }
@@ -249,7 +253,7 @@ class ViewThreadViewModel @Inject constructor(
                     .map { Pair(it, shouldFilterStatus(it)) }
                     .filter { it.second != FilterAction.HIDE }
                     .map { (status, contentFilterAction) ->
-                        val svd = cachedViewData[status.id]
+                        val svd = cachedViewData[status.statusId]
                         StatusViewData.from(
                             pachliAccountId = activeAccount.id,
                             status,
@@ -263,14 +267,15 @@ class ViewThreadViewModel @Inject constructor(
                                 svd?.attachmentDisplayAction,
                             ),
                             translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
-                            translation = cachedTranslations[status.id],
+                            translation = cachedTranslations[status.statusId],
+                            replyToAccount = null,
                         )
                     }
                 val descendants = statusContext.descendants.asModel()
                     .map { Pair(it, shouldFilterStatus(it)) }
                     .filter { it.second != FilterAction.HIDE }
                     .map { (status, contentFilterAction) ->
-                        val svd = cachedViewData[status.id]
+                        val svd = cachedViewData[status.statusId]
 
                         StatusViewData.from(
                             pachliAccountId = activeAccount.id,
@@ -285,7 +290,8 @@ class ViewThreadViewModel @Inject constructor(
                                 svd?.attachmentDisplayAction,
                             ),
                             translationState = svd?.translationState ?: TranslationState.SHOW_ORIGINAL,
-                            translation = cachedTranslations[status.id],
+                            translation = cachedTranslations[status.statusId],
+                            replyToAccount = null,
                         )
                     }
                 val statuses = ancestors + detailedStatus + descendants
@@ -335,7 +341,11 @@ class ViewThreadViewModel @Inject constructor(
         updateStatus(status.id) {
             it.copy(
                 reblogged = reblog,
-                reblog = it.reblog?.copy(reblogged = reblog),
+                reblogsCount = it.reblogsCount + if (reblog) 1 else -1,
+                reblog = it.reblog?.copy(
+                    reblogged = reblog,
+                    reblogsCount = it.reblogsCount + if (reblog) 1 else -1,
+                ),
             )
         }
         repository.reblog(status.pachliAccountId, status.actionableId, reblog).onFailure {
@@ -348,7 +358,7 @@ class ViewThreadViewModel @Inject constructor(
         updateStatus(status.id) {
             it.copy(
                 favourited = favorite,
-                favouritesCount = it.favouritesCount + 1,
+                favouritesCount = it.favouritesCount + if (favorite) 1 else -1,
             )
         }
         repository.favourite(status.pachliAccountId, status.actionableId, favorite).onFailure {
@@ -618,7 +628,7 @@ class ViewThreadViewModel @Inject constructor(
      */
     private fun StatusViewData.Companion.fromStatusAndUiState(account: AccountEntity, status: Status, isDetailed: Boolean = false): StatusViewData {
         val oldStatus =
-            (_uiResult.value.get() as? ThreadUiState.Loaded)?.statusViewData?.find { it.id == status.id }
+            (_uiResult.value.get() as? ThreadUiState.Loaded)?.statusViewData?.find { it.id == status.statusId }
         return from(
             pachliAccountId = account.id,
             status,
@@ -630,6 +640,7 @@ class ViewThreadViewModel @Inject constructor(
                 account.alwaysShowSensitiveMedia,
                 oldStatus?.attachmentDisplayAction,
             ),
+            replyToAccount = null,
         )
     }
 

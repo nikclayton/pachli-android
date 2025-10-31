@@ -5,8 +5,8 @@
     <string name="error_compose_character_limit">Статус слишком длинный!</string>
     <string name="error_media_upload_type">Данный тип файла не может быть загружен.</string>
     <string name="error_media_upload_opening">Файл не может быть открыт.</string>
-    <string name="error_media_upload_permission">Необходимо разрешение на чтение медиаконтента.</string>
-    <string name="error_media_download_permission">Необходимо разрешение для хранения медиаконтента.</string>
+    <string name="error_media_upload_permission">Необходимо разрешение на доступ к галерее.</string>
+    <string name="error_media_download_permission">Необходимо разрешение для сохранения в галерею.</string>
     <string name="error_media_upload_image_or_video">изображения и видео не могут быть прикреплены к той же записи одновременно.</string>
     <string name="error_media_upload_sending">Загрузка не удалась.</string>
     <string name="error_sender_account_gone">Ошибка при засвистывании.</string>
@@ -28,12 +28,7 @@
     <string name="title_follow_requests">Запросы на подписку</string>
     <string name="title_edit_profile">Редактировать профиль</string>
     <string name="title_drafts">Черновики</string>
-    <string name="post_boosted_format">%s продвинул(а)</string>
     <string name="post_sensitive_media_directions">Нажмите для просмотра</string>
-    <string name="post_content_warning_show_more">Показать больше</string>
-    <string name="post_content_warning_show_less">Показать меньше</string>
-    <string name="post_content_show_more">Развернуть</string>
-    <string name="post_content_show_less">Свернуть</string>
     <string name="footer_empty">Ничего нет. Потяните вниз, чтобы обновить!</string>
     <string name="notification_reblog_format">%s продвинул(а) вашу запись</string>
     <string name="notification_favourite_format">%s понравился ваша запись</string>
@@ -41,11 +36,6 @@
     <string name="report_username_format">Пожаловаться на @%s</string>
     <string name="report_comment_hint">Дополнительные комментарии?</string>
     <string name="action_quick_reply">Быстрый ответ</string>
-    <string name="action_reply">Ответить</string>
-    <string name="action_reblog">Продвинуть</string>
-    <string name="action_unreblog">Убрать продвижение</string>
-    <string name="action_favourite">Нравится</string>
-    <string name="action_unfavourite">Убрать из избранного</string>
     <string name="action_compose">Сочинить</string>
     <string name="action_follow">Подписаться</string>
     <string name="action_unfollow">Отписаться</string>
@@ -65,13 +55,13 @@
     <string name="action_view_blocks">Заблокированные пользователи</string>
     <string name="action_view_follow_requests">Запросы на подписку</string>
     <string name="action_open_in_web">Открыть в браузере</string>
-    <string name="action_add_media">Добавить медиаконтент</string>
+    <string name="action_add_media">Добавить медиа</string>
     <string name="action_photo_take">Сфотографировать</string>
     <string name="action_share">Поделиться</string>
     <string name="action_mute">Заглушить</string>
     <string name="action_unmute">Отменить глушение</string>
     <string name="action_mention">Упомянуть</string>
-    <string name="action_hide_media">Скрыть медиаконтент</string>
+    <string name="action_hide_media">Скрыть медиа</string>
     <string name="action_open_drawer">Открыть черновик</string>
     <string name="action_save">Сохранить</string>
     <string name="action_edit_profile">Редактировать профиль</string>
@@ -88,7 +78,7 @@
     <string name="action_open_reblogger">Перейти к автору</string>
     <string name="action_open_reblogged_by">Показывать продвижения</string>
     <string name="action_open_faved_by">Показать избранное</string>
-    <string name="action_open_media_n">Открыть медиафайл #%d</string>
+    <string name="action_open_media_n">Открыть вложение #%d</string>
     <string name="download_image">Загрузка %1$s</string>
     <string name="action_copy_link">Копировать ссылку</string>
     <string name="download_media">Скачать медиафайл</string>
@@ -110,7 +100,7 @@
     <string name="label_quick_reply">Ответ…</string>
     <string name="label_avatar">Аватар</string>
     <string name="label_header">Заголовок</string>
-    <string name="dialog_title_finishing_media_upload">Завершается загрузка медиаконтента</string>
+    <string name="dialog_title_finishing_media_upload">Завершается закачка медиа</string>
     <string name="dialog_message_uploading_media">Загружается…</string>
     <string name="dialog_download_image">Скачать</string>
     <string name="dialog_message_cancel_follow_request">Отозвать запрос на подписку\?</string>
@@ -144,14 +134,14 @@
     <string name="pref_title_post_tabs">Вкладки</string>
     <string name="pref_title_show_boosts">Показывать продвижения</string>
     <string name="pref_title_show_replies">Показывать ответы</string>
-    <string name="pref_title_show_media_preview">Загрузить предпросмотр медиаконтента</string>
+    <string name="pref_title_show_media_preview">Скачать предпросмотр медиа</string>
     <string name="pref_title_proxy_settings">Прокси</string>
     <string name="pref_title_http_proxy_settings">HTTP прокси</string>
     <string name="pref_title_http_proxy_enable">Использовать HTTP прокси</string>
     <string name="pref_title_http_proxy_server">Адрес сервера</string>
     <string name="pref_title_http_proxy_port">Порт</string>
     <string name="pref_default_post_privacy">Приватность публикаций по умолчанию</string>
-    <string name="pref_default_media_sensitivity">Считать все медиа чувствительными</string>
+    <string name="pref_default_media_sensitivity">Всегда отмечать все медиа как вызывающие</string>
     <string name="pref_publishing">Публикация (синхронизировано с сервером)</string>
     <string name="pref_failed_to_sync">Не удалось синхронизировать настройки</string>
     <string name="post_privacy_public">Публичные</string>
@@ -191,7 +181,7 @@
     <!--Отметки времени у постов: "16s" or "2d"-->
     <!--Оставшееся время в опросах -->
     <string name="follows_you">Подписан(а) на вас</string>
-    <string name="pref_title_alway_show_sensitive_media">Всегда показывать чувствительный контент</string>
+    <string name="pref_title_alway_show_sensitive_media">Всегда показывать вызывающее содержимое</string>
     <string name="title_media">Медиа</string>
     <string name="pref_title_public_filter_keywords">Публичные ленты</string>
     <string name="pref_title_thread_filter_keywords">Разговоры</string>
@@ -234,29 +224,11 @@
     <string name="label_remote_account">Информация ниже может не полностью отражать профиль пользователя. Нажмите чтобы открыть профиль в браузере.</string>
     <string name="unpin_action">Открепить</string>
     <string name="pin_action">Закрепить</string>
-    <plurals name="favs">
-        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Понравился</item>
-        <item quantity="few">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
-        <item quantity="many">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
-    </plurals>
-    <plurals name="reblogs">
-        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Продвинул(а)</item>
-        <item quantity="few">&lt;b&gt;%s&lt;/b&gt; Продвинули</item>
-        <item quantity="many">&lt;b&gt;%s&lt;/b&gt; Продвинули</item>
-        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Продвинули</item>
-    </plurals>
     <string name="title_reblogged_by">Продвинули</string>
     <string name="title_favourited_by">Понравилось</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s и %2$s</string>
     <string name="conversation_more_recipients">%1$s, %2$s и ещё %3$d</string>
-    <string name="description_post_media">
-        Медиафайл: %s
-    </string>
-    <string name="description_post_cw">Предупреждение о содержании: %s</string>
-    <string name="description_post_reblogged">Реблогнуто</string>
-    <string name="description_post_favourited">Понравилось</string>
     <string name="edit_hashtag_hint">Хэштег без #</string>
     <string name="notifications_clear">Очистить</string>
     <string name="notifications_apply_filter">Фильтр</string>
@@ -308,9 +280,7 @@
     <string name="action_schedule_post">Запланировать гудок</string>
     <string name="action_reset_schedule">Сброс</string>
     <string name="title_bookmarks">Закладки</string>
-    <string name="action_bookmark">Добавить в закладки</string>
     <string name="action_view_bookmarks">Закладки</string>
-    <string name="description_post_bookmarked">Добавлено в закладки</string>
     <string name="select_list_title">Выбрать список</string>
     <string name="list">Список</string>
     <string name="no_drafts">У вас нет черновиков.</string>
@@ -399,23 +369,22 @@
     <string name="followed_hashtags_summary_fmt">%1$s из %2$s (последние %3$s)</string>
     <string name="dialog_follow_hashtag_title">Подписаться на метки</string>
     <string name="dialog_follow_hashtag_hint">#метка</string>
-    <string name="post_edited">Изменено %s</string>
     <string name="notification_sign_up_format">%s зарегистрировался</string>
     <string name="notification_update_format">%s изменил свою запись</string>
     <string name="notification_report_format">Новая жалоба на %s</string>
-    <string name="notification_severed_relationships_format">Отношения с <b>%1$s</b> разорваны</string>
+    <string name="notification_severed_relationships_format">Отношения с &lt;b>%1$s&lt;/b> разорваны</string>
     <string name="notification_severed_relationships_domain_block_body">Модератор заблокировал домен</string>
     <string name="notification_severed_relationships_user_domain_block_body">Вы заблокировали домен</string>
     <string name="notification_severed_relationships_account_suspension_body">Модератор заблокировал профиль</string>
     <string name="notification_severed_relationships_unknown_body">Неизвестная причина</string>
-    <string name="notification_severed_relationships_domain_block_fmt">Администратор %1$s заблокировал <b>%2$s</b></string>
-    <string name="notification_severed_relationships_user_domain_block_fmt">Вы заблокировали <b>%1$s</b></string>
-    <string name="notification_severed_relationships_account_suspension_fmt">Администратор %1$s заблокировал <b>%2$s</b></string>
-    <string name="notification_severed_relationships_unknown_fmt"><b>%1$s</b> заблокирован (причина неизвестна)</string>
+    <string name="notification_severed_relationships_domain_block_fmt">Администратор %1$s заблокировал &lt;b>%2$s&lt;/b></string>
+    <string name="notification_severed_relationships_user_domain_block_fmt">Вы заблокировали &lt;b>%1$s&lt;/b></string>
+    <string name="notification_severed_relationships_account_suspension_fmt">Администратор %1$s заблокировал &lt;b>%2$s&lt;/b></string>
+    <string name="notification_severed_relationships_unknown_fmt">&lt;b>%1$s&lt;/b> заблокирован (причина неизвестна)</string>
     <string name="notification_moderation_warning_title">Сообщение от ваших модераторов</string>
     <string name="notification_moderation_warning_body_none_fmt">Вы получили предупреждение модерации: %1$s</string>
     <string name="notification_moderation_warning_body_disable_fmt">Ваша учётная запись отключена: %1$s</string>
-    <string name="notification_moderation_warning_body_mark_statuses_as_sensitive_fmt">Некоторые из ваших публикаций отмечены как конфиденциальные: %1$s</string>
+    <string name="notification_moderation_warning_body_mark_statuses_as_sensitive_fmt">Некоторые из ваших публикаций отмечены как вызывающие: %1$s</string>
     <string name="notification_moderation_warning_body_delete_statuses_fmt">Некоторые из ваших публикаций удалены: %1$s</string>
     <string name="notification_moderation_warning_body_silence_fmt">Ваш профиль ограничен: %1$s</string>
     <string name="notification_moderation_warning_body_suspend_fmt">Ваш профиль заблокирован: %1$s</string>
@@ -483,9 +452,8 @@
     <string name="notification_unknown_name">Неизвестно</string>
     <string name="notification_notification_worker">Получение уведомлений…</string>
     <string name="notification_prune_cache">Обслуживание кеша…</string>
-    <string name="status_count_one_plus">1+</string>
     <string name="status_filtered_show_anyway">Показать всё равно</string>
-    <string name="status_filter_placeholder_label_format">Фильтр: <b>%1$s</b></string>
+    <string name="status_filter_placeholder_label_format">Фильтр: &lt;b>%1$s&lt;/b></string>
     <string name="pref_title_public_filter_home_and_lists">Домашняя и списки</string>
     <string name="pref_title_account_filter_keywords">Профили</string>
     <string name="filter_expiration_format">%s (%s)</string>
@@ -500,7 +468,6 @@
     <string name="failed_to_pin">Не удалось закрепить</string>
     <string name="failed_to_unpin">Не удалось открепить</string>
     <string name="conversation_0_recipients">Нет других участников</string>
-    <string name="description_post_edited">Изменено</string>
     <string name="description_post_language">Язык записи</string>
     <string name="description_login">Работает в большинстве случаев. Данные не передаются в другие приложения.</string>
     <string name="description_browser_login">Может поддерживать дополнительные методы аутентификации, но требуется поддерживаемый браузер.</string>
@@ -579,8 +546,6 @@
     <string name="pref_labs_reverse_home_timeline_title">Обратный порядок в ленте</string>
     <string name="pref_labs_reverse_home_timeline_off_summary">Сообщения сортируются по мере появления новых</string>
     <string name="pref_labs_reverse_home_timeline_on_summary">Сообщения сортируются по мере появления старых</string>
-    <string name="translating">Перевод…</string>
-    <string name="translation_provider_fmt">%1$s</string>
     <string name="pref_title_notification_up_distributor">Распределитель уведомлений UnifiedPush</string>
     <string name="pref_notification_up_distributor_name_fmt">%1$s. Нажмите, чтобы открыть</string>
     <string name="pref_notification_up_distributor_none">Нету</string>
@@ -730,16 +695,16 @@
     <string name="pref_account_conversation_filters_label_not_followed">… вы не подписаны</string>
     <string name="pref_account_conversation_filters_label_younger_30d">… создано за последние 30 дней</string>
     <string name="pref_account_conversation_filters_label_limited_by_server">… ограничено вашими модераторами</string>
-    <string name="account_filter_placeholder_type_favourite_fmt">Пользователь @<b>%1s</b> добавил вашу запись в избранное</string>
-    <string name="account_filter_placeholder_type_follow_fmt">Пользователь @<b>%1s</b> подписался на вас</string>
-    <string name="account_filter_placeholder_type_follow_request_fmt">Запрос на подписку от пользователя @<b>%1s</b></string>
-    <string name="account_filter_placeholder_type_mention_fmt">Пользователь @<b>%1s</b> упомянул вас</string>
-    <string name="account_filter_placeholder_type_reblog_fmt">Пользователь @<b>%1s</b> переопубликовал вашу запись</string>
-    <string name="account_filter_placeholder_label_domain">От пользователя @<b>%1s</b></string>
-    <string name="account_filter_placeholder_label_not_following">Отфильтровано, потому что: <b>вы не подписаны на него</b></string>
-    <string name="account_filter_placeholder_label_younger_30d">Отфильтровано, потому что: <b>создано за последние 30 дней</b></string>
-    <string name="account_filter_placeholder_label_limited_by_server">Отфильтровано, потому что: <b>ограничено вашими модераторами</b></string>
-    <string name="account_filter_placeholder_type_conversation">Пользователь @<b>%1$s</b> начал беседу</string>
+    <string name="account_filter_placeholder_type_favourite_fmt">Пользователь @&lt;b>%1s&lt;/b> добавил вашу запись в избранное</string>
+    <string name="account_filter_placeholder_type_follow_fmt">Пользователь @&lt;b>%1s&lt;/b> подписался на вас</string>
+    <string name="account_filter_placeholder_type_follow_request_fmt">Запрос на подписку от пользователя @&lt;b>%1s&lt;/b></string>
+    <string name="account_filter_placeholder_type_mention_fmt">Пользователь @&lt;b>%1s&lt;/b> упомянул вас</string>
+    <string name="account_filter_placeholder_type_reblog_fmt">Пользователь @&lt;b>%1s&lt;/b> переопубликовал вашу запись</string>
+    <string name="account_filter_placeholder_label_domain">От пользователя @&lt;b>%1s&lt;/b></string>
+    <string name="account_filter_placeholder_label_not_following">Отфильтровано, потому что: &lt;b>вы не подписаны на него&lt;/b></string>
+    <string name="account_filter_placeholder_label_younger_30d">Отфильтровано, потому что: &lt;b>создано за последние 30 дней&lt;/b></string>
+    <string name="account_filter_placeholder_label_limited_by_server">Отфильтровано, потому что: &lt;b>ограничено вашими модераторами&lt;/b></string>
+    <string name="account_filter_placeholder_type_conversation">Пользователь @&lt;b>%1$s&lt;/b> начал беседу</string>
     <string name="ui_error_reload_reply_fmt">Не удалось загрузить сообщение: %1$s</string>
     <string name="export_preferences_ok_fmt">Настройки экспортированы в %1$s</string>
     <string name="error_export_preferences_fmt">Не удалось экспортировать настройки в %1$s: %2$s</string>
@@ -790,4 +755,6 @@
     <string name="translator_error_unsupported_source_language_fmt">невозможно перевести с %1$s</string>
     <string name="translator_error_unsupported_target_language_fmt">невозможно перевести на %1$s</string>
     <string name="translator_error_download_required_fmt">для перевода на %1$s нужно скачать языковой пакет, а Wi-Fi не подключён</string>
+    <string name="filter_action_blur">Скрыть вложения</string>
+    <string name="filter_description_blur">Показывать содержимое, скрывать вложения с предупреждением</string>
 </resources>

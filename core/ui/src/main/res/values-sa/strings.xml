@@ -69,4 +69,30 @@
     <string name="post_media_audio">ध्वनिः</string>
     <string name="post_media_video">चलचित्राणि</string>
     <string name="post_media_attachments">सम्योजितानि</string>
+    <string name="action_reply">प्रत्युत्तरं दीयताम्</string>
+    <string name="action_reblog">प्रकाश्यताम्</string>
+    <string name="action_favourite">प्रियम्</string>
+    <string name="action_bookmark">पुटचिह्नं क्रियताम्</string>
+    <string name="status_count_one_plus">१+</string>
+    <string name="action_unreblog">प्रकाशनं निष्क्रियताम्</string>
+    <string name="action_unfavourite">प्रियता निष्क्रियताम्</string>
+    <string name="post_content_warning_show_less">स्वल्पं दृश्यताम्</string>
+    <string name="post_content_warning_show_more">अधिकं दृश्यताम्</string>
+    <string name="post_content_show_less">संनिपत्यताम्</string>
+    <string name="description_post_edited">सम्पादनं कृतम्</string>
+    <string name="description_post_reblogged">पुनर्लिखितम्</string>
+    <string name="description_post_favourited">प्रीतिर्दत्ता</string>
+    <string name="description_post_bookmarked">पुटचिह्नं कृतम्</string>
+    <string name="description_post_media">सामग्र्यः %s</string>
+    <string name="description_post_cw">विषयपूर्वसतर्कता: %s</string>
+    <plurals name="reblogs">
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; प्रकाशनम्</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; प्रकाशने</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; प्रियम्</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; प्रिये</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt; अप्रकाशयत्</string>
+    <string name="post_edited">%s सम्पादितम्</string>
 </resources>

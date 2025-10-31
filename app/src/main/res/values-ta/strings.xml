@@ -23,10 +23,7 @@
     <string name="title_follow_requests">பின்பற்ற கோரிக்கை</string>
     <string name="title_edit_profile">சுயவிவரத்தை திருத்த</string>
     <string name="title_drafts">வரைவுகள்</string>
-    <string name="post_boosted_format">%s மேலேற்றப்பட்டது</string>
     <string name="post_sensitive_media_directions">பார்வையிட சொடுக்கவும்</string>
-    <string name="post_content_warning_show_more">அதிகமாக்கு</string>
-    <string name="post_content_warning_show_less">கம்மியாக்கு</string>
     <string name="footer_empty">இங்கு எதுவுமில்லை. புதுப்பிக்க கீழே இழுக்கவும்!</string>
     <string name="notification_reblog_format">%s தங்களின் toot உயர்த்தப்பட்டுள்ளது</string>
     <string name="notification_favourite_format">%s தங்களின் toot பிடித்தவையானது</string>
@@ -34,9 +31,6 @@
     <string name="report_username_format">புகார் @%s</string>
     <string name="report_comment_hint">கூடுதல் கருத்துரைகள்?</string>
     <string name="action_quick_reply">உடனடி பதிலளி</string>
-    <string name="action_reply">பதிலளி</string>
-    <string name="action_reblog">மேலேற்று</string>
-    <string name="action_favourite">பிடித்தவை</string>
     <string name="action_compose">எழுது</string>
     <string name="action_follow">பின்பற்று</string>
     <string name="action_unfollow">பின்பற்றாதே</string>
@@ -237,7 +231,6 @@
     <string name="notifications_apply_filter">அறிவிப்புகளை வடிகட்டவும்</string>
     <string name="compose_shortcut_long_label">இடுகையை எழுதுங்கள்</string>
     <string name="total_accounts">மொத்த கணக்குகள்</string>
-    <string name="translating">மொழிபெயர்க்கிறது…</string>
     <string name="mute_domain_warning">%s அனைத்தையும் தடுக்க விரும்புகிறீர்களா? எந்தவொரு பொது காலக்கெடுவிலும் அல்லது உங்கள் அறிவிப்புகளிலோ அந்த களத்திலிருந்து உள்ளடக்கத்தை நீங்கள் காண மாட்டீர்கள். அந்த களத்திலிருந்து உங்களைப் பின்தொடர்பவர்கள் அகற்றப்படுவார்கள்.</string>
     <string name="mute_domain_warning_dialog_ok">முழு களத்தையும் மறைக்கவும்</string>
     <string name="pref_title_notification_filter_follow_requests">கோரப்பட்டதைப் பின்தொடரவும்</string>
@@ -262,7 +255,6 @@
     <string name="notification_listenable_worker_description">பச்ச்லி பின்னணியில் வேலை செய்யும் போது அறிவிப்புகள்</string>
     <string name="notification_unknown_name">தெரியவில்லை</string>
     <string name="notification_notification_worker">அறிவிப்புகளைப் பெறுதல்…</string>
-    <string name="status_count_one_plus">1+</string>
     <string name="pref_title_public_filter_keywords">பொது காலவரிசைகள்</string>
     <string name="action_set_focus">கவனம் செலுத்தும் புள்ளியை அமைக்கவும்</string>
     <string name="action_edit_image">படத்தைத் திருத்து</string>
@@ -363,8 +355,10 @@
     <string name="search_operator_where_dialog_library_hint">உங்கள் சொந்த இடுகைகள், ஊக்கங்கள், பிடித்தவை, புக்மார்க்குகள் மற்றும் இடுகைகள்</string>
     <string name="upload_failed_msg_fmt">பதிவேற்றும் இணைப்பு தோல்வியடைந்தது. நீங்கள் இடுகையை அனுப்பும்போது பதிவேற்றம் மீண்டும் செய்யப்படும். அது மீண்டும் தோல்வியுற்றால், உங்கள் வரைவுகளில் இடுகை சேமிக்கப்படும். \n\nபிழை: %1$s</string>
     <string name="pref_account_notification_filters_label_limited_by_server">… உங்கள் மதிப்பீட்டாளர்களால் வரையறுக்கப்பட்டுள்ளது</string>
-    <string name="account_filter_placeholder_type_favourite_fmt">ஒரு பயனர் @<b>%1s </b> உங்கள் இடுகைக்கு பிடித்தது</string>
-    <string name="account_filter_placeholder_label_domain">ஒரு பயனரிடமிருந்து @<b>%1s </b></string>
+    <string name="account_filter_placeholder_type_favourite_fmt">ஒரு பயனர் @&lt;b>%1s &lt;/b>
+    உங்கள் இடுகைக்கு பிடித்தது
+</string>
+    <string name="account_filter_placeholder_label_domain">ஒரு பயனரிடமிருந்து @&lt;b>%1s &lt;/b></string>
     <string name="notification_poll_name">வாக்கெடுப்புகள்</string>
     <string name="filter_apply">இடு</string>
     <string name="warning_scheduling_interval">மாச்டோடன் குறைந்தபட்ச திட்டமிடல் இடைவெளியைக் கொண்டுள்ளது.</string>
@@ -394,9 +388,6 @@
     <string name="title_followed_hashtags">ஏச்டேக்குகளைத் தொடர்ந்து</string>
     <string name="dialog_follow_hashtag_hint">#ஆச்டாக்</string>
     <string name="notification_sign_up_format">%s கையெழுத்திட்டன</string>
-    <string name="action_unreblog">பூச்டை அகற்று</string>
-    <string name="action_unfavourite">பிடித்ததை அகற்று</string>
-    <string name="action_bookmark">புத்தககுறி</string>
     <string name="action_unbookmark">புத்தகக்குறியை அகற்று</string>
     <string name="action_share_account_link">கணக்கிற்கான இணைப்பைப் பகிரவும்</string>
     <string name="action_delete_conversation">உரையாடலை நீக்கு</string>
@@ -426,23 +417,22 @@
     <string name="pref_title_account_notification_filters">அறிவிப்பு வடிப்பான்கள்</string>
     <string name="pref_account_notification_filters_label_not_followed">… நீங்கள் பின்பற்றவில்லை</string>
     <string name="pref_account_notification_filters_label_younger_30d">… கடந்த 30 நாட்களில் உருவாக்கப்பட்டது</string>
-    <string name="account_filter_placeholder_type_follow_request_fmt">ஒரு பயனரின் கோரிக்கையைப் பின்பற்றவும் @<b>%1s </b></string>
-    <string name="account_filter_placeholder_type_mention_fmt">ஒரு பயனர் @<b>%1s </b> உங்களை குறிப்பிட்டுள்ளார்</string>
-    <string name="account_filter_placeholder_type_reblog_fmt">ஒரு பயனர் @<b>%1s </b> உங்கள் இடுகையை உயர்த்தினார்</string>
-    <string name="account_filter_placeholder_label_not_following">வடிகட்டப்பட்டது: <b> நீங்கள் அவற்றைப் பின்தொடரவில்லை </b></string>
-    <string name="account_filter_placeholder_label_younger_30d">வடிகட்டப்பட்டது: <b> கடந்த 30 நாட்களில் உருவாக்கப்பட்டது </b></string>
-    <string name="account_filter_placeholder_label_limited_by_server">வடிகட்டப்பட்டது: <b> உங்கள் மதிப்பீட்டாளர்களால் வரையறுக்கப்பட்டுள்ளது </b></string>
+    <string name="account_filter_placeholder_type_follow_request_fmt">ஒரு பயனரின் கோரிக்கையைப் பின்பற்றவும் @&lt;b>%1s &lt;/b></string>
+    <string name="account_filter_placeholder_type_mention_fmt">ஒரு பயனர் @&lt;b>%1s &lt;/b> உங்களை குறிப்பிட்டுள்ளார்</string>
+    <string name="account_filter_placeholder_type_reblog_fmt">ஒரு பயனர் @&lt;b>%1s &lt;/b> உங்கள் இடுகையை உயர்த்தினார்</string>
+    <string name="account_filter_placeholder_label_not_following">வடிகட்டப்பட்டது: &lt;b> நீங்கள் அவற்றைப் பின்தொடரவில்லை &lt;/b></string>
+    <string name="account_filter_placeholder_label_younger_30d">வடிகட்டப்பட்டது: &lt;b> கடந்த 30 நாட்களில் உருவாக்கப்பட்டது &lt;/b></string>
+    <string name="account_filter_placeholder_label_limited_by_server">வடிகட்டப்பட்டது: &lt;b> உங்கள் மதிப்பீட்டாளர்களால் வரையறுக்கப்பட்டுள்ளது &lt;/b></string>
     <string name="ui_error_bookmark_fmt">புக்மார்க்கிங் இடுகை தோல்வியுற்றது: %1$s</string>
     <string name="ui_error_reblog_fmt">போச்டிங் போச்ட் தோல்வியுற்றது: %1$s</string>
     <string name="notification_severed_relationships_domain_block_body">ஒரு மதிப்பீட்டாளர் டொமைனை இடைநீக்கம் செய்தார்</string>
-    <string name="notification_severed_relationships_format"><b>%1$s </b> உடன் உறவு துண்டிக்கப்பட்டது</string>
+    <string name="notification_severed_relationships_format">&lt;b>%1$s &lt;/b> உடன் உறவு துண்டிக்கப்பட்டது</string>
     <string name="notification_severed_relationships_unknown_body">தெரியாத காரணம்</string>
     <string name="notification_severed_relationships_account_suspension_body">ஒரு மதிப்பீட்டாளர் கணக்கை இடைநீக்கம் செய்தார்</string>
     <string name="action_view_bookmarks">புக்மார்க்குகள்</string>
     <string name="action_open_media_n">திறந்த மீடியா #%d</string>
     <string name="pref_summary_http_proxy_invalid">&lt;செல்லாத&gt;</string>
     <string name="filter_add_description">வடிகட்ட சொற்றொடர்</string>
-    <string name="description_post_favourited">பிடித்தது</string>
     <string name="failed_fetch_posts">இடுகைகளைப் பெறத் தவறிவிட்டது</string>
     <string name="poll_new_choice_hint">தேர்வு %d</string>
     <string name="no_announcements">அறிவிப்புகள் எதுவும் இல்லை.</string>
@@ -460,7 +450,7 @@
     <string name="error_filter_missing_context">குறைந்தது ஒரு வடிகட்டி சூழல் தேவை</string>
     <string name="error_filter_missing_title">தலைப்பு தேவை</string>
     <string name="compose_warn_language_dialog_accept_and_dont_ask_fmt">இடுகையிடவும் (%1$s) மற்றும் மீண்டும் கேட்க வேண்டாம்</string>
-    <string name="status_filter_placeholder_label_format">வடிகட்டப்பட்டது: <b>%1$s </b></string>
+    <string name="status_filter_placeholder_label_format">வடிகட்டப்பட்டது: &lt;b>%1$s &lt;/b></string>
     <string name="search_operator_attachment_kind_video_label">ஒளிதோற்றம்</string>
     <string name="search_operator_attachment_kind_audio_label">ஒலி</string>
     <string name="search_operator_poll_only">கருத்துக் கணிப்புகளை மட்டுமே காட்டுங்கள்</string>
@@ -540,7 +530,6 @@
     <string name="notification_poll_description">முடிவடைந்த கருத்துக் கணிப்புகள் பற்றிய அறிவிப்புகள்</string>
     <string name="notification_severed_relationships_name">துண்டிக்கப்பட்ட உறவுகள்</string>
     <string name="conversation_1_recipients">%1$s</string>
-    <string name="description_post_media">மீடியா: %s</string>
     <string name="title_reblogged_by">மூலம் உயர்த்தப்பட்டது</string>
     <string name="pref_title_confirm_favourites">விருப்பத்திற்கு முன் உறுதிப்படுத்தலைக் காட்டு</string>
     <string name="no_scheduled_posts">உங்களிடம் திட்டமிடப்பட்ட இடுகைகள் எதுவும் இல்லை.</string>
@@ -567,7 +556,6 @@
     <string name="dialog_mute_warning">முடக்கு @%s?</string>
     <string name="ui_success_rejected_follow_request">கோரிக்கை தடுக்கப்பட்டது</string>
     <string name="update_dialog_title">புதுப்பிப்பு கிடைக்கிறது</string>
-    <string name="translation_provider_fmt">%1$s</string>
     <string name="pref_update_check_no_updates">புதுப்பிப்புகள் எதுவும் கிடைக்கவில்லை</string>
     <string name="action_open_link">இணைப்பை திற</string>
     <string name="search_operator_attachment_specific_media_exclude_3_fmt">இல்லை %1$s, %2$s, %3$s</string>
@@ -579,8 +567,6 @@
     <string name="search_operator_link_dialog_title">இணைப்புகளுடன் இடுகைகளைக் காட்டவா?</string>
     <string name="dialog_delete_filter_positive_action">நீக்கு</string>
     <string name="reaction_name_and_count">%1$s %2$d</string>
-    <string name="post_content_show_more">விரிவாக்கு</string>
-    <string name="post_edited">திருத்தப்பட்ட %s</string>
     <string name="notification_subscription_format">%s இப்போது இடுகையிடப்பட்டது</string>
     <string name="notification_severed_relationships_user_domain_block_body">நீங்கள் டொமைனைத் தடுத்தீர்கள்</string>
     <string name="action_view_domain_mutes">மறைக்கப்பட்ட களங்கள்</string>
@@ -590,8 +576,6 @@
     <string name="failed_to_pin">பின் தவறிவிட்டது</string>
     <string name="error_filter_missing_keyword">குறைந்தது ஒரு முக்கிய சொல் அல்லது சொற்றொடர் தேவை</string>
     <string name="conversation_0_recipients">வேறு பங்கேற்பாளர்கள் இல்லை</string>
-    <string name="description_post_reblogged">மறுபிரசுரம் செய்யப்பட்டது</string>
-    <string name="description_post_bookmarked">புக்மார்க்கு செய்யப்பட்டது</string>
     <string name="description_browser_login">கூடுதல் அங்கீகார முறைகளை ஆதரிக்கலாம், ஆனால் உதவி உலாவி தேவைப்படுகிறது.</string>
     <string name="select_list_empty">உங்களிடம் இன்னும் பட்டியல்கள் இல்லை</string>
     <string name="poll_allow_multiple_choices">பல தேர்வுகள்</string>
@@ -609,7 +593,6 @@
     <string name="search_operator_poll_dialog_no_polls">வாக்கெடுப்புகள் இல்லாமல் மட்டுமே இடுகையிடுகிறது</string>
     <string name="search_operator_where_dialog_public">பொது பதவிகள்</string>
     <string name="title_domain_mutes">மறைக்கப்பட்ட களங்கள்</string>
-    <string name="post_content_show_less">சரிவு</string>
     <string name="action_post_failed_show_drafts">வரைவுகளைக் காட்டு</string>
     <string name="post_text_size_medium">சராசரி</string>
     <string name="post_text_size_large">பெரிய</string>
@@ -630,7 +613,7 @@
     <string name="search_operator_attachment_specific_media_include_1_exclude_2_fmt">%1$s உடன், %2$s, %3$s</string>
     <string name="search_operator_date_dialog_last_6_months">கடந்த 6 மாதங்கள்</string>
     <string name="search_operator_date_dialog_custom_range">தனிப்பயன் வரம்பு</string>
-    <string name="account_filter_placeholder_type_follow_fmt">ஒரு பயனர் @<b>%1s </b> உங்களைப் பின்தொடர்ந்தார்</string>
+    <string name="account_filter_placeholder_type_follow_fmt">ஒரு பயனர் @&lt;b>%1s &lt;/b> உங்களைப் பின்தொடர்ந்தார்</string>
     <string name="error_following_hashtags_unsupported">இந்த நிகழ்வு பின்வரும் ஏச்டேக்குகளை ஆதரிக்கவில்லை.</string>
     <string name="manage_lists">பட்டியல்களை நிர்வகிக்கவும்</string>
     <string name="error_media_playback">பின்னணி தோல்வியுற்றது: %s</string>
@@ -653,16 +636,6 @@
     <string name="search_operator_link_dialog_no_link">இணைப்புகள் இல்லாமல் மட்டுமே இடுகைகள்</string>
     <string name="notification_follow_request_description">பின்தொடர்தல் கோரிக்கைகளைப் பற்றிய அறிவிப்புகள்</string>
     <string name="notification_severed_relationships_description">துண்டிக்கப்பட்ட உறவுகள் பற்றிய அறிவிப்புகள்</string>
-    <plurals name="favs">
-        <item quantity="one"><b>%1$s </b> பிடித்தது</item>
-        <item quantity="other"><b>%1$s </b> பிடித்தவை</item>
-    </plurals>
-    <plurals name="reblogs">
-        <item quantity="one"><b>%s </b> பூச்ட்</item>
-        <item quantity="other"><b>%s </b> ஊக்கங்கள்</item>
-    </plurals>
-    <string name="description_post_cw">உள்ளடக்க எச்சரிக்கை: %s</string>
-    <string name="description_post_edited">திருத்தப்பட்டது</string>
     <string name="failed_report">புகாரளிக்கத் தவறிவிட்டது</string>
     <string name="duration_30_days">30 நாட்கள்</string>
     <string name="search_operator_from_account_fmt">%1$s மட்டுமே</string>
@@ -720,10 +693,10 @@
         <item quantity="other">%1$d நாட்கள்</item>
     </plurals>
     <string name="followed_hashtags_summary_fmt">%2$s இலிருந்து %1$s (கடைசி %3$s)</string>
-    <string name="notification_severed_relationships_domain_block_fmt">%1$s இன் நிர்வாகி <b> %2$s </b></string>
-    <string name="notification_severed_relationships_user_domain_block_fmt"><b>%1$s</b>ஐ நீங்கள் தடுத்தீர்கள்</string>
-    <string name="notification_severed_relationships_account_suspension_fmt">%1$s இன் நிர்வாகி <b> %2$s </b></string>
-    <string name="notification_severed_relationships_unknown_fmt"><b>%1$s </b> தடுக்கப்பட்டுள்ளது (அறியப்படாத காரணம்)</string>
+    <string name="notification_severed_relationships_domain_block_fmt">%1$s இன் நிர்வாகி &lt;b> %2$s &lt;/b></string>
+    <string name="notification_severed_relationships_user_domain_block_fmt">&lt;b>%1$s&lt;/b>ஐ நீங்கள் தடுத்தீர்கள்</string>
+    <string name="notification_severed_relationships_account_suspension_fmt">%1$s இன் நிர்வாகி &lt;b> %2$s &lt;/b></string>
+    <string name="notification_severed_relationships_unknown_fmt">&lt;b>%1$s &lt;/b> தடுக்கப்பட்டுள்ளது (அறியப்படாத காரணம்)</string>
     <string name="action_send_public_content_description">பொது பதவியை அனுப்பவும்</string>
     <string name="action_send_unlisted_content_description">பட்டியலிடப்படாத இடுகையை அனுப்பவும்</string>
     <string name="action_send_private_content_description">பின்தொடர்பவர்களுக்கு மட்டுமே இடுகையை அனுப்பவும்</string>
@@ -742,7 +715,7 @@
     <string name="pref_account_conversation_filters_label_not_followed">… நீங்கள் பின்பற்றவில்லை</string>
     <string name="pref_account_conversation_filters_label_younger_30d">… கடந்த 30 நாட்களில் உருவாக்கப்பட்டது</string>
     <string name="pref_account_conversation_filters_label_limited_by_server">… உங்கள் மதிப்பீட்டாளர்களால் வரையறுக்கப்பட்டுள்ளது</string>
-    <string name="account_filter_placeholder_type_conversation">ஒரு பயனர் @<b>%1$s </b> உரையாடலைத் தொடங்கினார்</string>
+    <string name="account_filter_placeholder_type_conversation">ஒரு பயனர் @&lt;b>%1$s &lt;/b> உரையாடலைத் தொடங்கினார்</string>
     <string name="ui_error_reload_reply_fmt">இடுகையை ஏற்ற முடியவில்லை: %1$s</string>
     <string name="export_preferences_ok_fmt">விருப்பத்தேர்வுகள் %1$s க்கு ஏற்றுமதி செய்யப்படுகின்றன</string>
     <string name="error_export_preferences_fmt">விருப்பங்களை %1$s க்கு ஏற்றுமதி செய்ய முடியவில்லை: %2$s</string>

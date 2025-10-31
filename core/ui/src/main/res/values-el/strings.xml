@@ -10,4 +10,13 @@
     <string name="action_logout_confirm">Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε από τον λογαριασμό %1$s;</string>
     <string name="action_logout">Αποσύνδεση</string>
     <string name="post_sensitive_media_title">Ευαίσθητο περιεχόμενο</string>
+    <string name="action_reply">Απάντηση</string>
+    <string name="action_reblog">Προώθηση</string>
+    <string name="action_favourite">Αγαπημένο</string>
+    <string name="action_bookmark">Προσθήκη σελιδοδείκτη</string>
+    <string name="action_unreblog">Αφαίρεση προώθησης</string>
+    <string name="action_unfavourite">Αφαίρεση αγαπημένου</string>
+    <string name="post_content_warning_show_less">Δείτε λιγότερα</string>
+    <string name="post_content_warning_show_more">Δείτε περισσότερα</string>
+    <string name="post_boosted_fmt">ο/η &lt;b&gt;%1$s&lt;/b&gt; το προώθησε</string>
 </resources>

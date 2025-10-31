@@ -33,9 +33,9 @@
     <string name="hint_search_emojis">Wyszukaj emoji…</string>
     <string name="label_emoji_no_category">Bez kategorii</string>
     <string name="emoji_picker_show_detail">Pokaż szczegóły</string>
-    <string name="preview_card_byline_fediverse_account_fmt">Od: <b>%1$s</b>. Zobacz więcej wpisów</string>
-    <string name="preview_card_byline_name_only_fmt">Od: <b>%1$s</b></string>
-    <string name="preview_card_timeline_link_fmt">Zobacz <b>%1$s</b> wpisów na ten temat</string>
+    <string name="preview_card_byline_fediverse_account_fmt">Od: &lt;b>%1$s&lt;/b>. Zobacz więcej wpisów</string>
+    <string name="preview_card_byline_name_only_fmt">Od: &lt;b>%1$s&lt;/b></string>
+    <string name="preview_card_timeline_link_fmt">Zobacz &lt;b>%1$s&lt;/b> wpisów na ten temat</string>
     <string name="poll_vote">Głosuj</string>
     <string name="poll_show_votes">Pokaż wyniki</string>
     <plurals name="poll_timespan_seconds">
@@ -116,4 +116,35 @@
     <string name="role_content_description_fmt">%1$s, na %2$s</string>
     <string name="handle_contentdescription_fmt">Konto, @%1$s</string>
     <string name="account_contentdescription_fmt">%1$s, %2$s, %3$s</string>
+    <string name="action_reply">Odpowiedz</string>
+    <string name="action_reblog">Podbij</string>
+    <string name="action_favourite">Polub</string>
+    <string name="action_bookmark">Dodaj do zakładek</string>
+    <string name="status_count_one_plus">1+</string>
+    <string name="action_unreblog">Cofnij podbicie</string>
+    <string name="action_unfavourite">Cofnij polubienie</string>
+    <string name="post_content_warning_show_less">Pokaż mniej</string>
+    <string name="post_content_warning_show_more">Pokaż więcej</string>
+    <string name="post_content_show_less">Zwiń</string>
+    <string name="translating">Tłumaczenie…</string>
+    <string name="translation_provider_fmt">%1$s</string>
+    <string name="description_post_edited">Edytowano</string>
+    <string name="description_post_reblogged">Podbity</string>
+    <string name="description_post_favourited">Polubiony</string>
+    <string name="description_post_bookmarked">Dodany do zakładek</string>
+    <string name="description_post_media">Media: %s</string>
+    <string name="description_post_cw">Ostrzeżenie o zawartości: %s</string>
+    <plurals name="reblogs">
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; podbicie</item>
+        <item quantity="few">&lt;b&gt;%s&lt;/b&gt; podbicia</item>
+        <item quantity="many">&lt;b&gt;%s&lt;/b&gt; podbić</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; polubienie</item>
+        <item quantity="few">&lt;b&gt;%1$s&lt;/b&gt; polubienia</item>
+        <item quantity="many">&lt;b&gt;%1$s&lt;/b&gt; polubień</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; polubień</item>
+    </plurals>
+    <string name="post_boosted_fmt">Podbicie od &lt;b&gt;%1$s&lt;/b&gt;</string>
+    <string name="post_edited">Edytowano %s</string>
 </resources>

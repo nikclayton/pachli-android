@@ -25,6 +25,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import androidx.core.content.ContextCompat
+import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -49,9 +50,7 @@ import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentTrendingTagsBinding
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.AppBarLayoutHost
 import app.pachli.viewdata.TrendingViewData
-import at.connyduck.sparkbutton.helpers.Utils
 import com.google.android.material.color.MaterialColors
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
@@ -105,7 +104,7 @@ class TrendingTagsFragment :
                             if (getView() != null) {
                                 binding.recyclerView.scrollBy(
                                     0,
-                                    Utils.dpToPx(requireContext(), -30),
+                                    dpToPx(-30f, requireContext().resources.displayMetrics).toInt(),
                                 )
                             }
                         }
@@ -272,8 +271,6 @@ class TrendingTagsFragment :
             val composeButton = (activity as ActionButtonActivity).actionButton
             composeButton?.hide()
         }
-
-        (requireActivity() as? AppBarLayoutHost)?.appBarLayout?.setLiftOnScrollTargetView(binding.recyclerView)
     }
 
     override fun onReselect() {

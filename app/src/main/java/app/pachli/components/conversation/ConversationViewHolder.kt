@@ -1,4 +1,5 @@
-/* Copyright 2017 Andrew Dawson
+/*
+ * Copyright (c) 2025 Pachli Association
  *
  * This file is a part of Pachli.
  *
@@ -16,21 +17,14 @@
 
 package app.pachli.components.conversation
 
-import android.text.InputFilter
-import android.text.TextUtils
-import android.view.View
-import android.widget.ImageView
 import app.pachli.R
 import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.adapter.StatusViewDataDiffCallback
-import app.pachli.core.common.extensions.hide
-import app.pachli.core.common.extensions.show
-import app.pachli.core.common.util.SmartLengthInputFilter
+import app.pachli.core.data.model.ConversationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.ConversationAccount
 import app.pachli.core.ui.SetStatusContent
 import app.pachli.core.ui.StatusActionListener
-import app.pachli.core.ui.loadAvatar
 import app.pachli.databinding.ItemConversationBinding
 import com.bumptech.glide.RequestManager
 
@@ -40,45 +34,35 @@ class ConversationViewHolder internal constructor(
     setStatusContent: SetStatusContent,
     private val listener: StatusActionListener<ConversationViewData>,
 ) : ConversationAdapter.ViewHolder, StatusBaseViewHolder<ConversationViewData>(binding.root, glide, setStatusContent) {
-    private val avatars: Array<ImageView> = arrayOf(
-        avatar,
-        binding.statusAvatar1,
-        binding.statusAvatar2,
-    )
 
     override fun bind(viewData: ConversationViewData, payloads: List<List<Any?>>?, statusDisplayOptions: StatusDisplayOptions) {
-        val account = viewData.actionable.account
-        val inReplyToId = viewData.actionable.inReplyToId
-        val favourited = viewData.actionable.favourited
-        val bookmarked = viewData.actionable.bookmarked
-
         if (payloads.isNullOrEmpty()) {
-            setupCollapsedState(viewData, listener)
-            setDisplayName(account.name, account.emojis, statusDisplayOptions)
-            setUsername(account.username)
-            setMetaData(viewData, statusDisplayOptions, listener)
-            setIsReply(inReplyToId != null)
-            setFavourited(favourited)
-            setBookmarked(bookmarked)
-            setMediaPreviews(
-                viewData,
-                statusDisplayOptions.mediaPreviewEnabled,
-                listener,
-                statusDisplayOptions.useBlurhash,
+            val actionable = viewData.actionable
+
+            binding.statusView.setupWithStatus(setStatusContent, glide, viewData, listener, statusDisplayOptions)
+
+            statusControls.bind(
+                statusVisibility = actionable.visibility,
+                showCounts = statusDisplayOptions.showStatsInline,
+                confirmReblog = statusDisplayOptions.confirmReblogs,
+                confirmFavourite = statusDisplayOptions.confirmFavourites,
+                isReply = actionable.inReplyToId != null,
+                isReblogged = actionable.reblogged,
+                isFavourited = actionable.favourited,
+                isBookmarked = actionable.bookmarked,
+                replyCount = actionable.repliesCount,
+                reblogCount = actionable.reblogsCount,
+                favouriteCount = actionable.favouritesCount,
+                onReplyClick = { listener.onReply(viewData) },
+                onFavouriteClick = { favourite -> listener.onFavourite(viewData, favourite) },
+                onBookmarkClick = { bookmark -> listener.onBookmark(viewData, bookmark) },
+                onMoreClick = { view -> listener.onMore(view, viewData) },
             )
-            setupButtons(
-                viewData,
-                listener,
-                account.id,
-                statusDisplayOptions,
-            )
-            setSpoilerAndContent(viewData, statusDisplayOptions, listener)
             setConversationName(viewData.accounts)
-            setAvatars(viewData.accounts, statusDisplayOptions.animateAvatars)
         } else {
             payloads.flatten().forEach { item ->
                 if (item == StatusViewDataDiffCallback.Payload.CREATED) {
-                    setMetaData(viewData, statusDisplayOptions, listener)
+                    binding.statusView.setMetaData(viewData, statusDisplayOptions, listener)
                 }
             }
         }
@@ -103,48 +87,5 @@ class ConversationViewHolder internal constructor(
                 accounts.size - 2,
             )
         }
-    }
-
-    private fun setAvatars(accounts: List<ConversationAccount>, animateAvatars: Boolean) {
-        avatars.withIndex().forEach { views ->
-            accounts.getOrNull(views.index)?.also { account ->
-                loadAvatar(
-                    glide,
-                    account.avatar,
-                    views.value,
-                    avatarRadius48dp,
-                    animateAvatars,
-                )
-                views.value.show()
-            } ?: views.value.hide()
-        }
-    }
-
-    private fun setupCollapsedState(
-        viewData: ConversationViewData,
-        listener: StatusActionListener<ConversationViewData>,
-    ) {
-        /* input filter for TextViews have to be set before text */
-        if (viewData.isCollapsible && (viewData.isExpanded || TextUtils.isEmpty(viewData.spoilerText))) {
-            binding.buttonToggleContent.setOnClickListener {
-                listener.onContentCollapsedChange(viewData, !viewData.isCollapsed)
-            }
-            binding.buttonToggleContent.show()
-            if (viewData.isCollapsed) {
-                binding.buttonToggleContent.setText(R.string.post_content_warning_show_more)
-                content.filters = COLLAPSE_INPUT_FILTER
-            } else {
-                binding.buttonToggleContent.setText(R.string.post_content_warning_show_less)
-                content.filters = NO_INPUT_FILTER
-            }
-        } else {
-            binding.buttonToggleContent.visibility = View.GONE
-            content.filters = NO_INPUT_FILTER
-        }
-    }
-
-    companion object {
-        private val COLLAPSE_INPUT_FILTER = arrayOf<InputFilter>(SmartLengthInputFilter)
-        private val NO_INPUT_FILTER = arrayOfNulls<InputFilter>(0)
     }
 }

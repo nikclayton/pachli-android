@@ -28,6 +28,7 @@ import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.string.unicodeWrap
+import app.pachli.core.data.model.NotificationViewData.FollowRequestNotificationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.TimelineAccount
@@ -38,7 +39,6 @@ import app.pachli.core.ui.loadAvatar
 import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ItemFollowRequestBinding
 import app.pachli.interfaces.AccountActionListener
-import app.pachli.viewdata.NotificationViewData
 import com.bumptech.glide.RequestManager
 
 class FollowRequestViewHolder(
@@ -47,10 +47,10 @@ class FollowRequestViewHolder(
     private val accountActionListener: AccountActionListener,
     private val linkListener: LinkListener,
     private val showHeader: Boolean,
-) : NotificationsPagingAdapter.ViewHolder, RecyclerView.ViewHolder(binding.root) {
+) : NotificationsPagingAdapter.ViewHolder<FollowRequestNotificationViewData>, RecyclerView.ViewHolder(binding.root) {
 
     override fun bind(
-        viewData: NotificationViewData,
+        viewData: FollowRequestNotificationViewData,
         payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
     ) {

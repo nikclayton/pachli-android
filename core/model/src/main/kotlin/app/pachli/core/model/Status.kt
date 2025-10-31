@@ -21,8 +21,11 @@ import app.pachli.core.common.extensions.getOrElse
 import com.squareup.moshi.JsonClass
 import java.util.Date
 
+/**
+ * @property reblogged True if the current user reblogged this status.
+ */
 data class Status(
-    val id: String,
+    val statusId: String,
     // not present if it's reblog
     val url: String?,
     val account: TimelineAccount,
@@ -53,12 +56,14 @@ data class Status(
     val language: String?,
     val filtered: List<FilterResult>?,
 ) {
-
     val actionableId: String
-        get() = reblog?.id ?: id
+        get() = reblog?.statusId ?: statusId
 
     val actionableStatus: Status
         get() = reblog ?: this
+
+    val isSelfReply: Boolean
+        get() = inReplyToAccountId != null && inReplyToAccountId == account.id
 
     // Note: These are deliberately listed in order, most public to least public.
     // These are currently serialised to the database by the ordinal value, and
@@ -70,13 +75,13 @@ data class Status(
         /** Visible to everyone, shown in public timelines. */
         PUBLIC,
 
-        /* Visible to public, but not included in public timelines. */
+        /** Visible to public, but not included in public timelines. */
         UNLISTED,
 
-        /* Visible to followers only, and to any mentioned users. */
+        /** Visible to followers only, and to any mentioned users. */
         PRIVATE,
 
-        /* Visible only to mentioned users. */
+        /** Visible only to mentioned users. */
         DIRECT,
         ;
 
@@ -89,6 +94,16 @@ data class Status(
                 UNKNOWN -> "unknown"
             }
         }
+
+        /**
+         * @return True if statuses with this visibility can be reblogged, otherwise
+         * false.
+         */
+        val allowsReblog: Boolean
+            get() = when (this) {
+                PUBLIC, UNLISTED -> true
+                PRIVATE, DIRECT, UNKNOWN -> false
+            }
 
         companion object {
             @JvmStatic
@@ -108,9 +123,14 @@ data class Status(
         }
     }
 
-    fun rebloggingAllowed(): Boolean {
-        return (visibility != Visibility.DIRECT && visibility != Visibility.UNKNOWN)
-    }
+    /**
+     * @return True if this status can be reblogged based on the visibility.
+     * Only statuses with [Visibility.PUBLIC] or [Visibility.UNLISTED] can be
+     * reblogged.
+     *
+     * @see [Status.Visibility.allowsReblog]
+     */
+    fun rebloggingAllowed() = visibility.allowsReblog
 
     fun isPinned(): Boolean {
         return pinned ?: false
@@ -134,6 +154,5 @@ data class Status(
 
     companion object {
         const val MAX_MEDIA_ATTACHMENTS = 4
-        const val MAX_POLL_OPTIONS = 4
     }
 }

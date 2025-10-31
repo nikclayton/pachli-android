@@ -30,8 +30,6 @@
     <string name="error_media_upload_permission">Izin untuk membaca media diperlukan.</string>
     <string name="error_media_download_permission">Izin untuk menyimpan media diperlukan.</string>
     <string name="post_sensitive_media_directions">Klik untuk melihat</string>
-    <string name="post_content_warning_show_more">Tampilkan Lebih Banyak</string>
-    <string name="post_content_warning_show_less">Tampilkan Lebih Sedikit</string>
     <string name="notification_follow_format">%s mengikuti Anda</string>
     <string name="report_username_format">Laporkan @%s</string>
     <string name="action_follow">Ikuti</string>
@@ -92,7 +90,6 @@
     <string name="notification_follow_name">Pengikut Baru</string>
     <string name="notification_follow_description">Notifikasi tentang pengikut baru</string>
     <string name="notification_sign_up_name">Daftar</string>
-    <string name="status_count_one_plus">1+</string>
     <string name="follows_you">Mengikuti Anda</string>
     <string name="add_account_description">Tambahkan Akun Mastodon baru</string>
     <string name="lock_account_label">Kunci akun</string>
@@ -123,8 +120,6 @@
     <string name="title_public_federated">Federasi</string>
     <string name="title_migration_relogin">Login ulang untuk notifikasi push</string>
     <string name="title_follow_requests">Permintaan mengikuti</string>
-    <string name="post_boosted_format">%s ter-boost</string>
-    <string name="post_content_show_more">Meluaskan</string>
     <string name="footer_empty">Tidak ada apapun di sini. Tarik ke bawah untuk menyegarkan!</string>
     <string name="notification_reblog_format">%s telah meng-boost post mu</string>
     <string name="notification_favourite_format">%s memfavoritkan post mu</string>
@@ -132,12 +127,7 @@
     <string name="notification_subscription_format">%s baru saja memosting</string>
     <string name="notification_update_format">%s mengedit post mereka</string>
     <string name="report_comment_hint">Komentar tambahan\?</string>
-    <string name="action_reply">Balas</string>
     <string name="action_quick_reply">Balas Cepat</string>
-    <string name="action_reblog">Boost</string>
-    <string name="action_unreblog">Hapus boost</string>
-    <string name="action_favourite">Favorit</string>
-    <string name="action_unfavourite">Hapus favorit</string>
     <string name="action_unbookmark">Hapus bookmark</string>
     <string name="action_compose">Menyusun</string>
     <string name="action_hide_reblogs">Sembunyikan boost</string>
@@ -203,13 +193,10 @@
     <string name="notification_header_report_format">%s dilaporkan %s</string>
     <string name="dialog_follow_hashtag_title">Ikuti tagar</string>
     <string name="dialog_follow_hashtag_hint">#tagar</string>
-    <string name="post_content_show_less">Tutup</string>
-    <string name="post_edited">Diedit %s</string>
     <string name="notification_report_format">Laporan baru tentang %s</string>
     <plurals name="notification_summary_report_format">
         <item quantity="other">%1$s - %2$d posting terlampir</item>
     </plurals>
-    <string name="action_bookmark">Penanda</string>
     <string name="action_post_failed">Unggahan gagal</string>
     <string name="action_post_failed_detail">Postingan Anda gagal diunggah dan telah disimpan ke draf.
 \n
@@ -248,7 +235,7 @@
     <plurals name="notification_severed_relationships_summary_followers_fmt">
         <item quantity="other">%1$s pengikut di hapus</item>
     </plurals>
-    <string name="notification_severed_relationships_format">Hubungan dengan <b>%1$s</b> terputus</string>
+    <string name="notification_severed_relationships_format">Hubungan dengan &lt;b>%1$s&lt;/b> terputus</string>
     <string name="notification_severed_relationships_domain_block_body">Moderator menangguhkan domain tersebut</string>
     <string name="pref_title_notification_filter_follow_requests">ikuti diminta</string>
     <plurals name="notification_severed_relationships_summary_following_fmt">
@@ -354,7 +341,7 @@
     <string name="notification_summary_small">%1$s dan %2$s</string>
     <string name="notification_notification_worker">Mengambil notifikasi…</string>
     <string name="post_share_content">Bagikan konten postingan</string>
-    <string name="status_filter_placeholder_label_format">Disaring: <b>%1$s</b></string>
+    <string name="status_filter_placeholder_label_format">Disaring: &lt;b>%1$s&lt;/b></string>
     <string name="set_focus_description">Ketuk atau seret lingkaran untuk memilih titik fokus yang akan selalu terlihat dalam gambar mini.</string>
     <string name="download_fonts">Anda harus mengunduh set emoji ini terlebih dahulu</string>
     <string name="expand_collapse_all_posts">Memperluas/Memperkecil semua tulisan</string>

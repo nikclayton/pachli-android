@@ -24,6 +24,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -46,6 +47,7 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.throttleFirst
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
+import app.pachli.core.data.model.ConversationViewData
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.AccountFilterDecision
@@ -68,7 +70,6 @@ import app.pachli.databinding.FragmentTimelineBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.util.ListStatusAccessibilityDelegate
-import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.Glide
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -100,7 +101,7 @@ sealed interface UiAction {
 }
 
 /**
- * Actions taken from an individual [ConversationViewData].
+ * Actions taken from an individual [app.pachli.core.data.model.ConversationViewData].
  */
 internal sealed interface ConversationAction : UiAction {
     /**
@@ -227,7 +228,7 @@ class ConversationsFragment :
                                 if (getView() != null) {
                                     binding.recyclerView.scrollBy(
                                         0,
-                                        Utils.dpToPx(requireContext(), -30),
+                                        dpToPx(-30f, requireContext().resources.displayMetrics).toInt(),
                                     )
                                 }
                             }
@@ -374,7 +375,7 @@ class ConversationsFragment :
         super.more(view, viewData)
     }
 
-    override fun onViewMedia(viewData: ConversationViewData, attachmentIndex: Int, view: View?) {
+    override fun onViewAttachment(view: View?, viewData: ConversationViewData, attachmentIndex: Int) {
         viewMedia(
             viewData.lastStatus.actionable.account.username,
             attachmentIndex,
@@ -384,7 +385,7 @@ class ConversationsFragment :
     }
 
     override fun onViewThread(status: Status) {
-        viewThread(status.actionableId, status.url)
+        viewThread(status.actionableId, status.actionableStatus.url)
     }
 
     override fun onOpenReblog(status: Status) {
@@ -429,7 +430,7 @@ class ConversationsFragment :
         viewModel.accept(
             ConversationAction.ClearContentFilter(
                 viewData.pachliAccountId,
-                viewData.id,
+                viewData.conversationId,
             ),
         )
     }

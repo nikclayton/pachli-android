@@ -17,7 +17,6 @@
 package app.pachli.components.report
 
 import androidx.lifecycle.viewModelScope
-import app.pachli.components.report.model.StatusViewState
 import app.pachli.components.timeline.NetworkTimelineRepository
 import app.pachli.components.timeline.viewmodel.NetworkTimelineViewModel
 import app.pachli.core.common.PachliError
@@ -89,7 +88,7 @@ class ReportViewModel @AssistedInject constructor(
     accountManager: AccountManager,
     sharedPreferencesRepository: SharedPreferencesRepository,
 ) : NetworkTimelineViewModel(
-    timeline = Timeline.User.Replies(reportedAccountId),
+    timeline = Timeline.User.Replies(reportedAccountId, excludeReblogs = true),
     repository = repository,
     timelineCases = timelineCases,
     eventHub = eventHub,
@@ -186,7 +185,6 @@ class ReportViewModel @AssistedInject constructor(
 
     /** IDs of statuses the user is reporting. */
     private val selectedIds = HashSet<String>().apply { reportedStatusId?.let { add(it) } }
-    val statusViewState = StatusViewState()
 
     /** Text of the comment to include with the report. */
     var reportNote: String = ""
@@ -277,9 +275,9 @@ class ReportViewModel @AssistedInject constructor(
 
     fun setStatusChecked(status: Status, checked: Boolean) {
         if (checked) {
-            selectedIds.add(status.id)
+            selectedIds.add(status.statusId)
         } else {
-            selectedIds.remove(status.id)
+            selectedIds.remove(status.statusId)
         }
     }
 

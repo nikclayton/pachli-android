@@ -12,19 +12,13 @@
     <string name="title_followers">Sledujúci</string>
     <string name="title_bookmarks">Záložky</string>
     <string name="post_sensitive_media_directions">Klikni pre zobrazenie</string>
-    <string name="post_content_warning_show_more">Zobraziť viac</string>
-    <string name="post_content_warning_show_less">Zobraziť menej</string>
-    <string name="post_content_show_more">Rozbaliť</string>
-    <string name="post_content_show_less">Zabaliť</string>
     <string name="report_username_format">Nahlásiť účet @%s</string>
     <string name="action_quick_reply">Rýchla odpoveď</string>
-    <string name="action_reply">Odpovedať</string>
     <string name="title_favourites">Obľúbené</string>
     <string name="error_empty">Toto nemôže byť prázdne.</string>
     <string name="error_media_upload_opening">Súbor sa nepodarilo otvoriť.</string>
     <string name="title_home">Domov</string>
     <string name="title_tab_preferences">Panely</string>
-    <string name="action_bookmark">Vytvoriť záložku</string>
     <string name="action_follow">Sledovať</string>
     <string name="action_unfollow">Prestať sledovať</string>
     <string name="action_block">Blokovať</string>
@@ -35,7 +29,7 @@
     <string name="action_delete_and_redraft">Vymazať a prepísať</string>
     <string name="action_reset_schedule">Obnoviť</string>
     <string name="action_open_faved_by">Zobraziť obľúbené</string>
-    <string name="action_open_media_n">Otvoriť médium #%d</string>
+    <string name="action_open_media_n">Otvoriť prílohu #%d</string>
     <string name="download_image">Sťahovanie %1$s</string>
     <string name="action_copy_link">Kopírovať odkaz</string>
     <string name="confirmation_reported">Odoslané!</string>
@@ -83,8 +77,6 @@
     <string name="profile_metadata_content_label">Obsah</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s a %2$s</string>
-    <string name="action_reblog">Zdieľať</string>
-    <string name="action_unreblog">Zrušiť zdieľanie</string>
     <string name="post_privacy_public">Verejný</string>
     <string name="action_view_bookmarks">Záložky</string>
     <string name="notification_summary_small">%1$s a %2$s</string>
@@ -115,7 +107,6 @@
     <string name="visibility_unlisted">Tiché verejné: Nezobrazovať na verejných časových osách</string>
     <string name="pref_title_notification_filter_favourites">Moje príspevky sú obľúbené</string>
     <string name="pref_summary_http_proxy_missing">&lt;nenastavené&gt;</string>
-    <string name="post_boosted_format">%s zdieľal/a</string>
     <string name="title_edits">Úpravy</string>
     <string name="pref_title_font_family">Typ písma</string>
     <string name="action_content_warning">Varovanie pred obsahom</string>
@@ -157,7 +148,7 @@
     <string name="notification_reblog_format">%s zdieľal/a tvoj príspevok</string>
     <string name="notification_follow_format">%s ťa sleduje</string>
     <string name="notification_follow_request_format">%s ťa požiadal o sledovanie</string>
-    <string name="notification_severed_relationships_format">Vzťah s <b>%1$s</b> bol prerušený</string>
+    <string name="notification_severed_relationships_format">Vzťah s &lt;b>%1$s&lt;/b> bol prerušený</string>
     <string name="notification_severed_relationships_domain_block_body">Moderátor pozastavil doménu</string>
     <string name="notification_severed_relationships_user_domain_block_body">Zablokoval/a si doménu</string>
     <string name="action_delete_conversation">Vymazať konverzáciu</string>
@@ -179,7 +170,7 @@
         <item quantity="few">%1$s sledované účty boli odstránené.</item>
         <item quantity="other">%1$s sledovaných účtov bolo odstránených.</item>
     </plurals>
-    <string name="account_filter_placeholder_type_favourite_fmt">\@<b>%1s</b> si obľúbil/a tvoj príspevok</string>
+    <string name="account_filter_placeholder_type_favourite_fmt">\@&lt;b>%1s&lt;/b> si obľúbil/a tvoj príspevok</string>
     <string name="pref_title_bot_overlay">Zobraziť indikátor botov</string>
     <string name="notification_severed_relationships_unknown_body">Neznámy dôvod</string>
     <string name="notification_severed_relationships_account_suspension_body">Moderátor pozastavil účet</string>
@@ -198,8 +189,6 @@
     <string name="dialog_message_cancel_follow_request">Zrušiť žiadosť o sledovanie?</string>
     <string name="pref_title_show_media_preview">Sťahovať náhľady médií</string>
     <string name="pref_title_public_filter_keywords">Verejné časové osi</string>
-    <string name="description_post_favourited">Obľúbené</string>
-    <string name="action_favourite">Obľúbiť</string>
     <string name="action_hide_reblogs">Skryť zdieľania</string>
     <string name="action_show_reblogs">Zobraziť zdieľania</string>
     <string name="dialog_unfollow_warning">Prestať sledovať tento účet?</string>
@@ -214,7 +203,6 @@
         <item quantity="other">%1$s · %2$d priložených príspevkov</item>
     </plurals>
     <string name="report_comment_hint">Ďalšie komentáre?</string>
-    <string name="action_unfavourite">Odstrániť z obľúbených</string>
     <string name="action_unbookmark">Odstrániť záložku</string>
     <string name="action_post_failed_detail">Tvoj príspevok sa nepodarilo odoslať a bol uložený medzi koncepty.\n\nServer sa buď nepodarilo kontaktovať, alebo príspevok odmietol.</string>
     <string name="action_post_failed_detail_plural">Tvoje príspevky sa nepodarilo odoslať a boli uložené medzi koncepty.\n\nServer sa buď nepodarilo kontaktovať, alebo príspevky odmietol.</string>
@@ -294,7 +282,6 @@
     <string name="pref_title_http_proxy_server">HTTP proxy server</string>
     <string name="pref_title_http_proxy_port">HTTP proxy port</string>
     <string name="hint_media_description_missing">Médiá by mali mať popis.</string>
-    <string name="post_edited">Upravené %s</string>
     <string name="search_operator_where_dialog_library_hint">Tvoje vlastné príspevky, zdieľania, obľúbené príspevky, záložky, a príspevky, ktoré ťa zmieňujú</string>
     <string name="confirmation_hashtag_muted">#%s skrytý</string>
     <string name="confirmation_hashtag_unmuted">Skrytie #%s zrušené</string>
@@ -313,7 +300,7 @@
     <string name="notification_subscription_name">Nové príspevky</string>
     <string name="notification_sign_up_name">Registrácia</string>
     <string name="status_filtered_show_anyway">Zobraziť aj tak</string>
-    <string name="status_filter_placeholder_label_format">Filtrované: <b>%1$s</b></string>
+    <string name="status_filter_placeholder_label_format">Filtrované: &lt;b>%1$s&lt;/b></string>
     <string name="state_follow_requested">Sledovanie vyžiadané</string>
     <string name="post_text_size_smallest">Najmenšie</string>
     <string name="notification_mention_descriptions">Upozornenia na nové zmienenia</string>
@@ -328,7 +315,6 @@
     <string name="notification_follow_description">Upozornenia na nových sledujúcích</string>
     <string name="download_failed">Sťahovanie zlyhalo</string>
     <string name="title_reblogged_by">Zdieľané účtom</string>
-    <string name="description_post_bookmarked">Pridané do záložiek</string>
     <string name="list">Zoznam</string>
     <string name="action_unsubscribe_account">Zrušiť odoberanie</string>
     <string name="pachli_compose_post_quicksetting_label">Vytvoriť príspevok</string>
@@ -372,20 +358,10 @@
     <string name="ui_error_clear_notifications">Vymazanie upozornení zlyhalo: %s</string>
     <string name="ui_error_reject_follow_request">Zamietnutie žiadosti o sledovanie zlyhalo: %s</string>
     <string name="filter_description_hide">Skryť úplne</string>
-    <plurals name="favs">
-        <item quantity="one"><b>%1$s</b> obľúbenie</item>
-        <item quantity="few"><b>%1$s</b> obľúbenia</item>
-        <item quantity="other"><b>%1$s</b> obľúbení</item>
-    </plurals>
     <string name="account_date_joined">Dátum registrácie %1$s</string>
     <string name="announcement_date_updated">(Aktualizované: %1$s)</string>
-    <plurals name="reblogs">
-        <item quantity="one"><b>%s</b> zdieľanie</item>
-        <item quantity="few"><b>%s</b> zdieľania</item>
-        <item quantity="other"><b>%s</b> zdieľaní</item>
-    </plurals>
     <string name="notification_report_description">Upozornenia na nahlásenia moderátorom</string>
-    <string name="account_filter_placeholder_type_reblog_fmt">Účet @<b>%1s</b> zdieľal tvoj príspevok</string>
+    <string name="account_filter_placeholder_type_reblog_fmt">Účet @&lt;b>%1s&lt;/b> zdieľal tvoj príspevok</string>
     <string name="wellbeing_mode_notice">Niektoré informácie, ktoré by mohli mať vplyv na tvoju duševnú pohodu, budú skryté. Týka sa to:\n\n - Upozornení na zdieľanie, sledovaníe a pridanie medzi obľúbené\n - Počtu obľúbení a zdieľaní pri príspevkoch\n - Štatistík sledujúcich a príspevkov na profiloch\n\nPush upozornenia nebudú ovplyvnené, ale môžeš si skontrolovať ich nastavenia manuálne.</string>
     <string name="notifications_apply_filter">Filtrovať upozornenia</string>
     <string name="filter_apply">Použiť</string>
@@ -397,7 +373,6 @@
     <string name="compose_shortcut_short_label">Napísať</string>
     <string name="profile_metadata_label_label">Označenie</string>
     <string name="pref_title_absolute_time">Používať absolútny čas</string>
-    <string name="description_post_reblogged">Zdielaný</string>
     <string name="compose_schedule_date_time_fmt">%1$s %2$s</string>
     <string name="compose_preview_image_description">Akcie pre obrázok %s</string>
     <string name="no_scheduled_posts">Nemáš žiadne naplánované príspevky.</string>
@@ -426,7 +401,6 @@
     <string name="unpin_action">Odopnúť</string>
     <string name="failed_to_unpin">Odopnutie zlyhalo</string>
     <string name="conversation_0_recipients">Žiadni ďalší účastníci</string>
-    <string name="description_post_edited">Upravené</string>
     <string name="description_login">Funguje vo väčšine prípadov. Nedochádza k úniku dát do iných aplikácií.</string>
     <string name="description_browser_login">Môže podporovať dodatočné metódy overenia, ale vyžaduje kompatibilný prehliadač.</string>
     <string name="add_hashtag_title">Pridať hashtag</string>
@@ -474,13 +448,11 @@
     <string name="error_missing_edits">Tento príspevok bol upravený, ale tvoj server nemá informácie o týchto zmenách, takže ich nevidíš.\n\nJedná sa o problém <a href="https://github.com/mastodon/mastodon/issues/25398">Mastodon issue #25398</a>.</string>
     <string name="notification_update_description">Upozornenia na zmeny príspevkov, s ktorými si interagoval/a</string>
     <string name="notification_summary_large">%1$s, %2$s, %3$s a ďalších %4$d</string>
-    <string name="status_count_one_plus">1+</string>
     <string name="pref_title_alway_open_spoiler">Vždy rozbaliť príspevky označené varovaními o obsahu</string>
     <string name="pref_title_alway_show_sensitive_media">Vždy zobraziť citlivý obsah</string>
     <string name="title_media">Média</string>
     <string name="filter_expiration_format">%s (%s)</string>
     <string name="system_default">Východzie nastavenie systému</string>
-    <string name="description_post_cw">Varovanie pred obsahom: %s</string>
     <string name="report_description_1">Hlásenie bude odoslané moderátorovi tvojho servera. Nižšie môžeš uviesť dôvod, prečo tento účet nahlasuješ:</string>
     <string name="report_remote_instance">Preposlať na %s</string>
     <string name="duration_1_day">1 deň</string>
@@ -514,7 +486,6 @@
     <string name="dialog_delete_filter_positive_action">Vymazať</string>
     <string name="update_dialog_title">Je dostupná aktualizácia</string>
     <string name="update_dialog_negative">Neupozorňovať</string>
-    <string name="translation_provider_fmt">%1$s</string>
     <string name="pref_notification_method_mixed">Niektoré účty používajú UnifiedPush, iné sťahujú oznámenia každých 15 minút. Klepni pre viac informácií</string>
     <string name="pref_notification_battery_optimisation_should_ignore">Optimalizácia batérie by mala byť vypnutá. Klepni pre otvorenie.</string>
     <string name="pref_title_wellbeing_mode">Pohoda</string>
@@ -527,7 +498,6 @@
     <string name="notification_prune_cache">Údržba cache…</string>
     <string name="load_newest_statuses">Načítať najnovšie príspevky</string>
     <string name="update_dialog_neutral">Neupozorňuj ma na túto verziu</string>
-    <string name="translating">Prekladám…</string>
     <string name="reblog_private">Zdieľať s pôvodným publikom</string>
     <string name="unreblog_private">Zrušit zdieľanie</string>
     <string name="filter_edit_title">Upraviť filter</string>
@@ -550,7 +520,6 @@
     <string name="pref_title_labs">Experimentálne funkcie</string>
     <string name="pref_labs_warning">Toto sú experimentálne funkcie. Ich funkčnosť nie je zaručená a nemusia byť zahrnuté v budúcich verziách. Používaj ich výhradne na vlastné riziko.</string>
     <string name="pref_labs_reverse_home_timeline_title">Obrátiť poradie časovej osi</string>
-    <string name="description_post_media">Média %s</string>
     <string name="description_post_language">Jazyk príspevku</string>
     <string name="set_focus_description">Klepnutím alebo potiahnutím kruhu urči bod, ktorý bude v náhľadoch vždy zobrazený.</string>
     <string name="manage_lists">Spravovať zoznamy</string>
@@ -695,22 +664,22 @@
     <string name="search_operator_where_dialog_public_hint">Verejné, vyhľadateľné príspevky, ktoré pozná server</string>
     <string name="pref_title_account_notification_filters">Filtre upozornení</string>
     <string name="pref_account_notification_filters_subtitle">Čo sa má stať s upozorneniami z účtov…</string>
-    <string name="account_filter_placeholder_type_follow_fmt">Účet @<b>%1s</b> ťa začal sledovať</string>
+    <string name="account_filter_placeholder_type_follow_fmt">Účet @&lt;b>%1s&lt;/b> ťa začal sledovať</string>
     <string name="pref_account_notification_filters_label_limited_by_server">… ktoré boli obmedzené tvojimi moderátormi</string>
-    <string name="account_filter_placeholder_type_follow_request_fmt">Žiadosť o sledovanie z účtu @<b>%1s</b></string>
-    <string name="account_filter_placeholder_label_younger_30d">Filtrované, pretože: <b>vytvorené za posledných 30 dní</b></string>
-    <string name="account_filter_placeholder_label_domain">Z účtu @<b>%1s</b></string>
-    <string name="account_filter_placeholder_label_not_following">Filtrované, pretože: <b>ich nesleduješ</b></string>
-    <string name="account_filter_placeholder_label_limited_by_server">Filtrované, pretože: <b>obmedzené tvojimi moderátormi</b></string>
+    <string name="account_filter_placeholder_type_follow_request_fmt">Žiadosť o sledovanie z účtu @&lt;b>%1s&lt;/b></string>
+    <string name="account_filter_placeholder_label_younger_30d">Filtrované, pretože: &lt;b>vytvorené za posledných 30 dní&lt;/b></string>
+    <string name="account_filter_placeholder_label_domain">Z účtu @&lt;b>%1s&lt;/b></string>
+    <string name="account_filter_placeholder_label_not_following">Filtrované, pretože: &lt;b>ich nesleduješ&lt;/b></string>
+    <string name="account_filter_placeholder_label_limited_by_server">Filtrované, pretože: &lt;b>obmedzené tvojimi moderátormi&lt;/b></string>
     <string name="notification_severed_relationships_name">Prerušené spojenia</string>
     <string name="notification_severed_relationships_description">Upozornenia na prerušené spojenia</string>
     <string name="ui_error_reload_reply_fmt">Nepodarilo sa načítať príspevok: %1$s</string>
     <string name="pref_account_notification_filters_label_not_followed">… ktoré nesleduješ</string>
     <string name="pref_account_notification_filters_label_younger_30d">… ktoré boli vytvorené za posledných 30 dní</string>
-    <string name="account_filter_placeholder_type_mention_fmt">Účet @<b>%1s</b> ťa zmienil</string>
+    <string name="account_filter_placeholder_type_mention_fmt">Účet @&lt;b>%1s&lt;/b> ťa zmienil</string>
     <string name="pref_title_public_filter_home_and_lists">Domov a zoznamy</string>
     <string name="action_refresh_account">Aktualizovať účet</string>
-    <string name="account_filter_placeholder_type_conversation">Účet @<b>%1$s</b> začal konverzáciu</string>
+    <string name="account_filter_placeholder_type_conversation">Účet @&lt;b>%1$s&lt;/b> začal konverzáciu</string>
     <string name="pref_account_conversation_filters_subtitle">Čo sa má stať s konverzáciami začatými účtami…</string>
     <string name="pref_summary_account_conversation_filters">Tvoj server nepodporuje filtre konverzácií</string>
     <string name="pref_title_account_conversation_filters">Filtre konverzácií</string>
@@ -745,11 +714,11 @@
     <string name="error_import_preferences_fmt">Nepodarilo sa importovať nastavenia z %1$s: %2$s</string>
     <string name="title_report_category_fmt">Kategória: %1$s</string>
     <string name="title_report_comment">Komentár nahlásujúceho</string>
-    <string name="notification_severed_relationships_domain_block_fmt">Správca %1$s zablokoval doménu <b>%2$s</b></string>
-    <string name="notification_severed_relationships_account_suspension_fmt">Správca %1$s zablokoval účet <b>%2$s</b></string>
+    <string name="notification_severed_relationships_domain_block_fmt">Správca %1$s zablokoval doménu &lt;b>%2$s&lt;/b></string>
+    <string name="notification_severed_relationships_account_suspension_fmt">Správca %1$s zablokoval účet &lt;b>%2$s&lt;/b></string>
     <string name="manage_accounts_name">Spravovať účty</string>
-    <string name="notification_severed_relationships_user_domain_block_fmt">Zablokoval(a) si <b>%1$s</b></string>
-    <string name="notification_severed_relationships_unknown_fmt"><b>%1$s</b> je zablokovaný (neznámy dôvod)</string>
+    <string name="notification_severed_relationships_user_domain_block_fmt">Zablokoval(a) si &lt;b>%1$s&lt;/b></string>
+    <string name="notification_severed_relationships_unknown_fmt">&lt;b>%1$s&lt;/b> je zablokovaný (neznámy dôvod)</string>
     <string name="pref_default_audio_playback">Predvolené prehrávanie zvuku</string>
     <string name="notification_moderation_warning_title">Správa od tvojich moderátorov</string>
     <string name="notification_moderation_warning_body_none_fmt">Dostal(a) si upozornenie od moderátora: %1$s</string>
@@ -771,4 +740,6 @@
     <string name="translator_error_download_required_fmt">preklad do jazyka %1$s si vyžaduje stiahnutie jazykového balíka a momentálne Wi-Fi nie je pripojená</string>
     <string name="filter_action_blur">Skryť prílohy</string>
     <string name="filter_description_blur">Zobraziť text, skryť prílohy s upozornením na obsah</string>
+    <string name="action_move_up">Posunúť vyššie</string>
+    <string name="action_move_down">Posunúť nižšie</string>
 </resources>

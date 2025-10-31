@@ -21,16 +21,11 @@
     <string name="title_follow_requests">Sekošanas pieprasījumi</string>
     <string name="title_scheduled_posts">Ieplānotie ieraksti</string>
     <string name="title_announcements">Paziņojumi</string>
-    <string name="post_content_show_less">Sakļaut</string>
-    <string name="post_content_warning_show_more">Rādīt vairāk</string>
-    <string name="post_content_warning_show_less">Rādīt mazāk</string>
     <string name="notification_follow_format">%s uzsāka Tev sekot</string>
     <string name="notification_sign_up_format">%s reģistrējās</string>
     <string name="footer_empty">Šeit nekā nav. Pavilkt uz leju, lai atsvaidzinātu.</string>
     <string name="notification_update_format">%s laboja savu ierakstu</string>
     <string name="action_quick_reply">Ātrā atbilde</string>
-    <string name="action_reply">Atbildēt</string>
-    <string name="action_bookmark">Atzīmēt ar grāmatzīmi</string>
     <string name="action_unbookmark">Noņemt grāmatzīmi</string>
     <string name="action_follow">Sekot</string>
     <string name="action_unblock">Atbloķēt</string>
@@ -109,8 +104,6 @@
     <string name="conversation_more_recipients">%1$s, %2$s un %3$d citi</string>
     <string name="description_post_language">Ieraksta valoda</string>
     <string name="select_list_title">Atlasīt sarakstu</string>
-    <string name="description_post_edited">Labots</string>
-    <string name="description_post_bookmarked">Atzīmēts ar grāmatzīmi</string>
     <string name="hashtags">Tēmturi</string>
     <string name="notifications_clear">Notīrīt</string>
     <string name="notifications_apply_filter">Filtrēt</string>
@@ -152,7 +145,6 @@
     <string name="title_home">Sākums</string>
     <string name="title_public_federated">Apvienotā</string>
     <string name="title_followers">Sekotāji</string>
-    <string name="post_content_show_more">Izvērst</string>
     <string name="action_view_bookmarks">Grāmatzīmes</string>
     <string name="action_save">Saglabāt</string>
     <string name="dialog_message_uploading_media">Augšupielādē…</string>
@@ -203,8 +195,6 @@
     <string name="error_sender_account_gone">Sūtot ziņu, radās kļūda.</string>
     <string name="title_posts_pinned">Piespraustie</string>
     <string name="title_followed_hashtags">Sekotie tēmturi</string>
-    <string name="post_boosted_format">%s pastiprināja</string>
-    <string name="post_edited">Labots %s</string>
     <string name="notification_subscription_format">%s nupat publicēja</string>
     <string name="report_username_format">Ziņot par @%s</string>
     <string name="notification_header_report_format">%s ziņoja par %s</string>
@@ -233,9 +223,7 @@
     <string name="pin_action">Piespraust</string>
     <string name="action_unfollow_hashtag_format">Vai pārtraukt sekot #%s\?</string>
     <string name="mute_notifications_switch">Apklusināt paziņojumus</string>
-    <string name="action_reblog">Pastiprināt</string>
     <string name="title_edits">Labojumi</string>
-    <string name="action_unreblog">Noņemt pastiprinājumu</string>
     <string name="notification_update_name">Ierakstu labojumi</string>
     <string name="send_media_to">Kopīgot informācijas nesēju…</string>
     <string name="description_account_locked">Privāts konts</string>
@@ -252,7 +240,6 @@
     <string name="pref_title_app_theme">Lietotnes tēma</string>
     <string name="pref_title_notification_filter_poll">Aptaujas ir noslēgušās</string>
     <string name="pref_title_show_boosts">Parādīt pastiprinājumus</string>
-    <string name="status_count_one_plus">1+</string>
     <string name="error_media_upload_permission">Nepieciešama atļauja lasīt multividi.</string>
     <string name="error_media_download_permission">Nepieciešama atļauja saglabāt multividi.</string>
     <string name="error_following_hashtag_format">Radās kļūda, sākot sekot #%s</string>
@@ -292,7 +279,6 @@
     <string name="title_media">Multivide</string>
     <string name="pref_title_alway_show_sensitive_media">Vienmēr rādīt jūtīgu saturu</string>
     <string name="unsaved_changes">Tev ir nesaglabātas izmaiņas.</string>
-    <string name="description_post_media">Multivide: %s</string>
     <string name="notification_clear_text">Vai tiešām vēlies neatgriezeniski notīrīt visus savus paziņojumus?</string>
     <string name="poll_ended_created">Tevis izveidotā aptauja ir noslēgusies</string>
     <string name="compose_preview_image_description">Darības ar attēlu %s</string>
@@ -360,7 +346,6 @@
     <string name="pref_title_absolute_time">Izmantot absolūto laiku</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s un %2$s</string>
-    <string name="description_post_cw">Satura brīdinājums: %s</string>
     <string name="a11y_label_loading_thread">Ielādē pavedienu</string>
     <string name="confirmation_hashtag_unfollowed">pārtraukta sekošana #%s</string>
     <string name="confirmation_domain_unmuted">%s atcelta slēpšana</string>
@@ -374,18 +359,10 @@
     <string name="notification_sign_up_name">Jaunu dalībnieku reģistrācija</string>
     <string name="restart_required">Nepieciešama lietotnes restartēšana</string>
     <string name="reblog_private">Pastiprināt sākotnējai auditorijai</string>
-    <string name="description_post_reblogged">Pastiprināts</string>
     <string name="lock_account_label_description">Sekotājus nepieciešams pašrocīgi apstiprināt</string>
     <string name="title_reblogged_by">Pastiprināja</string>
-    <plurals name="reblogs">
-        <item quantity="zero"><b>%s</b> pastiprinājumu</item>
-        <item quantity="one"><b>%s</b> pastiprinājums</item>
-        <item quantity="other"><b>%s</b> pastiprinājumi</item>
-    </plurals>
     <string name="title_favourites">Izlases</string>
     <string name="notification_favourite_format">%s pievienoja izlasei Tavu ierakstu</string>
-    <string name="action_favourite">Pievienot izlasei</string>
-    <string name="action_unfavourite">Noņemt no izlases</string>
     <string name="action_send">PUBLICĒT</string>
     <string name="action_send_public">PUBLICĒT!</string>
     <string name="action_open_faved_by">Rādīt izlases</string>
@@ -448,13 +425,13 @@
     <string name="title_tab_public_trending_hashtags">Tēmturi</string>
     <string name="notification_severed_relationships_domain_block_body">Satura pārraudzītājs apturēja domēnu</string>
     <string name="notification_severed_relationships_account_suspension_body">Satura pārraudzītājs apturēja kontu</string>
-    <string name="account_filter_placeholder_type_mention_fmt">Lietotājs @<b>%1s</b> pieminēja Tevi</string>
+    <string name="account_filter_placeholder_type_mention_fmt">Lietotājs @&lt;b>%1s&lt;/b> pieminēja Tevi</string>
     <string name="action_send_private_content_description">Nosūtīt tikai sekotājiem paredzētu ierakstu</string>
     <string name="action_send_direct_content_description">Nosūtīt tiešu ziņu</string>
     <string name="visibility_direct">Tiešs: iesūtīt tikai pieminētajiem lietotājiem</string>
     <string name="action_send_public_content_description">Nosūtīt publisku ierakstu</string>
     <string name="search_operator_where_dialog_library_hint">Tavi ieraksti, pastiprinājumi, izlase, grāmatzīmes un ieraksti, kuros Tevi @piemin</string>
-    <string name="account_filter_placeholder_label_limited_by_server">Atlasīts jo: <b>satura pārraudzītāju ierobežots</b></string>
+    <string name="account_filter_placeholder_label_limited_by_server">Atlasīts jo: &lt;b>satura pārraudzītāju ierobežots&lt;/b></string>
     <string name="title_tab_public_trending_statuses">Ieraksti</string>
     <string name="notification_severed_relationships_user_domain_block_body">Tu liedzi domēnu</string>
     <string name="notification_severed_relationships_unknown_body">Nezināms iemesls</string>
@@ -463,7 +440,7 @@
         <item quantity="one">Noņemts %1$s konts, kuram seko.</item>
         <item quantity="other">Noņemti %1$s konti, kuriem seko.</item>
     </plurals>
-    <string name="notification_severed_relationships_format">Pārrauta saikne ar <b>%1$s</b></string>
+    <string name="notification_severed_relationships_format">Pārrauta saikne ar &lt;b>%1$s&lt;/b></string>
     <string name="pref_title_show_self_boosts_description">Kāds, kurs pats pastiprina savu ierakstu</string>
     <string name="action_translate">Tulkot</string>
     <string name="action_translate_undo">Atsaukt tulkošanu</string>
@@ -478,7 +455,7 @@
     <string name="action_refresh_account">Atsvaidzināt kontu</string>
     <string name="confirmation_hashtag_muted">#%s paslēpts</string>
     <string name="status_filtered_show_anyway">Vienalga parādīt</string>
-    <string name="status_filter_placeholder_label_format">Atlasīts: <b>%1$s</b></string>
+    <string name="status_filter_placeholder_label_format">Atlasīts: &lt;b>%1$s&lt;/b></string>
     <string name="notification_prune_cache">Kešatmiņas uzturēšanas darbi…</string>
     <string name="notification_listenable_worker_description">Paziņojumi, kad Pachli darbojas fonā</string>
     <string name="profile_metadata_label_label">Iezīme</string>
@@ -506,12 +483,10 @@
     <string name="pref_title_update_settings">Programmatūras atjauninājumi</string>
     <string name="dialog_save_profile_changes_message">Vai saglabāt sava profila izmaiņas?</string>
     <string name="update_dialog_negative">Nekad neatgādināt man</string>
-    <string name="translating">Tulko…</string>
     <string name="dialog_delete_filter_text">Izdzēst atlasītāju \"%1$s\"?</string>
     <string name="dialog_delete_filter_positive_action">Izdzēst</string>
     <string name="reaction_name_and_count">%1$s %2$d</string>
     <string name="pref_title_update_notification_frequency">Paziņot man par jaunām Pachli versijām</string>
-    <string name="translation_provider_fmt">%1$s</string>
     <string name="update_dialog_title">Ir pieejams atjauninājums</string>
     <string name="update_dialog_neutral">Neatgādināt man par šo versiju</string>
     <string name="pref_labs_reverse_home_timeline_off_summary">Ieraksti tiek kārtoti sākot ar jaunāko</string>
@@ -629,7 +604,6 @@
         <item quantity="one">Nevar augšupielādēt vairāk par %1$d informācijas nesēju pielikumu.</item>
         <item quantity="other">Nevar augšupielādēt vairāk par %1$d informācijas nesēju pielikumiem.</item>
     </plurals>
-    <string name="description_post_favourited">Pievienots izlasei</string>
     <string name="pref_title_show_stat_inline">Laika joslā rādīt apkopojumu par ierakstu</string>
     <string name="action_subscribe_account">Abonēt</string>
     <string name="pref_title_notification_filter_severed_relationships">Sekošanas/sekotāja saikne ir pārtraukta</string>
@@ -678,14 +652,14 @@
     <string name="pref_account_conversation_filters_subtitle">Kam vajadzētu notikt ar sarunām, kuras uzsāka konti, …</string>
     <string name="pref_summary_account_conversation_filters">Tavs serveris neatbalsta sarunu atlasītājus</string>
     <string name="pref_account_conversation_filters_label_younger_30d">… kas ir izveidoti pēdējās 30 dienās</string>
-    <string name="account_filter_placeholder_type_favourite_fmt">Lietotājs @<b>%1s</b> ievietoja izlasē Tavu ierakstu</string>
-    <string name="account_filter_placeholder_type_follow_fmt">Lietotājs @<b>%1s</b> seko Tev</string>
-    <string name="account_filter_placeholder_type_follow_request_fmt">Sekošanas pieprasījums no lietotāja @<b>%1s</b></string>
-    <string name="account_filter_placeholder_type_reblog_fmt">Lietotājs @<b>%1s</b> pastiprināja Tavu ierakstu</string>
-    <string name="account_filter_placeholder_label_domain">No lietotāja @<b>%1s</b></string>
-    <string name="account_filter_placeholder_label_not_following">Atlasīts jo: <b>Tu neseko viņiem</b></string>
-    <string name="account_filter_placeholder_label_younger_30d">Atlasīts jo: <b>izveidots pēdējās 30 dienās</b></string>
-    <string name="account_filter_placeholder_type_conversation">Lietotājs @<b>%1$s</b> uzsāka sarunu</string>
+    <string name="account_filter_placeholder_type_favourite_fmt">Lietotājs @&lt;b>%1s&lt;/b> ievietoja izlasē Tavu ierakstu</string>
+    <string name="account_filter_placeholder_type_follow_fmt">Lietotājs @&lt;b>%1s&lt;/b> seko Tev</string>
+    <string name="account_filter_placeholder_type_follow_request_fmt">Sekošanas pieprasījums no lietotāja @&lt;b>%1s&lt;/b></string>
+    <string name="account_filter_placeholder_type_reblog_fmt">Lietotājs @&lt;b>%1s&lt;/b> pastiprināja Tavu ierakstu</string>
+    <string name="account_filter_placeholder_label_domain">No lietotāja @&lt;b>%1s&lt;/b></string>
+    <string name="account_filter_placeholder_label_not_following">Atlasīts jo: &lt;b>Tu neseko viņiem&lt;/b></string>
+    <string name="account_filter_placeholder_label_younger_30d">Atlasīts jo: &lt;b>izveidots pēdējās 30 dienās&lt;/b></string>
+    <string name="account_filter_placeholder_type_conversation">Lietotājs @&lt;b>%1$s&lt;/b> uzsāka sarunu</string>
     <string name="ui_error_reload_reply_fmt">Nevarēja ielādēt ierakstu: %1$s</string>
     <string name="title_report_comment">Piebilde no ziņotāja</string>
     <string name="title_report_category_fmt">Kategorija: %1$s</string>
@@ -726,11 +700,6 @@
     <string name="ui_error_accept_follow_request">Sekošanas pieprasījuma apstiprināšana neizdevās: %s</string>
     <string name="load_newest_statuses">Ielādēt jaunākos ierakstus</string>
     <string name="action_open_link">Atvērt saiti</string>
-    <plurals name="favs">
-        <item quantity="zero"><b>%1$s</b> ierakstu izlasē</item>
-        <item quantity="one"><b>%1$s</b> ieraksts izlasē</item>
-        <item quantity="other"><b>%1$s</b> ieraksti izlasē</item>
-    </plurals>
     <string name="error_media_playback">Atskaņošana neizdevās: %s</string>
     <string name="load_newest_notifications">Ielādēt jaunākos paziņojumus</string>
     <string name="pref_notification_up_distributor_none">Neviens</string>
@@ -746,10 +715,10 @@
     <string name="pref_notification_up_distributor_name_fmt">%1$s. Jāpiesit, lai atvērtu</string>
     <string name="help_empty_home">Šī ir tava <b>mājas laika līnija</b>. Tajā tiek parādīti neseni ieraksti no kontiem, kuriem seko.\n\nLai izpētītu kontus, tos var atklāt kādā no citām laika līnijām. Piemēram, vietējā sava servera laika līnijā [iconics mgd_group]. Vai arī var meklēt kontus pēc vārda [iconics gmd_search]; piemēram, meklēt \"Pachli\", lai atrastu mūsu Mastodon kontu.</string>
     <string name="manage_accounts_name">Pārvaldīt kontus</string>
-    <string name="notification_severed_relationships_domain_block_fmt">%1$s pārvaldītājs liedza <b>%2$s</b></string>
-    <string name="notification_severed_relationships_user_domain_block_fmt">Tu liedzi <b>%1$s</b></string>
-    <string name="notification_severed_relationships_account_suspension_fmt">%1$s pārvaldītājs liedza <b>%2$s</b></string>
-    <string name="notification_severed_relationships_unknown_fmt"><b>%1$s</b> ir liegts (nezināms iemesls)</string>
+    <string name="notification_severed_relationships_domain_block_fmt">%1$s pārvaldītājs liedza &lt;b>%2$s&lt;/b></string>
+    <string name="notification_severed_relationships_user_domain_block_fmt">Tu liedzi &lt;b>%1$s&lt;/b></string>
+    <string name="notification_severed_relationships_account_suspension_fmt">%1$s pārvaldītājs liedza &lt;b>%2$s&lt;/b></string>
+    <string name="notification_severed_relationships_unknown_fmt">&lt;b>%1$s&lt;/b> ir liegts (nezināms iemesls)</string>
     <string name="pref_default_audio_playback">Noklusējuma skaņas atskaņošana</string>
     <string name="error_share_media">nav mapes, kurā saglabāt pagaidu informācijas nesējus</string>
     <string name="notification_moderation_warning_title">Ziņojums no satura pārraudzītājiem</string>
@@ -771,4 +740,6 @@
     <string name="translator_error_download_required_fmt">tulkošanai uz %1$s nepieciešama valodas pakas lejupielādēšana, un nav savienojuma ar Wi-Fi</string>
     <string name="filter_action_blur">Paslēpt pielikumus</string>
     <string name="filter_description_blur">Rādīt saturu, paslēpt pielikumus ar brīdinājumu</string>
+    <string name="action_move_up">Pārvietot uz augšu</string>
+    <string name="action_move_down">Pārvietot uz leju</string>
 </resources>

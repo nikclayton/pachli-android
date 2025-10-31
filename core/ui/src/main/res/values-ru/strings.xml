@@ -33,9 +33,9 @@
     <string name="hint_search_emojis">Поиск эмодзи…</string>
     <string name="label_emoji_no_category">Без категории</string>
     <string name="emoji_picker_show_detail">Подробности</string>
-    <string name="preview_card_byline_fediverse_account_fmt">От <b>%1$s</b>. Посмотреть другие публикации</string>
-    <string name="preview_card_byline_name_only_fmt">От <b>%1$s</b></string>
-    <string name="preview_card_timeline_link_fmt">Смотреть <b>%1$s</b> публикаций об этой ссылке</string>
+    <string name="preview_card_byline_fediverse_account_fmt">От &lt;b>%1$s&lt;/b>. Посмотреть другие публикации</string>
+    <string name="preview_card_byline_name_only_fmt">От &lt;b>%1$s&lt;/b></string>
+    <string name="preview_card_timeline_link_fmt">Смотреть &lt;b>%1$s&lt;/b> публикаций об этой ссылке</string>
     <string name="poll_vote">Голосовать</string>
     <string name="poll_show_votes">Показать голоса</string>
     <plurals name="poll_timespan_seconds">
@@ -99,7 +99,7 @@
     <string name="description_visibility_unlisted">Не в списке</string>
     <string name="description_visibility_private">Подписчики</string>
     <string name="description_visibility_direct">Непосредственно</string>
-    <string name="post_sensitive_media_title">Чувствительный контент</string>
+    <string name="post_sensitive_media_title">Вызывающее содержимое. Нажмите чтобы отобразить.</string>
     <string name="post_media_images">Изображения</string>
     <string name="post_media_audio">Аудио</string>
     <string name="post_media_video">Видео</string>
@@ -110,4 +110,44 @@
         <item quantity="many">с ролями:</item>
         <item quantity="other">с ролями:</item>
     </plurals>
+    <string name="account_contentdescription_fmt">%1$s, %2$s; %3$s</string>
+    <string name="role_content_description_fmt">%1$s, в %2$s</string>
+    <string name="action_hide_attachments">Скрыть вложения</string>
+    <string name="dot_in_name">точка</string>
+    <string name="action_show_attachments">Показать вложения</string>
+    <string name="attachment_matches_filter_other_fmt">Соответствует фильтрам: \"%1$s\", \"%2$s\" и другим. Нажмите, чтобы показать.</string>
+    <string name="action_reply">Ответить</string>
+    <string name="action_reblog">Продвинуть</string>
+    <string name="action_favourite">Нравится</string>
+    <string name="action_bookmark">Добавить в закладки</string>
+    <string name="status_count_one_plus">1+</string>
+    <string name="action_unreblog">Убрать продвижение</string>
+    <string name="action_unfavourite">Убрать из избранного</string>
+    <string name="post_content_warning_show_less">Показать меньше</string>
+    <string name="post_content_warning_show_more">Показать больше</string>
+    <string name="post_content_show_less">Свернуть</string>
+    <string name="translating">Перевод…</string>
+    <string name="translation_provider_fmt">%1$s</string>
+    <string name="description_post_edited">Изменено</string>
+    <string name="description_post_reblogged">Реблогнуто</string>
+    <string name="description_post_favourited">Понравилось</string>
+    <string name="description_post_bookmarked">Добавлено в закладки</string>
+    <string name="description_post_media">
+        Медиафайл: %s
+    </string>
+    <string name="description_post_cw">Предупреждение о содержании: %s</string>
+    <plurals name="reblogs">
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Продвинул(а)</item>
+        <item quantity="few">&lt;b&gt;%s&lt;/b&gt; Продвинули</item>
+        <item quantity="many">&lt;b&gt;%s&lt;/b&gt; Продвинули</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Продвинули</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Понравился</item>
+        <item quantity="few">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
+        <item quantity="many">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt; продвинул(а)</string>
+    <string name="post_edited">Изменено %s</string>
 </resources>
