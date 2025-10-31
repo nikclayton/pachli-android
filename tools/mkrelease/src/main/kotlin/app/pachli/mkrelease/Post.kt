@@ -61,6 +61,8 @@ val translatorDisplay = mapOf(
     "tcloer@mac.com" to "@teezeh@ieji.de",
     "Edgars+Weblate@gaitenis.id.lv" to "", // "Edgars Andersons",
     "jrthwlate@users.noreply.hosted.weblate.org" to "Priit Jõerüüt",
+    "kalle.kniivila@gmail.com" to "@kallekn@mastodonsweden.se",
+    "weblate.delirium794@passmail.net" to "", // "Dizro"
 )
 
 /**
