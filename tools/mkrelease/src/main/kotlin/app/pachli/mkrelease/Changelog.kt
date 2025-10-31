@@ -167,7 +167,7 @@ fun createFastlaneFromChangelog(t: Terminal, changelog: File, fastlane: File, ne
     fastlane.createNewFile()
 
     val w = fastlane.printWriter()
-    w.println("Pachli $nextVersionName\n\nSee https://github.com/pachli/pachli-android/releases/tag/v$nextVersionName.")
+    w.println("Pachli $nextVersionName\n\nSee https://github.com/pachli/pachli-android/releases/tag/v$nextVersionName")
     w.close()
 }
 
