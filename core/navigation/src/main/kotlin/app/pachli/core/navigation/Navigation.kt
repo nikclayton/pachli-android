@@ -21,12 +21,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Parcelable
 import androidx.core.content.IntentCompat
-import app.pachli.core.model.AccountSource
 import app.pachli.core.model.Attachment
 import app.pachli.core.model.ContentFilter
-import app.pachli.core.model.DraftAttachment
+import app.pachli.core.model.Draft
 import app.pachli.core.model.Emoji
-import app.pachli.core.model.NewPoll
 import app.pachli.core.model.Notification
 import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
@@ -40,7 +38,6 @@ import app.pachli.core.navigation.TimelineActivityIntent.Companion.publicFederat
 import app.pachli.core.navigation.TimelineActivityIntent.Companion.publicLocal
 import app.pachli.core.network.parseAsMastodonHtml
 import com.gaelmarhic.quadrant.QuadrantConstants
-import java.util.Date
 import kotlinx.parcelize.Parcelize
 
 private const val EXTRA_PACHLI_ACCOUNT_ID = "app.pachli.EXTRA_PACHLI_ACCOUNT_ID"
@@ -366,26 +363,27 @@ class ComposeActivityIntent(context: Context, pachliAccountId: Long, composeOpti
     @Parcelize
     data class ComposeOptions(
         val scheduledTootId: String? = null,
-        val draftId: Int? = null,
-        val content: String? = null,
+//        val draftId: Int? = null,
+        val draft: Draft,
+//        val content: String? = null,
         val mediaUrls: List<String>? = null,
-        val mediaDescriptions: List<String>? = null,
-        val mentionedUsernames: Set<String>? = null,
+//        val mediaDescriptions: List<String>? = null,
+//        val mentionedUsernames: Set<String>? = null,
         val replyVisibility: Status.Visibility? = null,
-        val visibility: Status.Visibility? = null,
-        val contentWarning: String? = null,
+//        val visibility: Status.Visibility? = null,
+//        val contentWarning: String? = null,
         val referencingStatus: ReferencingStatus? = null,
         val mediaAttachments: List<Attachment>? = null,
-        val draftAttachments: List<DraftAttachment>? = null,
-        val scheduledAt: Date? = null,
-        val sensitive: Boolean? = null,
-        val poll: NewPoll? = null,
+//        val draftAttachments: List<DraftAttachment>? = null,
+//        val scheduledAt: Date? = null,
+//        val sensitive: Boolean? = null,
+//        val poll: NewPoll? = null,
         val modifiedInitialState: Boolean? = null,
-        val language: String? = null,
+//        val language: String? = null,
         val statusId: String? = null,
         val kind: ComposeKind? = null,
         val initialCursorPosition: InitialCursorPosition = InitialCursorPosition.END,
-        val quotePolicy: AccountSource.QuotePolicy? = null,
+//        val quotePolicy: AccountSource.QuotePolicy? = null,
     ) : Parcelable {
         /**
          * Status' kind. This particularly affects how the status is handled if the user

@@ -138,24 +138,24 @@ class DraftHelper @Inject constructor(
         Timber.d("saved draft to db")
     }
 
-    suspend fun deleteDraftAndAttachments(draftId: Int) {
-        draftDao.find(draftId)?.let { draft ->
-            deleteDraftAndAttachments(draft)
-        }
-    }
+//    suspend fun deleteDraftAndAttachments(draftId: Int) {
+//        draftDao.find(draftId)?.let { draft ->
+//            deleteDraftAndAttachments(draft)
+//        }
+//    }
 
-    private suspend fun deleteDraftAndAttachments(draft: DraftEntity) {
-        deleteAttachments(draft)
-        draftDao.delete(draft.id)
-    }
+//    private suspend fun deleteDraftAndAttachments(draft: DraftEntity) {
+//        deleteAttachments(draft)
+//        draftDao.delete(draft.id)
+//    }
 
-    suspend fun deleteAttachments(draft: DraftEntity) = withContext(Dispatchers.IO) {
-        draft.attachments.forEach { attachment ->
-            if (context.contentResolver.delete(attachment.uri, null, null) == 0) {
-                Timber.e("Did not delete file %s", attachment.uri)
-            }
-        }
-    }
+//    suspend fun deleteAttachments(draft: DraftEntity) = withContext(Dispatchers.IO) {
+//        draft.attachments.forEach { attachment ->
+//            if (context.contentResolver.delete(attachment.uri, null, null) == 0) {
+//                Timber.e("Did not delete file %s", attachment.uri)
+//            }
+//        }
+//    }
 
     private fun Uri.isInFolder(folder: File): Boolean {
         val filePath = path ?: return true

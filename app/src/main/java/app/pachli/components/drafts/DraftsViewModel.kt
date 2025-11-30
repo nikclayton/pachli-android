@@ -18,10 +18,9 @@ package app.pachli.components.drafts
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.DraftRepository
 import app.pachli.core.database.dao.DraftDao
 import app.pachli.core.database.model.DraftEntity
 import app.pachli.core.network.retrofit.MastodonApi
@@ -35,22 +34,20 @@ class DraftsViewModel @Inject constructor(
     val accountManager: AccountManager,
     val api: MastodonApi,
     private val draftHelper: DraftHelper,
+    private val draftRepository: DraftRepository,
 ) : ViewModel() {
 
-    val drafts = Pager(
-        config = PagingConfig(pageSize = 20),
-        pagingSourceFactory = { draftDao.draftsPagingSource(accountManager.activeAccount?.id!!) },
-    ).flow
+    val drafts = draftRepository.getDrafts(accountManager.activeAccount?.id!!)
         .cachedIn(viewModelScope)
 
     private val deletedDrafts: MutableList<DraftEntity> = mutableListOf()
 
-    fun deleteDraft(draft: DraftEntity) {
+    fun deleteDraft(pachliAccountId: Long, draftId: Int) {
         // this does not immediately delete media files to avoid unnecessary file operations
         // in case the user decides to restore the draft
         viewModelScope.launch {
-            draftDao.delete(draft.id)
-            deletedDrafts.add(draft)
+            draftRepository.deleteDraft(pachliAccountId, draftId)
+//            deletedDrafts.add(draft)
         }
     }
 

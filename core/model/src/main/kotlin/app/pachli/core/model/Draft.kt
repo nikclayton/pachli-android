@@ -21,7 +21,27 @@ import android.net.Uri
 import android.os.Parcelable
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.time.Instant
 import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class Draft(
+    val id: Long = 0,
+    val contentWarning: String?,
+    val content: String?,
+    val inReplyToId: String?,
+    val sensitive: Boolean,
+    val visibility: Status.Visibility,
+    val attachments: List<DraftAttachment>,
+    val poll: NewPoll?,
+    val failedToSend: Boolean,
+    val failedToSendNew: Boolean,
+    val scheduledAt: Instant?,
+    val language: String?,
+    val statusId: String?,
+    val quotePolicy: AccountSource.QuotePolicy?,
+    val quotedStatusId: String?,
+) : Parcelable
 
 @Parcelize
 @JsonClass(generateAdapter = true)
