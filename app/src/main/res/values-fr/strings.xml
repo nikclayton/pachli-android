@@ -185,7 +185,6 @@
     <string name="pref_title_public_filter_keywords">Fils publics</string>
     <string name="pref_title_thread_filter_keywords">Conversations</string>
     <string name="filter_addition_title">Ajouter un filtre</string>
-    <string name="filter_edit_title">Modifier un filtre</string>
     <string name="filter_dialog_remove_button">Supprimer</string>
     <string name="filter_dialog_update_button">Mettre à jour</string>
     <string name="filter_add_description">Phrase à filtrer</string>
@@ -345,7 +344,6 @@
     <string name="drafts_post_reply_removed">Le message auquel répondait ce brouillon a été supprimé</string>
     <string name="drafts_post_failed_to_send">Échec d’envoi du message !</string>
     <string name="follow_requests_info">Bien que votre compte ne soit pas verrouillé, l’équipe de %1$s a pensé que vous voudriez valider manuellement les demandes de d’abonnement provenant de ces comptes.</string>
-    <string name="drafts_failed_loading_reply">Échec du chargement des informations de réponse</string>
     <string name="duration_30_days">30 jours</string>
     <string name="duration_60_days">60 jours</string>
     <string name="duration_90_days">90 jours</string>
@@ -410,8 +408,6 @@
     <string name="title_followed_hashtags">Hashtags suivis</string>
     <string name="pref_title_notification_filter_reports">il y a un nouveau signalement</string>
     <string name="pref_title_account_filter_keywords">Profils</string>
-    <string name="status_filtered_show_anyway">Montrer quand même</string>
-    <string name="status_filter_placeholder_label_format">Caché : &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="title_public_trending_hashtags">Hashtags tendance</string>
     <string name="send_account_username_to">Partager le nom du compte avec…</string>
     <string name="action_unfollow_hashtag_format">Arrêter de suivre #%s \?</string>

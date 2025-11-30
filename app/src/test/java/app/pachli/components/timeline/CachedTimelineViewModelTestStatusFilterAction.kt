@@ -24,7 +24,7 @@ import app.pachli.components.timeline.viewmodel.UiError
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.model.AttachmentDisplayAction
-import app.pachli.core.testing.extensions.insertStatuses
+import app.pachli.core.testing.extensions.insertTimelineStatusWithQuote
 import app.pachli.core.testing.failure
 import app.pachli.core.testing.fakes.fakeStatus
 import app.pachli.core.testing.fakes.fakeStatusEntityWithAccount
@@ -63,6 +63,7 @@ class CachedTimelineViewModelTestStatusFilterAction : CachedTimelineViewModelTes
         translationState = TranslationState.SHOW_ORIGINAL,
         attachmentDisplayAction = AttachmentDisplayAction.Show(),
         replyToAccount = null,
+        isUsersStatus = false,
     )
 
     /** Action to bookmark a status */
@@ -85,7 +86,7 @@ class CachedTimelineViewModelTestStatusFilterAction : CachedTimelineViewModelTes
     override fun setup() = runTest {
         super.setup()
 
-        appDatabase.insertStatuses(listOf(fakeStatusEntityWithAccount))
+        appDatabase.insertTimelineStatusWithQuote(listOf(fakeStatusEntityWithAccount))
     }
 
     @Test

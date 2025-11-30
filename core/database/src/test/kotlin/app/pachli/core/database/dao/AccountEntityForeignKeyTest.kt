@@ -25,9 +25,9 @@ import app.pachli.core.database.model.ContentFiltersEntity
 import app.pachli.core.database.model.ConversationEntity
 import app.pachli.core.database.model.DraftEntity
 import app.pachli.core.database.model.EmojisEntity
-import app.pachli.core.database.model.FilterActionUpdate
 import app.pachli.core.database.model.FollowingAccountEntity
 import app.pachli.core.database.model.MastodonListEntity
+import app.pachli.core.database.model.NotificationAccountFilterDecisionUpdate
 import app.pachli.core.database.model.NotificationEntity
 import app.pachli.core.database.model.NotificationViewDataEntity
 import app.pachli.core.database.model.RemoteKeyEntity
@@ -36,14 +36,16 @@ import app.pachli.core.database.model.StatusViewDataEntity
 import app.pachli.core.database.model.TimelineAccountEntity
 import app.pachli.core.database.model.TranslatedStatusEntity
 import app.pachli.core.database.model.TranslationState
-import app.pachli.core.database.model.asEntity
+import app.pachli.core.model.AccountFilterDecision
+import app.pachli.core.model.AccountFilterReason
 import app.pachli.core.model.Announcement
 import app.pachli.core.model.ContentFilterVersion
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.ServerKind
 import app.pachli.core.model.Status
 import app.pachli.core.model.UserListRepliesPolicy
-import app.pachli.core.testing.fakes.fakeStatus
+import app.pachli.core.testing.extensions.insertTimelineStatusWithQuote
+import app.pachli.core.testing.fakes.fakeStatusEntityWithAccount
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -131,6 +133,7 @@ class AccountEntityForeignKeyTest {
         limited = false,
         note = "",
         roles = null,
+        pronouns = null,
     )
 
     @Before
@@ -208,15 +211,15 @@ class AccountEntityForeignKeyTest {
 
     @Test
     fun `deleting account deletes ConversationEntity`() = runTest {
-        val statusEntity = fakeStatus().asModel().asEntity(pachliAccountId)
-        statusDao.upsertStatuses(listOf(statusEntity))
+        val status = fakeStatusEntityWithAccount()
+        db.insertTimelineStatusWithQuote(listOf(status))
 
         val conversation = ConversationEntity(
             pachliAccountId = pachliAccountId,
             id = "1",
             accounts = emptyList(),
             unread = true,
-            lastStatusServerId = statusEntity.serverId,
+            lastStatusServerId = status.timelineStatus.status.serverId,
             isConversationStarter = true,
         )
         conversationDao.upsert(conversation)
@@ -249,6 +252,8 @@ class AccountEntityForeignKeyTest {
             scheduledAt = null,
             language = null,
             statusId = null,
+            quotePolicy = null,
+            quotedStatusId = null,
         )
         draftDao.upsert(draft)
 
@@ -340,20 +345,26 @@ class AccountEntityForeignKeyTest {
             accountServerId = "1",
             statusServerId = "1",
         )
+
         notificationDao.upsertNotifications(listOf(notification))
-        val filterAction = FilterActionUpdate(
+
+        val accountFilterDecision = AccountFilterDecision.make(
+            FilterAction.WARN,
+            AccountFilterReason.NOT_FOLLOWING,
+        )
+
+        val accountFilterAction = NotificationAccountFilterDecisionUpdate(
             pachliAccountId = pachliAccountId,
             serverId = "1",
-            contentFilterAction = FilterAction.NONE,
+            accountFilterDecision = accountFilterDecision,
         )
-        notificationDao.upsert(filterAction)
+        notificationDao.upsert(accountFilterAction)
 
         // Check everything is as expected.
         val notificationViewData = NotificationViewDataEntity(
             pachliAccountId = pachliAccountId,
             serverId = "1",
-            contentFilterAction = FilterAction.NONE,
-            accountFilterDecision = null,
+            accountFilterDecision = accountFilterDecision,
         )
         assertThat(notificationDao.loadAllForAccount(pachliAccountId)).containsExactly(notification)
         assertThat(notificationDao.loadViewData(pachliAccountId, "1")).isEqualTo(notificationViewData)
@@ -445,6 +456,7 @@ class AccountEntityForeignKeyTest {
             limited = false,
             note = "",
             roles = null,
+            pronouns = null,
         )
         timelineDao.insertAccount(timelineAccount)
 

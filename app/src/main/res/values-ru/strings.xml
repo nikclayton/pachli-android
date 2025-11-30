@@ -186,7 +186,6 @@
     <string name="pref_title_public_filter_keywords">Публичные ленты</string>
     <string name="pref_title_thread_filter_keywords">Разговоры</string>
     <string name="filter_addition_title">Добавить фильтр</string>
-    <string name="filter_edit_title">Изм. фильтр</string>
     <string name="filter_dialog_remove_button">Удалить</string>
     <string name="filter_dialog_update_button">Обновить</string>
     <string name="filter_add_description">Слова на фильтр</string>
@@ -331,7 +330,6 @@
     <string name="action_unsubscribe_account">Отписаться</string>
     <string name="action_subscribe_account">Подписаться</string>
     <string name="drafts_post_reply_removed">Гудок который Вы записали в черновик был удален</string>
-    <string name="drafts_failed_loading_reply">Не удалось загрузить информацию об ответе</string>
     <string name="draft_deleted">Черновик удалён</string>
     <string name="drafts_post_failed_to_send">Этот гудок не удалось отправить!</string>
     <string name="wellbeing_hide_stats_profile">Скрыть количественную статистику по профилям пользователей</string>
@@ -452,8 +450,6 @@
     <string name="notification_unknown_name">Неизвестно</string>
     <string name="notification_notification_worker">Получение уведомлений…</string>
     <string name="notification_prune_cache">Обслуживание кеша…</string>
-    <string name="status_filtered_show_anyway">Показать всё равно</string>
-    <string name="status_filter_placeholder_label_format">Фильтр: &lt;b>%1$s&lt;/b></string>
     <string name="pref_title_public_filter_home_and_lists">Домашняя и списки</string>
     <string name="pref_title_account_filter_keywords">Профили</string>
     <string name="filter_expiration_format">%s (%s)</string>

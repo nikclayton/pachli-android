@@ -755,7 +755,7 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 },
                 primaryDrawerItem {
                     nameRes = R.string.title_public_federated
-                    iconRes = app.pachli.core.ui.R.drawable.ic_public_24dp
+                    iconRes = app.pachli.core.designsystem.R.drawable.ic_public_24dp
                     onClick = {
                         startActivityWithDefaultTransition(
                             TimelineActivityIntent.publicFederated(context, pachliAccountId),
@@ -935,6 +935,7 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 arrayOf(
                     "Clear home timeline cache",
                     "Remove first 40 statuses",
+                    "Prune cache",
                 ),
             ) { _, which ->
                 Timber.d("Developer tools: %d", which)
@@ -949,6 +950,12 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                         Timber.d("Removing most recent 40 statuses")
                         lifecycleScope.launch {
                             developerToolsUseCase.deleteFirstKStatuses(pachliAccountId, 40)
+                        }
+                    }
+                    2 -> {
+                        Timber.d("Pruning cache")
+                        lifecycleScope.launch {
+                            developerToolsUseCase.pruneCache(pachliAccountId)
                         }
                     }
                 }

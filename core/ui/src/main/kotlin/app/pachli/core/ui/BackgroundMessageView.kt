@@ -33,6 +33,9 @@ import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import app.pachli.core.common.PachliError
+import app.pachli.core.common.PachliThrowable
+import app.pachli.core.common.extensions.hide
+import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.ui.databinding.ViewBackgroundMessageBinding
 import app.pachli.core.ui.extensions.getDrawableRes
@@ -97,22 +100,57 @@ class BackgroundMessageView @JvmOverloads constructor(
     }
 
     fun setup(throwable: Throwable, listener: ((v: View) -> Unit)? = null) {
+        if (throwable is PachliThrowable) {
+            return setup(throwable.pachliError, listener)
+        }
+
         setup(throwable.getDrawableRes(), throwable.getErrorString(context), listener)
     }
 
     fun setup(error: PachliError, listener: ((v: View) -> Unit)? = null) {
-        setup(error.getDrawableRes(), error.fmt(context), listener)
+        setup(
+            error.getDrawableRes(),
+            context.getString(app.pachli.core.network.R.string.error_network_fmt, error.fmt(context)),
+            listener,
+        )
     }
 
     fun setup(message: BackgroundMessage, listener: ((v: View) -> Unit)? = null) {
-        setup(message.drawableRes, message.stringRes, listener)
+        when (message) {
+            is BackgroundMessage.Empty -> setup(
+                message.drawableRes,
+                message.stringRes,
+                listener,
+            )
+
+            is BackgroundMessage.GenericError -> setup(
+                message.drawableRes,
+                context.getString(
+                    app.pachli.core.network.R.string.error_generic_fmt,
+                    context.getString(message.stringRes),
+                ),
+            )
+
+            is BackgroundMessage.Network -> setup(
+                message.drawableRes,
+                context.getString(
+                    app.pachli.core.network.R.string.error_network_fmt,
+                    context.getString(message.stringRes),
+                ),
+
+            )
+        }
     }
 
     private fun setup(
         @DrawableRes imageRes: Int,
         @StringRes messageRes: Int,
         clickListener: ((v: View) -> Unit)? = null,
-    ) = setup(imageRes, context.getString(messageRes), clickListener)
+    ) = setup(
+        imageRes,
+        context.getString(messageRes),
+        clickListener,
+    )
 
     /**
      * Setup image, message and button.
@@ -132,6 +170,7 @@ class BackgroundMessageView @JvmOverloads constructor(
         }
         binding.button.isEnabled = true
         binding.button.visible(clickListener != null)
+        binding.helpText.hide()
     }
 
     fun showHelp(@StringRes helpRes: Int) {
@@ -142,7 +181,10 @@ class BackgroundMessageView @JvmOverloads constructor(
 
         binding.helpText.setText(textWithDrawables, TextView.BufferType.SPANNABLE)
 
-        binding.helpText.visible(true)
+        binding.helpText.show()
+        binding.imageView.hide()
+        binding.messageTextView.hide()
+        binding.button.hide()
     }
 
     /**

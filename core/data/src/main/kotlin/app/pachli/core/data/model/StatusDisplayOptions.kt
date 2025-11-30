@@ -18,6 +18,7 @@
 package app.pachli.core.data.model
 
 import app.pachli.core.preferences.CardViewMode
+import app.pachli.core.preferences.PronounDisplay
 
 /**
  * @property mediaPreviewEnabled See [app.pachli.core.database.model.AccountEntity.mediaPreviewEnabled].
@@ -27,6 +28,8 @@ import app.pachli.core.preferences.CardViewMode
  * If false, the counts of reblogs and favourites are hidden, and the
  *  count of replies is set to either "0", "1", or "1+" so the user can
  *  tell if there are replies if they click through.
+ * @property canQuote True if the server supports sending quote posts.
+ * @property pronounDisplay How to display account pronouns.
  */
 data class StatusDisplayOptions(
     @get:JvmName("animateAvatars")
@@ -65,6 +68,7 @@ data class StatusDisplayOptions(
     val openSpoiler: Boolean = false,
     @get:JvmName("canTranslate")
     val canTranslate: Boolean = false,
+    val canQuote: Boolean = false,
     val renderMarkdown: Boolean = false,
 
     /**
@@ -72,4 +76,6 @@ data class StatusDisplayOptions(
      * status is a reblog, reply, etc).
      */
     val showStatusInfo: Boolean = true,
+
+    val pronounDisplay: PronounDisplay = PronounDisplay.WHEN_COMPOSING,
 )

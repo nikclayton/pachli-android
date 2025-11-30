@@ -26,10 +26,11 @@ import android.text.style.DynamicDrawableSpan
 import android.text.style.ImageSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import androidx.core.view.isGone
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
+import app.pachli.core.data.model.IStatusItemViewData
 import app.pachli.core.data.model.StatusDisplayOptions
+import app.pachli.core.data.model.StatusItemViewData
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.preferences.CardViewMode
 import app.pachli.core.ui.databinding.StatusContentDetailedBinding
@@ -61,7 +62,7 @@ class DetailedStatusView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0,
-) : StatusView<StatusViewData>(context, attrs, defStyleAttr, defStyleRes) {
+) : StatusView<StatusItemViewData>(context, attrs, defStyleAttr, defStyleRes) {
     val binding = StatusContentDetailedBinding.inflate(LayoutInflater.from(context), this)
 
     override val avatar = binding.statusAvatar
@@ -70,6 +71,7 @@ class DetailedStatusView @JvmOverloads constructor(
     override val displayName = binding.statusDisplayName
     override val metaInfo = binding.statusMetaInfo
     override val username = binding.statusUsername
+    override val pronounsChip = binding.accountPronouns
     override val contentWarningDescription = binding.statusContentWarningDescription
     override val contentWarningButton = binding.statusContentWarningButton
     override val content = binding.statusContent
@@ -82,59 +84,91 @@ class DetailedStatusView @JvmOverloads constructor(
         setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null)
     }
 
-    override fun setupWithStatus(setStatusContent: SetStatusContent, glide: RequestManager, viewData: StatusViewData, listener: StatusActionListener<StatusViewData>, statusDisplayOptions: StatusDisplayOptions) {
+    override fun setupWithStatus(setStatusContent: SetStatusContent, glide: RequestManager, viewData: StatusItemViewData, listener: StatusActionListener, statusDisplayOptions: StatusDisplayOptions) {
         // We never collapse statuses in the detail view
-        val uncollapsedViewdata =
-            if (viewData.isCollapsible && viewData.isCollapsed) viewData.copy(isCollapsed = false) else viewData
+        val uncollapsedViewdata = if (viewData.isCollapsible && viewData.isCollapsed) {
+            viewData.copy(statusViewData = viewData.statusViewData.copy(isCollapsed = false))
+        } else {
+            viewData
+        }
 
         super.setupWithStatus(setStatusContent, glide, uncollapsedViewdata, listener, statusDisplayOptions)
 
         if (!statusDisplayOptions.hideStatsInDetailedView) {
-            setReblogAndFavCount(uncollapsedViewdata, listener)
+            setStatCounters(uncollapsedViewdata, listener)
         } else {
             hideQuantitativeStats()
         }
+
+        val quotedViewData = (viewData as? IStatusItemViewData)?.asQuotedStatusViewData()
+        if (quotedViewData == null) {
+            binding.statusQuote.hide()
+            return
+        }
+
+        binding.statusQuote.setupWithStatus(setStatusContent, glide, quotedViewData, listener, statusDisplayOptions)
+        binding.statusQuote.show()
     }
 
-    private fun setReblogAndFavCount(
-        viewData: StatusViewData,
-        listener: StatusActionListener<StatusViewData>,
+    private fun setStatCounters(
+        viewData: StatusItemViewData,
+        listener: StatusActionListener,
     ) {
         val reblogCount = viewData.actionable.reblogsCount
         val favCount = viewData.actionable.favouritesCount
+        val quotesCount = viewData.actionable.quotesCount
+
+        val showStats = reblogCount > 0 || favCount > 0 || quotesCount > 0
+
+        if (!showStats) {
+            hideQuantitativeStats()
+            return
+        }
+
+        binding.statusInfoDivider.show()
 
         if (reblogCount > 0) {
             binding.statusReblogs.text = getReblogsCountDescription(reblogCount)
             binding.statusReblogs.show()
+            binding.statusReblogs.setOnClickListener {
+                listener.onShowReblogs(viewData.actionableId)
+            }
         } else {
             binding.statusReblogs.hide()
         }
+
         if (favCount > 0) {
             binding.statusFavourites.text = getFavouritesCountDescription(favCount)
             binding.statusFavourites.show()
+            binding.statusFavourites.setOnClickListener {
+                listener.onShowFavs(viewData.actionableId)
+            }
         } else {
             binding.statusFavourites.hide()
         }
-        if (binding.statusReblogs.isGone && binding.statusFavourites.isGone) {
-            binding.statusInfoDivider.hide()
+
+        if (quotesCount > 0) {
+            binding.statusQuotes.text = getQuotesCountDescription(quotesCount)
+            binding.statusQuotes.show()
+            binding.statusQuotes.setOnClickListener {
+                listener.onShowQuotes(viewData.actionableId)
+            }
         } else {
-            binding.statusInfoDivider.show()
-        }
-        binding.statusReblogs.setOnClickListener {
-            listener.onShowReblogs(viewData.actionableId)
-        }
-        binding.statusFavourites.setOnClickListener {
-            listener.onShowFavs(viewData.actionableId)
+            binding.statusQuotes.hide()
         }
     }
 
     private fun hideQuantitativeStats() {
+        binding.statusInfoDivider.hide()
         binding.statusReblogs.hide()
         binding.statusFavourites.hide()
-        binding.statusInfoDivider.hide()
+        binding.statusQuotes.hide()
+        binding.statusReblogs.setOnClickListener(null)
+        binding.statusFavourites.setOnClickListener(null)
+        binding.statusQuotes.setOnClickListener(null)
     }
 
-    override fun setMetaData(viewData: StatusViewData, statusDisplayOptions: StatusDisplayOptions, listener: StatusActionListener<StatusViewData>) {
+    override fun setMetaData(viewData: StatusItemViewData, statusDisplayOptions: StatusDisplayOptions, listener: StatusActionListener) {
         val createdAt = viewData.actionable.createdAt
         val editedAt = viewData.actionable.editedAt
         val visibility = viewData.actionable.visibility
@@ -179,7 +213,7 @@ class DetailedStatusView @JvmOverloads constructor(
     }
 
     // Always show the card for detailed statuses.
-    override fun setupCard(glide: RequestManager, viewData: StatusViewData, expanded: Boolean, cardViewMode: CardViewMode, statusDisplayOptions: StatusDisplayOptions, listener: StatusActionListener<StatusViewData>) {
+    override fun setupCard(glide: RequestManager, viewData: StatusItemViewData, expanded: Boolean, cardViewMode: CardViewMode, statusDisplayOptions: StatusDisplayOptions, listener: StatusActionListener) {
         super.setupCard(glide, viewData, viewData.isExpanded, CardViewMode.FULL_WIDTH, statusDisplayOptions, listener)
     }
 

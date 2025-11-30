@@ -212,7 +212,6 @@
     <string name="title_media">Meáin</string>
     <string name="pref_title_thread_filter_keywords">Comhráite</string>
     <string name="filter_addition_title">Cuir scagaire leis</string>
-    <string name="filter_edit_title">Cuir scagaire in eagar</string>
     <string name="filter_dialog_remove_button">Bain</string>
     <string name="pref_title_public_filter_keywords">Amlínte poiblí</string>
     <string name="expand_collapse_all_posts">Leathnaigh/Fill na postálacha go léir</string>
@@ -436,11 +435,9 @@
     <string name="notification_severed_relationships_description">Fógraí faoi chaidrimh throma</string>
     <string name="notification_report_name">Tuarascálacha</string>
     <string name="notification_report_description">Fógraí faoi thuarascálacha modhnóireachta</string>
-    <string name="status_filtered_show_anyway">Taispeáin ar aon nós</string>
     <string name="pref_title_account_filter_keywords">Próifílí</string>
     <string name="failed_to_pin">Theip ar phionnáil</string>
     <string name="duration_no_change">(Gan athrú)</string>
-    <string name="drafts_failed_loading_reply">Theip ar luchtú faisnéise Freagra</string>
     <string name="announcement_date">%1$s%2$s</string>
     <string name="saving_draft">Dréacht á shábháil…</string>
     <string name="accessibility_talking_about_tag">Tá daoine %1$d ag caint faoin haischlib %2$s</string>
@@ -526,7 +523,6 @@
     <string name="pref_default_post_language">Teanga phostála réamhshocraithe</string>
     <string name="notification_listenable_worker_name">Gníomhaíocht chúlra</string>
     <string name="notification_listenable_worker_description">Fógraí nuair atá Pachli ag obair sa chúlra</string>
-    <string name="status_filter_placeholder_label_format">Scagtha: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="compose_save_draft_loses_media">Uaslódálfar ceangaltáin arís nuair a chuirfidh tú an dréacht ar ais.</string>
     <string name="update_dialog_title">Tá nuashonrú ar fáil</string>
     <string name="update_dialog_neutral">Ná cuir an leagan seo i gcuimhne dom</string>
@@ -695,7 +691,7 @@
     <string name="ui_error_reload_reply_fmt">Níorbh fhéidir postáil a luchtú: %1$s</string>
     <string name="pref_summary_account_conversation_filters">Ní thacaíonn do fhreastalaí le scagairí comhrá</string>
     <string name="pref_account_conversation_filters_subtitle">Cad ba cheart a tharlóidh do chomhráite tosaithe ag cuntais…</string>
-    <string name="account_filter_placeholder_type_conversation">Chuir úsáideoir @ &lt;b>%1$s&lt;/b> tús le comhrá</string>
+    <string name="account_filter_placeholder_type_conversation">Chuir úsáideoir @ &lt;b&gt;%1$s&lt;/b&gt; tús le comhrá</string>
     <string name="action_refresh_account">Athnuaigh cuntas</string>
     <string name="pref_title_public_filter_home_and_lists">Baile agus liostaí</string>
     <string name="pref_title_account_conversation_filters">Scagairí comhrá</string>
@@ -736,10 +732,10 @@
     <string name="export_preferences_ok_fmt">Roghanna a easpórtáileadh chuig %1$s</string>
     <string name="error_export_preferences_fmt">Níorbh fhéidir roghanna a easpórtáil chuig %1$s: %2$s</string>
     <string name="error_import_preferences_fmt">Níorbh fhéidir roghanna a iompórtáil ó %1$s: %2$s</string>
-    <string name="notification_severed_relationships_user_domain_block_fmt">Chuir tú bac ar &lt;b>%1$s&lt;/b></string>
-    <string name="notification_severed_relationships_domain_block_fmt">Chuir riarthóir %1$s bac ar &lt;b>%2$s&lt;/b></string>
-    <string name="notification_severed_relationships_unknown_fmt">Tá &lt;b>%1$s&lt;/b> blocáilte (cúis anaithnid)</string>
-    <string name="notification_severed_relationships_account_suspension_fmt">Chuir riarthóir %1$s bac ar &lt;b>%2$s&lt;/b></string>
+    <string name="notification_severed_relationships_user_domain_block_fmt">Chuir tú bac ar &lt;b&gt;%1$s&lt;/b&gt;</string>
+    <string name="notification_severed_relationships_domain_block_fmt">Chuir riarthóir %1$s bac ar &lt;b&gt;%2$s&lt;/b&gt;</string>
+    <string name="notification_severed_relationships_unknown_fmt">Tá &lt;b&gt;%1$s&lt;/b&gt; blocáilte (cúis anaithnid)</string>
+    <string name="notification_severed_relationships_account_suspension_fmt">Chuir riarthóir %1$s bac ar &lt;b&gt;%2$s&lt;/b&gt;</string>
     <string name="manage_accounts_name">Bainistigh cuntais</string>
     <string name="pref_default_audio_playback">Athsheinm fuaime réamhshocraithe</string>
     <string name="error_share_media">níl aon eolaire ann chun meáin shealadacha a shábháil</string>
@@ -764,4 +760,24 @@
     <string name="filter_description_blur">Taispeáin ábhar, folaigh ceangaltáin le rabhadh</string>
     <string name="action_move_up">Bog suas</string>
     <string name="action_move_down">Bog síos</string>
+    <string name="notification_quote_format">%s luaigh do phost</string>
+    <string name="notification_quoted_update_format">Nuashonraigh %s an post a luaigh tú</string>
+    <string name="pref_title_notification_filter_quote">Tá mo phoist luaite</string>
+    <string name="pref_title_notification_filter_quoted_update">Tá post a luaigh mé curtha in eagar</string>
+    <string name="notification_quote_name">Luaigh duine éigin thú</string>
+    <string name="notification_quote_description">Fógraí faoi dhuine éigin ag lua do phoist</string>
+    <string name="notification_quoted_update_name">Eagarthóireacht ar phoist atá luaite</string>
+    <string name="notification_quoted_update_description">Fógraí nuair a chuirtear poist atá luaite agat in eagar</string>
+    <string name="detach_quote_dialog_title">Bain an luachan?</string>
+    <string name="detach_quote_dialog_message">Bainfear do phost luaite as an bpost seo leis seo.\n\nNí scriosfar do phost bunaidh.\n\nNí féidir é seo a chealú.</string>
+    <string name="detach_quote_error_fmt">Theip ar an luachan a bhaint: %1$s</string>
+    <string name="title_quotes">Sleachta</string>
+    <string name="action_toggle_quote_policy">Athraigh polasaí luachana</string>
+    <string name="drafts_load_reply_failed_fmt">Níorbh fhéidir an post atá á fhreagairt agat a lódáil: %1$s</string>
+    <string name="drafts_load_quote_failed_fmt">Níorbh fhéidir an post atá á lua agat a lódáil: %1$s</string>
+    <string name="drafts_post_quote_removed">Baineadh an post a luaigh tú</string>
+    <string name="compose_visibility_title">Cá seoltar é seo?</string>
+    <string name="compose_quote_policy_title">Cá bhfuil sé seo?</string>
+    <string name="compose_quote_policy_dialog_title">Athraigh an socrú luachana?</string>
+    <string name="compose_quote_policy_dialog_body_fmt">Ní mór socrú athfhriotail de \"%3$s\" a bheith ag poist atá marcáilte mar \"%1$s\" nó \"%2$s\".\n\nAn bhfuil tú ag iarraidh an socrú athfhriotail a athrú anois?</string>
 </resources>

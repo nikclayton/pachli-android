@@ -42,7 +42,7 @@ open class StatusViewHolder<T : IStatusViewData>(
 
     override fun setupWithStatus(
         viewData: T,
-        listener: StatusActionListener<T>,
+        listener: StatusActionListener,
         statusDisplayOptions: StatusDisplayOptions,
         payloads: List<List<Any?>>?,
     ) {
@@ -61,27 +61,26 @@ open class StatusViewHolder<T : IStatusViewData>(
     private fun ItemStatusBinding.setStatusInfo(
         viewData: T,
         statusDisplayOptions: StatusDisplayOptions,
-        listener: StatusActionListener<T>,
+        listener: StatusActionListener,
     ) {
-        if (!statusDisplayOptions.showStatusInfo) {
+        if (!statusDisplayOptions.showStatusInfo || viewData.contentFilterAction == FilterAction.WARN) {
             statusInfo.hide()
             return
         }
 
         val status = viewData.actionable
 
+        viewData.rebloggingStatus?.let { reblogging ->
+            setStatusInfoAsReblog(viewData, reblogging.account, statusDisplayOptions, listener)
+            return
+        }
+
         if (status.inReplyToAccountId != null) {
             setStatusInfoAsReply(viewData, statusDisplayOptions)
             return
         }
 
-        val reblogging = viewData.rebloggingStatus
-        if (reblogging == null || viewData.contentFilterAction === FilterAction.WARN) {
-            statusInfo.hide()
-            return
-        }
-
-        setStatusInfoAsReblog(viewData, reblogging.account, statusDisplayOptions, listener)
+        statusInfo.hide()
     }
 
     /**
@@ -142,7 +141,7 @@ open class StatusViewHolder<T : IStatusViewData>(
         viewData: T,
         rebloggingAccount: TimelineAccount,
         statusDisplayOptions: StatusDisplayOptions,
-        listener: StatusActionListener<T>,
+        listener: StatusActionListener,
     ) {
         statusInfo.text = HtmlCompat.fromHtml(
             context.getString(

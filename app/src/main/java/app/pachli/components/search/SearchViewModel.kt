@@ -33,14 +33,24 @@ import app.pachli.components.search.SearchOperator.IsSensitiveOperator
 import app.pachli.components.search.SearchOperator.LanguageOperator
 import app.pachli.components.search.SearchOperator.WhereOperator
 import app.pachli.components.search.adapter.SearchPagingSourceFactory
-import app.pachli.core.data.model.StatusViewData
+import app.pachli.core.data.model.ContentFilterModel
+import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.data.model.StatusDisplayOptions
+import app.pachli.core.data.model.StatusItemViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.Loadable
 import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.ServerRepository
+import app.pachli.core.data.repository.StatusDisplayOptionsRepository
+import app.pachli.core.database.dao.TimelineStatusWithAccount
 import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.database.model.TimelineStatusWithQuote
+import app.pachli.core.database.model.asEntity
 import app.pachli.core.model.AttachmentDisplayAction
+import app.pachli.core.model.ContentFilterVersion
 import app.pachli.core.model.DeletedStatus
+import app.pachli.core.model.FilterAction
+import app.pachli.core.model.FilterContext
 import app.pachli.core.model.Poll
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_FROM
@@ -59,7 +69,6 @@ import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_LANGU
 import app.pachli.core.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.network.retrofit.apiresult.ApiError
-import app.pachli.core.ui.extensions.getAttachmentDisplayAction
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.getInitialLanguages
 import app.pachli.util.getLocaleList
@@ -77,6 +86,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -89,6 +99,7 @@ class SearchViewModel @Inject constructor(
     private val timelineCases: TimelineCases,
     private val accountManager: AccountManager,
     private val statusRepository: OfflineFirstStatusRepository,
+    statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     serverRepository: ServerRepository,
 ) : ViewModel() {
 
@@ -98,9 +109,9 @@ class SearchViewModel @Inject constructor(
     val activeAccount: AccountEntity?
         get() = accountManager.activeAccount
 
-    val mediaPreviewEnabled = activeAccount?.mediaPreviewEnabled ?: false
-    private val alwaysShowSensitiveMedia = activeAccount?.alwaysShowSensitiveMedia ?: false
     private val alwaysOpenSpoiler = activeAccount?.alwaysOpenSpoiler ?: false
+
+    val statusDisplayOptions: StatusDisplayOptions = statusDisplayOptionsRepository.flow.value
 
     private val _operatorViewData = MutableStateFlow(
         setOf(
@@ -205,27 +216,53 @@ class SearchViewModel @Inject constructor(
         emptySet(),
     )
 
-    private val loadedStatuses: MutableList<StatusViewData> = mutableListOf()
+    private val loadedStatuses: MutableList<StatusItemViewData> = mutableListOf()
 
     private val statusesPagingSourceFactory = SearchPagingSourceFactory(mastodonApi, SearchType.Status, loadedStatuses) {
-        it.statuses.map { status ->
-            StatusViewData.from(
-                pachliAccountId = activeAccount!!.id,
-                status,
-                isExpanded = alwaysOpenSpoiler,
-                isCollapsed = true,
-                attachmentDisplayAction = status.getAttachmentDisplayAction(
-                    // Search results don't have a filter context.
-                    null,
-                    activeAccount!!.alwaysShowSensitiveMedia,
-                    statusRepository.getStatusViewData(activeAccount!!.id, status.actionableId)?.attachmentDisplayAction,
-                ),
-                // Don't bother looking up replyToAccount details.
-                replyToAccount = null,
-            )
-        }.apply {
-            loadedStatuses.addAll(this)
+        val pachliAccount = accountManager.activePachliAccountFlow.first()
+
+        // Search uses the "PUBLIC" context, since https://github.com/mastodon/mastodon/pull/36346/
+        val contentFilterModel = when (pachliAccount.contentFilters.version) {
+            ContentFilterVersion.V2 -> ContentFilterModel(FilterContext.PUBLIC)
+            ContentFilterVersion.V1 -> ContentFilterModel(FilterContext.PUBLIC, pachliAccount.contentFilters.contentFilters)
         }
+
+        it.statuses
+            .map { status ->
+                TimelineStatusWithQuote(
+                    timelineStatus = TimelineStatusWithAccount(
+                        status = status.asEntity(pachliAccount.id),
+                        account = status.reblog?.account?.asEntity(pachliAccount.id) ?: status.account.asEntity(pachliAccount.id),
+                        reblogAccount = status.reblog?.let { status.account.asEntity(pachliAccount.id) },
+                        viewData = statusRepository.getStatusViewData(pachliAccount.id, status.actionableId),
+                        translatedStatus = statusRepository.getTranslation(pachliAccount.id, status.actionableId),
+                    ),
+                    quotedStatus = (status.quote as? Status.Quote.FullQuote)?.status?.let { q ->
+                        TimelineStatusWithAccount(
+                            status = q.asEntity(pachliAccount.id),
+                            account = q.account.asEntity(pachliAccount.id),
+                            reblogAccount = null,
+                            viewData = statusRepository.getStatusViewData(pachliAccount.id, q.actionableId),
+                            translatedStatus = statusRepository.getTranslation(pachliAccount.id, q.actionableId),
+                        )
+                    },
+                )
+            }
+            .map { it to contentFilterModel.filterActionFor(it.timelineStatus.status) }
+            .filter { it.second != FilterAction.HIDE }
+            .map { (status, contentFilterAction) ->
+                StatusItemViewData.from(
+                    pachliAccount = pachliAccount,
+                    status,
+                    isExpanded = alwaysOpenSpoiler,
+                    contentFilterAction = contentFilterAction,
+                    quoteContentFilterAction = status.quotedStatus?.let { contentFilterModel.filterActionFor(it.status) },
+                    filterContext = null,
+                    showSensitiveMedia = pachliAccount.entity.alwaysShowSensitiveMedia,
+                )
+            }.apply {
+                loadedStatuses.addAll(this)
+            }
     }
     private val accountsPagingSourceFactory = SearchPagingSourceFactory(mastodonApi, SearchType.Account) {
         it.accounts
@@ -270,9 +307,9 @@ class SearchViewModel @Inject constructor(
         hashtagsPagingSourceFactory.newSearch(currentQuery)
     }
 
-    fun removeItem(statusViewData: StatusViewData) {
+    fun removeItem(statusViewData: IStatusViewData) {
         viewModelScope.launch {
-            timelineCases.delete(statusViewData.id)
+            timelineCases.delete(statusViewData.statusId)
                 .onSuccess {
                     if (loadedStatuses.remove(statusViewData)) {
                         statusesPagingSourceFactory.invalidate()
@@ -281,11 +318,13 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun expandedChange(statusViewData: StatusViewData, expanded: Boolean) {
-        updateStatusViewData(statusViewData.copy(isExpanded = expanded))
+    fun expandedChange(statusViewData: IStatusViewData, expanded: Boolean) {
+        updateStatusViewData(statusViewData) {
+            it.copy(statusViewData = it.statusViewData.copy(isExpanded = expanded))
+        }
     }
 
-    fun reblog(statusViewData: StatusViewData, reblog: Boolean) {
+    fun reblog(statusViewData: IStatusViewData, reblog: Boolean) {
         viewModelScope.launch {
             updateStatus(
                 statusViewData.status.copy(
@@ -293,49 +332,53 @@ class SearchViewModel @Inject constructor(
                     reblog = statusViewData.status.reblog?.copy(reblogged = reblog),
                 ),
             )
-            statusRepository.reblog(statusViewData.pachliAccountId, statusViewData.id, reblog)
+            statusRepository.reblog(statusViewData.pachliAccountId, statusViewData.statusId, reblog)
                 .onFailure {
                     updateStatus(statusViewData.status)
-                    Timber.d("Failed to reblog status %s: %s", statusViewData.id, it)
+                    Timber.d("Failed to reblog status %s: %s", statusViewData.statusId, it)
                 }
         }
     }
 
-    fun collapsedChange(statusViewData: StatusViewData, collapsed: Boolean) {
-        updateStatusViewData(statusViewData.copy(isCollapsed = collapsed))
+    fun collapsedChange(statusViewData: IStatusViewData, collapsed: Boolean) {
+        updateStatusViewData(statusViewData) {
+            it.copy(statusViewData = it.statusViewData.copy(isCollapsed = collapsed))
+        }
     }
 
-    fun voteInPoll(statusViewData: StatusViewData, poll: Poll, choices: List<Int>) {
+    fun voteInPoll(statusViewData: IStatusViewData, poll: Poll, choices: List<Int>) {
         val votedPoll = poll.votedCopy(choices)
         updateStatus(statusViewData.status.copy(poll = votedPoll))
         viewModelScope.launch {
-            statusRepository.voteInPoll(statusViewData.pachliAccountId, statusViewData.id, votedPoll.id, choices)
+            statusRepository.voteInPoll(statusViewData.pachliAccountId, statusViewData.statusId, votedPoll.id, choices)
                 .onFailure {
                     updateStatus(statusViewData.status)
-                    Timber.d("Failed to vote in poll: %s: %s", statusViewData.id, it)
+                    Timber.d("Failed to vote in poll: %s: %s", statusViewData.statusId, it)
                 }
         }
     }
 
-    fun attachmentDisplayActionChange(statusViewData: StatusViewData, attachmentDisplayAction: AttachmentDisplayAction) {
-        updateStatusViewData(statusViewData.copy(attachmentDisplayAction = attachmentDisplayAction))
+    fun attachmentDisplayActionChange(statusViewData: IStatusViewData, attachmentDisplayAction: AttachmentDisplayAction) {
+        updateStatusViewData(statusViewData) {
+            it.copy(statusViewData = it.statusViewData.copy(attachmentDisplayAction = attachmentDisplayAction))
+        }
         viewModelScope.launch {
-            statusRepository.setAttachmentDisplayAction(statusViewData.pachliAccountId, statusViewData.id, attachmentDisplayAction)
+            statusRepository.setAttachmentDisplayAction(statusViewData.pachliAccountId, statusViewData.statusId, attachmentDisplayAction)
         }
     }
 
-    fun favorite(statusViewData: StatusViewData, isFavorited: Boolean) {
+    fun favorite(statusViewData: IStatusViewData, isFavorited: Boolean) {
         updateStatus(statusViewData.status.copy(favourited = isFavorited))
         viewModelScope.launch {
-            statusRepository.favourite(statusViewData.pachliAccountId, statusViewData.id, isFavorited)
+            statusRepository.favourite(statusViewData.pachliAccountId, statusViewData.statusId, isFavorited)
                 .onFailure { updateStatus(statusViewData.status) }
         }
     }
 
-    fun bookmark(statusViewData: StatusViewData, isBookmarked: Boolean) {
+    fun bookmark(statusViewData: IStatusViewData, isBookmarked: Boolean) {
         updateStatus(statusViewData.status.copy(bookmarked = isBookmarked))
         viewModelScope.launch {
-            statusRepository.bookmark(statusViewData.pachliAccountId, statusViewData.id, isBookmarked)
+            statusRepository.bookmark(statusViewData.pachliAccountId, statusViewData.statusId, isBookmarked)
                 .onFailure { updateStatus(statusViewData.status) }
         }
     }
@@ -346,9 +389,9 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun pinStatus(statusViewData: StatusViewData, isPin: Boolean) {
+    fun pinStatus(statusViewData: IStatusViewData, isPin: Boolean) {
         viewModelScope.launch {
-            statusRepository.pin(statusViewData.pachliAccountId, statusViewData.id, isPin)
+            statusRepository.pin(statusViewData.pachliAccountId, statusViewData.statusId, isPin)
         }
     }
 
@@ -364,10 +407,10 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun muteConversation(statusViewData: StatusViewData, mute: Boolean) {
+    fun muteConversation(statusViewData: IStatusViewData, mute: Boolean) {
         updateStatus(statusViewData.status.copy(muted = mute))
         viewModelScope.launch {
-            timelineCases.muteConversation(activeAccount!!.id, statusViewData.id, mute)
+            timelineCases.muteConversation(activeAccount!!.id, statusViewData.statusId, mute)
         }
     }
 
@@ -386,18 +429,20 @@ class SearchViewModel @Inject constructor(
             )
     }
 
-    private fun updateStatusViewData(newStatusViewData: StatusViewData) {
-        val idx = loadedStatuses.indexOfFirst { it.id == newStatusViewData.id }
+    private fun updateStatusViewData(oldStatusViewData: IStatusViewData, updater: (StatusItemViewData) -> StatusItemViewData) {
+        val idx = loadedStatuses.indexOfFirst { it.statusId == oldStatusViewData.statusId }
         if (idx >= 0) {
-            loadedStatuses[idx] = newStatusViewData
+            loadedStatuses[idx] = updater(loadedStatuses[idx])
             statusesPagingSourceFactory.invalidate()
         }
     }
 
     private fun updateStatus(newStatus: Status) {
-        val statusViewData = loadedStatuses.find { it.id == newStatus.statusId }
+        val statusViewData = loadedStatuses.find { it.statusId == newStatus.statusId }
         if (statusViewData != null) {
-            updateStatusViewData(statusViewData.copy(status = newStatus))
+            updateStatusViewData(statusViewData) {
+                it.copy(statusViewData = it.statusViewData.copy(status = newStatus))
+            }
         }
     }
 

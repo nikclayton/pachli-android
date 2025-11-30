@@ -1,0 +1,32 @@
+<!--
+  ~ Copyright (c) 2025 Pachli Association
+  ~
+  ~ This file is a part of Pachli.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under the terms of the
+  ~ GNU General Public License as published by the Free Software Foundation; either version 3 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ Pachli is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+  ~ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+  ~ Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with Pachli; if not,
+  ~ see <http://www.gnu.org/licenses>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:autoMirrored="true"
+    android:height="24dp"
+    android:viewportHeight="960"
+    android:viewportWidth="960"
+    android:width="24dp"
+    android:tint="?colorControlNormal">
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="m 588,720 92,-160 q 0,0 0,0 0,0 0,0 -66,0 -113,-47 -47,-47 -47,-113 0,-66 47,-113 47,-47 113,-47 66,0 113,47 47,47 47,113 0,23 -5.5,42.5 Q 829,462 818,480 L680,720 Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="m 228,720 92,-160 q 0,0 0,0 0,0 0,0 -66,0 -113,-47 -47,-47 -47,-113 0,-66 47,-113 47,-47 113,-47 66,0 113,47 47,47 47,113 0,23 -5.5,42.5 Q 469,462 458,480 L320,720 Z" />
+</vector>

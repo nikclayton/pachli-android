@@ -47,6 +47,8 @@ object PrefKeys {
     const val STATUS_TEXT_SIZE = "statusTextSize"
     const val MAIN_NAV_POSITION = "mainNavPosition"
     const val DEFAULT_AUDIO_PLAYBACK = "defaultAudioPlayback"
+
+    const val PRONOUN_DISPLAY = "pronounDisplay"
     const val TRANSLATION_BACKEND = "translationBackend"
     const val TRANSLATION_DOWNLOAD_REQUIRE_WIFI = "translationDownloadRequireWiFi"
     const val HIDE_TOP_TOOLBAR = "hideTopToolbar"
@@ -93,6 +95,9 @@ object PrefKeys {
     // Server-side preference, only written to from AccountPreferenceFragment.
     const val DEFAULT_MEDIA_SENSITIVITY = "defaultMediaSensitivity"
 
+    // Server-side preference, only written to from AccountPreferenceFragment.
+    const val DEFAULT_QUOTE_POLICY = "defaultQuotePolicy"
+
     // Account preference
     const val MEDIA_PREVIEW_ENABLED = "mediaPreviewEnabled"
 
@@ -119,6 +124,12 @@ object PrefKeys {
 
     // Account preference
     const val NOTIFICATION_FILTER_FAVS = "notificationFilterFavourites"
+
+    // Account preference
+    const val NOTIFICATION_FILTER_QUOTE = "notificationFilterQuote"
+
+    // Account preference
+    const val NOTIFICATION_FILTER_QUOTED_UPDATE = "notificationFilterQuoteUpdated"
 
     // Account preference
     const val NOTIFICATION_FILTER_REBLOGS = "notificationFilterReblogs"

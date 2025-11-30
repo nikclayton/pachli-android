@@ -198,7 +198,6 @@
     <string name="notification_favourite_name">Suosikit</string>
     <string name="notification_poll_name">Äänestykset</string>
     <string name="notification_poll_description">Ilmoitukset päättyneistä äänestyksistä</string>
-    <string name="filter_edit_title">Muokkaa suodatinta</string>
     <string name="action_add_reaction">lisää reaktio</string>
     <string name="confirmation_reported">Lähetetty!</string>
     <string name="post_sent">Lähetetty!</string>
@@ -312,7 +311,6 @@
     <string name="send_post_notification_error_title">Julkaisun lähettäminen epäonnistui</string>
     <string name="pref_title_notification_filter_follow_requests">Seuraamista pyydetty</string>
     <string name="pref_title_notification_filters">Ilmoita kun</string>
-    <string name="status_filter_placeholder_label_format">Suodatettu: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_notification_filter_poll">Päättyneet äänestykset</string>
     <string name="failed_to_unpin">Irrottaminen epäonnistui</string>
     <string name="unsaved_changes">Sinulla on tallentamattomia muutoksia.</string>
@@ -344,7 +342,6 @@
     <string name="notification_listenable_worker_description">Ilmoitukset Pachlin toimiessa taustalla</string>
     <string name="pref_title_notification_filter_reblogs">Tehostetut julkaisut</string>
     <string name="post_share_content">Jaa julkaisun sisältö</string>
-    <string name="status_filtered_show_anyway">Näytä joka tapauksessa</string>
     <string name="pref_title_http_proxy_port">HTTP-välityspalvelimen portti</string>
     <string name="profile_metadata_content_label">Sisältö</string>
     <string name="pref_title_notification_filter_updates">Julkaisua, johon olen reagoinut, on muokattu</string>
@@ -383,7 +380,6 @@
     <string name="ui_success_accepted_follow_request">Seuraajapyyntö hyväksytty</string>
     <string name="report_category_other">Muu</string>
     <string name="error_media_playback">Toisto epäonnistui: %s</string>
-    <string name="drafts_failed_loading_reply">Vastaustietojn lataaminen epäonnistui</string>
     <string name="warning_scheduling_interval">Lyhin ajastusväli Mastodonissa on 5 minuuttia.</string>
     <string name="mute_notifications_switch">Hiljennä ilmoitukset</string>
     <string name="accessibility_talking_about_tag">%1$d käyttäjää keskustelee aihetunnisteesta %2$s</string>
@@ -690,7 +686,7 @@
     <string name="pref_account_conversation_filters_subtitle">Mitä tehdään keskusteluille, jotka on aloittanut tili…</string>
     <string name="pref_title_public_filter_home_and_lists">Koti ja listat</string>
     <string name="pref_summary_account_conversation_filters">Palvelimesi ei tue keskustelusuodattimia</string>
-    <string name="account_filter_placeholder_type_conversation">Käyttäjä @&lt;b>%1$s&lt;/b> aloitti keskustelun</string>
+    <string name="account_filter_placeholder_type_conversation">Käyttäjä @&lt;b&gt;%1$s&lt;/b&gt; aloitti keskustelun</string>
     <string name="ui_error_reload_reply_fmt">Julkaisua ei voitu ladata: %1$s</string>
     <string name="pref_account_conversation_filters_label_younger_30d">… joka on luotu viimeisten 30 päivän aikana</string>
     <string name="pref_account_conversation_filters_label_not_followed">… jota et seuraa</string>
@@ -721,10 +717,10 @@
     <string name="title_report_category_fmt">Kategoria: %1$s</string>
     <string name="title_report_comment">Raportoijan kommentti</string>
     <string name="manage_accounts_name">Tilien hallinta</string>
-    <string name="notification_severed_relationships_domain_block_fmt">Palvelun %1$s ylläpitäjä esti tilin &lt;b>%2$s&lt;/b></string>
-    <string name="notification_severed_relationships_user_domain_block_fmt">Estit tilin &lt;b>%1$s&lt;/b></string>
-    <string name="notification_severed_relationships_account_suspension_fmt">Palvelun %1$s ylläpitäjä esti tilin &lt;b>%2$s&lt;/b></string>
-    <string name="notification_severed_relationships_unknown_fmt">&lt;b>%1$s&lt;/b> on estetty (syy tuntematon)</string>
+    <string name="notification_severed_relationships_domain_block_fmt">Palvelun %1$s ylläpitäjä esti tilin &lt;b&gt;%2$s&lt;/b&gt;</string>
+    <string name="notification_severed_relationships_user_domain_block_fmt">Estit tilin &lt;b&gt;%1$s&lt;/b&gt;</string>
+    <string name="notification_severed_relationships_account_suspension_fmt">Palvelun %1$s ylläpitäjä esti tilin &lt;b&gt;%2$s&lt;/b&gt;</string>
+    <string name="notification_severed_relationships_unknown_fmt">&lt;b&gt;%1$s&lt;/b&gt; on estetty (syy tuntematon)</string>
     <string name="notification_moderation_warning_title">Viesti moderaattoreilta</string>
     <string name="notification_moderation_warning_body_none_fmt">Olet saanut moderointivaroituksen: %1$s</string>
     <string name="notification_moderation_warning_body_disable_fmt">Tilisi on poistettu käytöstä: %1$s</string>
@@ -748,4 +744,24 @@
     <string name="action_move_down">Siirrä alas</string>
     <string name="filter_action_blur">Piilota liitteet</string>
     <string name="filter_description_blur">Näytä sisältö, piilota liitteet varoituksen taakse</string>
+    <string name="title_quotes">Lainaukset</string>
+    <string name="detach_quote_error_fmt">Lainauksen poisto epäonnistui: %1$s</string>
+    <string name="detach_quote_dialog_message">Tämä poistaa lainatun julkaisusi tästä julkaisusta.\n\nAlkuperäistä julkaisuasi ei poisteta.\n\nTätä ei voi perua.</string>
+    <string name="detach_quote_dialog_title">Poista lainaus?</string>
+    <string name="notification_quoted_update_description">Ilmoitukset kun lainaamiasi julkaisuja muokataan</string>
+    <string name="notification_quoted_update_name">Lainatun julkaisun muokkaukset</string>
+    <string name="notification_quote_description">Ilmoitukset kun joku lainaa julkaisujasi</string>
+    <string name="notification_quote_name">Joku lainasi sinua</string>
+    <string name="pref_title_notification_filter_quoted_update">Lainaamaani julkaisua on muokattu</string>
+    <string name="pref_title_notification_filter_quote">Julkaisujani on lainattu</string>
+    <string name="notification_quoted_update_format">%s päivitti julkaisua jota lainasit</string>
+    <string name="notification_quote_format">%s lainasi julkaisuasi</string>
+    <string name="compose_quote_policy_dialog_body_fmt">Julkaisut merkinnällä \"%1$s\" tai \"%2$s\" tarvitsevat lainausasetuksen \"%3$s\"\n\nHaluatko muuttaa lainausasetuksen nyt?</string>
+    <string name="compose_quote_policy_dialog_title">Muuta lainausasetus?</string>
+    <string name="compose_quote_policy_title">Kuka voi lainata tätä julkaisua?</string>
+    <string name="compose_visibility_title">Minne tämä lähetetään?</string>
+    <string name="drafts_post_quote_removed">Lainaamasi julkaisu on poistettu</string>
+    <string name="drafts_load_quote_failed_fmt">Lainaamaasi julkaisua ei voitu ladata: %1$s</string>
+    <string name="drafts_load_reply_failed_fmt">Julkaisua johon vastaat ei voitu ladata: %1$s</string>
+    <string name="action_toggle_quote_policy">Muuta lainausasetuksia</string>
 </resources>

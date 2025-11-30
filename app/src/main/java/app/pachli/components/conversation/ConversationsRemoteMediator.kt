@@ -1,5 +1,6 @@
 package app.pachli.components.conversation
 
+import android.content.Context
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -10,7 +11,6 @@ import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.database.di.TransactionProvider
 import app.pachli.core.database.model.ConversationData
 import app.pachli.core.database.model.ConversationEntity
-import app.pachli.core.database.model.StatusEntity
 import app.pachli.core.database.model.asEntity
 import app.pachli.core.model.Status
 import app.pachli.core.model.TimelineAccount
@@ -24,6 +24,7 @@ import timber.log.Timber
 
 @OptIn(ExperimentalPagingApi::class)
 class ConversationsRemoteMediator(
+    private val context: Context,
     private val pachliAccountId: Long,
     private val api: MastodonApi,
     private val transactionProvider: TransactionProvider,
@@ -47,7 +48,7 @@ class ConversationsRemoteMediator(
         }
 
         val conversationsResponse = api.getConversations(maxId = nextKey, limit = state.config.pageSize)
-            .getOrElse { return MediatorResult.Error(it.throwable) }
+            .getOrElse { return MediatorResult.Error(it.asThrowable(context)) }
 
         val conversations = conversationsResponse.body.filterNot { it.lastStatus == null }.asModel()
 
@@ -70,7 +71,18 @@ class ConversationsRemoteMediator(
                 val lastStatus = it.lastStatus!!
                 accounts.add(lastStatus.account)
                 lastStatus.reblog?.account?.let { accounts.add(it) }
+
                 statuses.add(lastStatus)
+
+                (lastStatus.quote as? Status.Quote.FullQuote)?.status?.let { quote ->
+                    accounts.add(quote.account)
+                    quote.reblog?.let {
+                        accounts.add(it.account)
+                        statuses.add(it)
+                    }
+                    statuses.add(quote)
+                }
+
                 conversationEntities.add(
                     ConversationEntity.from(
                         it,
@@ -81,7 +93,7 @@ class ConversationsRemoteMediator(
             }
 
             timelineDao.upsertAccounts(accounts.asEntity(pachliAccountId))
-            statusDao.upsertStatuses(statuses.map { StatusEntity.from(it, pachliAccountId) })
+            statusDao.upsertStatuses(statuses.map { it.actionableStatus.asEntity(pachliAccountId) })
             conversationsDao.upsert(conversationEntities)
         }
 

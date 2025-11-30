@@ -23,6 +23,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
+import app.pachli.core.model.AccountSource
 import app.pachli.core.model.Emoji
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.Status
@@ -79,12 +80,18 @@ data class AccountEntity(
     val notificationsSeveredRelationships: Boolean = true,
     @ColumnInfo(defaultValue = "true")
     val notificationsModerationWarnings: Boolean = true,
+    @ColumnInfo(defaultValue = "true")
+    val notificationsQuotes: Boolean = true,
+    @ColumnInfo(defaultValue = "true")
+    val notificationsQuotedUpdates: Boolean = true,
     val notificationSound: Boolean = true,
     val notificationVibration: Boolean = true,
     val notificationLight: Boolean = true,
     val defaultPostPrivacy: Status.Visibility = Status.Visibility.PUBLIC,
     val defaultMediaSensitivity: Boolean = false,
     val defaultPostLanguage: String = "",
+    @ColumnInfo(defaultValue = "NOBODY")
+    val defaultQuotePolicy: AccountSource.QuotePolicy = AccountSource.QuotePolicy.NOBODY,
     val alwaysShowSensitiveMedia: Boolean = false,
     /** True if content behind a content warning is shown by default */
     val alwaysOpenSpoiler: Boolean = false,

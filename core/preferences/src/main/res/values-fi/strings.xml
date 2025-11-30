@@ -47,4 +47,13 @@
     <string name="pref_translation_backend_option_local_only">Vain laitteella</string>
     <string name="pref_translation_backend_option_local_only_help">Julkaisut käännetään omalla laitteellasi Google Käännökset -palvelua käyttäen.</string>
     <string name="pref_translation_backend_requires_play_label">Asenna Google Play-sivustolta laitteella tapahtuvaa kääntämistä varten</string>
+    <string name="pref_pronoun_display_everywhere">Kaikkialla</string>
+    <string name="pref_pronoun_display_hide">Ei missään</string>
+    <string name="pref_pronoun_display_when_composing">Julkaisua kirjoitettaessa</string>
+    <string name="pref_title_pronoun_display">Näytä tilin pronominit</string>
+    <string name="pref_summary_quote_policy_disabled">Palvelimesi ei tue lainausasetuksia</string>
+    <string name="pref_quote_policy_nobody">Vain sinä</string>
+    <string name="pref_quote_policy_followers">Vain seuraajasi</string>
+    <string name="pref_quote_policy_public">Kaikki (paitsi estetyt tilit)</string>
+    <string name="pref_title_quote_policy">Kuka voi lainata julkaisujasi?</string>
 </resources>

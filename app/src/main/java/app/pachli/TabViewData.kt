@@ -86,7 +86,7 @@ data class TabViewData(
             Timeline.PublicFederated -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_public_federated,
-                icon = app.pachli.core.ui.R.drawable.ic_public_24dp,
+                icon = app.pachli.core.designsystem.R.drawable.ic_public_24dp,
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
             )
             Timeline.Conversations -> TabViewData(
@@ -171,6 +171,12 @@ data class TabViewData(
             is Timeline.User.Pinned -> throw IllegalArgumentException("can't add to tab: $timeline")
             is Timeline.User.Posts -> throw IllegalArgumentException("can't add to tab: $timeline")
             is Timeline.User.Replies -> throw IllegalArgumentException("can't add to tab: $timeline")
+            is Timeline.Quote -> TabViewData(
+                timeline = timeline,
+                text = R.string.title_quotes,
+                icon = -1,
+                fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
+            )
         }
     }
 }

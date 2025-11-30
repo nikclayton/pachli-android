@@ -199,7 +199,6 @@
     <string name="pref_title_public_filter_keywords">Opinberar tímalínur</string>
     <string name="pref_title_thread_filter_keywords">Samtöl</string>
     <string name="filter_addition_title">Bæta við síu</string>
-    <string name="filter_edit_title">Breyta síu</string>
     <string name="filter_dialog_remove_button">Fjarlægja</string>
     <string name="filter_dialog_update_button">Uppfæra</string>
     <string name="filter_dialog_whole_word">Heil orð</string>
@@ -316,7 +315,6 @@
     <string name="pref_title_animate_custom_emojis">Hreyfa sérsniðin tjáningartákn</string>
     <string name="drafts_post_reply_removed">Færslan sem þú gerðir drög að svari við hefur verið fjarlægð</string>
     <string name="draft_deleted">Eyddi drögum</string>
-    <string name="drafts_failed_loading_reply">Mistókst að hlaða inn svarupplýsingum</string>
     <string name="drafts_post_failed_to_send">Mistókst að senda þessa færslu!</string>
     <string name="duration_indefinite">Ótiltekið</string>
     <string name="label_duration">Tímalengd</string>
@@ -426,8 +424,6 @@
     <string name="dialog_follow_hashtag_title">Fylgjast með myllumerki</string>
     <string name="dialog_follow_hashtag_hint">#myllumerki</string>
     <string name="notification_unknown_name">Óþekkt</string>
-    <string name="status_filtered_show_anyway">Birta samt</string>
-    <string name="status_filter_placeholder_label_format">Síað: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Notendasnið</string>
     <string name="pref_title_show_stat_inline">Sýna tölfræði færslu í tímalínu</string>
     <string name="ui_error_favourite_fmt">Mistókst að setja færslu í eftirlæti: %1$s</string>

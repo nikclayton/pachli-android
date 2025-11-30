@@ -24,6 +24,7 @@
     <item name="action_bookmark" type="id" />
     <item name="action_unbookmark" type="id" />
     <item name="action_reblog" type="id" />
+    <item name="action_quote" type="id" />
     <item name="action_unreblog" type="id" />
     <item name="action_open_profile" type="id" />
     <item name="action_open_media_1" type="id" />
@@ -68,4 +69,8 @@
     <item name="action_select_status" type="id" />
     <!-- Unselect a status, e.g., when reporting an account. -->
     <item name="action_unselect_status" type="id" />
+    <!-- Show an account's pronouns, e.g., in a toast. -->
+    <item name="action_show_pronouns" type="id" />
+    <!-- Open the quoted post. -->
+    <item name="action_open_quoted_post" type="id" />
 </resources>

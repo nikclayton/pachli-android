@@ -185,7 +185,6 @@
     <string name="pref_title_public_filter_keywords">Veřejné časové osy</string>
     <string name="pref_title_thread_filter_keywords">Konverzace</string>
     <string name="filter_addition_title">Přidat filtr</string>
-    <string name="filter_edit_title">Upravit filtr</string>
     <string name="filter_dialog_remove_button">Odstranit</string>
     <string name="filter_dialog_update_button">Aktualizovat</string>
     <string name="filter_add_description">Fráze k filtrování</string>
@@ -311,7 +310,6 @@
     <string name="notification_sign_up_format">%s se zaregistroval/a</string>
     <string name="title_migration_relogin">Přihlaste se znovu pro push oznámení</string>
     <string name="drafts_post_failed_to_send">Tento příspěvek se nepodařilo odeslat!</string>
-    <string name="drafts_failed_loading_reply">Nepodařilo se načíst informace o odpovědi</string>
     <string name="error_image_edit_failed">Obrázek se nepodařilo upravit.</string>
     <plurals name="error_upload_max_media_reached">
         <item quantity="one">Nemůžete nahrát více než %1$d mediální přílohu.</item>

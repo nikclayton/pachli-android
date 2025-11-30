@@ -1,7 +1,7 @@
 [versions]
 aboutlibraries = "11.6.3"
-acra = "5.12.0"
-agp = "8.12.0"
+acra = "5.13.1"
+agp = "8.13.1"
 androidx-activity = "1.11.0"
 androidx-appcompat = "1.7.1"
 androidx-browser = "1.8.0"
@@ -22,13 +22,13 @@ androidx-sharetarget = "1.2.0"
 androidx-splashscreen = "1.2.0-beta02"
 androidx-swiperefresh-layout = "1.1.0"
 androidx-testing = "2.2.0"
-androidx-test-core-ktx = "1.6.1"
+androidx-test-core-ktx = "1.7.0"
 androidx-test-rules = "1.7.0"
 androidx-transition = "1.6.0"
 androidx-viewpager2 = "1.1.0"
 androidx-webkit = "1.12.1"
 androidx-work = "2.10.4"
-androidx-room = "2.7.1"
+androidx-room = "2.8.4"
 app-update = "2.1.0"
 apollographql = "3.8.6"
 auto-service = "1.1.1"
@@ -43,17 +43,18 @@ espresso = "3.7.0"
 filemoji-compat = "3.2.7"
 glide = "4.16.0"
 glide-animation-plugin = "3.0.5"
-hilt = "2.57"
-org-json = "20250107"
+hilt = "2.57.2"
+org-json = "20250517"
 jlatexmath-android = "0.2.0"
 junit = "4.13.2"
 kotlin = "2.2.20"
 kotlin-result = "1.1.20"
+kotlin-serialization = "1.9.0"
 ksoup = "0.6.0"
 ksp = "2.2.20-2.0.3"
 image-cropper = "4.6.0"
 leakcanary = "2.14"
-lint = "31.12.0" # = agp + 23.0.0 (= 8.12.0), see https://github.com/googlesamples/android-custom-lint-rules#lint-version
+lint = "31.13.1" # = agp + 23.0.0 (= 8.13.1), see https://github.com/googlesamples/android-custom-lint-rules#lint-version
 markwon = "4.6.2"
 material = "1.12.0"
 material-drawer = "9.0.2"
@@ -71,9 +72,10 @@ play-services-base = "18.8.0"
 prism4j = "2.0.0"
 quadrant = "1.9.1"
 retrofit = "3.0.0"
-robolectric = "4.15.1"
+robolectric = "4.16"
 semver = "3.0.0"
 sparkbutton = "4.2.0"
+sqlite-bundled = "2.6.1"
 timber = "5.0.1"
 touchimageview = "3.7.1"
 truth = "1.4.5"
@@ -87,7 +89,7 @@ clikt = "4.4.0"
 icu4j = "77.1"
 junit-jupiter = "6.0.0"
 kotlin-logging-jvm = "7.0.13"
-logback = "1.5.18"
+logback = "1.5.21"
 
 [plugins]
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
@@ -99,6 +101,7 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:12.3.0"
 room = { id = "androidx.room", version.ref = "androidx-room" }
 quadrant = { id = "com.gaelmarhic.quadrant", version.ref = "quadrant" }
@@ -151,9 +154,11 @@ androidx-room-common = { group = "androidx.room", name = "room-common", version.
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "androidx-room" }
 androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "androidx-room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-room" }
+androidx-room-sqlite-wrapper = { module = "androidx.room:room-sqlite-wrapper", version.ref = "androidx-room" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "androidx-room" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidx-recyclerview" }
 androidx-sharetarget = { module = "androidx.sharetarget:sharetarget", version.ref = "androidx-sharetarget" }
+androidx-sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version.ref = "sqlite-bundled" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "androidx-swiperefresh-layout" }
 androidx-test-core-ktx = { module = "androidx.test:core-ktx", version.ref = "androidx-test-core-ktx" }
 androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
@@ -192,6 +197,7 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines"}
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutines-play-services" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 ksoup-entities = { module = "com.mohamedrejeb.ksoup:ksoup-entities", version.ref = "ksoup" }
 image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "image-cropper" }
@@ -273,5 +279,5 @@ material-drawer = ["material-drawer-core", "material-drawer-iconics"]
 mockito = ["mockito-kotlin", "mockito-inline"]
 okhttp = ["okhttp-core", "okhttp-logging-interceptor", "okhttp-tls"]
 retrofit = ["retrofit-core", "retrofit-converter-moshi"]
-room = ["androidx-room-ktx", "androidx-room-paging"]
+room = ["androidx-room-ktx", "androidx-room-paging", "androidx-sqlite-bundled", "androidx-room-sqlite-wrapper"]
 xmldiff = ["diffx", "xmlwriter"]
