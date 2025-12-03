@@ -38,13 +38,13 @@ interface DraftActionListener {
 class DraftsAdapter(
     private val glide: RequestManager,
     private val listener: DraftActionListener,
-) : PagingDataAdapter<Draft, BindingHolder<ItemDraftBinding>>(
-    object : DiffUtil.ItemCallback<Draft>() {
-        override fun areItemsTheSame(oldItem: Draft, newItem: Draft): Boolean {
+) : PagingDataAdapter<Draft.NewDraft, BindingHolder<ItemDraftBinding>>(
+    object : DiffUtil.ItemCallback<Draft.NewDraft>() {
+        override fun areItemsTheSame(oldItem: Draft.NewDraft, newItem: Draft.NewDraft): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: Draft, newItem: Draft): Boolean {
+        override fun areContentsTheSame(oldItem: Draft.NewDraft, newItem: Draft.NewDraft): Boolean {
             return oldItem == newItem
         }
     },

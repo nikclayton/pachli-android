@@ -45,13 +45,13 @@ import app.pachli.core.data.model.StatusItemViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.ServerRepository
+import app.pachli.core.data.repository.asDraft
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.domain.DownloadUrlUseCase
 import app.pachli.core.model.Attachment
 import app.pachli.core.model.IStatus
 import app.pachli.core.model.Status
-import app.pachli.core.model.asQuotePolicy
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.ComposeActivityIntent
@@ -137,45 +137,47 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
     }
 
     protected fun reply(pachliAccountId: Long, status: Status) {
-        val actionableStatus = status.actionableStatus
-        val account = actionableStatus.account
-        var loggedInUsername: String? = null
-        val activeAccount = accountManager.activeAccount
-        if (activeAccount != null) {
-            loggedInUsername = activeAccount.username
+        lifecycleScope.launch {
+            val draft = timelineCases.createDraftReply(pachliAccountId, status)
+            val composeOptions = ComposeOptions(draft = draft)
+            val intent = ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions)
+            startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
         }
-        val mentionedUsernames = LinkedHashSet(
-            listOf(account.username) + actionableStatus.mentions.map { it.username },
-        ).apply { remove(loggedInUsername) }
 
-        val composeOptions = ComposeOptions(
-            referencingStatus = ReferencingStatus.ReplyingTo.from(status.actionableStatus),
-            replyVisibility = actionableStatus.visibility,
-            contentWarning = actionableStatus.spoilerText,
-            mentionedUsernames = mentionedUsernames,
-            language = actionableStatus.language,
-            kind = ComposeOptions.ComposeKind.NEW,
-        )
-
-        val intent = ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions)
-        startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+//        val actionableStatus = status.actionableStatus
+//        val account = actionableStatus.account
+//        var loggedInUsername: String? = null
+//        val activeAccount = accountManager.activeAccount
+//        if (activeAccount != null) {
+//            loggedInUsername = activeAccount.username
+//        }
+//        val mentionedUsernames = LinkedHashSet(
+//            listOf(account.username) + actionableStatus.mentions.map { it.username },
+//        ).apply { remove(loggedInUsername) }
+//
+//        val composeOptions = ComposeOptions(
+//            referencingStatus = ReferencingStatus.ReplyingTo.from(status.actionableStatus),
+//            replyVisibility = actionableStatus.visibility,
+//            contentWarning = actionableStatus.spoilerText,
+//            mentionedUsernames = mentionedUsernames,
+//            language = actionableStatus.language,
+//            kind = ComposeOptions.ComposeKind.NEW,
+//        )
+//
+//        val intent = ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions)
+//        startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
     }
 
     /**
      * Launches ComposeActivity to quote [status].
      */
     protected fun quote(pachliAccountId: Long, status: Status) {
-        val actionableStatus = status.actionableStatus
-
-        val composeOptions = ComposeOptions(
-            referencingStatus = ReferencingStatus.Quoting.from(actionableStatus),
-            contentWarning = actionableStatus.spoilerText,
-            language = actionableStatus.language,
-            kind = ComposeOptions.ComposeKind.NEW,
-        )
-
-        val intent = ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions)
-        startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+        lifecycleScope.launch {
+            val draft = timelineCases.createDraftQuote(pachliAccountId, status)
+            val composeOptions = ComposeOptions(draft = draft)
+            val intent = ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions)
+            startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+        }
     }
 
     /**
@@ -520,22 +522,24 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                 lifecycleScope.launch {
                     timelineCases.delete(statusViewData.status.actionableId).onSuccess {
                         val sourceStatus = it.body.asModel()
+                        val draft = timelineCases.createDraftFromDeletedStatus(pachliAccountId, sourceStatus)
                         val composeOptions = ComposeOptions(
-                            content = sourceStatus.text,
+                            draft = draft,
+//                            content = sourceStatus.text,
                             referencingStatus = statusViewData.status.inReplyToId?.let {
                                 ReferencingStatus.ReplyId(it)
                             } ?: statusViewData.status.quote?.let {
                                 ReferencingStatus.QuoteId(it.statusId)
                             },
-                            visibility = sourceStatus.visibility,
-                            contentWarning = sourceStatus.spoilerText,
-                            mediaAttachments = sourceStatus.attachments,
-                            sensitive = sourceStatus.sensitive,
+//                            visibility = sourceStatus.visibility,
+//                            contentWarning = sourceStatus.spoilerText,
+//                            mediaAttachments = sourceStatus.attachments,
+//                            sensitive = sourceStatus.sensitive,
                             modifiedInitialState = true,
-                            language = sourceStatus.language,
-                            poll = sourceStatus.poll?.toNewPoll(sourceStatus.createdAt),
+//                            language = sourceStatus.language,
+//                            poll = sourceStatus.poll?.toNewPoll(sourceStatus.createdAt),
                             kind = ComposeOptions.ComposeKind.NEW,
-                            quotePolicy = statusViewData.status.quoteApproval.asQuotePolicy(),
+//                            quotePolicy = statusViewData.status.quoteApproval.asQuotePolicy(),
                         )
                         startActivityWithTransition(
                             ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions),
@@ -557,22 +561,24 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
         lifecycleScope.launch {
             mastodonApi.statusSource(id).onSuccess {
                 val source = it.body
+                val draft = status.asDraft(source)
                 val composeOptions = ComposeOptions(
-                    content = source.text,
+                    draft = draft,
+//                    content = source.text,
                     referencingStatus = status.inReplyToId?.let {
                         ReferencingStatus.ReplyId(it)
                     } ?: status.quote?.let {
                         ReferencingStatus.QuoteId(it.statusId)
                     },
-                    visibility = status.visibility,
-                    contentWarning = source.spoilerText,
-                    mediaAttachments = status.attachments,
-                    sensitive = status.sensitive,
-                    language = status.language,
-                    statusId = source.id,
-                    poll = status.poll?.toNewPoll(status.createdAt),
+//                    visibility = status.visibility,
+//                    contentWarning = source.spoilerText,
+//                    mediaAttachments = status.attachments,
+//                    sensitive = status.sensitive,
+//                    language = status.language,
+//                    statusId = source.id,
+//                    poll = status.poll?.toNewPoll(status.createdAt),
                     kind = ComposeOptions.ComposeKind.EDIT_POSTED,
-                    quotePolicy = status.quoteApproval.asQuotePolicy(),
+//                    quotePolicy = status.quoteApproval.asQuotePolicy(),
                 )
                 startActivityWithTransition(
                     ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions),

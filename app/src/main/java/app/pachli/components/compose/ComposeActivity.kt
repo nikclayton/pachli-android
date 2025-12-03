@@ -432,7 +432,7 @@ class ComposeActivity :
 
                 viewModel.setup(account)
 
-                setupLanguageSpinner(getInitialLanguages(composeOptions?.language, account.entity))
+                setupLanguageSpinner(getInitialLanguages(composeOptions?.draft?.language, account.entity))
 
                 setupButtons(account.id)
 
@@ -464,11 +464,11 @@ class ComposeActivity :
                 binding.composeMediaPreviewBar.adapter = mediaAdapter
                 touchHelper.attachToRecyclerView(binding.composeMediaPreviewBar)
 
-                composeOptions?.scheduledAt?.let {
+                composeOptions?.draft?.scheduledAt?.let {
                     binding.composeScheduleView.setDateTime(it)
                 }
 
-                bindContentWarning(composeOptions?.contentWarning)
+                bindContentWarning(composeOptions?.draft?.contentWarning)
                 setupPollView()
                 applyShareIntent(intent, savedInstanceState)
 
@@ -596,6 +596,7 @@ class ComposeActivity :
 
         val referencing = when (loadable) {
             is Loadable.Loaded -> loadable.data
+
             is Loadable.Loading -> {
                 hide()
                 binding.replyProgressIndicator.show()
@@ -724,6 +725,7 @@ class ComposeActivity :
 
             when (composeOptions?.initialCursorPosition ?: InitialCursorPosition.END) {
                 InitialCursorPosition.START -> binding.composeEditField.setSelection(0)
+
                 InitialCursorPosition.END -> binding.composeEditField.setSelection(
                     binding.composeEditField.length(),
                 )
@@ -1727,12 +1729,16 @@ class ComposeActivity :
                 viewModel.stopUploads()
                 finish()
             }
+
             ConfirmationKind.SAVE_OR_DISCARD ->
                 getSaveAsDraftOrDiscardDialog(contentText, contentWarning).show()
+
             ConfirmationKind.UPDATE_OR_DISCARD ->
                 getUpdateDraftOrDiscardDialog(contentText, contentWarning).show()
+
             ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_CHANGES ->
                 getContinueEditingOrDiscardDialog().show()
+
             ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_DRAFT ->
                 getDeleteEmptyDraftOrContinueEditing().show()
         }

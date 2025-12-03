@@ -17,6 +17,7 @@
 
 package app.pachli.core.database.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -24,11 +25,11 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
 import app.pachli.core.model.AccountSource
+import app.pachli.core.model.Attachment
 import app.pachli.core.model.Draft
 import app.pachli.core.model.DraftAttachment
 import app.pachli.core.model.NewPoll
 import app.pachli.core.model.Status
-import java.time.Instant
 import java.util.Date
 
 /**
@@ -71,6 +72,8 @@ data class DraftEntity(
     val sensitive: Boolean,
     val visibility: Status.Visibility,
     val attachments: List<DraftAttachment>,
+    @ColumnInfo(defaultValue = "")
+    val remoteAttachments: List<Attachment>,
     val poll: NewPoll?,
     val failedToSend: Boolean,
     val failedToSendNew: Boolean,
@@ -81,38 +84,41 @@ data class DraftEntity(
     val quotedStatusId: String?,
 )
 
-fun Draft.asEntity(pachliAccountId: Long) = DraftEntity(
-    accountId = pachliAccountId,
-    contentWarning = contentWarning,
-    content = content,
-    inReplyToId = inReplyToId,
-    sensitive = sensitive,
-    visibility = visibility,
-    attachments = attachments,
-    poll = poll,
-    failedToSend = failedToSend,
-    failedToSendNew = failedToSendNew,
-    scheduledAt = scheduledAt?.let { Date(it.toEpochMilli()) },
-    language = language,
-    statusId = statusId,
-    quotePolicy = quotePolicy,
-    quotedStatusId = quotedStatusId,
-)
+fun DraftEntity.asModel(): Draft {
+    if (statusId != null) {
+        return Draft.NewEdit(
+            id = id,
+            contentWarning = contentWarning,
+            content = content,
+            sensitive = sensitive,
+            visibility = visibility,
+            attachments = remoteAttachments,
+            poll = poll,
+            failedToSend = failedToSend,
+            failedToSendNew = failedToSendNew,
+            scheduledAt = scheduledAt,
+            language = language,
+            statusId = statusId,
+            quotePolicy = quotePolicy,
+            inReplyToId = inReplyToId,
+            quotedStatusId = quotedStatusId,
+        )
+    }
 
-fun DraftEntity.asModel() = Draft(
-    id = id,
-    contentWarning = contentWarning,
-    content = content,
-    inReplyToId = inReplyToId,
-    sensitive = sensitive,
-    visibility = visibility,
-    attachments = attachments,
-    poll = poll,
-    failedToSend = failedToSend,
-    failedToSendNew = failedToSendNew,
-    scheduledAt = scheduledAt?.let { Instant.ofEpochMilli(it.time) },
-    language = language,
-    statusId = statusId,
-    quotePolicy = quotePolicy,
-    quotedStatusId = quotedStatusId,
-)
+    return Draft.NewDraft(
+        id = id,
+        contentWarning = contentWarning,
+        content = content,
+        sensitive = sensitive,
+        visibility = visibility,
+        attachments = attachments,
+        poll = poll,
+        failedToSend = failedToSend,
+        failedToSendNew = failedToSendNew,
+        scheduledAt = scheduledAt,
+        language = language,
+        quotePolicy = quotePolicy,
+        inReplyToId = inReplyToId,
+        quotedStatusId = quotedStatusId,
+    )
+}

@@ -86,5 +86,16 @@ FROM DraftEntity
 WHERE id = :id
 """,
     )
-    suspend fun find(id: Int): DraftEntity?
+    suspend fun find(id: Long): DraftEntity?
+
+    @Query(
+        """
+UPDATE DraftEntity
+SET
+    failedToSend = :failedToSend,
+    failedToSendNew = :failedToSendNew
+WHERE id = :draftId
+        """,
+    )
+    suspend fun updateFailureState(draftId: Long, failedToSend: Boolean, failedToSendNew: Boolean)
 }

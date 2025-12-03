@@ -30,6 +30,7 @@ import app.pachli.R
 import app.pachli.components.compose.ComposeActivity.QueuedMedia
 import app.pachli.components.compose.ComposeAutoCompleteAdapter.AutocompleteResult
 import app.pachli.components.compose.UploadState.Uploaded
+import app.pachli.components.drafts.DraftError
 import app.pachli.components.drafts.DraftHelper
 import app.pachli.components.search.SearchType
 import app.pachli.core.common.PachliError
@@ -37,6 +38,7 @@ import app.pachli.core.common.extensions.stateFlow
 import app.pachli.core.common.string.mastodonLength
 import app.pachli.core.common.string.randomAlphanumericString
 import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.DraftRepository
 import app.pachli.core.data.repository.InstanceInfoRepository
 import app.pachli.core.data.repository.Loadable
 import app.pachli.core.data.repository.PachliAccount
@@ -45,6 +47,7 @@ import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.model.AccountSource
 import app.pachli.core.model.Attachment
+import app.pachli.core.model.Draft
 import app.pachli.core.model.NewPoll
 import app.pachli.core.model.ServerOperation
 import app.pachli.core.model.Status
@@ -119,6 +122,7 @@ class ComposeViewModel @AssistedInject constructor(
     serverRepository: ServerRepository,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     private val sharedPreferencesRepository: SharedPreferencesRepository,
+    private val draftRepository: DraftRepository,
 ) : ViewModel() {
     /** The account being used to compose the status. */
     val accountFlow = accountManager.getPachliAccountFlow(pachliAccountId)
@@ -168,7 +172,9 @@ class ComposeViewModel @AssistedInject constructor(
                     }
 
                     is ReferencingStatus.ReplyingTo -> Ok(Loadable.Loaded(i))
+
                     is ReferencingStatus.Quoting -> Ok(Loadable.Loaded(i))
+
                     null -> Ok(Loadable.Loaded(null))
                 }.also { emit(it) }
             }
@@ -179,22 +185,22 @@ class ComposeViewModel @AssistedInject constructor(
     internal fun reloadReferencedStatus() = viewModelScope.launch { loadReferencedStatus.emit(Unit) }
 
     /** The initial content for this status, before any edits */
-    internal var initialContent: String = composeOptions?.content.orEmpty()
+    internal var initialContent: String = composeOptions?.draft?.content.orEmpty()
 
     /** The initial content warning for this status, before any edits */
-    private val initialContentWarning: String = composeOptions?.contentWarning.orEmpty()
+    private val initialContentWarning: String = composeOptions?.draft?.contentWarning.orEmpty()
 
     /** The current content warning */
     private var contentWarning: String = initialContentWarning
 
     /** The initial language for this status, before any changes */
-    private val initialLanguage: String? = composeOptions?.language
+    private val initialLanguage: String? = composeOptions?.draft?.language
 
     /** The current language for this status. */
     internal var language: String? = initialLanguage
 
     /** If editing a draft then the ID of the draft, otherwise 0 */
-    private val draftId = composeOptions?.draftId ?: 0
+    private val draftId = composeOptions?.draft?.id ?: 0
     private val scheduledTootId: String? = composeOptions?.scheduledTootId
     private val originalStatusId: String? = composeOptions?.statusId
     private var startingVisibility: Status.Visibility = Status.Visibility.UNKNOWN
@@ -207,7 +213,7 @@ class ComposeViewModel @AssistedInject constructor(
 
     val emojis = instanceInfoRepo.emojis
 
-    private val _markMediaAsSensitive: MutableStateFlow<Boolean?> = MutableStateFlow(composeOptions?.sensitive)
+    private val _markMediaAsSensitive: MutableStateFlow<Boolean?> = MutableStateFlow(composeOptions?.draft?.sensitive)
     val markMediaAsSensitive = accountFlow.combine(_markMediaAsSensitive) { account, sens ->
         sens ?: account.entity.defaultMediaSensitivity
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
@@ -228,7 +234,7 @@ class ComposeViewModel @AssistedInject constructor(
     val showContentWarning = _showContentWarning.asStateFlow()
     private val _poll: MutableStateFlow<NewPoll?> = MutableStateFlow(null)
     val poll = _poll.asStateFlow()
-    private val _scheduledAt: MutableStateFlow<Date?> = MutableStateFlow(composeOptions?.scheduledAt)
+    private val _scheduledAt: MutableStateFlow<Date?> = MutableStateFlow(composeOptions?.draft?.scheduledAt)
     val scheduledAt = _scheduledAt.asStateFlow()
 
     private val _media: MutableStateFlow<List<QueuedMedia>> = MutableStateFlow(emptyList())
@@ -321,8 +327,8 @@ class ComposeViewModel @AssistedInject constructor(
     val quotePolicy = accountFlow.combine(_quotePolicy) { account, qp ->
         when {
             qp != null -> qp
-            composeOptions?.quotePolicy != null -> composeOptions.quotePolicy
-            composeOptions?.visibility == Status.Visibility.DIRECT || composeOptions?.visibility == Status.Visibility.PRIVATE -> AccountSource.QuotePolicy.NOBODY
+            composeOptions?.draft?.quotePolicy != null -> composeOptions.draft.quotePolicy
+            composeOptions?.draft?.visibility == Status.Visibility.DIRECT || composeOptions?.draft?.visibility == Status.Visibility.PRIVATE -> AccountSource.QuotePolicy.NOBODY
             else -> account.entity.defaultQuotePolicy
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -503,12 +509,15 @@ class ComposeViewModel @AssistedInject constructor(
                 } else {
                     ConfirmationKind.SAVE_OR_DISCARD
                 }
+
                 ComposeKind.EDIT_DRAFT -> if (isEmpty(content, effectiveContentWarning)) {
                     ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_DRAFT
                 } else {
                     ConfirmationKind.UPDATE_OR_DISCARD
                 }
+
                 ComposeKind.EDIT_POSTED -> ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_CHANGES
+
                 ComposeKind.EDIT_SCHEDULED -> ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_CHANGES
             }
         } else {
@@ -545,9 +554,13 @@ class ComposeViewModel @AssistedInject constructor(
 
     fun deleteDraft() {
         viewModelScope.launch {
-            if (draftId != 0) {
-                draftHelper.deleteDraftAndAttachments(draftId)
+            (composeOptions?.draft as? Draft.New)?.let {
+                draftRepository.deleteDraftAndAttachments(pachliAccountId, it)
             }
+//            if (draftId != 0L) {
+//                draftHelper.deleteDraftAndAttachments(draftId)
+//                draftRepository.deleteDraftAndAttachments(pachliAccountId)
+//            }
         }
     }
 
@@ -562,42 +575,57 @@ class ComposeViewModel @AssistedInject constructor(
         }
     }
 
-    suspend fun saveDraft(content: String, contentWarning: String) {
-        val mediaUris: MutableList<String> = mutableListOf()
-        val mediaDescriptions: MutableList<String?> = mutableListOf()
-        val mediaFocus: MutableList<Attachment.Focus?> = mutableListOf()
-        media.value.forEach { item ->
-            mediaUris.add(item.uri.toString())
-            mediaDescriptions.add(item.description)
-            mediaFocus.add(item.focus)
-        }
-
+    suspend fun saveDraft(content: String, contentWarning: String): Result<Draft.NewDraft, DraftError> {
         val inReplyToId = (composeOptions?.referencingStatus as? ReferencingStatus.ReplyingTo)?.statusId
             ?: (composeOptions?.referencingStatus as? ReferencingStatus.ReplyId)?.statusId
 
         val quotedStatusId = (composeOptions?.referencingStatus as? ReferencingStatus.Quoting)?.statusId
             ?: (composeOptions?.referencingStatus as? ReferencingStatus.QuoteId)?.statusId
 
-        draftHelper.saveDraft(
-            draftId = draftId,
-            pachliAccountId = pachliAccountId,
-            inReplyToId = inReplyToId,
-            content = content,
+        // Convert media to a list of DraftAttachments
+        val draftAttachments = draftHelper.saveAttachments(media.value).getOrElse {
+            return Err(it)
+        }
+
+        val draftToSave = Draft.NewDraft(
+            id = composeOptions?.draft?.id ?: 0L,
             contentWarning = contentWarning,
-            sensitive = markMediaAsSensitive.value,
+            content = content,
+            sensitive = draftAttachments.isNotEmpty() && (markMediaAsSensitive.value || showContentWarning.value),
             visibility = statusVisibility.value,
-            mediaUris = mediaUris,
-            mediaDescriptions = mediaDescriptions,
-            mediaFocus = mediaFocus,
-            poll = poll.value,
-            failedToSend = false,
-            failedToSendAlert = false,
-            scheduledAt = scheduledAt.value,
             language = language,
-            statusId = originalStatusId,
             quotePolicy = quotePolicy.value,
+            attachments = draftAttachments,
+            poll = poll.value,
+            scheduledAt = scheduledAt.value,
+            statusId = originalStatusId,
+            inReplyToId = inReplyToId,
             quotedStatusId = quotedStatusId,
         )
+
+        val updatedDraft = draftRepository.saveDraft(pachliAccountId, draftToSave).await()
+        return Ok(updatedDraft)
+
+//        draftHelper.saveDraft(
+//            draftId = draftId,
+//            pachliAccountId = pachliAccountId,
+//            inReplyToId = inReplyToId,
+//            content = content,
+//            contentWarning = contentWarning,
+//            sensitive = markMediaAsSensitive.value,
+//            visibility = statusVisibility.value,
+//            mediaUris = mediaUris,
+//            mediaDescriptions = mediaDescriptions,
+//            mediaFocus = mediaFocus,
+//            poll = poll.value,
+//            failedToSend = false,
+//            failedToSendAlert = false,
+//            scheduledAt = scheduledAt.value,
+//            language = language,
+//            statusId = originalStatusId,
+//            quotePolicy = quotePolicy.value,
+//            quotedStatusId = quotedStatusId,
+//        )
     }
 
     /**
@@ -609,6 +637,11 @@ class ComposeViewModel @AssistedInject constructor(
         spoilerText: String,
         pachliAccountId: Long,
     ) {
+        val draft = saveDraft(content, spoilerText).getOrElse {
+            // TODO: Handle error
+            return
+        }
+
         if (!scheduledTootId.isNullOrEmpty()) {
             api.deleteScheduledStatus(scheduledTootId)
         }
@@ -624,24 +657,25 @@ class ComposeViewModel @AssistedInject constructor(
             )
         }
         val tootToSend = StatusToSend(
-            text = content,
-            warningText = spoilerText,
-            visibility = statusVisibility.value.serverString(),
-            sensitive = attachedMedia.isNotEmpty() && (markMediaAsSensitive.value || showContentWarning.value),
+            draft = draft,
+//            text = content,
+//            warningText = spoilerText,
+//            visibility = statusVisibility.value.serverString(),
+//            sensitive = attachedMedia.isNotEmpty() && (markMediaAsSensitive.value || showContentWarning.value),
             media = attachedMedia,
-            scheduledAt = scheduledAt.value,
-            inReplyToId = (composeOptions?.referencingStatus as? ReferencingStatus.ReplyingTo)?.statusId,
-            poll = poll.value,
-            replyingStatusContent = null,
-            replyingStatusAuthorUsername = null,
+//            scheduledAt = scheduledAt.value,
+//            inReplyToId = (composeOptions?.referencingStatus as? ReferencingStatus.ReplyingTo)?.statusId,
+//            poll = poll.value,
+//            replyingStatusContent = null,
+//            replyingStatusAuthorUsername = null,
             pachliAccountId = pachliAccountId,
-            draftId = draftId,
+//            draftId = draftId,
             idempotencyKey = randomAlphanumericString(16),
             retries = 0,
-            language = language,
-            statusId = originalStatusId,
-            quotedStatusId = (composeOptions?.referencingStatus as? ReferencingStatus.Quoting)?.statusId,
-            quotePolicy = quotePolicy.value,
+//            language = language,
+//            statusId = originalStatusId,
+//            quotedStatusId = (composeOptions?.referencingStatus as? ReferencingStatus.Quoting)?.statusId,
+//            quotePolicy = quotePolicy.value,
         )
 
         serviceClient.sendToot(tootToSend)
@@ -678,6 +712,7 @@ class ComposeViewModel @AssistedInject constructor(
                     },
                 )
             }
+
             '#' -> {
                 return api.search(query = token, type = SearchType.Hashtag.apiParameter, limit = 10)
                     .mapBoth({ response ->
@@ -692,6 +727,7 @@ class ComposeViewModel @AssistedInject constructor(
                         emptyList()
                     })
             }
+
             ':' -> {
                 val incomplete = token.substring(1)
 
@@ -703,6 +739,7 @@ class ComposeViewModel @AssistedInject constructor(
                     AutocompleteResult.EmojiResult(emoji)
                 }
             }
+
             else -> {
                 Timber.w("Unexpected autocompletion token: %s", token)
                 return emptyList()
@@ -729,43 +766,69 @@ class ComposeViewModel @AssistedInject constructor(
         }
 
         // recreate media list
-        val draftAttachments = composeOptions?.draftAttachments
-        if (draftAttachments != null) {
-            // when coming from DraftActivity
-            viewModelScope.launch {
-                draftAttachments.forEach { attachment ->
-                    pickMedia(attachment.uri, attachment.description, attachment.focus)
+        val draft = composeOptions?.draft
+        when (draft) {
+            is Draft.New -> {
+                viewModelScope.launch {
+                    draft.attachments.forEach { attachment ->
+                        pickMedia(attachment.uri, attachment.description, attachment.focus)
+                    }
                 }
             }
-        } else {
-            composeOptions?.mediaAttachments?.forEach { a ->
-                // when coming from redraft or ScheduledTootActivity
-                val mediaType = when (a.type) {
-                    Attachment.Type.VIDEO, Attachment.Type.GIFV -> QueuedMedia.Type.VIDEO
-                    Attachment.Type.UNKNOWN, Attachment.Type.IMAGE -> QueuedMedia.Type.IMAGE
-                    Attachment.Type.AUDIO -> QueuedMedia.Type.AUDIO
-                }
-                addUploadedMedia(account.entity, a.id, mediaType, a.url.toUri(), a.description, a.meta?.focus)
-            }
-        }
 
-        val tootVisibility = composeOptions?.visibility ?: Status.Visibility.UNKNOWN
+            is Draft.Edit -> {
+                draft.attachments.forEach { a ->
+                    val mediaType = when (a.type) {
+                        Attachment.Type.VIDEO, Attachment.Type.GIFV -> QueuedMedia.Type.VIDEO
+                        Attachment.Type.UNKNOWN, Attachment.Type.IMAGE -> QueuedMedia.Type.IMAGE
+                        Attachment.Type.AUDIO -> QueuedMedia.Type.AUDIO
+                    }
+                    addUploadedMedia(account.entity, a.id, mediaType, a.url.toUri(), a.description, a.meta?.focus)
+                }
+            }
+
+            null -> Unit
+        }
+//        if (draft as? Draft.New != null) {
+//        val draftAttachments = composeOptions?.draftAttachments
+//        if (draftAttachments != null) {
+        // when coming from DraftActivity
+//            viewModelScope.launch {
+//                draft.attachments.forEach { attachment ->
+//                    pickMedia(attachment.uri, attachment.description, attachment.focus)
+//                }
+//            }
+//        } else {
+//            composeOptions?.mediaAttachments?.forEach { a ->
+//                 when coming from redraft or ScheduledTootActivity
+//                val mediaType = when (a.type) {
+//                    Attachment.Type.VIDEO, Attachment.Type.GIFV -> QueuedMedia.Type.VIDEO
+//                    Attachment.Type.UNKNOWN, Attachment.Type.IMAGE -> QueuedMedia.Type.IMAGE
+//                    Attachment.Type.AUDIO -> QueuedMedia.Type.AUDIO
+//                }
+//                addUploadedMedia(account.entity, a.id, mediaType, a.url.toUri(), a.description, a.meta?.focus)
+//            }
+//        }
+
+        val tootVisibility = draft?.visibility ?: Status.Visibility.UNKNOWN
         if (tootVisibility != Status.Visibility.UNKNOWN) {
             startingVisibility = tootVisibility
         }
         _statusVisibility.value = startingVisibility
-        val mentionedUsernames = composeOptions?.mentionedUsernames
-        if (mentionedUsernames != null) {
-            val builder = StringBuilder()
-            for (name in mentionedUsernames) {
-                builder.append('@')
-                builder.append(name)
-                builder.append(' ')
-            }
-            initialContent = builder.toString()
-        }
+        initialContent = draft?.content.orEmpty()
 
-        val poll = composeOptions?.poll
+//        val mentionedUsernames = composeOptions?.mentionedUsernames
+//        if (mentionedUsernames != null) {
+//            val builder = StringBuilder()
+//            for (name in mentionedUsernames) {
+//                builder.append('@')
+//                builder.append(name)
+//                builder.append(' ')
+//            }
+//            initialContent = builder.toString()
+//        }
+
+        val poll = draft?.poll
         if (poll != null && composeOptions.mediaAttachments.isNullOrEmpty()) {
             _poll.value = poll
         }
@@ -839,6 +902,7 @@ class ComposeViewModel @AssistedInject constructor(
                                     ?: span.url.length
                                 )
                         }
+
                         else -> {
                             // Expected to be negative if the URL length < maxUrlLength
                             span.url.mastodonLength() - urlLength

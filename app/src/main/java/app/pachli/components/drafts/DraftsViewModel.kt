@@ -42,7 +42,7 @@ class DraftsViewModel @Inject constructor(
 
     private val deletedDrafts: MutableList<DraftEntity> = mutableListOf()
 
-    fun deleteDraft(pachliAccountId: Long, draftId: Int) {
+    fun deleteDraft(pachliAccountId: Long, draftId: Long) {
         // this does not immediately delete media files to avoid unnecessary file operations
         // in case the user decides to restore the draft
         viewModelScope.launch {
@@ -63,7 +63,7 @@ class DraftsViewModel @Inject constructor(
     override fun onCleared() {
         viewModelScope.launch {
             deletedDrafts.forEach {
-                draftHelper.deleteAttachments(it)
+                draftRepository.deleteAttachments(it.attachments)
             }
         }
     }

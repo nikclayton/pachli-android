@@ -350,7 +350,7 @@ class IntentRouterActivityIntent(context: Context, pachliAccountId: Long) : Inte
  * @param composeOptions
  * @see [app.pachli.components.compose.ComposeActivity]
  */
-class ComposeActivityIntent(context: Context, pachliAccountId: Long, composeOptions: ComposeOptions? = null) : Intent() {
+class ComposeActivityIntent(context: Context, pachliAccountId: Long, composeOptions: ComposeOptions) : Intent() {
     /**
      * @property referencingStatus The status the user is referencing while
      * composing. This could be a status they are replying to, or a status

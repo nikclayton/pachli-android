@@ -45,7 +45,6 @@ import com.github.michaelbull.result.onSuccess
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.Date
 import javax.inject.Inject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -106,18 +105,19 @@ class DraftsActivity : BaseActivity(), DraftActionListener {
 
     override fun onOpenDraft(draft: Draft) {
         val composeOptions = ComposeOptions(
-            draftId = draft.id,
-            content = draft.content,
-            contentWarning = draft.contentWarning,
-            draftAttachments = draft.attachments,
-            poll = draft.poll,
-            sensitive = draft.sensitive,
-            visibility = draft.visibility,
-            scheduledAt = draft.scheduledAt?.let { Date(it.toEpochMilli()) },
-            language = draft.language,
-            statusId = draft.statusId,
+            draft = draft,
+//            draftId = draft.id,
+//            content = draft.content,
+//            contentWarning = draft.contentWarning,
+//            draftAttachments = draft.attachments,
+//            poll = draft.poll,
+//            sensitive = draft.sensitive,
+//            visibility = draft.visibility,
+//            scheduledAt = draft.scheduledAt?.let { Date(it.toEpochMilli()) },
+//            language = draft.language,
+//            statusId = draft.statusId,
             kind = ComposeOptions.ComposeKind.EDIT_DRAFT,
-            quotePolicy = draft.quotePolicy,
+//            quotePolicy = draft.quotePolicy,
         )
 
         if (draft.inReplyToId == null && draft.quotedStatusId == null) {

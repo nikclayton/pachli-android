@@ -46,15 +46,18 @@ import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.model.StatusItemViewData
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
+import app.pachli.core.data.repository.asDraft
+import app.pachli.core.data.repository.createDraftQuote
+import app.pachli.core.data.repository.createDraftReply
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.domain.DownloadUrlUseCase
 import app.pachli.core.model.Attachment
 import app.pachli.core.model.AttachmentDisplayAction
+import app.pachli.core.model.Draft
 import app.pachli.core.model.IStatus
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
 import app.pachli.core.model.Status.Mention
-import app.pachli.core.model.asQuotePolicy
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
@@ -178,6 +181,7 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                     startActivityWithDefaultTransition(intent)
                 }
             }
+
             Attachment.Type.UNKNOWN -> openUrl(actionable.attachments[attachmentIndex].url)
         }
     }
@@ -248,11 +252,12 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
             requireContext(),
             status.pachliAccountId,
             ComposeOptions(
+                draft = Draft.createDraftReply(viewModel.activeAccount!!, status.actionable),
                 referencingStatus = ReferencingStatus.ReplyingTo.from(status.actionable),
-                replyVisibility = actionableStatus.visibility,
-                contentWarning = actionableStatus.spoilerText,
-                mentionedUsernames = mentionedUsernames,
-                language = actionableStatus.language,
+//                replyVisibility = actionableStatus.visibility,
+//                contentWarning = actionableStatus.spoilerText,
+//                mentionedUsernames = mentionedUsernames,
+//                language = actionableStatus.language,
                 kind = ComposeOptions.ComposeKind.NEW,
             ),
         )
@@ -266,9 +271,10 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
         val actionableStatus = status.actionableStatus
 
         val composeOptions = ComposeOptions(
+            draft = Draft.createDraftQuote(viewModel.activeAccount!!, status.actionableStatus),
             referencingStatus = ReferencingStatus.Quoting.from(actionableStatus),
-            contentWarning = actionableStatus.spoilerText,
-            language = actionableStatus.language,
+//            contentWarning = actionableStatus.spoilerText,
+//            language = actionableStatus.language,
             kind = ComposeOptions.ComposeKind.NEW,
         )
 
@@ -296,12 +302,14 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                     val textId = getString(if (status.isPinned()) R.string.unpin_action else R.string.pin_action)
                     menu.add(0, R.id.pin, 1, textId)
                 }
+
                 Status.Visibility.PRIVATE -> {
                     var reblogged = status.reblogged
                     status.reblog?.apply { reblogged = this.reblogged }
                     menu.findItem(R.id.status_reblog_private).isVisible = !reblogged
                     menu.findItem(R.id.status_unreblog_private).isVisible = reblogged
                 }
+
                 Status.Visibility.UNKNOWN, Status.Visibility.DIRECT -> {
                 } // Ignore
             }
@@ -349,6 +357,7 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                     startActivityWithDefaultTransition(Intent.createChooser(sendIntent, resources.getText(R.string.send_post_content_to)))
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.post_share_link -> {
                     val sendIntent = Intent()
                     sendIntent.action = Intent.ACTION_SEND
@@ -357,54 +366,67 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                     startActivityWithDefaultTransition(Intent.createChooser(sendIntent, resources.getText(R.string.send_post_link_to)))
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_copy_link -> {
                     statusUrl?.let { clipboard.copyTextTo(it) }
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_open_as -> {
                     showOpenAsDialog(statusUrl!!, item.title)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_download_media -> {
                     requestDownloadAllMedia(status)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_mute_conversation -> {
                     viewModel.muteConversation(statusViewData, status.muted != true)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_mute -> {
                     onMute(accountId, accountUsername)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_block -> {
                     onBlock(accountId, accountUsername)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_report -> {
                     openReportPage(accountId, accountUsername, id)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_unreblog_private -> {
                     onReblog(statusViewData, false)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_reblog_private -> {
                     onReblog(statusViewData, true)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_delete -> {
                     showConfirmDeleteDialog(statusViewData)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_delete_and_redraft -> {
                     showConfirmEditDialog(pachliAccountId, statusViewData)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.status_edit -> {
                     editStatus(pachliAccountId, id, status)
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.pin -> {
                     viewModel.pinStatus(statusViewData, !status.isPinned())
                     return@setOnMenuItemClickListener true
@@ -495,34 +517,37 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                 .setMessage(R.string.dialog_redraft_post_warning)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     lifecycleScope.launch {
-                        viewModel.deleteStatusAsync(statusViewData.statusId).await().onSuccess { redraftStatus ->
-                            viewModel.removeItem(statusViewData)
-
-                            val intent = ComposeActivityIntent(
-                                requireContext(),
-                                pachliAccountId,
-                                ComposeOptions(
-                                    content = redraftStatus.text.orEmpty(),
-                                    referencingStatus = redraftStatus.inReplyToId?.let {
-                                        ReferencingStatus.ReplyId(it)
-                                    } ?: redraftStatus.quote?.let {
-                                        ReferencingStatus.QuoteId(it.statusId)
-                                    },
-                                    visibility = redraftStatus.visibility,
-                                    contentWarning = redraftStatus.spoilerText,
-                                    mediaAttachments = redraftStatus.attachments,
-                                    sensitive = redraftStatus.sensitive,
-                                    poll = redraftStatus.poll?.toNewPoll(redraftStatus.createdAt),
-                                    language = redraftStatus.language,
-                                    kind = ComposeOptions.ComposeKind.NEW,
-                                    quotePolicy = redraftStatus.quoteApproval?.asQuotePolicy(),
-                                ),
+                        timelineCases.delete(statusViewData.status.actionableId).onSuccess {
+                            val sourceStatus = it.body.asModel()
+                            val draft = timelineCases.createDraftFromDeletedStatus(pachliAccountId, sourceStatus)
+                            val composeOptions = ComposeOptions(
+                                draft = draft,
+//                            content = sourceStatus.text,
+                                referencingStatus = statusViewData.status.inReplyToId?.let {
+                                    ReferencingStatus.ReplyId(it)
+                                } ?: statusViewData.status.quote?.let {
+                                    ReferencingStatus.QuoteId(it.statusId)
+                                },
+//                            visibility = sourceStatus.visibility,
+//                            contentWarning = sourceStatus.spoilerText,
+//                            mediaAttachments = sourceStatus.attachments,
+//                            sensitive = sourceStatus.sensitive,
+                                modifiedInitialState = true,
+//                            language = sourceStatus.language,
+//                            poll = sourceStatus.poll?.toNewPoll(sourceStatus.createdAt),
+                                kind = ComposeOptions.ComposeKind.NEW,
+//                            quotePolicy = statusViewData.status.quoteApproval.asQuotePolicy(),
                             )
-                            startActivityWithDefaultTransition(intent)
-                        }.onFailure { error ->
-                            Timber.w("error deleting status: %s", error)
-                            Toast.makeText(context, app.pachli.core.ui.R.string.error_generic, Toast.LENGTH_SHORT).show()
+                            startActivityWithTransition(
+                                ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions),
+                                TransitionKind.SLIDE_FROM_END,
+                            )
                         }
+                            .onFailure {
+                                Timber.w("error deleting status: %s", it)
+                                Toast.makeText(context, app.pachli.core.ui.R.string.error_generic, Toast.LENGTH_SHORT)
+                                    .show()
+                            }
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)
@@ -534,31 +559,37 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
         lifecycleScope.launch {
             mastodonApi.statusSource(id).onSuccess { response ->
                 val source = response.body
+                val draft = status.asDraft(source)
                 val composeOptions = ComposeOptions(
-                    content = source.text,
+                    draft = draft,
+//                    content = source.text,
                     referencingStatus = status.inReplyToId?.let {
                         ReferencingStatus.ReplyId(it)
                     } ?: status.quote?.let {
                         ReferencingStatus.QuoteId(it.statusId)
                     },
-                    visibility = status.visibility,
-                    contentWarning = source.spoilerText,
-                    mediaAttachments = status.attachments,
-                    sensitive = status.sensitive,
-                    language = status.language,
-                    statusId = source.id,
-                    poll = status.poll?.toNewPoll(status.createdAt),
+//                    visibility = status.visibility,
+//                    contentWarning = source.spoilerText,
+//                    mediaAttachments = status.attachments,
+//                    sensitive = status.sensitive,
+//                    language = status.language,
+//                    statusId = source.id,
+//                    poll = status.poll?.toNewPoll(status.createdAt),
                     kind = ComposeOptions.ComposeKind.EDIT_POSTED,
-                    quotePolicy = status.quoteApproval.asQuotePolicy(),
+//                    quotePolicy = status.quoteApproval.asQuotePolicy(),
                 )
-                startActivityWithDefaultTransition(ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions))
-            }.onFailure {
-                Snackbar.make(
-                    requireView(),
-                    getString(R.string.error_status_source_load),
-                    Snackbar.LENGTH_SHORT,
-                ).show()
+                startActivityWithTransition(
+                    ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions),
+                    TransitionKind.SLIDE_FROM_END,
+                )
             }
+                .onFailure {
+                    Snackbar.make(
+                        requireView(),
+                        getString(R.string.error_status_source_load),
+                        Snackbar.LENGTH_SHORT,
+                    ).show()
+                }
         }
     }
 

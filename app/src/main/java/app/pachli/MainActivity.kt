@@ -63,7 +63,9 @@ import app.pachli.components.notifications.domain.EnableAllNotificationsUseCase
 import app.pachli.core.activity.PostLookupFallbackBehavior
 import app.pachli.core.activity.ReselectableFragment
 import app.pachli.core.activity.ViewUrlActivity
+import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
+import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
@@ -71,11 +73,13 @@ import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.ListsRepository.Companion.compareByListTitle
 import app.pachli.core.data.repository.PachliAccount
+import app.pachli.core.data.repository.createDraft
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.EmbeddedFontFamily
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.Announcement
+import app.pachli.core.model.Draft
 import app.pachli.core.model.MastodonList
 import app.pachli.core.model.Notification
 import app.pachli.core.model.Timeline
@@ -84,6 +88,7 @@ import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AnnouncementsActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.DraftsActivityIntent
 import app.pachli.core.navigation.EditProfileActivityIntent
 import app.pachli.core.navigation.FollowedTagsActivityIntent
@@ -122,6 +127,7 @@ import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.pager.MainPagerAdapter
 import app.pachli.updatecheck.UpdateCheck
 import app.pachli.usecase.DeveloperToolsUseCase
+import app.pachli.usecase.TimelineCases
 import app.pachli.util.UpdateShortCutsUseCase
 import app.pachli.util.getDimension
 import com.bumptech.glide.Glide
@@ -209,6 +215,9 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
 
     @Inject
     lateinit var updateShortCuts: UpdateShortCutsUseCase
+
+    @Inject
+    lateinit var timelineCases: TimelineCases
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -420,6 +429,18 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                         bindMainDrawerAnnouncements(it.announcements)
                     }
                 }
+
+                launch {
+                    account.collect { a ->
+                        binding.composeButton.setOnClickListener {
+                            val timeline = tabAdapter.tabs[binding.viewPager.currentItem].timeline
+                            val draft = Draft.createDraft(this@MainActivity, a.entity, timeline)
+                            val composeOptions = ComposeOptions(draft = draft)
+                            val intent = ComposeActivityIntent(this@MainActivity, pachliAccountId, composeOptions)
+                            startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+                        }
+                    }
+                }
             }
         }
 
@@ -463,15 +484,18 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 startActivity(SearchActivityIntent(this@MainActivity, pachliAccountId))
                 true
             }
+
             R.id.action_remove_tab -> {
                 val timeline = tabAdapter.tabs[binding.viewPager.currentItem].timeline
                 viewModel.accept(InfallibleUiAction.TabRemoveTimeline(pachliAccountId, timeline))
                 true
             }
+
             R.id.action_tab_preferences -> {
                 startActivity(TabPreferenceActivityIntent(this, pachliAccountId))
                 true
             }
+
             else -> super.onOptionsItemSelected(menuItem)
         }
     }
@@ -510,6 +534,7 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 }
                 return true
             }
+
             KeyEvent.KEYCODE_SEARCH -> {
                 startActivityWithDefaultTransition(
                     SearchActivityIntent(this, pachliAccountId),
@@ -522,7 +547,18 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             when (keyCode) {
                 KeyEvent.KEYCODE_N -> {
                     // open compose activity by pressing SHIFT + N (or CTRL + N)
-                    val composeIntent = ComposeActivityIntent(applicationContext, pachliAccountId)
+                    val timeline = tabAdapter.tabs[binding.viewPager.currentItem].timeline
+                    val composeIntent = ComposeActivityIntent(
+                        applicationContext,
+                        pachliAccountId,
+                        ComposeOptions(
+                            draft = Draft.createDraft(
+                                this@MainActivity,
+                                viewModel.pachliAccountFlow.replayCache.first().entity,
+                                timeline,
+                            ),
+                        ),
+                    )
                     startActivity(composeIntent)
                     return true
                 }
@@ -946,12 +982,14 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                             developerToolsUseCase.clearHomeTimelineCache(pachliAccountId)
                         }
                     }
+
                     1 -> {
                         Timber.d("Removing most recent 40 statuses")
                         lifecycleScope.launch {
                             developerToolsUseCase.deleteFirstKStatuses(pachliAccountId, 40)
                         }
                     }
+
                     2 -> {
                         Timber.d("Pruning cache")
                         lifecycleScope.launch {
@@ -1082,7 +1120,8 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
 
                 supportActionBar?.title = tabs[tab.position].title(this@MainActivity)
 
-                refreshComposeButtonState(tabs[tab.position])
+//                refreshComposeButtonState(tabs[tab.position])
+//                timeline = tabs[tab.position].timeline
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {}
@@ -1091,7 +1130,8 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 val fragment = tabAdapter.getFragment(tab.position)
                 (fragment as? ReselectableFragment)?.onReselect()
 
-                refreshComposeButtonState(tabs[tab.position])
+//                refreshComposeButtonState(tabs[tab.position])
+//                timeline = tabs[tab.position].timeline
             }
         }.also {
             activeTabLayout.addOnTabSelectedListener(it)
@@ -1102,16 +1142,31 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             (tabAdapter.getFragment(activeTabLayout.selectedTabPosition) as? ReselectableFragment)?.onReselect()
         }
 
-        refreshComposeButtonState(tabs[position])
+//        refreshComposeButtonState(tabs[position])
+//        timeline = tabs[tab.position].timeline
+
+        tabAdapter.tabs.getOrNull(binding.viewPager.currentItem)?.timeline
     }
 
     private fun refreshComposeButtonState(tabViewData: TabViewData) {
-        tabViewData.composeIntent?.let { intent ->
-            binding.composeButton.setOnClickListener {
-                startActivity(intent(applicationContext, pachliAccountId))
-            }
-            binding.composeButton.show()
-        } ?: binding.composeButton.hide()
+        // TODO: This was set up so that TrendingHashtags didn't display the
+        // ComposeButton, probably for padding reasons. That can be better
+        // fixed by modifying the layout to have enough padding, and then
+        // this isn't needed and the button is always shown.
+//        binding.composeButton.setOnClickListener {
+//            lifecycleScope.launch {
+//                val draft = timelineCases.compose(this@MainActivity, pachliAccountId, timeline)
+//                val composeOptions = ComposeOptions(draft = draft)
+//                val intent = ComposeActivityIntent(this@MainActivity, pachliAccountId, composeOptions)
+//                startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+//            }
+//        }
+//        tabViewData.composeIntent?.let { intent ->
+//            binding.composeButton.setOnClickListener {
+//                startActivity(intent(applicationContext, pachliAccountId))
+//            }
+//            binding.composeButton.show()
+//        } ?: binding.composeButton.hide()
     }
 
     /**
