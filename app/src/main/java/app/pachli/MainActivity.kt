@@ -155,6 +155,7 @@ import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
 import com.mikepenz.materialdrawer.model.SectionDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IProfile
 import com.mikepenz.materialdrawer.model.interfaces.Typefaceable
+import com.mikepenz.materialdrawer.model.interfaces.badgeText
 import com.mikepenz.materialdrawer.model.interfaces.descriptionRes
 import com.mikepenz.materialdrawer.model.interfaces.descriptionText
 import com.mikepenz.materialdrawer.model.interfaces.iconRes
@@ -424,6 +425,10 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                     account.distinctUntilChangedBy { it.announcements }.collectLatest {
                         bindMainDrawerAnnouncements(it.announcements)
                     }
+                }
+
+                launch {
+                    viewModel.draftsCount.collect(::bindMainDrawerDrafts)
                 }
 
                 launch {
@@ -870,6 +875,11 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                     identifier = DRAWER_ITEM_DRAFTS
                     nameRes = R.string.action_access_drafts
                     iconRes = R.drawable.ic_notebook
+                    badgeText = viewModel.draftsCount.value.toString()
+                    badgeStyle = BadgeStyle().apply {
+                        textColor = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorOnPrimary))
+                        color = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorPrimary))
+                    }
                     onClick = {
                         startActivityWithDefaultTransition(
                             DraftsActivityIntent(context, pachliAccountId),
@@ -1283,6 +1293,10 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
         binding.mainDrawer.updateBadge(DRAWER_ITEM_ANNOUNCEMENTS, StringHolder(if (unread <= 0) null else unread.toString()))
     }
 
+    /** Updates the badge showing the number of local drafts. */
+    private suspend fun bindMainDrawerDrafts(draftsCount: Int) = drawerMutex.withLock {
+        binding.mainDrawer.updateBadge(DRAWER_ITEM_DRAFTS, StringHolder(draftsCount.toString()))
+    }
     /**
      * Sets the profile information in the main drawer header.
      */

@@ -75,6 +75,8 @@ class DraftRepository @Inject constructor(
         ).flow.map { it.map { it.asModel() } }
     }
 
+    fun countDrafts(pachliAccountId: Long) = draftDao.draftsCount(pachliAccountId)
+
     fun upsert(pachliAccountId: Long, draft: Draft) = externalScope.launch {
         draftDao.upsert(draft.asEntity(pachliAccountId))
     }

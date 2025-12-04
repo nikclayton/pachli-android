@@ -25,6 +25,7 @@ import androidx.room.TypeConverters
 import androidx.room.Upsert
 import app.pachli.core.database.Converters
 import app.pachli.core.database.model.DraftEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(Converters::class)
@@ -50,6 +51,15 @@ WHERE accountId = :accountId AND failedToSendNew = 1
 """,
     )
     fun draftsNeedUserAlert(accountId: Long): LiveData<Int>
+
+    @Query(
+        """
+SELECT COUNT(*)
+FROM DraftEntity
+WHERE accountId = :pachliAccountId
+        """,
+    )
+    fun draftsCount(pachliAccountId: Long): Flow<Int>
 
     @Query(
         """
