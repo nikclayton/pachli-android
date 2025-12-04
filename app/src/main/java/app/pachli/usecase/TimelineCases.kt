@@ -19,7 +19,6 @@ package app.pachli.usecase
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.repository.AccountManager
-import app.pachli.core.data.repository.DraftRepository
 import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.StatusActionError
 import app.pachli.core.database.dao.RemoteKeyDao
@@ -34,7 +33,6 @@ import app.pachli.core.eventhub.MuteEvent
 import app.pachli.core.eventhub.StatusDeletedEvent
 import app.pachli.core.eventhub.UnfollowEvent
 import app.pachli.core.model.Status
-import app.pachli.core.model.Timeline
 import app.pachli.core.model.translation.TranslatedStatus
 import app.pachli.core.network.model.DeletedStatus
 import app.pachli.core.network.model.Relationship
@@ -63,7 +61,6 @@ class TimelineCases @Inject constructor(
     private val translationService: TranslationService,
     private val remoteKeyDao: RemoteKeyDao,
     private val accountManager: AccountManager,
-    private val draftRepository: DraftRepository,
     @ApplicationScope private val externalScope: CoroutineScope,
 ) {
     suspend fun muteConversation(pachliAccountId: Long, statusId: String, mute: Boolean): Result<Status, StatusActionError.Mute> {
@@ -223,7 +220,7 @@ class TimelineCases @Inject constructor(
 
     /**
      * @param pachliAccountId
-     * @param remoteKeyTimelineId The timeline's [Timeline.remoteKeyTimelineId][Timeline.remoteKeyTimelineId].
+     * @param remoteKeyTimelineId The timeline's [Timeline.remoteKeyTimelineId][app.pachli.core.model.Timeline.remoteKeyTimelineId].
      * @return The most recent saved status ID to use in a refresh. Null if not set, or the refresh
      * should fetch the latest statuses.
      * @see saveRefreshStatusId
@@ -237,7 +234,7 @@ class TimelineCases @Inject constructor(
      * from.
      *
      * @param pachliAccountId
-     * @param remoteKeyTimelineId The timeline's [Timeline.remoteKeyTimelineId][Timeline.remoteKeyTimelineId].
+     * @param remoteKeyTimelineId The timeline's [Timeline.remoteKeyTimelineId][app.pachli.core.model.Timeline.remoteKeyTimelineId].
      * @param statusId Status ID to restore from. Null indicates the refresh should
      * refresh the newest statuses.
      * @see getRefreshStatusId

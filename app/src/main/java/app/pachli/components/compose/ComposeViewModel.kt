@@ -173,9 +173,7 @@ class ComposeViewModel @AssistedInject constructor(
                     }
 
                     is ReferencingStatus.ReplyingTo -> Ok(Loadable.Loaded(i))
-
                     is ReferencingStatus.Quoting -> Ok(Loadable.Loaded(i))
-
                     null -> Ok(Loadable.Loaded(null))
                 }.also { emit(it) }
             }
@@ -511,15 +509,12 @@ class ComposeViewModel @AssistedInject constructor(
                 } else {
                     ConfirmationKind.SAVE_OR_DISCARD
                 }
-
                 ComposeKind.EDIT_DRAFT -> if (isEmpty(content, effectiveContentWarning)) {
                     ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_DRAFT
                 } else {
                     ConfirmationKind.UPDATE_OR_DISCARD
                 }
-
                 ComposeKind.EDIT_POSTED -> ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_CHANGES
-
                 ComposeKind.EDIT_SCHEDULED -> ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_CHANGES
             }
         } else {
@@ -675,7 +670,6 @@ class ComposeViewModel @AssistedInject constructor(
                     },
                 )
             }
-
             '#' -> {
                 return api.search(query = token, type = SearchType.Hashtag.apiParameter, limit = 10)
                     .mapBoth({ response ->
@@ -690,7 +684,6 @@ class ComposeViewModel @AssistedInject constructor(
                         emptyList()
                     })
             }
-
             ':' -> {
                 val incomplete = token.substring(1)
 
@@ -826,7 +819,6 @@ class ComposeViewModel @AssistedInject constructor(
                                     ?: span.url.length
                                 )
                         }
-
                         else -> {
                             // Expected to be negative if the URL length < maxUrlLength
                             span.url.mastodonLength() - urlLength

@@ -112,27 +112,10 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
                     context,
                     StatusToSend(
                         draft = draft,
-//                        text = text,
-//                        warningText = spoiler,
-//                        visibility = visibility.serverString(),
-//                        sensitive = false,
                         media = emptyList(),
-//                        scheduledAt = null,
-//                        inReplyToId = citedStatusId,
-//                        poll = null,
-//                        replyingStatusContent = null,
-//                        replyingStatusAuthorUsername = null,
                         pachliAccountId = account.id,
-//                        draftId = -1,
                         idempotencyKey = randomAlphanumericString(16),
                         retries = 0,
-//                        language = null,
-//                        statusId = null,
-                        // Can't quote when quick replying.
-//                        quotedStatusId = null,
-                        // Can't set approval policy when quick-replying, server should use
-                        // the user's default policy.
-//                        quotePolicy = null,
                     ),
                 )
 

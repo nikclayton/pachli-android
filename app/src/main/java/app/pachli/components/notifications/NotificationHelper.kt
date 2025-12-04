@@ -667,25 +667,18 @@ fun filterNotificationByAccount(accountWithFilters: PachliAccount, notificationD
     when (notification.type) {
         // Poll we interacted with has ended.
         NotificationEntity.Type.POLL -> return AccountFilterDecision.None
-
         // Status we interacted with has been updated.
         NotificationEntity.Type.UPDATE -> return AccountFilterDecision.None
-
         // A new moderation report.
         NotificationEntity.Type.REPORT -> return AccountFilterDecision.None
-
         // Moderation has resulted in severed relationships.
         NotificationEntity.Type.SEVERED_RELATIONSHIPS -> return AccountFilterDecision.None
-
         // Moderators sent a warning.
         NotificationEntity.Type.MODERATION_WARNING -> return AccountFilterDecision.None
-
         // We explicitly asked to be notified about this user.
         NotificationEntity.Type.STATUS -> return AccountFilterDecision.None
-
         // Admin signup notifications should not be filtered.
         NotificationEntity.Type.SIGN_UP -> return AccountFilterDecision.None
-
         else -> {
             /* fall through */
         }
@@ -947,7 +940,6 @@ private fun bodyForType(
                 report.targetAccount.name.unicodeWrap(),
             )
         }
-
         Notification.Type.SEVERED_RELATIONSHIPS -> {
             val resourceId = when (notification.relationshipSeveranceEvent!!.type) {
                 RelationshipSeveranceEvent.Type.DOMAIN_BLOCK -> R.string.notification_severed_relationships_domain_block_body
@@ -972,7 +964,6 @@ private fun bodyForType(
         }
 
         Notification.Type.UNKNOWN -> return null
-
         Notification.Type.UPDATE -> return null
     }
 }

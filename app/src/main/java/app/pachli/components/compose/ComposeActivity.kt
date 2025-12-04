@@ -404,7 +404,7 @@ class ComposeActivity :
         // Disable DIRECT visibility if this contains a quote. This is stricter than the API
         // permits (DIRECT with a quote is OK if the status mentions the account being
         // quoted) but is consistent with the web UI behaviour.
-        if (composeOptions?.referencingStatus?.isQuoting() == true) {
+        if (composeOptions.referencingStatus?.isQuoting() == true) {
             binding.composeOptionsBottomSheet.disableVisibility(Status.Visibility.DIRECT)
         }
 
@@ -432,7 +432,7 @@ class ComposeActivity :
 
                 viewModel.setup(account)
 
-                setupLanguageSpinner(getInitialLanguages(composeOptions?.draft?.language, account.entity))
+                setupLanguageSpinner(getInitialLanguages(composeOptions.draft.language, account.entity))
 
                 setupButtons(account.id)
 
@@ -464,11 +464,11 @@ class ComposeActivity :
                 binding.composeMediaPreviewBar.adapter = mediaAdapter
                 touchHelper.attachToRecyclerView(binding.composeMediaPreviewBar)
 
-                composeOptions?.draft?.scheduledAt?.let {
+                composeOptions.draft.scheduledAt?.let {
                     binding.composeScheduleView.setDateTime(it)
                 }
 
-                bindContentWarning(composeOptions?.draft?.contentWarning)
+                bindContentWarning(composeOptions.draft.contentWarning)
                 setupPollView()
                 applyShareIntent(intent, savedInstanceState)
 
@@ -688,7 +688,7 @@ class ComposeActivity :
 
     private fun setupComposeField(
         startingText: String?,
-        composeOptions: ComposeOptions?,
+        composeOptions: ComposeOptions,
     ) {
         binding.composeEditField.setOnReceiveContentListener(this)
 
@@ -722,7 +722,7 @@ class ComposeActivity :
         startingText?.let {
             binding.composeEditField.setText(it)
 
-            when (composeOptions?.initialCursorPosition ?: InitialCursorPosition.END) {
+            when (composeOptions.initialCursorPosition) {
                 InitialCursorPosition.START -> binding.composeEditField.setSelection(0)
                 InitialCursorPosition.END -> binding.composeEditField.setSelection(
                     binding.composeEditField.length(),

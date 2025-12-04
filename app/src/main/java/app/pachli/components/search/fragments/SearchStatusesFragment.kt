@@ -181,7 +181,6 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                     startActivityWithDefaultTransition(intent)
                 }
             }
-
             Attachment.Type.UNKNOWN -> openUrl(actionable.attachments[attachmentIndex].url)
         }
     }
@@ -296,14 +295,12 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                     val textId = getString(if (status.isPinned()) R.string.unpin_action else R.string.pin_action)
                     menu.add(0, R.id.pin, 1, textId)
                 }
-
                 Status.Visibility.PRIVATE -> {
                     var reblogged = status.reblogged
                     status.reblog?.apply { reblogged = this.reblogged }
                     menu.findItem(R.id.status_reblog_private).isVisible = !reblogged
                     menu.findItem(R.id.status_unreblog_private).isVisible = reblogged
                 }
-
                 Status.Visibility.UNKNOWN, Status.Visibility.DIRECT -> {
                 } // Ignore
             }
@@ -351,7 +348,6 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                     startActivityWithDefaultTransition(Intent.createChooser(sendIntent, resources.getText(R.string.send_post_content_to)))
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.post_share_link -> {
                     val sendIntent = Intent()
                     sendIntent.action = Intent.ACTION_SEND
@@ -360,67 +356,54 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                     startActivityWithDefaultTransition(Intent.createChooser(sendIntent, resources.getText(R.string.send_post_link_to)))
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_copy_link -> {
                     statusUrl?.let { clipboard.copyTextTo(it) }
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_open_as -> {
                     showOpenAsDialog(statusUrl!!, item.title)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_download_media -> {
                     requestDownloadAllMedia(status)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_mute_conversation -> {
                     viewModel.muteConversation(statusViewData, status.muted != true)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_mute -> {
                     onMute(accountId, accountUsername)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_block -> {
                     onBlock(accountId, accountUsername)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_report -> {
                     openReportPage(accountId, accountUsername, id)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_unreblog_private -> {
                     onReblog(statusViewData, false)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_reblog_private -> {
                     onReblog(statusViewData, true)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_delete -> {
                     showConfirmDeleteDialog(statusViewData)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_delete_and_redraft -> {
                     showConfirmEditDialog(pachliAccountId, statusViewData)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.status_edit -> {
                     editStatus(pachliAccountId, id, status)
                     return@setOnMenuItemClickListener true
                 }
-
                 R.id.pin -> {
                     viewModel.pinStatus(statusViewData, !status.isPinned())
                     return@setOnMenuItemClickListener true
@@ -517,21 +500,13 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                             val composeOptions = ComposeOptions(
                                 draft = draft,
                                 mediaAttachments = sourceStatus.attachments,
-//                            content = sourceStatus.text,
                                 referencingStatus = statusViewData.status.inReplyToId?.let {
                                     ReferencingStatus.ReplyId(it)
                                 } ?: statusViewData.status.quote?.let {
                                     ReferencingStatus.QuoteId(it.statusId)
                                 },
-//                            visibility = sourceStatus.visibility,
-//                            contentWarning = sourceStatus.spoilerText,
-//                            mediaAttachments = sourceStatus.attachments,
-//                            sensitive = sourceStatus.sensitive,
                                 modifiedInitialState = true,
-//                            language = sourceStatus.language,
-//                            poll = sourceStatus.poll?.toNewPoll(sourceStatus.createdAt),
                                 kind = ComposeOptions.ComposeKind.NEW,
-//                            quotePolicy = statusViewData.status.quoteApproval.asQuotePolicy(),
                             )
                             startActivityWithTransition(
                                 ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions),
@@ -558,21 +533,12 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                 val composeOptions = ComposeOptions(
                     draft = draft,
                     mediaAttachments = status.attachments,
-//                    content = source.text,
                     referencingStatus = status.inReplyToId?.let {
                         ReferencingStatus.ReplyId(it)
                     } ?: status.quote?.let {
                         ReferencingStatus.QuoteId(it.statusId)
                     },
-//                    visibility = status.visibility,
-//                    contentWarning = source.spoilerText,
-//                    mediaAttachments = status.attachments,
-//                    sensitive = status.sensitive,
-//                    language = status.language,
-//                    statusId = source.id,
-//                    poll = status.poll?.toNewPoll(status.createdAt),
                     kind = ComposeOptions.ComposeKind.EDIT_POSTED,
-//                    quotePolicy = status.quoteApproval.asQuotePolicy(),
                 )
                 startActivityWithTransition(
                     ComposeActivityIntent(requireContext(), pachliAccountId, composeOptions),

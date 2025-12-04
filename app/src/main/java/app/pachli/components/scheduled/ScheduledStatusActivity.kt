@@ -156,7 +156,6 @@ class ScheduledStatusActivity :
                 refreshStatuses()
                 true
             }
-
             else -> false
         }
     }

@@ -127,7 +127,6 @@ import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.pager.MainPagerAdapter
 import app.pachli.updatecheck.UpdateCheck
 import app.pachli.usecase.DeveloperToolsUseCase
-import app.pachli.usecase.TimelineCases
 import app.pachli.util.UpdateShortCutsUseCase
 import app.pachli.util.getDimension
 import com.bumptech.glide.Glide
@@ -215,9 +214,6 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
 
     @Inject
     lateinit var updateShortCuts: UpdateShortCutsUseCase
-
-    @Inject
-    lateinit var timelineCases: TimelineCases
 
     private val viewModel: MainViewModel by viewModels()
 

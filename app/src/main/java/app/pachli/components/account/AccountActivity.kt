@@ -470,13 +470,11 @@ class AccountActivity :
         viewModel.accountData.observe(this) {
             when (it) {
                 is Success -> onAccountChanged(it.data)
-
                 is Error -> {
                     Snackbar.make(binding.accountCoordinatorLayout, app.pachli.core.ui.R.string.error_generic, Snackbar.LENGTH_LONG)
                         .setAction(app.pachli.core.ui.R.string.action_retry) { viewModel.refresh() }
                         .show()
                 }
-
                 is Loading -> { }
             }
         }
@@ -690,11 +688,9 @@ class AccountActivity :
                     FollowState.NOT_FOLLOWING -> {
                         viewModel.changeFollowState()
                     }
-
                     FollowState.REQUESTED -> {
                         showFollowRequestPendingDialog()
                     }
-
                     FollowState.FOLLOWING -> {
                         showUnfollowWarningDialog()
                     }
@@ -764,11 +760,9 @@ class AccountActivity :
             FollowState.NOT_FOLLOWING -> {
                 binding.accountFollowButton.setText(R.string.action_follow)
             }
-
             FollowState.REQUESTED -> {
                 binding.accountFollowButton.setText(R.string.state_follow_requested)
             }
-
             FollowState.FOLLOWING -> {
                 binding.accountFollowButton.setText(R.string.action_unfollow)
             }
@@ -879,11 +873,9 @@ class AccountActivity :
                     domain.isEmpty() || viewModel.isFromOwnDomain -> {
                         menu.removeItem(R.id.action_mute_domain)
                     }
-
                     blockingDomain -> {
                         muteDomain.title = getString(R.string.action_unmute_domain, domain)
                     }
-
                     else -> {
                         muteDomain.title = getString(R.string.action_mute_domain, domain)
                     }
@@ -1018,7 +1010,6 @@ class AccountActivity :
                 }
                 return true
             }
-
             R.id.action_open_as -> {
                 loadedAccount?.let { loadedAccount ->
                     lifecycleScope.launch {
@@ -1028,7 +1019,6 @@ class AccountActivity :
                     }
                 }
             }
-
             R.id.action_share_account_link -> {
                 // If the account isn't loaded yet, eat the input.
                 loadedAccount?.let { loadedAccount ->
@@ -1041,7 +1031,6 @@ class AccountActivity :
                 }
                 return true
             }
-
             R.id.action_share_account_username -> {
                 // If the account isn't loaded yet, eat the input.
                 loadedAccount?.let { loadedAccount ->
@@ -1054,38 +1043,31 @@ class AccountActivity :
                 }
                 return true
             }
-
             R.id.action_block -> {
                 toggleBlock()
                 return true
             }
-
             R.id.action_mute -> {
                 toggleMute()
                 return true
             }
-
             R.id.action_add_or_remove_from_list -> {
                 ListsForAccountFragment.newInstance(intent.pachliAccountId, viewModel.accountId).show(supportFragmentManager, null)
                 return true
             }
-
             R.id.action_mute_domain -> {
                 toggleBlockDomain(domain)
                 return true
             }
-
             R.id.action_show_reblogs -> {
                 viewModel.changeShowReblogsState()
                 return true
             }
-
             R.id.action_refresh_account -> {
                 binding.swipeRefreshLayout.isRefreshing = true
                 onRefresh()
                 return true
             }
-
             R.id.action_report -> {
                 loadedAccount?.let { loadedAccount ->
                     startActivity(ReportActivityIntent(this, intent.pachliAccountId, viewModel.accountId, loadedAccount.username))
