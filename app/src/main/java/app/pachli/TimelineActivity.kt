@@ -54,7 +54,6 @@ import app.pachli.core.ui.extensions.addScrollEffect
 import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.ActivityTimelineBinding
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.usecase.TimelineCases
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -77,9 +76,6 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
 
     @Inject
     lateinit var contentFiltersRepository: ContentFiltersRepository
-
-    @Inject
-    lateinit var timelineCases: TimelineCases
 
     private val binding by viewBinding(ActivityTimelineBinding::inflate)
     private lateinit var timeline: Timeline
@@ -133,29 +129,15 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             }
         }
 
-        // TODO: See TODO comment in MainActivity.refreshComposeButtonState
         binding.composeButton.setOnClickListener {
             lifecycleScope.launch {
                 val account = accountManager.getAccountById(pachliAccountId)!!
-//                val draft = timelineCases.compose(this@TimelineActivity, pachliAccountId, timeline)
                 val draft = Draft.createDraft(this@TimelineActivity, account, timeline)
                 val composeOptions = ComposeOptions(draft = draft)
                 val intent = ComposeActivityIntent(this@TimelineActivity, pachliAccountId, composeOptions)
                 startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
             }
         }
-
-//        tabViewData.composeIntent?.let { intent ->
-//            binding.composeButton.setOnClickListener {
-//                startActivity(
-//                    intent(
-//                        this@TimelineActivity,
-//                        this.pachliAccountId,
-//                    ),
-//                )
-//            }
-//            binding.composeButton.show()
-//        } ?: binding.composeButton.hide()
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -199,27 +181,22 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 menuItem.isVisible = false
                 true
             }
-
             R.id.action_follow_hashtag -> {
                 followTag()
                 true
             }
-
             R.id.action_unfollow_hashtag -> {
                 unfollowTag()
                 true
             }
-
             R.id.action_mute_hashtag -> {
                 muteTag()
                 true
             }
-
             R.id.action_unmute_hashtag -> {
                 unmuteTag()
                 true
             }
-
             else -> super.onMenuItemSelected(menuItem)
         }
     }

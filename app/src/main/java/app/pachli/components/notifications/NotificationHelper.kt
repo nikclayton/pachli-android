@@ -435,31 +435,12 @@ private fun getStatusComposeIntent(
     account: AccountEntity,
 ): PendingIntent {
     val status = body.status!!
-//    val account1 = status.actionableStatus.account
-//    val contentWarning = status.actionableStatus.spoilerText
-//    val replyVisibility = status.actionableStatus.visibility
-//    val mentions = status.actionableStatus.mentions
-//    val language = status.actionableStatus.language
-
-//    val mentionedUsernames: MutableSet<String> = LinkedHashSet()
-//    mentionedUsernames.add(account1.username)
-//    for ((_, _, mentionedUsername) in mentions) {
-//        if (mentionedUsername != account.username) {
-//            mentionedUsernames.add(mentionedUsername)
-//        }
-//    }
 
     val draft = Draft.createDraftReply(account, status.actionableStatus)
-    val composeOptions = ComposeOptions(draft = draft)
-//    val composeOptions = ComposeOptions(
-//        replyVisibility = replyVisibility,
-//        contentWarning = contentWarning,
-//        referencingStatus = ReferencingStatus.ReplyingTo.from(status),
-//        mentionedUsernames = mentionedUsernames,
-//        modifiedInitialState = true,
-//        language = language,
-//        kind = ComposeOptions.ComposeKind.NEW,
-//    )
+    val composeOptions = ComposeOptions(
+        draft = draft,
+        referencingStatus = ComposeOptions.ReferencingStatus.ReplyingTo.from(status.actionableStatus),
+    )
     val composeIntent = IntentRouterActivityIntent.fromNotificationCompose(
         context,
         account.id,

@@ -171,22 +171,13 @@ class ScheduledStatusActivity :
             intent.pachliAccountId,
             ComposeOptions(
                 draft = item.asDraft(),
-//                scheduledTootId = item.id,
-//                content = item.params.text,
-//                contentWarning = item.params.spoilerText,
-//                mediaAttachments = item.mediaAttachments,
+                mediaAttachments = item.mediaAttachments,
                 referencingStatus = item.params.inReplyToId?.let {
                     ReferencingStatus.ReplyId(it)
                 } ?: item.params.quotedStatusId?.let {
                     ReferencingStatus.QuoteId(it)
                 },
-//                visibility = item.params.visibility,
-//                scheduledAt = item.scheduledAt,
-//                sensitive = item.params.sensitive,
                 kind = ComposeOptions.ComposeKind.EDIT_SCHEDULED,
-//                poll = item.params.poll,
-//                language = item.params.language,
-//                quotePolicy = item.params.quotePolicy,
             ),
         )
         startActivity(intent)

@@ -30,6 +30,7 @@ import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.DraftEntity
 import app.pachli.core.database.model.asModel
 import app.pachli.core.model.AccountSource
+import app.pachli.core.model.DeletedStatus
 import app.pachli.core.model.Draft
 import app.pachli.core.model.DraftAttachment
 import app.pachli.core.model.ScheduledStatus
@@ -67,20 +68,22 @@ class DraftRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val draftDao: DraftDao,
 ) {
-    //    suspend fun saveStatusAsDraft(statusToSend: StatusToSend)
-
-    fun getDrafts(pachliAccountId: Long): Flow<PagingData<Draft.NewDraft>> {
+    fun getDrafts(pachliAccountId: Long): Flow<PagingData<Draft>> {
         return Pager(
             config = PagingConfig(pageSize = 20),
             pagingSourceFactory = { draftDao.draftsPagingSource(pachliAccountId) },
-        ).flow.map { it.map { it.asModel() as Draft.NewDraft } }
+        ).flow.map { it.map { it.asModel() } }
+    }
+
+    fun upsert(pachliAccountId: Long, draft: Draft) = externalScope.launch {
+        draftDao.upsert(draft.asEntity(pachliAccountId))
     }
 
     fun deleteDraft(pachliAccountId: Long, draftId: Long) = externalScope.launch {
         draftDao.delete(pachliAccountId, draftId)
     }
 
-    suspend fun deleteDraftAndAttachments(pachliAccountId: Long, draftId: Long) = externalScope.launch {
+    fun deleteDraftAndAttachments(pachliAccountId: Long, draftId: Long) = externalScope.launch {
         val draft = draftDao.find(draftId) ?: return@launch
         draft.attachments.forEach { attachment ->
             if (context.contentResolver.delete(attachment.uri, null, null) == 0) {
@@ -90,7 +93,7 @@ class DraftRepository @Inject constructor(
         deleteDraft(pachliAccountId, draft.id)
     }
 
-    suspend fun deleteDraftAndAttachments(pachliAccountId: Long, draft: Draft.New) = externalScope.launch(Dispatchers.IO) {
+    fun deleteDraftAndAttachments(pachliAccountId: Long, draft: Draft) = externalScope.launch(Dispatchers.IO) {
         draft.attachments.forEach { attachment ->
             if (context.contentResolver.delete(attachment.uri, null, null) == 0) {
                 Timber.e("Did not delete file %s", attachment.uri)
@@ -99,7 +102,7 @@ class DraftRepository @Inject constructor(
         deleteDraft(pachliAccountId, draft.id)
     }
 
-    suspend fun deleteAttachments(attachments: List<DraftAttachment>) {
+    fun deleteAttachments(attachments: List<DraftAttachment>) {
         attachments.forEach { attachment ->
             if (context.contentResolver.delete(attachment.uri, null, null) == 0) {
                 Timber.e("Did not delete file %s", attachment.uri)
@@ -107,36 +110,10 @@ class DraftRepository @Inject constructor(
         }
     }
 
-//    fun createDraft(pachliAccountId: Long, draftOptions: DraftOptions) = externalScope.async {
-//        // TODO: Check how ComposeOptions are created, this needs the same parameters
-// //        val entity = DraftEntity(accountID = pachliAccountId)
-//        val entity = DraftEntity(
-//            id = 0,
-//            accountId = pachliAccountId,
-//            inReplyToId = null,
-//            content = draftOptions.content,
-//            contentWarning = draftOptions.contentWarning,
-//            sensitive = draftOptions.sensitive,
-//            visibility = draftOptions.visibility,
-//            attachments = emptyList(),
-//            poll = null,
-//            failedToSend = false,
-//            failedToSendNew = false,
-//            scheduledAt = null,
-//            language = draftOptions.language,
-//            statusId = null,
-//            quotePolicy = draftOptions.quotePolicy,
-//            quotedStatusId = null,
-//        )
-//
-//        val id = draftDao.upsert(entity)
-//        return@async entity.copy(id = id).asModel()
-//    }
-
-    fun <T : Draft> saveDraft(pachliAccountId: Long, draft: T): Deferred<T> = externalScope.async {
+    fun saveDraft(pachliAccountId: Long, draft: Draft): Deferred<Draft> = externalScope.async {
         val entity = draft.asEntity(pachliAccountId)
         val id = draftDao.upsert(entity)
-        return@async entity.copy(id = id).asModel() as T
+        return@async entity.copy(id = id).asModel()
     }
 
     fun updateFailureState(pachliAccountId: Long, draftId: Long, failedToSend: Boolean, failedToSendNew: Boolean) = externalScope.async {
@@ -144,7 +121,7 @@ class DraftRepository @Inject constructor(
     }
 }
 
-fun Draft.asEntity(pachliAccountId: Long) = DraftEntity(
+private fun Draft.asEntity(pachliAccountId: Long) = DraftEntity(
     accountId = pachliAccountId,
     id = id,
     contentWarning = contentWarning,
@@ -152,25 +129,24 @@ fun Draft.asEntity(pachliAccountId: Long) = DraftEntity(
     inReplyToId = inReplyToId,
     sensitive = sensitive,
     visibility = visibility,
-    attachments = (this as? Draft.NewDraft)?.attachments.orEmpty(),
-    remoteAttachments = (this as? Draft.Edit)?.attachments.orEmpty(),
+    attachments = attachments,
     poll = poll,
     failedToSend = failedToSend,
     failedToSendNew = failedToSendNew,
     scheduledAt = scheduledAt,
     language = language,
-    statusId = (this as? Draft.Edit)?.statusId,
+    statusId = statusId,
     quotePolicy = quotePolicy,
     quotedStatusId = quotedStatusId,
 )
 
-fun Status.asDraft(source: StatusSource): Draft.Edit {
+// Note: Caller must still set attachments on ComposeOptions
+fun Status.asDraft(source: StatusSource): Draft {
     val actionable = this.actionableStatus
 
-    return Draft.NewEdit(
+    return Draft(
         contentWarning = source.spoilerText,
         content = source.text,
-        attachments = actionable.attachments,
         poll = actionable.poll?.toNewPoll(createdAt),
         sensitive = actionable.sensitive,
         visibility = actionable.visibility,
@@ -182,11 +158,11 @@ fun Status.asDraft(source: StatusSource): Draft.Edit {
     )
 }
 
-fun ScheduledStatus.asDraft(): Draft.Edit {
-    return Draft.NewEdit(
+// Note: Caller must still set attachments on ComposeOptions
+fun ScheduledStatus.asDraft(): Draft {
+    return Draft(
         contentWarning = params.spoilerText,
         content = params.text,
-        attachments = mediaAttachments,
         poll = params.poll,
         sensitive = params.sensitive == true,
         visibility = params.visibility,
@@ -199,18 +175,20 @@ fun ScheduledStatus.asDraft(): Draft.Edit {
     )
 }
 
-data class DraftOptions(
-    val visibility: Status.Visibility,
-    val contentWarning: String,
-    val content: String,
-    val sensitive: Boolean,
-    val language: String,
-    val quotePolicy: AccountSource.QuotePolicy,
-    val inReplyToId: String? = null,
-    val quotedStatusId: String? = null,
+// Note: Caller must still set attachments on ComposeOptions
+fun DeletedStatus.asDraft() = Draft(
+    contentWarning = spoilerText,
+    content = text.orEmpty(),
+    sensitive = sensitive,
+    visibility = visibility,
+    language = language,
+    quotePolicy = quoteApproval?.asQuotePolicy() ?: AccountSource.QuotePolicy.NOBODY,
+    inReplyToId = inReplyToId,
+    quotedStatusId = quote?.statusId,
+
 )
 
-fun Draft.Companion.createDraft(context: Context, pachliAccountEntity: AccountEntity, timeline: Timeline): Draft.NewDraft {
+fun Draft.Companion.createDraft(context: Context, pachliAccountEntity: AccountEntity, timeline: Timeline): Draft {
     val visibility = when (timeline) {
         Timeline.Conversations -> Status.Visibility.DIRECT
         else -> pachliAccountEntity.defaultPostPrivacy
@@ -218,7 +196,7 @@ fun Draft.Companion.createDraft(context: Context, pachliAccountEntity: AccountEn
 
     val quotePolicy = pachliAccountEntity.defaultQuotePolicy.clampToVisibility(visibility)
 
-    val draft = Draft.NewDraft(
+    val draft = Draft(
         contentWarning = "",
         content = when (timeline) {
             is Timeline.Hashtags -> {
@@ -239,7 +217,7 @@ fun Draft.Companion.createDraft(context: Context, pachliAccountEntity: AccountEn
     return draft
 }
 
-fun Draft.Companion.createDraftReply(pachliAccountEntity: AccountEntity, status: Status): Draft.NewDraft {
+fun Draft.Companion.createDraftReply(pachliAccountEntity: AccountEntity, status: Status): Draft {
     val actionable = status.actionableStatus
     val account = actionable.account
     val quotePolicy = pachliAccountEntity.defaultQuotePolicy.clampToVisibility(actionable.visibility)
@@ -259,7 +237,7 @@ fun Draft.Companion.createDraftReply(pachliAccountEntity: AccountEntity, status:
         builder.toString()
     }
 
-    val draft = Draft.NewDraft(
+    val draft = Draft(
         contentWarning = actionable.spoilerText,
         content = content,
         sensitive = actionable.sensitive || pachliAccountEntity.defaultMediaSensitivity,
@@ -273,12 +251,12 @@ fun Draft.Companion.createDraftReply(pachliAccountEntity: AccountEntity, status:
     return draft
 }
 
-fun Draft.Companion.createDraftQuote(pachliAccountEntity: AccountEntity, status: Status): Draft.NewDraft {
+fun Draft.Companion.createDraftQuote(pachliAccountEntity: AccountEntity, status: Status): Draft {
     val actionable = status.actionableStatus
 
     val quotePolicy = pachliAccountEntity.defaultQuotePolicy.clampToVisibility(actionable.visibility)
 
-    val draft = Draft.NewDraft(
+    val draft = Draft(
         contentWarning = actionable.spoilerText,
         content = "",
         sensitive = actionable.sensitive || pachliAccountEntity.defaultMediaSensitivity,
@@ -292,7 +270,7 @@ fun Draft.Companion.createDraftQuote(pachliAccountEntity: AccountEntity, status:
     return draft
 }
 
-fun Draft.Companion.createDraftMention(context: Context, pachliAccountEntity: AccountEntity, timeline: Timeline, username: String): Draft.NewDraft {
+fun Draft.Companion.createDraftMention(context: Context, pachliAccountEntity: AccountEntity, timeline: Timeline, username: String): Draft {
     return Draft.createDraft(context, pachliAccountEntity, timeline).copy(
         content = "@$username ",
     )

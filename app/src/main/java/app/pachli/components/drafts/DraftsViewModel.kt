@@ -22,7 +22,7 @@ import androidx.paging.cachedIn
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.DraftRepository
 import app.pachli.core.database.dao.DraftDao
-import app.pachli.core.database.model.DraftEntity
+import app.pachli.core.model.Draft
 import app.pachli.core.network.retrofit.MastodonApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -33,27 +33,26 @@ class DraftsViewModel @Inject constructor(
     private val draftDao: DraftDao,
     val accountManager: AccountManager,
     val api: MastodonApi,
-    private val draftHelper: DraftHelper,
     private val draftRepository: DraftRepository,
 ) : ViewModel() {
 
     val drafts = draftRepository.getDrafts(accountManager.activeAccount?.id!!)
         .cachedIn(viewModelScope)
 
-    private val deletedDrafts: MutableList<DraftEntity> = mutableListOf()
+    private val deletedDrafts: MutableList<Draft> = mutableListOf()
 
-    fun deleteDraft(pachliAccountId: Long, draftId: Long) {
+    fun deleteDraft(pachliAccountId: Long, draft: Draft) {
         // this does not immediately delete media files to avoid unnecessary file operations
         // in case the user decides to restore the draft
         viewModelScope.launch {
-            draftRepository.deleteDraft(pachliAccountId, draftId)
-//            deletedDrafts.add(draft)
+            draftRepository.deleteDraft(pachliAccountId, draft.id)
+            deletedDrafts.add(draft)
         }
     }
 
-    fun restoreDraft(draft: DraftEntity) {
+    fun restoreDraft(pachliAccountId: Long, draft: Draft) {
         viewModelScope.launch {
-            draftDao.upsert(draft)
+            draftRepository.upsert(pachliAccountId, draft)
             deletedDrafts.remove(draft)
         }
     }

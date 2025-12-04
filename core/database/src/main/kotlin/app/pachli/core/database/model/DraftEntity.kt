@@ -17,7 +17,6 @@
 
 package app.pachli.core.database.model
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -25,7 +24,6 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import app.pachli.core.database.Converters
 import app.pachli.core.model.AccountSource
-import app.pachli.core.model.Attachment
 import app.pachli.core.model.Draft
 import app.pachli.core.model.DraftAttachment
 import app.pachli.core.model.NewPoll
@@ -72,8 +70,6 @@ data class DraftEntity(
     val sensitive: Boolean,
     val visibility: Status.Visibility,
     val attachments: List<DraftAttachment>,
-    @ColumnInfo(defaultValue = "")
-    val remoteAttachments: List<Attachment>,
     val poll: NewPoll?,
     val failedToSend: Boolean,
     val failedToSendNew: Boolean,
@@ -85,27 +81,7 @@ data class DraftEntity(
 )
 
 fun DraftEntity.asModel(): Draft {
-    if (statusId != null) {
-        return Draft.NewEdit(
-            id = id,
-            contentWarning = contentWarning,
-            content = content,
-            sensitive = sensitive,
-            visibility = visibility,
-            attachments = remoteAttachments,
-            poll = poll,
-            failedToSend = failedToSend,
-            failedToSendNew = failedToSendNew,
-            scheduledAt = scheduledAt,
-            language = language,
-            statusId = statusId,
-            quotePolicy = quotePolicy,
-            inReplyToId = inReplyToId,
-            quotedStatusId = quotedStatusId,
-        )
-    }
-
-    return Draft.NewDraft(
+    return Draft(
         id = id,
         contentWarning = contentWarning,
         content = content,
@@ -117,6 +93,7 @@ fun DraftEntity.asModel(): Draft {
         failedToSendNew = failedToSendNew,
         scheduledAt = scheduledAt,
         language = language,
+        statusId = statusId,
         quotePolicy = quotePolicy,
         inReplyToId = inReplyToId,
         quotedStatusId = quotedStatusId,

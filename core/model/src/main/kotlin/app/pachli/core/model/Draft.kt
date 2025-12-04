@@ -25,76 +25,23 @@ import java.util.Date
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-sealed interface Draft : Parcelable {
-    val id: Long
-    val contentWarning: String?
-    val content: String?
-    val sensitive: Boolean
-    val visibility: Status.Visibility
-
-    // val attachments: List<DraftAttachment>
-    val poll: NewPoll?
-    val failedToSend: Boolean
-    val failedToSendNew: Boolean
-    val scheduledAt: Date?
-    val language: String?
-    val quotePolicy: AccountSource.QuotePolicy?
-
-    val inReplyToId: String?
-    val quotedStatusId: String?
-
-    val statusId: String?
-
-    @Parcelize
-    sealed interface New : Draft {
-        val attachments: List<DraftAttachment>
-    }
-
-    /** New draft */
-    data class NewDraft(
-        override val id: Long = 0,
-        override val contentWarning: String?,
-        override val content: String?,
-        override val sensitive: Boolean,
-        override val visibility: Status.Visibility,
-        override val attachments: List<DraftAttachment> = emptyList(),
-        override val poll: NewPoll? = null,
-        override val failedToSend: Boolean = false,
-        override val failedToSendNew: Boolean = false,
-        override val scheduledAt: Date? = null,
-        override val language: String?,
-        override val quotePolicy: AccountSource.QuotePolicy?,
-        override val inReplyToId: String? = null,
-        override val quotedStatusId: String? = null,
-        override val statusId: String? = null,
-    ) : New
-
-    /** Draft that is editing an existing status. */
-    @Parcelize
-    sealed interface Edit : Draft {
-        val attachments: List<Attachment>
-        override val statusId: String
-    }
-
-    /** Draft that edits an existing status */
-    data class NewEdit(
-        override val id: Long = 0,
-        override val contentWarning: String?,
-        override val content: String?,
-        override val sensitive: Boolean,
-        override val visibility: Status.Visibility,
-        override val attachments: List<Attachment> = emptyList(),
-        override val poll: NewPoll? = null,
-        override val failedToSend: Boolean = false,
-        override val failedToSendNew: Boolean = false,
-        override val scheduledAt: Date? = null,
-        override val language: String?,
-        override val quotePolicy: AccountSource.QuotePolicy?,
-        override val statusId: String,
-        override val inReplyToId: String? = null,
-        override val quotedStatusId: String? = null,
-    ) : Edit
-
+data class Draft(
+    val id: Long = 0,
+    val contentWarning: String?,
+    val content: String?,
+    val sensitive: Boolean,
+    val visibility: Status.Visibility,
+    val attachments: List<DraftAttachment> = emptyList(),
+    val poll: NewPoll? = null,
+    val failedToSend: Boolean = false,
+    val failedToSendNew: Boolean = false,
+    val scheduledAt: Date? = null,
+    val language: String?,
+    val quotePolicy: AccountSource.QuotePolicy?,
+    val inReplyToId: String? = null,
+    val quotedStatusId: String? = null,
+    val statusId: String? = null,
+) : Parcelable {
     companion object
 }
 
@@ -104,11 +51,5 @@ data class DraftAttachment(
     @Json(name = "uriString") val uri: Uri,
     val description: String?,
     val focus: Attachment.Focus?,
-    val type: Type,
-) : Parcelable {
-    enum class Type {
-        IMAGE,
-        VIDEO,
-        AUDIO,
-    }
-}
+    val type: Attachment.Type,
+) : Parcelable

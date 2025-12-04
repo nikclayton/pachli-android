@@ -16,7 +16,6 @@
 
 package app.pachli.usecase
 
-import app.pachli.components.compose.ComposeActivity
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.repository.AccountManager
@@ -25,7 +24,6 @@ import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.StatusActionError
 import app.pachli.core.database.dao.RemoteKeyDao
 import app.pachli.core.database.dao.TranslatedStatusDao
-import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.RemoteKeyEntity
 import app.pachli.core.database.model.RemoteKeyEntity.RemoteKeyKind
 import app.pachli.core.database.model.TranslationState
@@ -35,11 +33,8 @@ import app.pachli.core.eventhub.EventHub
 import app.pachli.core.eventhub.MuteEvent
 import app.pachli.core.eventhub.StatusDeletedEvent
 import app.pachli.core.eventhub.UnfollowEvent
-import app.pachli.core.model.AccountSource
-import app.pachli.core.model.Draft
 import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
-import app.pachli.core.model.asQuotePolicy
 import app.pachli.core.model.translation.TranslatedStatus
 import app.pachli.core.network.model.DeletedStatus
 import app.pachli.core.network.model.Relationship
@@ -255,227 +250,5 @@ class TimelineCases @Inject constructor(
 
     suspend fun detachQuote(pachliAccountId: Long, quoteId: String, parentId: String): Result<Status, StatusActionError.RevokeQuote> {
         return statusRepository.detachQuote(pachliAccountId, quoteId, parentId)
-    }
-
-    /**
-     * Creates a draft and launches ComposeActivity to edit the draft.
-     */
-    // TODO: Would be safer if this took the account, not just the account ID
-//    suspend fun compose(context: Context, pachliAccountId: Long, timeline: Timeline): Draft.NewDraft {
-//        val pachliAccount = accountManager.getAccountById(pachliAccountId)!!
-//
-//        val visibility = when (timeline) {
-//            Timeline.Conversations -> Status.Visibility.PRIVATE
-//            else -> pachliAccount.defaultPostPrivacy
-//        }
-//
-//        val quotePolicy = pachliAccount.defaultQuotePolicy.clampToVisibility(visibility)
-//
-//        val draft = Draft.NewDraft(
-//            contentWarning = "",
-//            content = when (timeline) {
-//                is Timeline.Hashtags -> {
-//                    val tag = timeline.tags.first()
-//                    getString(context, R.string.title_tag_with_initial_position).format(tag)
-//                }
-//
-//                else -> ""
-//            },
-//            visibility = visibility,
-//            sensitive = pachliAccount.defaultMediaSensitivity,
-//            language = pachliAccount.defaultPostLanguage,
-//            quotePolicy = quotePolicy,
-//        )
-//
-//        // TODO: Need to record the cursor position
-//
-// //        val draft = draftRepository.createDraft(pachliAccountId, draftOptions).await()
-//        return draftRepository.saveDraft(pachliAccountId, draft).await()
-//
-// //        val composeOptions = ComposeActivityIntent.ComposeOptions(
-// //            draft = savedDraft,
-// //        )
-// //
-// //        val intent = ComposeActivityIntent(
-// //            context,
-// //            pachliAccountId,
-// //            composeOptions,
-// //        )
-// //
-// //        context.startActivity(intent)
-//    }
-
-    /**
-     * Creates a draft replying to [status] and launches [ComposeActivity] to edit the
-     * draft.
-     */
-//    suspend fun reply(context: Context, pachliAccountId: Long, status: Status) {
-//        val pachliAccount = accountManager.getAccountById(pachliAccountId) ?: return
-//
-//        val actionable = status.actionableStatus
-//        val account = actionable.account
-//        val quotePolicy = pachliAccount.defaultQuotePolicy.clampToVisibility(actionable.visibility)
-//
-//        val content = run {
-//            val builder = StringBuilder()
-//
-//            LinkedHashSet(
-//                listOf(account.username) + actionable.mentions.map { it.username },
-//            ).apply {
-//                remove(pachliAccount.username)
-//            }.forEach {
-//                builder.append('@')
-//                builder.append(it)
-//                builder.append(' ')
-//            }
-//            builder.toString()
-//        }
-//
-//        val draftOptions = DraftOptions(
-//            visibility = actionable.visibility,
-//            contentWarning = actionable.spoilerText,
-//            content = content,
-//            sensitive = actionable.sensitive || pachliAccount.defaultMediaSensitivity,
-//            language = actionable.language ?: pachliAccount.defaultPostLanguage,
-//            quotePolicy = quotePolicy,
-//            inReplyToId = actionable.statusId,
-//        )
-//
-//        // TODO: Need to record the cursor position
-//        val draft = draftRepository.createDraft(pachliAccountId, draftOptions).await()
-//
-//        val composeOptions = ComposeActivityIntent.ComposeOptions(draft = draft)
-//        val intent = ComposeActivityIntent(context, pachliAccountId, composeOptions)
-//        context.startActivity(intent)
-//    }
-
-    fun createDraftReply(pachliAccountId: Long, status: Status): Draft.New {
-        val pachliAccount = accountManager.getAccountById(pachliAccountId)!!
-
-        return createDraftReply(pachliAccount, status)
-    }
-
-    fun createDraftReply(pachliAccountEntity: AccountEntity, status: Status): Draft.NewDraft {
-        val actionable = status.actionableStatus
-        val account = actionable.account
-        val quotePolicy = pachliAccountEntity.defaultQuotePolicy.clampToVisibility(actionable.visibility)
-
-        val content = run {
-            val builder = StringBuilder()
-
-            LinkedHashSet(
-                listOf(account.username) + actionable.mentions.map { it.username },
-            ).apply {
-                remove(pachliAccountEntity.username)
-            }.forEach {
-                builder.append('@')
-                builder.append(it)
-                builder.append(' ')
-            }
-            builder.toString()
-        }
-
-        val draft = Draft.NewDraft(
-            contentWarning = actionable.spoilerText,
-            content = content,
-            sensitive = actionable.sensitive || pachliAccountEntity.defaultMediaSensitivity,
-            visibility = actionable.visibility,
-            language = actionable.language ?: pachliAccountEntity.defaultPostLanguage,
-            quotePolicy = quotePolicy,
-            inReplyToId = actionable.statusId,
-        )
-
-        // TODO: Need to record the cursor position
-        return draft
-    }
-
-    suspend fun createDraftMention(pachliAccountId: Long, username: String): Draft.NewDraft {
-        val pachliAccount = accountManager.getAccountById(pachliAccountId)!!
-
-        val draft = Draft.NewDraft(
-            contentWarning = "",
-            content = "@$username",
-            visibility = pachliAccount.defaultPostPrivacy,
-            sensitive = pachliAccount.defaultMediaSensitivity,
-            language = pachliAccount.defaultPostLanguage,
-            quotePolicy = pachliAccount.defaultQuotePolicy,
-        )
-
-        // TODO: Need to record the cursor position
-        return draft
-
-//        val draft = draftRepository.createDraft(pachliAccountId, draftOptions).await()
-//        return draftRepository.saveDraft(pachliAccountId, draft).await()
-    }
-
-    /**
-     * Create a draft quoting [status] and launches [ComposeActivity] to edit the
-     * draft.
-     */
-//    suspend fun quote2(context: Context, pachliAccountId: Long, status: Status) {
-//        val pachliAccount = accountManager.getAccountById(pachliAccountId) ?: return
-//
-//        val actionable = status.actionableStatus
-//
-//        // TODO: Compute the quote policy from a combination of status.visibility
-//        // and the account's default quote policy.
-//        val quotePolicy = pachliAccount.defaultQuotePolicy.clampToVisibility(actionable.visibility)
-//
-//        val draftOptions = DraftOptions(
-//            visibility = actionable.visibility,
-//            contentWarning = actionable.spoilerText,
-//            content = "",
-//            sensitive = actionable.sensitive || pachliAccount.defaultMediaSensitivity,
-//            language = actionable.language ?: pachliAccount.defaultPostLanguage,
-//            quotePolicy = quotePolicy,
-//            inReplyToId = actionable.statusId,
-//        )
-//
-//        // TODO: Need to record the cursor position
-//        val draft = draftRepository.createDraft(pachliAccountId, draftOptions).await()
-//
-//        val composeOptions = ComposeActivityIntent.ComposeOptions(draft = draft)
-//        val intent = ComposeActivityIntent(context, pachliAccountId, composeOptions)
-//        context.startActivity(intent)
-//    }
-
-    suspend fun createDraftQuote(pachliAccountId: Long, status: Status): Draft.NewDraft {
-        val pachliAccount = accountManager.getAccountById(pachliAccountId)!!
-
-        val actionable = status.actionableStatus
-
-        // TODO: Compute the quote policy from a combination of status.visibility
-        // and the account's default quote policy.
-        val quotePolicy = pachliAccount.defaultQuotePolicy.clampToVisibility(actionable.visibility)
-
-        val draft = Draft.NewDraft(
-            contentWarning = actionable.spoilerText,
-            content = "",
-            sensitive = actionable.sensitive || pachliAccount.defaultMediaSensitivity,
-            visibility = actionable.visibility,
-            language = actionable.language ?: pachliAccount.defaultPostLanguage,
-            quotePolicy = quotePolicy,
-            quotedStatusId = actionable.statusId,
-        )
-
-        // TODO: Need to record the cursor position
-        return draft
-//        return draftRepository.saveDraft(pachliAccountId, draft).await()
-    }
-
-    suspend fun createDraftFromDeletedStatus(pachliAccountId: Long, deletedStatus: app.pachli.core.model.DeletedStatus): Draft {
-        val draft = Draft.NewDraft(
-            contentWarning = deletedStatus.spoilerText,
-            content = deletedStatus.text.orEmpty(),
-            sensitive = deletedStatus.sensitive,
-            visibility = deletedStatus.visibility,
-            language = deletedStatus.language,
-            quotePolicy = deletedStatus.quoteApproval?.asQuotePolicy() ?: AccountSource.QuotePolicy.NOBODY,
-            inReplyToId = deletedStatus.inReplyToId,
-            quotedStatusId = deletedStatus.quote?.statusId,
-        )
-
-        return draft
-//        return draftRepository.saveDraft(pachliAccountId, draft).await()
     }
 }

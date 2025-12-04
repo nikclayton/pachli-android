@@ -484,18 +484,15 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 startActivity(SearchActivityIntent(this@MainActivity, pachliAccountId))
                 true
             }
-
             R.id.action_remove_tab -> {
                 val timeline = tabAdapter.tabs[binding.viewPager.currentItem].timeline
                 viewModel.accept(InfallibleUiAction.TabRemoveTimeline(pachliAccountId, timeline))
                 true
             }
-
             R.id.action_tab_preferences -> {
                 startActivity(TabPreferenceActivityIntent(this, pachliAccountId))
                 true
             }
-
             else -> super.onOptionsItemSelected(menuItem)
         }
     }
@@ -534,7 +531,6 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 }
                 return true
             }
-
             KeyEvent.KEYCODE_SEARCH -> {
                 startActivityWithDefaultTransition(
                     SearchActivityIntent(this, pachliAccountId),
@@ -982,14 +978,12 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                             developerToolsUseCase.clearHomeTimelineCache(pachliAccountId)
                         }
                     }
-
                     1 -> {
                         Timber.d("Removing most recent 40 statuses")
                         lifecycleScope.launch {
                             developerToolsUseCase.deleteFirstKStatuses(pachliAccountId, 40)
                         }
                     }
-
                     2 -> {
                         Timber.d("Pruning cache")
                         lifecycleScope.launch {
@@ -1119,9 +1113,6 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 onBackPressedCallback.isEnabled = tab.position > 0 || binding.mainDrawerLayout.isOpen
 
                 supportActionBar?.title = tabs[tab.position].title(this@MainActivity)
-
-//                refreshComposeButtonState(tabs[tab.position])
-//                timeline = tabs[tab.position].timeline
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {}
@@ -1129,9 +1120,6 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             override fun onTabReselected(tab: TabLayout.Tab) {
                 val fragment = tabAdapter.getFragment(tab.position)
                 (fragment as? ReselectableFragment)?.onReselect()
-
-//                refreshComposeButtonState(tabs[tab.position])
-//                timeline = tabs[tab.position].timeline
             }
         }.also {
             activeTabLayout.addOnTabSelectedListener(it)
@@ -1142,31 +1130,7 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             (tabAdapter.getFragment(activeTabLayout.selectedTabPosition) as? ReselectableFragment)?.onReselect()
         }
 
-//        refreshComposeButtonState(tabs[position])
-//        timeline = tabs[tab.position].timeline
-
         tabAdapter.tabs.getOrNull(binding.viewPager.currentItem)?.timeline
-    }
-
-    private fun refreshComposeButtonState(tabViewData: TabViewData) {
-        // TODO: This was set up so that TrendingHashtags didn't display the
-        // ComposeButton, probably for padding reasons. That can be better
-        // fixed by modifying the layout to have enough padding, and then
-        // this isn't needed and the button is always shown.
-//        binding.composeButton.setOnClickListener {
-//            lifecycleScope.launch {
-//                val draft = timelineCases.compose(this@MainActivity, pachliAccountId, timeline)
-//                val composeOptions = ComposeOptions(draft = draft)
-//                val intent = ComposeActivityIntent(this@MainActivity, pachliAccountId, composeOptions)
-//                startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
-//            }
-//        }
-//        tabViewData.composeIntent?.let { intent ->
-//            binding.composeButton.setOnClickListener {
-//                startActivity(intent(applicationContext, pachliAccountId))
-//            }
-//            binding.composeButton.show()
-//        } ?: binding.composeButton.hide()
     }
 
     /**

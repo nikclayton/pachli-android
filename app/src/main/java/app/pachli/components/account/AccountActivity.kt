@@ -91,7 +91,6 @@ import app.pachli.databinding.ActivityAccountBinding
 import app.pachli.db.DraftsAlert
 import app.pachli.feature.lists.ListsForAccountFragment
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.usecase.TimelineCases
 import app.pachli.util.Error
 import app.pachli.util.Loading
 import app.pachli.util.Success
@@ -132,9 +131,6 @@ class AccountActivity :
 
     @Inject
     lateinit var clipboard: ClipboardUseCase
-
-    @Inject
-    lateinit var timelineCases: TimelineCases
 
     private val viewModel: AccountViewModel by viewModels(
         extrasProducer = {
@@ -986,16 +982,10 @@ class AccountActivity :
                 val activeAccount = accountManager.activeAccount!!
                 val draft = if (viewModel.isSelf) {
                     // TODO: Timeline.Home here is wrong
-//                ComposeOptions(kind = ComposeOptions.ComposeKind.NEW)
-//                    timelineCases.compose(this@AccountActivity, intent.pachliAccountId, Timeline.Home)
                     Draft.createDraft(this@AccountActivity, activeAccount, Timeline.Home)
                 } else {
                     // TODO: Timeline.Home here is wrong
                     Draft.createDraftMention(this@AccountActivity, activeAccount, Timeline.Home, it.username)
-//                    ComposeOptions(
-//                        mentionedUsernames = setOf(it.username),
-//                        kind = ComposeOptions.ComposeKind.NEW,
-//                    )
                 }
                 val composeOptions = ComposeOptions(draft = draft)
                 val intent = ComposeActivityIntent(this@AccountActivity, intent.pachliAccountId, composeOptions)

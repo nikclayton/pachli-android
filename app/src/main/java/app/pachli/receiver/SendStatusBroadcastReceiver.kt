@@ -97,7 +97,7 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
             } else {
                 val text = mentions.joinToString(" ", postfix = " ") { "@$it" } + message.toString()
 
-                val draft = Draft.NewDraft(
+                val draft = Draft(
                     id = 0L,
                     contentWarning = spoiler,
                     content = text,

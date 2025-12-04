@@ -66,28 +66,24 @@ data class TabViewData(
                 icon = R.drawable.ic_home_24dp,
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
             )
-
             Timeline.Notifications -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_notifications,
                 icon = R.drawable.ic_notifications_24dp,
                 fragment = { NotificationsFragment.newInstance(pachliAccountId) },
             )
-
             Timeline.PublicLocal -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_public_local,
                 icon = R.drawable.ic_local_24dp,
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
             )
-
             Timeline.PublicFederated -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_public_federated,
                 icon = app.pachli.core.designsystem.R.drawable.ic_public_24dp,
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
             )
-
             Timeline.Conversations -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_direct_messages,
@@ -101,21 +97,18 @@ data class TabViewData(
                 icon = R.drawable.ic_trending_up_24px,
                 fragment = { TrendingTagsFragment.newInstance(pachliAccountId) },
             )
-
             Timeline.TrendingLinks -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_public_trending_links,
                 icon = R.drawable.ic_newspaper_24,
                 fragment = { TrendingLinksFragment.newInstance(pachliAccountId) },
             )
-
             Timeline.TrendingStatuses -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_public_trending_statuses,
                 icon = R.drawable.ic_whatshot_24,
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
             )
-
             is Timeline.Hashtags -> TabViewData(
                 timeline = timeline,
                 text = R.string.hashtags,
@@ -135,21 +128,18 @@ data class TabViewData(
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
                 title = { timeline.title },
             )
-
             Timeline.Bookmarks -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_bookmarks,
                 icon = app.pachli.core.ui.R.drawable.ic_bookmark_active_24dp,
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
             )
-
             Timeline.Favourites -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_favourites,
                 icon = R.drawable.ic_favourite_filled_24dp,
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
             )
-
             is Timeline.Link -> TabViewData(
                 timeline = timeline,
                 text = -1,
@@ -157,13 +147,9 @@ data class TabViewData(
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
                 title = { timeline.title },
             )
-
             is Timeline.User.Pinned -> throw IllegalArgumentException("can't add to tab: $timeline")
-
             is Timeline.User.Posts -> throw IllegalArgumentException("can't add to tab: $timeline")
-
             is Timeline.User.Replies -> throw IllegalArgumentException("can't add to tab: $timeline")
-
             is Timeline.Quote -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_quotes,

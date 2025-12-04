@@ -106,18 +106,7 @@ class DraftsActivity : BaseActivity(), DraftActionListener {
     override fun onOpenDraft(draft: Draft) {
         val composeOptions = ComposeOptions(
             draft = draft,
-//            draftId = draft.id,
-//            content = draft.content,
-//            contentWarning = draft.contentWarning,
-//            draftAttachments = draft.attachments,
-//            poll = draft.poll,
-//            sensitive = draft.sensitive,
-//            visibility = draft.visibility,
-//            scheduledAt = draft.scheduledAt?.let { Date(it.toEpochMilli()) },
-//            language = draft.language,
-//            statusId = draft.statusId,
             kind = ComposeOptions.ComposeKind.EDIT_DRAFT,
-//            quotePolicy = draft.quotePolicy,
         )
 
         if (draft.inReplyToId == null && draft.quotedStatusId == null) {
@@ -202,11 +191,11 @@ class DraftsActivity : BaseActivity(), DraftActionListener {
     }
 
     override fun onDeleteDraft(draft: Draft) {
-        viewModel.deleteDraft(pachliAccountId, draft.id)
-//        Snackbar.make(binding.root, getString(R.string.draft_deleted), Snackbar.LENGTH_LONG)
-//            .setAction(R.string.action_undo) {
-//                viewModel.restoreDraft(draft)
-//            }
-//            .show()
+        viewModel.deleteDraft(pachliAccountId, draft)
+        Snackbar.make(binding.root, getString(R.string.draft_deleted), Snackbar.LENGTH_LONG)
+            .setAction(R.string.action_undo) {
+                viewModel.restoreDraft(pachliAccountId, draft)
+            }
+            .show()
     }
 }

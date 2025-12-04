@@ -378,27 +378,6 @@ class SendStatusService : Service() {
             failedToSend = true,
             failedToSendNew = failedToSendAlert,
         )
-
-//        draftHelper.saveDraft(
-//            draftId = status.draftId,
-//            pachliAccountId = status.pachliAccountId,
-//            inReplyToId = status.inReplyToId,
-// //            content = status.text,
-// //            contentWarning = status.warningText,
-// //            sensitive = status.sensitive,
-// //            visibility = Status.Visibility.byString(status.visibility),
-//            mediaUris = status.media.map { it.uri },
-//            mediaDescriptions = status.media.map { it.description },
-//            mediaFocus = status.media.map { it.focus },
-// //            poll = status.poll,
-// //            failedToSend = true,
-//            failedToSendAlert = failedToSendAlert,
-// //            scheduledAt = status.scheduledAt,
-//            language = status.language,
-//            statusId = status.statusId,
-//            quotePolicy = status.quotePolicy,
-//            quotedStatusId = status.quotedStatusId,
-//        )
     }
 
     private fun cancelSendingIntent(statusId: Int): PendingIntent {
@@ -488,24 +467,10 @@ class SendStatusService : Service() {
 @Parcelize
 data class StatusToSend(
     val draft: Draft,
-//    val text: String,
-//    val warningText: String,
-//    val visibility: String,
-//    val sensitive: Boolean,
     val media: List<MediaToSend>,
-//    val scheduledAt: Date?,
-//    val inReplyToId: String?,
-//    val poll: NewPoll?,
-//    val replyingStatusContent: String?,
-//    val replyingStatusAuthorUsername: String?,
     val pachliAccountId: Long,
-//    val draftId: Long,
     val idempotencyKey: String,
     var retries: Int,
-//    val language: String?,
-//    val statusId: String?,
-//    val quotedStatusId: String?,
-//    val quotePolicy: AccountSource.QuotePolicy?,
 ) : Parcelable
 
 @Parcelize

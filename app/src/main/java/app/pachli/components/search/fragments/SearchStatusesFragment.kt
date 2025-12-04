@@ -254,10 +254,6 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
             ComposeOptions(
                 draft = Draft.createDraftReply(viewModel.activeAccount!!, status.actionable),
                 referencingStatus = ReferencingStatus.ReplyingTo.from(status.actionable),
-//                replyVisibility = actionableStatus.visibility,
-//                contentWarning = actionableStatus.spoilerText,
-//                mentionedUsernames = mentionedUsernames,
-//                language = actionableStatus.language,
                 kind = ComposeOptions.ComposeKind.NEW,
             ),
         )
@@ -273,8 +269,6 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
         val composeOptions = ComposeOptions(
             draft = Draft.createDraftQuote(viewModel.activeAccount!!, status.actionableStatus),
             referencingStatus = ReferencingStatus.Quoting.from(actionableStatus),
-//            contentWarning = actionableStatus.spoilerText,
-//            language = actionableStatus.language,
             kind = ComposeOptions.ComposeKind.NEW,
         )
 
@@ -519,9 +513,10 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                     lifecycleScope.launch {
                         timelineCases.delete(statusViewData.status.actionableId).onSuccess {
                             val sourceStatus = it.body.asModel()
-                            val draft = timelineCases.createDraftFromDeletedStatus(pachliAccountId, sourceStatus)
+                            val draft = sourceStatus.asDraft()
                             val composeOptions = ComposeOptions(
                                 draft = draft,
+                                mediaAttachments = sourceStatus.attachments,
 //                            content = sourceStatus.text,
                                 referencingStatus = statusViewData.status.inReplyToId?.let {
                                     ReferencingStatus.ReplyId(it)
@@ -562,6 +557,7 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                 val draft = status.asDraft(source)
                 val composeOptions = ComposeOptions(
                     draft = draft,
+                    mediaAttachments = status.attachments,
 //                    content = source.text,
                     referencingStatus = status.inReplyToId?.let {
                         ReferencingStatus.ReplyId(it)

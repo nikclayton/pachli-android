@@ -352,38 +352,24 @@ class IntentRouterActivityIntent(context: Context, pachliAccountId: Long) : Inte
  */
 class ComposeActivityIntent(context: Context, pachliAccountId: Long, composeOptions: ComposeOptions) : Intent() {
     /**
+     * @property draft Draft being edited
      * @property referencingStatus The status the user is referencing while
      * composing. This could be a status they are replying to, or a status
      * they are quoting.
-     * @property statusId If editing an existing status, the ID of the status
-     * being edited.
-     * @property quotePolicy Initial quote policy when composing. If null the
-     * user's default quote policy is used.
+     * @property mediaAttachments
+     * @property modifiedInitialState
+     * @property kind
+     * @property initialCursorPosition
      */
     @Parcelize
     data class ComposeOptions(
-        val scheduledTootId: String? = null,
-//        val draftId: Int? = null,
         val draft: Draft,
-//        val content: String? = null,
-        val mediaUrls: List<String>? = null,
-//        val mediaDescriptions: List<String>? = null,
-//        val mentionedUsernames: Set<String>? = null,
         val replyVisibility: Status.Visibility? = null,
-//        val visibility: Status.Visibility? = null,
-//        val contentWarning: String? = null,
         val referencingStatus: ReferencingStatus? = null,
         val mediaAttachments: List<Attachment>? = null,
-//        val draftAttachments: List<DraftAttachment>? = null,
-//        val scheduledAt: Date? = null,
-//        val sensitive: Boolean? = null,
-//        val poll: NewPoll? = null,
         val modifiedInitialState: Boolean? = null,
-//        val language: String? = null,
-        val statusId: String? = null,
         val kind: ComposeKind? = null,
         val initialCursorPosition: InitialCursorPosition = InitialCursorPosition.END,
-//        val quotePolicy: AccountSource.QuotePolicy? = null,
     ) : Parcelable {
         /**
          * Status' kind. This particularly affects how the status is handled if the user
@@ -528,7 +514,7 @@ class ComposeActivityIntent(context: Context, pachliAccountId: Long, composeOpti
         setClassName(context, QuadrantConstants.COMPOSE_ACTIVITY)
         this.pachliAccountId = pachliAccountId
 
-        composeOptions?.let { putExtra(EXTRA_COMPOSE_OPTIONS, it) }
+        putExtra(EXTRA_COMPOSE_OPTIONS, composeOptions)
 
         // Support multiple concurrent compositions/replies. FLAG_ACTIVITY_NEW_DOCUMENT
         // opens ComposeActivity as a new task (selectable on the "Recents" screen), and
@@ -543,8 +529,8 @@ class ComposeActivityIntent(context: Context, pachliAccountId: Long, composeOpti
     companion object {
         private const val EXTRA_COMPOSE_OPTIONS = "app.pachli.EXTRA_COMPOSE_OPTIONS"
 
-        /** @return the [ComposeOptions] passed in this intent, or null */
-        fun getComposeOptions(intent: Intent) = IntentCompat.getParcelableExtra(intent, EXTRA_COMPOSE_OPTIONS, ComposeOptions::class.java)
+        /** @return the [ComposeOptions] passed in this intent. */
+        fun getComposeOptions(intent: Intent) = IntentCompat.getParcelableExtra(intent, EXTRA_COMPOSE_OPTIONS, ComposeOptions::class.java)!!
     }
 }
 
