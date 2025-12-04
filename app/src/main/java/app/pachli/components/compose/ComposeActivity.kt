@@ -1547,18 +1547,14 @@ class ComposeActivity :
     private fun sendStatus(pachliAccountId: Long) {
         enableButtons(false, viewModel.editing)
         val contentText = binding.composeEditField.text.toString()
-        var spoilerText = ""
-        if (viewModel.showContentWarning.value) {
-            spoilerText = binding.composeContentWarningField.text.toString()
-        }
         val statusLength = viewModel.statusLength.value
         if ((statusLength <= 0 || contentText.isBlank()) && viewModel.media.value.isEmpty()) {
             binding.composeEditField.error = getString(R.string.error_empty)
             enableButtons(true, viewModel.editing)
         } else if (statusLength <= maximumTootCharacters) {
             lifecycleScope.launch {
-                viewModel.sendStatus(contentText, spoilerText, pachliAccountId)
-                deleteDraftAndFinish()
+                viewModel.sendStatus(pachliAccountId)
+                finish()
             }
         } else {
             binding.composeEditField.error = getString(R.string.error_compose_character_limit)
@@ -1720,19 +1716,21 @@ class ComposeActivity :
     }
 
     private fun handleCloseButton() {
-        val contentText = binding.composeEditField.text.toString()
-        val contentWarning = binding.composeContentWarningField.text.toString()
         when (viewModel.closeConfirmationKind.value) {
             ConfirmationKind.NONE -> {
                 viewModel.stopUploads()
                 finish()
             }
+
             ConfirmationKind.SAVE_OR_DISCARD ->
-                getSaveAsDraftOrDiscardDialog(contentText, contentWarning).show()
+                getSaveAsDraftOrDiscardDialog().show()
+
             ConfirmationKind.UPDATE_OR_DISCARD ->
-                getUpdateDraftOrDiscardDialog(contentText, contentWarning).show()
+                getUpdateDraftOrDiscardDialog().show()
+
             ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_CHANGES ->
                 getContinueEditingOrDiscardDialog().show()
+
             ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_DRAFT ->
                 getDeleteEmptyDraftOrContinueEditing().show()
         }
@@ -1741,16 +1739,17 @@ class ComposeActivity :
     /**
      * User is editing a new post, and can either save the changes as a draft or discard them.
      */
-    private fun getSaveAsDraftOrDiscardDialog(contentText: String, contentWarning: String): AlertDialog.Builder {
+    private fun getSaveAsDraftOrDiscardDialog(): AlertDialog.Builder {
         val builder = AlertDialog.Builder(this)
             .setTitle(R.string.compose_save_draft)
             .setPositiveButton(R.string.action_save) { _, _ ->
                 viewModel.stopUploads()
-                saveDraftAndFinish(contentText, contentWarning)
+                saveDraftAndFinish()
             }
             .setNegativeButton(R.string.action_delete) { _, _ ->
                 viewModel.stopUploads()
-                deleteDraftAndFinish()
+                viewModel.deleteDraft()
+                finish()
             }
 
         if (viewModel.media.value.isNotEmpty()) {
@@ -1764,12 +1763,12 @@ class ComposeActivity :
      * User is editing an existing draft, and can either update the draft with the new changes or
      * discard them.
      */
-    private fun getUpdateDraftOrDiscardDialog(contentText: String, contentWarning: String): AlertDialog.Builder {
+    private fun getUpdateDraftOrDiscardDialog(): AlertDialog.Builder {
         val builder = AlertDialog.Builder(this)
             .setTitle(R.string.compose_save_draft)
             .setPositiveButton(R.string.action_save) { _, _ ->
                 viewModel.stopUploads()
-                saveDraftAndFinish(contentText, contentWarning)
+                saveDraftAndFinish()
             }
             .setNegativeButton(R.string.action_discard) { _, _ ->
                 viewModel.stopUploads()
@@ -1807,8 +1806,8 @@ class ComposeActivity :
         return AlertDialog.Builder(this)
             .setMessage(R.string.compose_delete_draft)
             .setPositiveButton(R.string.action_delete) { _, _ ->
-                viewModel.deleteDraft()
                 viewModel.stopUploads()
+                viewModel.deleteDraft()
                 finish()
             }
             .setNegativeButton(R.string.action_continue_edit) { _, _ ->
@@ -1816,12 +1815,7 @@ class ComposeActivity :
             }
     }
 
-    private fun deleteDraftAndFinish() {
-        viewModel.deleteDraft()
-        finish()
-    }
-
-    private fun saveDraftAndFinish(contentText: String, contentWarning: String) {
+    private fun saveDraftAndFinish() {
         lifecycleScope.launch {
             val dialog = if (viewModel.shouldShowSaveDraftDialog()) {
                 ProgressDialog.show(
@@ -1834,7 +1828,7 @@ class ComposeActivity :
             } else {
                 null
             }
-            viewModel.saveDraft(contentText, contentWarning)
+            viewModel.saveDraft()
             dialog?.cancel()
             finish()
         }
@@ -1895,7 +1889,7 @@ class ComposeActivity :
      * Media queued for upload.
      *
      * @param account
-     * @param localId Pachli identified for this media, while it's queued.
+     * @param localId Pachli identifier for this media, while it's queued.
      * @param uri Local URI for this media on device.
      * @param type Media's [Type].
      * @param mediaSize Media size in bytes, or [app.pachli.util.MEDIA_SIZE_UNKNOWN]. See [getMediaSize].

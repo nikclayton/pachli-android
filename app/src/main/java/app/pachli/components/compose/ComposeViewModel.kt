@@ -48,7 +48,6 @@ import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.model.AccountSource
 import app.pachli.core.model.Attachment
 import app.pachli.core.model.Draft
-import app.pachli.core.model.DraftAttachment
 import app.pachli.core.model.NewPoll
 import app.pachli.core.model.ServerOperation
 import app.pachli.core.model.Status
@@ -198,10 +197,6 @@ class ComposeViewModel @AssistedInject constructor(
     /** The current language for this status. */
     internal var language: String? = initialLanguage
 
-    /** The ID of the draft. May be 0 if the caller did not save the draft. */
-    private val draftId = composeOptions.draft.id
-
-    //    private val scheduledTootId: String? = composeOptions.scheduledTootId
     private val originalStatusId: String? = composeOptions.draft.statusId
     private var startingVisibility: Status.Visibility = Status.Visibility.UNKNOWN
 
@@ -551,9 +546,7 @@ class ComposeViewModel @AssistedInject constructor(
 
     fun deleteDraft() {
         viewModelScope.launch {
-            (composeOptions.draft.attachments as? List<DraftAttachment>)?.let {
-                draftRepository.deleteDraftAndAttachments(pachliAccountId, composeOptions.draft)
-            }
+            draftRepository.deleteDraftAndAttachments(pachliAccountId, composeOptions.draft)
         }
     }
 
@@ -568,7 +561,7 @@ class ComposeViewModel @AssistedInject constructor(
         }
     }
 
-    suspend fun saveDraft(content: String, contentWarning: String): Result<Draft, DraftError> {
+    suspend fun saveDraft(): Result<Draft, DraftError> {
         val inReplyToId = (composeOptions.referencingStatus as? ReferencingStatus.ReplyingTo)?.statusId
             ?: (composeOptions.referencingStatus as? ReferencingStatus.ReplyId)?.statusId
 
@@ -583,7 +576,7 @@ class ComposeViewModel @AssistedInject constructor(
         val draftToSave = Draft(
             id = composeOptions.draft.id,
             contentWarning = contentWarning,
-            content = content,
+            content = content.toString(),
             sensitive = draftAttachments.isNotEmpty() && (markMediaAsSensitive.value || showContentWarning.value),
             visibility = statusVisibility.value,
             language = language,
@@ -604,15 +597,13 @@ class ComposeViewModel @AssistedInject constructor(
      * Send status to the server.
      * Uses current state plus provided arguments.
      */
-    suspend fun sendStatus(
-        content: String,
-        spoilerText: String,
-        pachliAccountId: Long,
-    ) {
-        val draft = saveDraft(content, spoilerText).getOrElse {
+    suspend fun sendStatus(pachliAccountId: Long) {
+        val draft = saveDraft().getOrElse {
             // TODO: Handle error
             return
-        }
+        }.copy(
+            contentWarning = if (showContentWarning.value) contentWarning else "",
+        )
 
         if (composeOptions.draft.scheduledAt != null && composeOptions.draft.statusId != null) {
             api.deleteScheduledStatus(composeOptions.draft.statusId!!)
