@@ -181,7 +181,8 @@ fun CreateBranchCommand.info(t: Terminal): CreateBranchCommand {
 
 fun FetchCommand.info(t: Terminal): FetchCommand {
     val remote = this.getPrivateProperty<FetchCommand, String>("remote") ?: ""
-    t.info("- git fetch $remote")
+    val initialBranch = this.getPrivateProperty<FetchCommand, String>("initialBranch") ?: ""
+    t.info("- git fetch $remote $initialBranch")
     return this
 }
 

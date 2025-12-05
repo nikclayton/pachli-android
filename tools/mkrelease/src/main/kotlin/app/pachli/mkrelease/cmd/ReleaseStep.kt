@@ -138,6 +138,11 @@ data object LockWeblate : ReleaseStep() {
     class WeblateNotLocked : Exception("Weblate project is not locked")
 
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        if (spec.sourceBranch != "main") {
+            t.info("Source branch is '${spec.sourceBranch}', not 'main', skipping locking Weblate")
+            return null
+        }
+
         val client = HttpClient(CIO) {
             install(ContentNegotiation) { json() }
         }
@@ -242,6 +247,11 @@ data object EnsureUpToDateTranslations : ReleaseStep() {
     class WeblateNeedsPush : Exception("Weblate has local changes to push")
 
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        if (spec.sourceBranch != "main") {
+            t.info("Source branch is '${spec.sourceBranch}', not 'main', skipping checking translations")
+            return null
+        }
+
         val client = HttpClient(CIO) {
             install(ContentNegotiation) { json() }
         }
@@ -289,8 +299,6 @@ data object PreparePachliForkRepository : ReleaseStep() {
 
         t.info("default branch: $defaultBranch")
 
-        throw RuntimeException("Breaking here")
-
         // git checkout main
         git.checkout()
             .setName(defaultBranch)
@@ -321,8 +329,12 @@ data object PreparePachliForkRepository : ReleaseStep() {
             .info(t)
             .call()
 
-        // Checkout `main` branch,
-        git.checkout().setName("main").info(t).call()
+        // Checkout source branch.
+        git.checkout()
+            .setName(spec.sourceBranch)
+            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+            .info(t)
+            .call()
 
         // Pull everything.
         // - FF_ONLY, a non-FF pull indicates a merge commit is needed, which is bad
@@ -577,7 +589,7 @@ ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
 
         t.info("- Edit CHANGELOG.md for this release")
         t.muted("  To see what's changed between this release and the last,")
-        t.muted("  https://github.com/pachli/pachli-android/compare/${spec.prevVersion.versionTag()}...main")
+        t.muted("  https://github.com/pachli/pachli-android/compare/${spec.prevVersion.versionTag()}...${spec.sourceBranch}")
         TermUi.editFile(changeLogFile.toString())
 
         // TODO: Check the "ENTER NEW LOG HERE" string has been removed
@@ -649,7 +661,7 @@ ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
 @Serializable
 data object CreateReleaseBranchPullRequest : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        t.info("- Create pull request at https://github.com/${config.repositoryMain.owner}/${config.repositoryMain.repo}/compare/main...${config.repositoryFork.owner}:${config.repositoryFork.repo}:${spec.releaseBranch()}?expand=1")
+        t.info("- Create pull request at https://github.com/${config.repositoryMain.owner}/${config.repositoryMain.repo}/compare/${spec.sourceBranch}...${config.repositoryFork.owner}:${config.repositoryFork.repo}:${spec.releaseBranch()}?expand=1")
         return null
     }
 }
@@ -849,10 +861,13 @@ data object FetchSourceBranchToTag : ReleaseStep() {
         val git = ensureRepo(t, repo.gitUrl, root).also { it.ensureClean(t) }
 
         git.fetch()
+            .setInitialBranch(spec.sourceBranch)
             .setProgressMonitor(TextProgressMonitor())
             .info(t)
             .call()
-        git.checkout().setName(spec.sourceBranch).info(t).call()
+        git.checkout()
+            .setName(spec.sourceBranch)
+            .info(t).call()
         git.pull()
             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
             .setProgressMonitor(TextProgressMonitor())
@@ -984,6 +999,13 @@ data object CreateGithubRelease : ReleaseStep() {
 @Serializable
 data object RunOrangeReleaseWorkflow : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
+        // A custom source branch suggests the blue release is not being cut from `main`,
+        // so an orange release is inappropriate (and might be a backwards step).
+        if (spec.sourceBranch != "main") {
+            t.info("Source branch is '${spec.sourceBranch}', not 'main', skipping orange release")
+            return null
+        }
+
         val releaseWorkflowName = "upload-orange-release.yml"
         val releaseTag = spec.releaseTag()
         t.info("Running orange release workflow with $releaseTag")
@@ -1068,7 +1090,7 @@ data object AttachApkToGithubRelease : ReleaseStep() {
             val repo = config.repositoryMain
             val root = config.pachliMainRoot
             val git = ensureRepo(t, repo.gitUrl, root).also { it.ensureClean(t) }
-            git.repository.exactRef("refs/heads/main").objectId.abbreviate(8).name()
+            git.repository.exactRef("refs/heads/${spec.sourceBranch}").objectId.abbreviate(8).name()
         }
 
         // e.g., "Pachli_2.2.0_11_741bf56f_blueGithub_release-signed.apk"
