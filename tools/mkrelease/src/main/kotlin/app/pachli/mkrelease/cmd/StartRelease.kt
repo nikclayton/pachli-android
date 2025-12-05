@@ -59,6 +59,12 @@ class StartRelease : CliktCommand(name = "start") {
         text = "Go to GitHub, create an issue to track this release",
     )
 
+    private val sourceBranch by option().prompt(
+        text = "Branch to release from",
+        default = "main",
+        showDefault = true,
+    )
+
     override fun run() {
         val log = globalFlags.log
 //        (log.underlyingLogger as Logger).level = if (globalFlags.verbose) Level.INFO else Level.WARN
@@ -110,6 +116,7 @@ class StartRelease : CliktCommand(name = "start") {
             releaseType = releaseType,
 //            finalVersion = finalRelease,
             prevVersion = prevRelease,
+            sourceBranch = sourceBranch,
         )
 
         releaseSpec.save(SPEC_FILE)

@@ -289,6 +289,8 @@ data object PreparePachliForkRepository : ReleaseStep() {
 
         t.info("default branch: $defaultBranch")
 
+        throw RuntimeException("Breaking here")
+
         // git checkout main
         git.checkout()
             .setName(defaultBranch)
@@ -483,7 +485,7 @@ data object UpdateFilesForRelease : ReleaseStep() {
         val changelogEntries = git.log()
             .addRange(
                 git.getActualRefObjectId(spec.prevVersion.versionTag()),
-                git.getActualRefObjectId("main"),
+                git.getActualRefObjectId(spec.sourceBranch),
             )
             .info(t).call().mapNotNull {
                 val components = it.shortMessage.split(": ", limit = 2)
@@ -609,6 +611,7 @@ ${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
                         TermUi.editFile(changeLogFile.toString())
                         createFastlaneFromChangelog(t, changeLogFile, fastlaneFile, spec.thisVersion.versionName())
                     }
+
                     "f" -> TermUi.editFile(fastlaneFile.toString())
                 }
                 git.add()
@@ -713,12 +716,17 @@ data object WaitForPullRequestMerged : ReleaseStep() {
                 for (review in reviews) {
                     when (review.state) {
                         GHPullRequestReviewState.PENDING -> t.info("  ${review.user.login}: PENDING")
+
                         GHPullRequestReviewState.APPROVED -> t.success("  ${review.user.login}: APPROVED")
+
                         GHPullRequestReviewState.CHANGES_REQUESTED,
                         GHPullRequestReviewState.REQUEST_CHANGES,
                         -> t.danger("  ${review.user.login}: CHANGES_REQUESTED")
+
                         GHPullRequestReviewState.COMMENTED -> t.warning("  ${review.user.login}: COMMENTED")
+
                         GHPullRequestReviewState.DISMISSED -> t.warning("  ${review.user.login}: DISMISSED")
+
                         null -> t.danger("  ${review.user.login}: null state")
                     }
                     lines++
@@ -827,7 +835,7 @@ data object MergeDevelopToMain : ReleaseStep() {
 }
 
 @Serializable
-data object FetchMainToTag : ReleaseStep() {
+data object FetchSourceBranchToTag : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
         val root = config.pachliMainRoot
@@ -844,7 +852,7 @@ data object FetchMainToTag : ReleaseStep() {
             .setProgressMonitor(TextProgressMonitor())
             .info(t)
             .call()
-        git.checkout().setName("main").info(t).call()
+        git.checkout().setName(spec.sourceBranch).info(t).call()
         git.pull()
             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
             .setProgressMonitor(TextProgressMonitor())
@@ -865,7 +873,7 @@ data object FetchMainToTag : ReleaseStep() {
             .call()
             .forEach { println(it.message()) }
 
-        t.confirm("Does that look like the correct commit on main?", abort = true)
+        t.confirm("Does that look like the correct commit on ${spec.sourceBranch}?", abort = true)
 
 //        t.info("- Syncing main branch")
 //        git.checkout()
@@ -904,13 +912,13 @@ data object FetchMainToTag : ReleaseStep() {
 }
 
 @Serializable
-data object TagMainAsRelease : ReleaseStep() {
+data object TagSourceBranchAsRelease : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
         val root = config.pachliMainRoot
         val git = ensureRepo(t, repo.gitUrl, root).also { it.ensureClean(t) }
 
-        git.checkout().setName("main").info(t).call()
+        git.checkout().setName(spec.sourceBranch).info(t).call()
         val tag = spec.releaseTag()
         git.tag().setCredentialsProvider(PasswordCredentialsProvider(t))
             .setName(tag)
@@ -924,7 +932,7 @@ data object TagMainAsRelease : ReleaseStep() {
 }
 
 @Serializable
-data object PushTaggedMain : ReleaseStep() {
+data object PushTaggedSourceBranch : ReleaseStep() {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         val repo = config.repositoryMain
         val root = config.pachliMainRoot

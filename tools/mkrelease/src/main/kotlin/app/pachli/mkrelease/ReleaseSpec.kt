@@ -20,18 +20,18 @@
 package app.pachli.mkrelease
 
 import app.pachli.mkrelease.cmd.ReleaseStep
+import java.io.File
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import java.io.File
 
 enum class ReleaseType {
     PATCH,
     MINOR,
-    MAJOR;
+    MAJOR,
+    ;
 
     companion object {
         fun from(s: String) = enumValueOf<ReleaseType>(s.uppercase())
@@ -64,19 +64,24 @@ data class ReleaseSpec(
     val nextStep: ReleaseStep? = null,
 
     /** The pull request that contains the new version code, name, changelog, etc */
-    val pullRequest: GitHubPullRequest? = null
+    val pullRequest: GitHubPullRequest? = null,
+
+    /** The branch the release is cut from. */
+    val sourceBranch: String = "main",
 ) {
     fun save(file: File) {
         val json = Json { prettyPrint = true }
         file.writeText(json.encodeToString(this))
     }
 
-    /** Branch name for this this version */
+    /** Branch name for this version */
     fun releaseBranch() = when (thisVersion) {
 //        is PachliVersion.Beta -> "${trackingIssue.number}-${thisVersion.major}.${thisVersion.minor}-b${thisVersion.beta}"
 //        is PachliVersion.Release -> "${trackingIssue.number}-${thisVersion.major}.${thisVersion.minor}"
         is PachliVersion.Beta -> "release-${thisVersion.major}.${thisVersion.minor}.${thisVersion.patch}-b${thisVersion.beta}"
+
         is PachliVersion.Release -> "release-${thisVersion.major}.${thisVersion.minor}.${thisVersion.patch}"
+
         else -> throw(Exception("releaseBranch() without setting thisVersion first"))
     }
 

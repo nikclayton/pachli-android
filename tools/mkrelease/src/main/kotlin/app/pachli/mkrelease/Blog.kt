@@ -182,7 +182,7 @@ fun getChangelog(t: Terminal, git: Git, spec: ReleaseSpec): MutableMap<Section, 
 //        )
         .addRange(
             git.getActualRefObjectId(previousVersionTag),
-            git.getActualRefObjectId("main"),
+            git.getActualRefObjectId(spec.sourceBranch),
         )
         .info(t).call().mapNotNull {
             val components = it.shortMessage.split(": ", limit = 2)
