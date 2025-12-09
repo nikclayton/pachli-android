@@ -26,9 +26,21 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.mordant.rendering.TextStyles
+import java.security.Security
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 
 class FinalRelease : CliktCommand(name = "final") {
     private val globalFlags by requireObject<GlobalFlags>()
+
+    init {
+        // Ensure Bouncy Castle is registered, otherwise we may not have
+        // AES/OCB support needed for some passphrase-protected encrypted
+        // GPG keys.
+        // See https://github.com/eclipse-jgit/jgit/issues/173.
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+            Security.addProvider(BouncyCastleProvider())
+        }
+    }
 
     override fun run() {
         val config = Config.from(CONFIG_FILE)

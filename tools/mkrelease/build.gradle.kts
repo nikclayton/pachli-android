@@ -35,8 +35,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
     // JGit with BouncyCastle (GPG) support
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.5.0.202303070854-r")
-    implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:6.5.0.202303070854-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:7.4.0.202509020913-r")
 
     // Gradle API
     // https://docs.gradle.org/current/userguide/third_party_integration.html#embedding
