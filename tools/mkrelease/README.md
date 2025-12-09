@@ -135,3 +135,49 @@ Creates the template blog post
 ```shell
 ./runtools mkrelease --verbose blog
 ```
+
+### Creating a release from a branch other than main
+
+1. Get the upstream tags
+
+```shell
+git fetch upstream
+```
+
+2. Checkout the last release tag
+
+```shell
+git checkout v....
+```
+
+3. Create the source branch for the release
+
+```shell
+git switch -c source-vX.Y.Z
+```
+
+4. Cherry pick the specific commits to appear in the new release
+
+...
+
+5. Push the `source...` branch upstream, so `mkrelease` can use it.
+
+```shell
+git push upstream
+```
+
+6. Checkout `mkrelease` branch
+
+```shell
+git checkout mkrelease
+```
+
+7. Start release process
+
+```shell
+./runtools mkrelease --verbose start --release-type patch --issue-url http://x
+```
+
+Choose the `source-vX.Y.Z` branch created earlier.
+
+Rest of the release should proceed the same.

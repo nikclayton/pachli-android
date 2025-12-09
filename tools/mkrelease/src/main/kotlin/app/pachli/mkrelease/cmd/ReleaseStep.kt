@@ -330,11 +330,15 @@ data object PreparePachliForkRepository : ReleaseStep() {
             .call()
 
         // Checkout source branch.
-        git.checkout()
-            .setName(spec.sourceBranch)
-            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-            .info(t)
-            .call()
+        if (spec.sourceBranch != "main") {
+            git.checkout()
+                .setCreateBranch(!git.hasBranch("refs/heads/${spec.sourceBranch}"))
+                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                .setName(spec.sourceBranch)
+                .setStartPoint("upstream/${spec.sourceBranch}")
+                .info(t)
+                .call()
+        }
 
         // Pull everything.
         // - FF_ONLY, a non-FF pull indicates a merge commit is needed, which is bad
@@ -542,12 +546,13 @@ data object UpdateFilesForRelease : ReleaseStep() {
                 // so insert the placeholder immediately before.
                 if (line.startsWith("## v")) {
                     w.println("## v${spec.thisVersion.versionName()}")
+                    w.println()
                     if (changelogEntries[Features]?.isNotEmpty() == true) {
                         w.println(
                             """
 ### New features and other improvements
 
-${changelogEntries[Features]?.joinToString("\n") { "-${it.withLinks()}" }}
+${changelogEntries[Features]?.joinToString("\n") { "- ${it.withLinks()}" }}
 """,
                         )
                     }
@@ -557,7 +562,7 @@ ${changelogEntries[Features]?.joinToString("\n") { "-${it.withLinks()}" }}
                             """
 ### Significant bug fixes
 
-${changelogEntries[Fixes]?.joinToString("\n") { "-${it.withLinks()}" }}
+${changelogEntries[Fixes]?.joinToString("\n") { "- ${it.withLinks()}" }}
 
                             """.trimIndent(),
                         )
@@ -568,7 +573,7 @@ ${changelogEntries[Fixes]?.joinToString("\n") { "-${it.withLinks()}" }}
                             """
 ### Translations
 
-${changelogEntries[Translations]?.joinToString("\n") { "-${it.withLinks()}" }}
+${changelogEntries[Translations]?.joinToString("\n") { "- ${it.withLinks()}" }}
 
                             """.trimIndent(),
                         )
@@ -866,7 +871,10 @@ data object FetchSourceBranchToTag : ReleaseStep() {
             .info(t)
             .call()
         git.checkout()
+            .setCreateBranch(!git.hasBranch("refs/heads/${spec.sourceBranch}"))
+            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
             .setName(spec.sourceBranch)
+            .setStartPoint("origin/${spec.sourceBranch}")
             .info(t).call()
         git.pull()
             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
