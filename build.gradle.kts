@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.aboutlibraries) apply false
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.quadrant) apply false
-    id("com.autonomousapps.dependency-analysis") version "2.1.1"
+    id("com.autonomousapps.dependency-analysis") version "3.5.1"
 //    id("com.autonomousapps.build-health") version "2.1.1" // apply false
 }
 
