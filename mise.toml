@@ -1,0 +1,4 @@
+[tools]
+uv = "latest"
+node = "latest"
+"npm:vector-drawable-svg" = "latest"

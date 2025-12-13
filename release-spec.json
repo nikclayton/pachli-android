@@ -1,0 +1,14 @@
+{
+    "trackingIssue": {
+        "url": "http://x"
+    },
+    "releaseType": "PATCH",
+    "prevVersion": {
+        "type": "app.pachli.mkrelease.PachliVersion.Release",
+        "major": 3,
+        "minor": 2,
+        "patch": 4,
+        "versionCode": 43
+    },
+    "sourceBranch": "source-v3.2.4"
+}
