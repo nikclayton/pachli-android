@@ -27,6 +27,7 @@ import androidx.room.Upsert
 import app.pachli.core.database.Converters
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.PachliAccount
+import app.pachli.core.model.AccountSource
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
@@ -260,7 +261,6 @@ WHERE id = :accountId
     )
     suspend fun setNotificationsFilter(accountId: Long, value: String)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -269,9 +269,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setDefaultPostPrivacy(accountId: Long, value: Status.Visibility)
+    suspend fun setDefaultPostPrivacy(accountId: Long, value: Status.Visibility)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -280,9 +279,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setDefaultMediaSensitivity(accountId: Long, value: Boolean)
+    suspend fun setDefaultMediaSensitivity(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -291,9 +289,18 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setDefaultPostLanguage(accountId: Long, value: String)
+    suspend fun setDefaultPostLanguage(accountId: Long, value: String)
 
-    // TODO: Should be suspend
+    @Query(
+        """
+UPDATE AccountEntity
+SET
+    defaultQuotePolicy = :value
+WHERE id = :accountId
+""",
+    )
+    suspend fun setDefaultQuotePolicy(accountId: Long, value: AccountSource.QuotePolicy)
+
     @Query(
         """
 UPDATE AccountEntity
@@ -302,9 +309,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsEnabled(accountId: Long, value: Boolean)
+    suspend fun setNotificationsEnabled(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -313,9 +319,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsMentioned(accountId: Long, value: Boolean)
+    suspend fun setNotificationsMentioned(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -324,9 +329,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsFollowed(accountId: Long, value: Boolean)
+    suspend fun setNotificationsFollowed(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -335,9 +339,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsFollowRequested(accountId: Long, value: Boolean)
+    suspend fun setNotificationsFollowRequested(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -346,9 +349,28 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsReblogged(accountId: Long, value: Boolean)
+    suspend fun setNotificationsReblogged(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
+    @Query(
+        """
+UPDATE AccountEntity
+SET
+    notificationsQuotes = :value
+WHERE id = :accountId
+""",
+    )
+    suspend fun setNotificationsQuotes(accountId: Long, value: Boolean)
+
+    @Query(
+        """
+UPDATE AccountEntity
+SET
+    notificationsQuotedUpdates = :value
+WHERE id = :accountId
+""",
+    )
+    suspend fun setNotificationsQuotedUpdate(accountId: Long, value: Boolean)
+
     @Query(
         """
 UPDATE AccountEntity
@@ -357,9 +379,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsFavorited(accountId: Long, value: Boolean)
+    suspend fun setNotificationsFavorited(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -368,9 +389,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsPolls(accountId: Long, value: Boolean)
+    suspend fun setNotificationsPolls(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -379,9 +399,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsSubscriptions(accountId: Long, value: Boolean)
+    suspend fun setNotificationsSubscriptions(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -390,9 +409,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsSignUps(accountId: Long, value: Boolean)
+    suspend fun setNotificationsSignUps(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -401,9 +419,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsUpdates(accountId: Long, value: Boolean)
+    suspend fun setNotificationsUpdates(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -412,9 +429,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsReports(accountId: Long, value: Boolean)
+    suspend fun setNotificationsReports(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -423,9 +439,18 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationsSeveredRelationships(accountId: Long, value: Boolean)
+    suspend fun setNotificationsSeveredRelationships(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
+    @Query(
+        """
+UPDATE AccountEntity
+SET
+    notificationsModerationWarnings = :value
+WHERE id = :accountId
+        """,
+    )
+    suspend fun setNotificationsModerationWarnings(accountId: Long, value: Boolean)
+
     @Query(
         """
 UPDATE AccountEntity
@@ -434,9 +459,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationSound(accountId: Long, value: Boolean)
+    suspend fun setNotificationSound(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -445,9 +469,8 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationVibration(accountId: Long, value: Boolean)
+    suspend fun setNotificationVibration(accountId: Long, value: Boolean)
 
-    // TODO: Should be suspend
     @Query(
         """
 UPDATE AccountEntity
@@ -456,7 +479,7 @@ SET
 WHERE id = :accountId
 """,
     )
-    fun setNotificationLight(accountId: Long, value: Boolean)
+    suspend fun setNotificationLight(accountId: Long, value: Boolean)
 
     @Query(
         """

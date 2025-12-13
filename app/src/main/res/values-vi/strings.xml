@@ -97,7 +97,6 @@
     <string name="action_add_poll">Tạo bình chọn</string>
     <string name="action_add_media">Thêm tệp</string>
     <string name="action_open_in_web">Mở trong trình duyệt</string>
-    <string name="action_view_media">Media</string>
     <string name="action_view_follow_requests">Yêu cầu theo dõi</string>
     <string name="action_view_domain_mutes">Những máy chủ đã ẩn</string>
     <string name="action_view_blocks">Những người đã chặn</string>
@@ -115,24 +114,11 @@
     <string name="action_unfollow">Bỏ theo dõi</string>
     <string name="action_follow">Theo dõi</string>
     <string name="action_compose">Soạn tút</string>
-    <string name="action_unfavourite">Bỏ lưu</string>
-    <string name="action_bookmark">Lưu</string>
-    <string name="action_favourite">Thích</string>
-    <string name="action_unreblog">Hủy đăng lại</string>
-    <string name="action_reblog">Đăng lại</string>
-    <string name="action_reply">Trả lời</string>
     <string name="action_quick_reply">Trả lời nhanh</string>
     <string name="report_comment_hint">Ghi chú\?</string>
     <string name="report_username_format">Báo cáo @%s</string>
     <string name="footer_empty">Trượt xuống để tải nội dung!</string>
-    <string name="post_content_show_less">Thu gọn</string>
-    <string name="post_content_show_more">Tiếp tục đọc</string>
-    <string name="post_content_warning_show_less">Thu gọn</string>
-    <string name="post_content_warning_show_more">Mở rộng</string>
     <string name="post_sensitive_media_directions">Hiển thị</string>
-    <string name="post_media_hidden_title">Media bị ẩn</string>
-    <string name="post_sensitive_media_title">Nhạy cảm</string>
-    <string name="post_boosted_format">%s đăng lại</string>
     <string name="title_scheduled_posts">Những tút đã lên lịch</string>
     <string name="title_edit_profile">Chỉnh sửa hồ sơ</string>
     <string name="title_follow_requests">Yêu cầu theo dõi</string>
@@ -223,7 +209,6 @@
     <string name="notification_favourite_description">Thông báo khi ai đó thích tút của bạn</string>
     <string name="notification_favourite_name">Lượt thích</string>
     <string name="filter_dialog_whole_word">Toàn bộ chữ có chứa cụm từ này</string>
-    <string name="filter_edit_title">Sửa bộ lọc</string>
     <string name="filter_addition_title">Thêm bộ lọc</string>
     <string name="pref_title_thread_filter_keywords">Thảo luận</string>
     <string name="pref_title_public_filter_keywords">Liên hợp</string>
@@ -231,19 +216,7 @@
     <string name="pref_title_alway_open_spoiler">Hiện nội dung ẩn</string>
     <string name="pref_title_alway_show_sensitive_media">Hiện nội dung nhạy cảm</string>
     <string name="follows_you">Đang theo dõi bạn</string>
-    <string name="abbreviated_seconds_ago">%ds</string>
-    <string name="abbreviated_minutes_ago">%d phút</string>
-    <string name="abbreviated_hours_ago">%d giờ</string>
-    <string name="abbreviated_days_ago">%d ngày</string>
-    <string name="abbreviated_years_ago">%d năm</string>
-    <string name="abbreviated_in_seconds">%ds</string>
-    <string name="abbreviated_in_minutes">%d phút</string>
-    <string name="abbreviated_in_hours">%d giờ</string>
-    <string name="abbreviated_in_days">%d ngày</string>
-    <string name="abbreviated_in_years">%d năm</string>
     <string name="state_follow_requested">Yêu cầu theo dõi</string>
-    <string name="post_media_video">Video</string>
-    <string name="post_media_images">Hình ảnh</string>
     <string name="post_share_link">URL tút</string>
     <string name="post_share_content">Nội dung tút</string>
     <string name="pref_title_confirm_reblogs">Hỏi trước khi đăng lại tút</string>
@@ -273,30 +246,8 @@
     <string name="report_remote_instance">Gửi cho %s</string>
     <string name="hint_additional_info">Thêm ghi chú</string>
     <string name="report_sent_success">Đã gửi báo cáo @%s</string>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="other">%d giây</item>
-    </plurals>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="other">%d phút</item>
-    </plurals>
-    <plurals name="poll_timespan_hours">
-        <item quantity="other">%d giờ</item>
-    </plurals>
-    <plurals name="poll_timespan_days">
-        <item quantity="other">%d ngày</item>
-    </plurals>
     <string name="poll_ended_created">Cuộc bình chọn của bạn đã kết thúc</string>
     <string name="poll_ended_voted">Cuộc bình chọn đã kết thúc</string>
-    <string name="poll_vote">Bình chọn</string>
-    <string name="poll_info_closed">xong</string>
-    <string name="poll_info_time_absolute">kết thúc lúc %s</string>
-    <plurals name="poll_info_people">
-        <item quantity="other">%s người bình chọn</item>
-    </plurals>
-    <plurals name="poll_info_votes">
-        <item quantity="other">%s người bình chọn</item>
-    </plurals>
-    <string name="poll_info_format"><!-- 15 người bình chọn • còn 1 giờ -->%1$s • %2$s</string>
     <string name="compose_preview_image_description">Mô tả cho hình %s</string>
     <string name="compose_shortcut_short_label">Soạn</string>
     <string name="compose_shortcut_long_label">Soạn tút</string>
@@ -308,27 +259,11 @@
     <string name="hashtags">Hashtag</string>
     <string name="edit_hashtag_hint">Không cần dấu #</string>
     <string name="add_hashtag_title">Thêm hashtag</string>
-    <string name="description_poll">Lượt bình chọn: %1$s, %2$s, %3$s, %4$s; %5$s</string>
-    <string name="description_visibility_direct">Nhắn riêng</string>
-    <string name="description_visibility_private">Người theo dõi</string>
-    <string name="description_visibility_unlisted">Hạn chế</string>
-    <string name="description_visibility_public">Công khai</string>
-    <string name="description_post_bookmarked">Đã lưu</string>
-    <string name="description_post_favourited">Đã thích</string>
-    <string name="description_post_reblogged">Đã đăng lại</string>
-    <string name="description_post_media_no_description_placeholder">Không có mô tả</string>
-    <string name="description_post_cw">Nội dung ẩn: %s</string>
     <string name="conversation_more_recipients">%1$s, %2$s và %3$d người nữa</string>
     <string name="conversation_2_recipients">%1$s và %2$s</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="title_favourited_by">Lượt thích tút này</string>
     <string name="title_reblogged_by">Lượt đăng lại tút này</string>
-    <plurals name="reblogs">
-        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Đăng lại</item>
-    </plurals>
-    <plurals name="favs">
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Thích</item>
-    </plurals>
     <string name="pin_action">Ghim</string>
     <string name="unpin_action">Gỡ ghim</string>
     <string name="label_remote_account">Nội dung có thể hiển thị không đầy đủ. Nhấn để mở xem chi tiết trên trình duyệt.</string>
@@ -359,7 +294,6 @@
     <string name="add_account_description">Thêm tài khoản Mastodon</string>
     <string name="filter_add_description">Cụm từ muốn lọc</string>
     <string name="filter_dialog_whole_word_description">Chỉ có tác dụng nếu cụm từ là chữ-số trùng khớp, viết liền không dấu cách</string>
-    <string name="description_post_media">Media: %s</string>
     <string name="dialog_mute_hide_notifications">Ẩn thông báo</string>
     <string name="action_unmute_desc">Bỏ ẩn %s</string>
     <string name="action_unmute_domain">Bỏ ẩn %s</string>
@@ -388,11 +322,8 @@
     </plurals>
     <string name="duration_indefinite">Vĩnh viễn</string>
     <string name="label_duration">Thời hạn</string>
-    <string name="post_media_attachments">Đính kèm</string>
-    <string name="post_media_audio">Âm thanh</string>
     <string name="drafts_post_reply_removed">Đã xóa tút trả lời nháp</string>
     <string name="draft_deleted">Đã xóa tút lên lịch</string>
-    <string name="drafts_failed_loading_reply">Chưa tải được bình luận</string>
     <string name="drafts_post_failed_to_send">Đăng tút không thành công!</string>
     <string name="pref_title_animate_custom_emojis">Emoji GIF</string>
     <string name="action_unsubscribe_account">Dừng nhận thông báo</string>
@@ -420,7 +351,6 @@
     <string name="saving_draft">Đang lưu nháp…</string>
     <string name="title_migration_relogin">Đăng nhập lại để hiện thông báo đẩy</string>
     <string name="account_date_joined">Đã tham gia %1$s</string>
-    <string name="status_count_one_plus">1+</string>
     <string name="action_edit_image">Sửa ảnh</string>
     <string name="error_image_edit_failed">Hình ảnh này không thể sửa.</string>
     <string name="error_following_hashtag_format">Lỗi khi theo dõi #%s</string>
@@ -438,7 +368,6 @@
     <string name="action_add_reaction">biểu cảm</string>
     <string name="notification_report_description">Thông báo báo cáo kiểm duyệt</string>
     <string name="action_unfollow_hashtag_format">Bỏ theo dõi #%s\?</string>
-    <string name="status_created_at_now">vừa xong</string>
     <string name="notification_report_format">Báo cáo mới trên %s</string>
     <string name="notification_header_report_format">%s báo cáo %s</string>
     <plurals name="notification_summary_report_format">
@@ -452,8 +381,6 @@
     <string name="report_category_other">Khác</string>
     <string name="error_following_hashtags_unsupported">Máy chủ này không hỗ trợ theo dõi hashtag.</string>
     <string name="title_followed_hashtags">Những hashtag theo dõi</string>
-    <string name="post_edited">Sửa %s</string>
-    <string name="description_post_edited">Đã sửa</string>
     <string name="pref_default_post_language">Ngôn ngữ đăng mặc định</string>
     <string name="language_display_name_format">%s (%s)</string>
     <string name="error_muting_hashtag_format">Lỗi khi ẩn #%s</string>
@@ -461,7 +388,6 @@
     <string name="hint_media_description_missing">Hình ảnh phải có mô tả.</string>
     <string name="error_status_source_load">Không xác định được trạng thái máy chủ.</string>
     <string name="pref_title_http_proxy_port_message">Cổng nên là khoảng giữa %d đến %d</string>
-    <string name="post_media_alt">✦</string>
     <string name="action_discard">Hủy bỏ thay đổi</string>
     <string name="action_continue_edit">Tiếp tục sửa</string>
     <string name="unsaved_changes">Thay đổi chưa được lưu.</string>
@@ -506,8 +432,6 @@
     <string name="ui_error_reject_follow_request">Từ chối theo dõi không thành công: %s</string>
     <string name="ui_success_accepted_follow_request">Đã chấp nhận yêu cầu theo dõi</string>
     <string name="ui_success_rejected_follow_request">Đã từ chối yêu cầu theo dõi</string>
-    <string name="status_filtered_show_anyway">Vẫn hiện</string>
-    <string name="status_filter_placeholder_label_format">Đã lọc: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Người</string>
     <string name="hint_filter_title">Bộ lọc của tôi</string>
     <string name="label_filter_title">Tên bộ lọc</string>

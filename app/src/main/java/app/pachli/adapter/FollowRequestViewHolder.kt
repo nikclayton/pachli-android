@@ -28,17 +28,18 @@ import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.string.unicodeWrap
+import app.pachli.core.data.model.NotificationViewData.FollowRequestNotificationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.TimelineAccount
 import app.pachli.core.network.parseAsMastodonHtml
+import app.pachli.core.preferences.PronounDisplay
 import app.pachli.core.ui.LinkListener
 import app.pachli.core.ui.emojify
 import app.pachli.core.ui.loadAvatar
 import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ItemFollowRequestBinding
 import app.pachli.interfaces.AccountActionListener
-import app.pachli.viewdata.NotificationViewData
 import com.bumptech.glide.RequestManager
 
 class FollowRequestViewHolder(
@@ -47,11 +48,11 @@ class FollowRequestViewHolder(
     private val accountActionListener: AccountActionListener,
     private val linkListener: LinkListener,
     private val showHeader: Boolean,
-) : NotificationsPagingAdapter.ViewHolder, RecyclerView.ViewHolder(binding.root) {
+) : NotificationsPagingAdapter.ViewHolder<FollowRequestNotificationViewData>, RecyclerView.ViewHolder(binding.root) {
 
     override fun bind(
-        viewData: NotificationViewData,
-        payloads: List<*>?,
+        viewData: FollowRequestNotificationViewData,
+        payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
     ) {
         // Skip updates with payloads. That indicates a timestamp update, and
@@ -63,6 +64,12 @@ class FollowRequestViewHolder(
             statusDisplayOptions.animateAvatars,
             statusDisplayOptions.animateEmojis,
             statusDisplayOptions.showBotOverlay,
+            when (statusDisplayOptions.pronounDisplay) {
+                PronounDisplay.EVERYWHERE -> true
+                PronounDisplay.WHEN_COMPOSING,
+                PronounDisplay.HIDE,
+                -> false
+            },
         )
 
         setupActionListener(accountActionListener, viewData.account.id)
@@ -73,12 +80,13 @@ class FollowRequestViewHolder(
         animateAvatar: Boolean,
         animateEmojis: Boolean,
         showBotOverlay: Boolean,
+        showPronouns: Boolean,
     ) {
         val wrappedName = account.name.unicodeWrap()
         val emojifiedName: CharSequence = wrappedName.emojify(
             glide,
             account.emojis,
-            itemView,
+            binding.displayNameTextView,
             animateEmojis,
         )
         binding.displayNameTextView.text = emojifiedName
@@ -94,9 +102,13 @@ class FollowRequestViewHolder(
                     wrappedName.length,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
                 )
-            }.emojify(glide, account.emojis, itemView, animateEmojis)
+            }.emojify(glide, account.emojis, binding.notificationTextView, animateEmojis)
         }
         binding.notificationTextView.visible(showHeader)
+
+        if (showPronouns) binding.accountPronouns.text = account.pronouns
+        binding.accountPronouns.visible(showPronouns && account.pronouns?.isBlank() == false)
+
         val formattedUsername = itemView.context.getString(DR.string.post_username_format, account.username)
         binding.usernameTextView.text = formattedUsername
         if (account.note.isEmpty()) {
@@ -111,6 +123,8 @@ class FollowRequestViewHolder(
         val avatarRadius = binding.avatar.context.resources.getDimensionPixelSize(DR.dimen.avatar_radius_48dp)
         loadAvatar(glide, account.avatar, binding.avatar, avatarRadius, animateAvatar)
         binding.avatarBadge.visible(showBotOverlay && account.bot)
+
+        binding.roleChipGroup.setRoles(account.roles)
     }
 
     fun setupActionListener(listener: AccountActionListener, accountId: String) {

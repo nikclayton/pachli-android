@@ -17,20 +17,21 @@
 
 package app.pachli.core.data.repository.notifications
 
+import android.content.Context
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.filter
 import app.pachli.core.common.di.ApplicationScope
-import app.pachli.core.data.model.StatusViewData
+import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.dao.NotificationDao
 import app.pachli.core.database.dao.RemoteKeyDao
 import app.pachli.core.database.dao.StatusDao
 import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.database.di.TransactionProvider
-import app.pachli.core.database.model.FilterActionUpdate
 import app.pachli.core.database.model.NotificationAccountFilterDecisionUpdate
 import app.pachli.core.database.model.NotificationData
 import app.pachli.core.database.model.NotificationEntity
@@ -38,6 +39,7 @@ import app.pachli.core.database.model.RemoteKeyEntity
 import app.pachli.core.database.model.RemoteKeyEntity.RemoteKeyKind
 import app.pachli.core.database.model.StatusEntity
 import app.pachli.core.database.model.TimelineAccountEntity
+import app.pachli.core.database.model.asEntity
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.Notification
@@ -45,12 +47,17 @@ import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.model.TimelineAccount
 import app.pachli.core.network.model.asModel
+import app.pachli.core.network.model.asNetworkModel
+import app.pachli.core.network.model.pronouns
 import app.pachli.core.network.retrofit.MastodonApi
 import com.github.michaelbull.result.onSuccess
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -58,7 +65,9 @@ import timber.log.Timber
  * Repository for [NotificationData] interacting with the remote [MastodonApi]
  * using the local database as a cache.
  */
+@Singleton
 class NotificationsRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
     @ApplicationScope private val externalScope: CoroutineScope,
     private val mastodonApi: MastodonApi,
     private val transactionProvider: TransactionProvider,
@@ -66,18 +75,37 @@ class NotificationsRepository @Inject constructor(
     private val notificationDao: NotificationDao,
     private val remoteKeyDao: RemoteKeyDao,
     private val statusDao: StatusDao,
-    private val statusRepository: StatusRepository,
-) {
+    statusRepository: OfflineFirstStatusRepository,
+) : StatusRepository by statusRepository {
     private var factory: InvalidatingPagingSourceFactory<Int, NotificationData>? = null
 
     private val remoteKeyTimelineId = Timeline.Notifications.remoteKeyTimelineId
 
     /**
+     * Set of notification types that **must** have a non-null status. Some servers
+     * break this contract, and notifications from those servers must be filtered
+     * out.
+     *
+     * See https://github.com/tuskyapp/Tusky/issues/2252.
+     */
+    private val notificationTypesWithStatus = setOf(
+        NotificationEntity.Type.FAVOURITE,
+        NotificationEntity.Type.REBLOG,
+        NotificationEntity.Type.STATUS,
+        NotificationEntity.Type.MENTION,
+        NotificationEntity.Type.POLL,
+        NotificationEntity.Type.UPDATE,
+        NotificationEntity.Type.QUOTE,
+        NotificationEntity.Type.QUOTED_UPDATE,
+    )
+
+    /**
+     * @param excludeTypes Types to filter from the results.
      * @return Notifications for [pachliAccountId].
      */
     @OptIn(ExperimentalPagingApi::class)
-    suspend fun notifications(pachliAccountId: Long): Flow<PagingData<NotificationData>> {
-        factory = InvalidatingPagingSourceFactory { notificationDao.pagingSource(pachliAccountId) }
+    suspend fun notifications(pachliAccountId: Long, excludeTypes: Set<Notification.Type>): Flow<PagingData<NotificationData>> {
+        factory = InvalidatingPagingSourceFactory { notificationDao.getNotificationsWithQuote(pachliAccountId) }
 
         // Room is row-keyed, not item-keyed. Find the user's REFRESH key, then find the
         // row of the notification with that ID, and use that as the Pager's initialKey.
@@ -91,6 +119,7 @@ class NotificationsRepository @Inject constructor(
                 enablePlaceholders = true,
             ),
             remoteMediator = NotificationsRemoteMediator(
+                context,
                 pachliAccountId,
                 mastodonApi,
                 transactionProvider,
@@ -98,9 +127,16 @@ class NotificationsRepository @Inject constructor(
                 remoteKeyDao,
                 notificationDao,
                 statusDao,
+                excludeTypes.asNetworkModel(),
             ),
             pagingSourceFactory = factory!!,
         ).flow
+            .map { pagingData ->
+                // Filter out notifications that should have a non-null status but don't.
+                pagingData.filter { notificationData ->
+                    !notificationTypesWithStatus.contains(notificationData.notification.type) || notificationData.status != null
+                }
+            }
     }
 
     fun invalidate() = factory?.invalidate()
@@ -143,13 +179,13 @@ class NotificationsRepository @Inject constructor(
     }.await()
 
     /**
-     * Sets the [FilterAction] for [notificationId] to [FilterAction.NONE]
+     * Sets the [FilterAction] for [statusId] to [FilterAction.NONE]
      *
      * @param pachliAccountId
-     * @param notificationId Notification's server ID.
+     * @param statusId Notification's server ID.
      */
-    fun clearContentFilter(pachliAccountId: Long, notificationId: String) = externalScope.launch {
-        notificationDao.upsert(FilterActionUpdate(pachliAccountId, notificationId, FilterAction.NONE))
+    fun clearContentFilter(pachliAccountId: Long, statusId: String) = externalScope.launch {
+        statusDao.clearWarning(pachliAccountId, statusId)
     }
 
     /**
@@ -171,30 +207,6 @@ class NotificationsRepository @Inject constructor(
                 accountFilterDecision,
             ),
         )
-    }
-
-    /**
-     * Saves a copy of [statusViewData] with [StatusViewData.isCollapsed] set to
-     * [isCollapsed].
-     */
-    fun setContentCollapsed(pachliAccountId: Long, statusViewData: StatusViewData, isCollapsed: Boolean) = externalScope.launch {
-        statusRepository.setContentCollapsed(pachliAccountId, statusViewData.id, isCollapsed)
-    }
-
-    /**
-     * Saves a copy of [statusViewData] with [StatusViewData.isShowingContent] set to
-     * [isShowingContent].
-     */
-    fun setShowingContent(pachliAccountId: Long, statusViewData: StatusViewData, isShowingContent: Boolean) = externalScope.launch {
-        statusRepository.setContentShowing(pachliAccountId, statusViewData.id, isShowingContent)
-    }
-
-    /**
-     * Saves a copy of [statusViewData] with [StatusViewData.isExpanded] set to
-     * [isExpanded].
-     */
-    fun setExpanded(pachliAccountId: Long, statusViewData: StatusViewData, isExpanded: Boolean) = externalScope.launch {
-        statusRepository.setExpanded(pachliAccountId, statusViewData.id, isExpanded)
     }
 
     companion object {
@@ -227,6 +239,9 @@ fun Notification.Type.asEntity() = when (this) {
     Notification.Type.UPDATE -> NotificationEntity.Type.UPDATE
     Notification.Type.REPORT -> NotificationEntity.Type.REPORT
     Notification.Type.SEVERED_RELATIONSHIPS -> NotificationEntity.Type.SEVERED_RELATIONSHIPS
+    Notification.Type.MODERATION_WARNING -> NotificationEntity.Type.MODERATION_WARNING
+    Notification.Type.QUOTE -> NotificationEntity.Type.QUOTE
+    Notification.Type.QUOTED_UPDATE -> NotificationEntity.Type.QUOTED_UPDATE
 }
 
 /**
@@ -245,41 +260,49 @@ fun TimelineAccount.asEntity(pachliAccountId: Long) = TimelineAccountEntity(
     bot = bot,
     createdAt = createdAt,
     limited = limited,
+    roles = roles.orEmpty().asModel(),
+    pronouns = fields?.pronouns(),
 )
 
 /**
  * Converts a network Status to an entity, associated with [pachliAccountId].
  */
-fun Status.asEntity(pachliAccountId: Long) = StatusEntity(
-    serverId = id,
-    url = actionableStatus.url,
-    timelineUserId = pachliAccountId,
-    authorServerId = actionableStatus.account.id,
-    inReplyToId = actionableStatus.inReplyToId,
-    inReplyToAccountId = actionableStatus.inReplyToAccountId,
-    content = actionableStatus.content,
-    createdAt = actionableStatus.createdAt.time,
-    editedAt = actionableStatus.editedAt?.time,
-    emojis = actionableStatus.emojis.asModel(),
-    reblogsCount = actionableStatus.reblogsCount,
-    favouritesCount = actionableStatus.favouritesCount,
-    reblogged = actionableStatus.reblogged,
-    favourited = actionableStatus.favourited,
-    bookmarked = actionableStatus.bookmarked,
-    sensitive = actionableStatus.sensitive,
-    spoilerText = actionableStatus.spoilerText,
-    visibility = actionableStatus.visibility.asModel(),
-    attachments = actionableStatus.attachments.asModel(),
-    mentions = actionableStatus.mentions.asModel(),
-    tags = actionableStatus.tags?.asModel(),
-    application = actionableStatus.application?.asModel(),
-    reblogServerId = reblog?.id,
-    reblogAccountId = reblog?.let { account.id },
-    poll = actionableStatus.poll?.asModel(),
-    muted = actionableStatus.muted,
-    pinned = actionableStatus.pinned == true,
-    card = actionableStatus.card?.asModel(),
-    repliesCount = actionableStatus.repliesCount,
-    language = actionableStatus.language,
-    filtered = actionableStatus.filtered?.asModel(),
-)
+// Used in NotificationsRemoteMediator, need to look at that in more detail so
+// this can be made private (maybe -- there might be a case for converting a
+// a single status to a single entity, but probably not a TimelineStatusWithAccount
+// as NotificationsRemoteMediator does.
+fun Status.asEntity(pachliAccountId: Long) = this.asModel().asEntity(pachliAccountId)
+
+/**
+ * Converts a single [status] to the one-or-more `StatusEntity` used to
+ * represent the status.
+ *
+ * A single [Status] will be stored as:
+ *
+ * - 1 x [StatusEntity] for the top-level status
+ * - 1 x [StatusEntity] if the top-level status is a reblog, to hold the
+ * status being reblogged.
+ * - N x [StatusEntity] to hold the chain of quotes.
+ */
+fun Status.asEntities(pachliAccountId: Long): List<StatusEntity> {
+    return buildList {
+        val status = this@asEntities
+
+        add(status.asEntity(pachliAccountId))
+        status.reblog?.let {
+            // Recurse, to pick up any quotes on the reblogged status.
+            addAll(it.asEntities(pachliAccountId))
+        }
+
+        var next = status.quote?.quotedStatus
+
+        // TODO: Possibly shouldn't recurse here, should just process the first
+        // quote, if any.
+        while (next != null) {
+            add(next.asEntity(pachliAccountId))
+            next.reblog?.let { add(it.asEntity(pachliAccountId)) }
+
+            next = next.quote?.quotedStatus
+        }
+    }
+}

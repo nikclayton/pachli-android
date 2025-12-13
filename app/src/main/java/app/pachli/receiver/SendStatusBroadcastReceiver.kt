@@ -40,7 +40,7 @@ import app.pachli.components.notifications.REPLY_ACTION
 import app.pachli.core.common.string.randomAlphanumericString
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.designsystem.R as DR
-import app.pachli.core.network.model.Status
+import app.pachli.core.model.Status
 import app.pachli.service.SendStatusService
 import app.pachli.service.StatusToSend
 import dagger.hilt.android.AndroidEntryPoint
@@ -115,6 +115,11 @@ class SendStatusBroadcastReceiver : BroadcastReceiver() {
                         retries = 0,
                         language = null,
                         statusId = null,
+                        // Can't quote when quick replying.
+                        quotedStatusId = null,
+                        // Can't set approval policy when quick-replying, server should use
+                        // the user's default policy.
+                        quotePolicy = null,
                     ),
                 )
 

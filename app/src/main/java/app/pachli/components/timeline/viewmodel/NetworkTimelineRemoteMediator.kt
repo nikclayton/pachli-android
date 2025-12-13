@@ -17,6 +17,7 @@
 
 package app.pachli.components.timeline.viewmodel
 
+import android.content.Context
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.LoadType
@@ -24,18 +25,21 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import app.pachli.BuildConfig
 import app.pachli.core.database.dao.RemoteKeyDao
+import app.pachli.core.database.model.RemoteKeyEntity
 import app.pachli.core.database.model.RemoteKeyEntity.RemoteKeyKind
-import app.pachli.core.model.Status
+import app.pachli.core.database.model.TimelineStatusWithQuote
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.model.Status as NetworkStatus
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.network.retrofit.apiresult.ApiResponse
 import app.pachli.core.network.retrofit.apiresult.ApiResult
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getOrElse
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.withLock
 import okhttp3.Headers
 import timber.log.Timber
 
@@ -51,64 +55,113 @@ typealias FetchPage = suspend (maxId: String?, minId: String?, limit: Int) -> Ap
 /** Remote mediator for accessing timelines that are not backed by the database. */
 @OptIn(ExperimentalPagingApi::class)
 class NetworkTimelineRemoteMediator(
+    private val context: Context,
     private val api: MastodonApi,
     private val pachliAccountId: Long,
-    private val factory: InvalidatingPagingSourceFactory<String, Status>,
+    private val factory: InvalidatingPagingSourceFactory<String, TimelineStatusWithQuote>,
     private val pageCache: PageCache,
     private val timeline: Timeline,
     private val remoteKeyDao: RemoteKeyDao,
-) : RemoteMediator<String, Status>() {
-    override suspend fun load(loadType: LoadType, state: PagingState<String, Status>): MediatorResult {
-        val page = when (loadType) {
-            LoadType.REFRESH -> {
-                // Find the closest page to the current position
-                val itemKey = timeline.remoteKeyTimelineId?.let { refreshKeyPrimaryKey ->
-                    remoteKeyDao.remoteKeyForKind(pachliAccountId, refreshKeyPrimaryKey, RemoteKeyKind.REFRESH)?.key
-                } ?: state.anchorPosition?.let { state.closestItemToPosition(it) }?.id?.let { ik ->
-                    // Find the page that contains the item, so the remote key can be determined
-                    val pageContainingItem = pageCache.getPageById(ik)
+) : RemoteMediator<String, TimelineStatusWithQuote>() {
+    override suspend fun load(loadType: LoadType, state: PagingState<String, TimelineStatusWithQuote>): MediatorResult {
+        Timber.d("timeline: $timeline, load(), type: $loadType")
 
-                    // Double check the item appears in the page
-                    if (BuildConfig.DEBUG) {
-                        pageContainingItem ?: throw java.lang.IllegalStateException("page with $ik not found")
-                        pageContainingItem.data.find { it.id == ik }
-                            ?: throw java.lang.IllegalStateException("$ik not found in returned page, might be Mastodon bug https://github.com/mastodon/mastodon/issues/30172")
+        return pageCache.withLock {
+            val remoteKeyTimelineId = timeline.remoteKeyTimelineId
+
+            val page = when (loadType) {
+                LoadType.REFRESH -> {
+                    // Find the itemkey. This may be legitimately null if there is no key,
+                    // or the user is performing a "Load newest" operation.
+                    val itemKey = if (remoteKeyTimelineId != null) {
+                        remoteKeyDao.remoteKeyForKind(pachliAccountId, remoteKeyTimelineId, RemoteKeyKind.REFRESH)?.key
+                    } else {
+                        state.anchorPosition?.let { state.closestItemToPosition(it) }?.timelineStatus?.status?.serverId?.let { ik ->
+                            // Find the page that contains the item, so the remote key can be determined
+                            val pageContainingItem = pageCache.getPageById(ik)
+
+                            // Double check the item appears in the page
+                            if (BuildConfig.DEBUG) {
+                                pageContainingItem ?: throw java.lang.IllegalStateException("page with $ik not found")
+                                pageContainingItem.data.find { it.statusId == ik }
+                                    ?: throw java.lang.IllegalStateException("$ik not found in returned page, might be Mastodon bug https://github.com/mastodon/mastodon/issues/30172")
+                            }
+
+                            // The desired key is the prevKey of the page immediately before this one
+                            pageCache.getPrevPage(pageContainingItem?.prevKey)?.prevKey
+                        }
                     }
-
-                    // The desired key is the prevKey of the page immediately before this one
-                    pageCache.getPrevPage(pageContainingItem?.prevKey)?.prevKey
+                    Timber.d("timeline: $timeline, itemKey: $itemKey")
+                    Page.tryFrom(getInitialPage(itemKey, state.config.initialLoadSize))
                 }
-                Page.tryFrom(getInitialPage(itemKey, state.config.initialLoadSize))
-            }
-            LoadType.APPEND -> {
-                val key = pageCache.lastPage?.nextKey ?: return MediatorResult.Success(endOfPaginationReached = true)
-                Page.tryFrom(fetchStatusPageByKind(loadType, key, state.config.pageSize))
-            }
-            LoadType.PREPEND -> {
-                val key = pageCache.firstPage?.prevKey ?: return MediatorResult.Success(endOfPaginationReached = true)
-                Page.tryFrom(fetchStatusPageByKind(loadType, key, state.config.pageSize))
-            }
-        }.getOrElse { return MediatorResult.Error(it.throwable) }
 
-        Timber.d("- load(), type = %s", loadType)
+                LoadType.APPEND -> {
+                    val key = pageCache.lastPage?.nextKey ?: return MediatorResult.Success(endOfPaginationReached = true)
+                    Page.tryFrom(fetchStatusPageByKind(loadType, key, state.config.pageSize))
+                }
 
-        val endOfPaginationReached = page.data.isEmpty()
-        if (!endOfPaginationReached) {
-            synchronized(pageCache) {
-                pageCache.add(page, loadType)
-                Timber.d(
-                    "  Page %s complete for %s, now got %d pages",
-                    loadType,
-                    timeline,
-                    pageCache.size,
-                )
-                pageCache.debug()
+                LoadType.PREPEND -> {
+                    val key = pageCache.firstPage?.prevKey ?: return MediatorResult.Success(endOfPaginationReached = true)
+                    Page.tryFrom(fetchStatusPageByKind(loadType, key, state.config.pageSize))
+                }
+            }.getOrElse { return MediatorResult.Error(it.asThrowable(context)) }
+
+            Timber.d("- $timeline, load(), type = %s, items: %d", loadType, page.data.size)
+            Timber.d("  $timeline, first id: ${page.data.firstOrNull()?.statusId}")
+            Timber.d("  $timeline, last  id: ${page.data.lastOrNull()?.statusId}")
+
+            val endOfPaginationReached = when (loadType) {
+                LoadType.REFRESH -> page.data.isEmpty() || (page.prevKey == null && page.nextKey == null)
+                LoadType.PREPEND -> page.data.isEmpty() || page.prevKey == null
+                LoadType.APPEND -> page.data.isEmpty() || page.nextKey == null
             }
+
+            when (loadType) {
+                LoadType.REFRESH -> {
+                    remoteKeyTimelineId?.let { timelineId ->
+                        remoteKeyDao.deletePrevNext(pachliAccountId, timelineId)
+                        remoteKeyDao.upsert(
+                            RemoteKeyEntity(pachliAccountId, timelineId, RemoteKeyKind.NEXT, page.nextKey),
+                        )
+                        remoteKeyDao.upsert(
+                            RemoteKeyEntity(pachliAccountId, timelineId, RemoteKeyKind.PREV, page.prevKey),
+                        )
+                    }
+                    pageCache.clear()
+                    if (page.data.isNotEmpty()) pageCache.add(page)
+                }
+
+                LoadType.PREPEND -> {
+                    if (remoteKeyTimelineId != null && page.prevKey != null) {
+                        remoteKeyDao.upsert(
+                            RemoteKeyEntity(pachliAccountId, remoteKeyTimelineId, RemoteKeyKind.PREV, page.prevKey),
+                        )
+                    }
+                    if (page.data.isNotEmpty()) pageCache.prepend(page)
+                }
+
+                LoadType.APPEND -> {
+                    if (remoteKeyTimelineId != null && page.nextKey != null) {
+                        remoteKeyDao.upsert(
+                            RemoteKeyEntity(pachliAccountId, remoteKeyTimelineId, RemoteKeyKind.NEXT, page.nextKey),
+                        )
+                    }
+                    if (page.data.isNotEmpty()) pageCache.append(page)
+                }
+            }
+            Timber.d(
+                "  Page %s complete for %s, now got %d pages",
+                loadType,
+                timeline,
+                pageCache.size,
+            )
+            pageCache.debug()
+
             Timber.d("  Invalidating paging source")
             factory.invalidate()
-        }
 
-        return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
+            MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
+        }
     }
 
     /**
@@ -126,6 +179,24 @@ class NetworkTimelineRemoteMediator(
         return when (timeline) {
             Timeline.Home -> getPageAround(statusId, pageSize) { maxId, minId, limit ->
                 api.homeTimeline(minId = minId, maxId = maxId, limit = limit)
+            }
+
+            Timeline.PublicLocal -> getPageAround(statusId, pageSize) { maxId, minId, limit ->
+                api.publicTimeline(local = true, minId = minId, maxId = maxId, limit = limit)
+            }
+
+            Timeline.PublicFederated -> getPageAround(statusId, pageSize) { maxId, minId, limit ->
+                api.publicTimeline(local = false, minId = minId, maxId = maxId, limit = limit)
+            }
+
+            is Timeline.User.Replies -> getPageAround(statusId, pageSize) { maxId, minId, limit ->
+                api.accountStatuses(
+                    timeline.id,
+                    maxId = maxId,
+                    minId = minId,
+                    limit = limit,
+                    excludeReblogs = timeline.excludeReblogs,
+                )
             }
 
             is Timeline.UserList -> getPageAround(statusId, pageSize) { maxId, minId, limit ->
@@ -152,6 +223,7 @@ class NetworkTimelineRemoteMediator(
         pageSize: Int,
         fetchPage: FetchPage,
     ): ApiResult<List<NetworkStatus>> = coroutineScope {
+        Timber.d("timeline: $timeline, getPageAround, statusId: $statusId")
         statusId ?: return@coroutineScope fetchPage(null, null, pageSize)
 
         val status = async { api.status(statusId = statusId) }
@@ -159,9 +231,9 @@ class NetworkTimelineRemoteMediator(
         val nextPage = async { fetchPage(statusId, null, pageSize / 2) }
 
         val statuses = buildList {
-            prevPage.await().get()?.let { this.addAll(it.body) }
+            prevPage.await().getOrElse { return@coroutineScope Err(it) }.let { this.addAll(it.body) }
             status.await().get()?.let { this.add(it.body) }
-            nextPage.await().get()?.let { this.addAll(it.body) }
+            nextPage.await().getOrElse { return@coroutineScope Err(it) }.let { this.addAll(it.body) }
         }
 
         val minId = statuses.firstOrNull()?.id ?: statusId
@@ -171,6 +243,8 @@ class NetworkTimelineRemoteMediator(
             .add("link: </?max_id=$maxId>; rel=\"next\", </?min_id=$minId>; rel=\"prev\"")
             .build()
 
+        Timber.d("timeline: $timeline, getPageAround, first id: ${statuses.firstOrNull()?.id}")
+        Timber.d("timeline: $timeline, getPageAround, last  id: ${statuses.lastOrNull()?.id}")
         return@coroutineScope Ok(ApiResponse(headers, statuses, 200))
     }
 
@@ -185,6 +259,7 @@ class NetworkTimelineRemoteMediator(
             LoadType.PREPEND -> Pair(null, key)
         }
 
+        Timber.d("timeline: $timeline, fetchStatusPageByKind: loadType: $loadType, maxId: $maxId, minId: $minId")
         return when (timeline) {
             Timeline.Bookmarks -> api.bookmarks(maxId = maxId, minId = minId, limit = loadSize)
             Timeline.Favourites -> api.favourites(maxId = maxId, minId = minId, limit = loadSize)
@@ -203,8 +278,6 @@ class NetworkTimelineRemoteMediator(
                 maxId = maxId,
                 minId = minId,
                 limit = loadSize,
-                excludeReplies = null,
-                onlyMedia = null,
                 pinned = true,
             )
             is Timeline.User.Posts -> api.accountStatuses(
@@ -213,17 +286,13 @@ class NetworkTimelineRemoteMediator(
                 minId = minId,
                 limit = loadSize,
                 excludeReplies = true,
-                onlyMedia = null,
-                pinned = null,
             )
             is Timeline.User.Replies -> api.accountStatuses(
                 timeline.id,
                 maxId = maxId,
                 minId = minId,
                 limit = loadSize,
-                excludeReplies = null,
-                onlyMedia = null,
-                pinned = null,
+                excludeReblogs = timeline.excludeReblogs,
             )
             is Timeline.UserList -> api.listTimeline(
                 timeline.listId,
@@ -231,6 +300,7 @@ class NetworkTimelineRemoteMediator(
                 minId = minId,
                 limit = loadSize,
             )
+            is Timeline.Quote -> api.quotes(statusId = timeline.statusId, maxId = maxId, limit = loadSize)
             else -> throw IllegalStateException("NetworkTimelineRemoteMediator does not support $timeline")
         }
     }

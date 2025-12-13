@@ -25,14 +25,7 @@
     <string name="title_follow_requests">Jarraipen-eskaerak</string>
     <string name="title_edit_profile">Profila editatu</string>
     <string name="title_drafts">Zirriborroak</string>
-    <string name="post_boosted_format">%s-(e)k bultzatu du</string>
-    <string name="post_sensitive_media_title">Eduki hunkigarria</string>
-    <string name="post_media_hidden_title">Ezkutuko media</string>
     <string name="post_sensitive_media_directions">Sakatu ikusteko</string>
-    <string name="post_content_warning_show_more">Gehiago erakutsi</string>
-    <string name="post_content_warning_show_less">Gutxiago erakutsi</string>
-    <string name="post_content_show_more">Zabaldu</string>
-    <string name="post_content_show_less">Itxi</string>
     <string name="footer_empty">Edukirik ez. Arrastatu behera birkargatzeko!</string>
     <string name="notification_reblog_format">%s-(e)k zure tuta bultzatu du</string>
     <string name="notification_favourite_format">%s-(e)k zure tuta gogoko du</string>
@@ -40,9 +33,6 @@
     <string name="report_username_format">\@%s salatu</string>
     <string name="report_comment_hint">Informazio gehigarria?</string>
     <string name="action_quick_reply">Erantzun azkarra</string>
-    <string name="action_reply">Erantzun</string>
-    <string name="action_reblog">Bultzatu</string>
-    <string name="action_favourite">Gogokoa</string>
     <string name="action_compose">Idatzi</string>
     <string name="action_follow">Jarraitu</string>
     <string name="action_unfollow">Jarraitzeari utzi</string>
@@ -60,7 +50,6 @@
     <string name="action_view_mutes">Isilduak</string>
     <string name="action_view_blocks">Blokeatuak</string>
     <string name="action_view_follow_requests">Eskakizunak</string>
-    <string name="action_view_media">Multimedia</string>
     <string name="action_open_in_web">Nabigatzailean ireki</string>
     <string name="action_add_media">Multimedia erantsi</string>
     <string name="action_photo_take">Argazkia atera</string>
@@ -175,17 +164,8 @@
     -->
     <string name="post_share_content">Tutaren edukia partekatu</string>
     <string name="post_share_link">Tutaren esteka partekatu</string>
-    <string name="post_media_images">Irudiak</string>
-    <string name="post_media_video">Bideoa</string>
     <string name="state_follow_requested">Eskaera bidalita</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
-    <string name="abbreviated_in_years">%du-an</string>
-    <string name="abbreviated_in_days">%de-an</string>
-    <string name="abbreviated_in_hours">%dh-an</string>
-    <string name="abbreviated_in_minutes">%dm-an</string>
-    <string name="abbreviated_in_seconds">%ds-an</string>
-    <string name="abbreviated_years_ago">%du</string>
-    <string name="abbreviated_days_ago">%de</string>
     <string name="follows_you">Jarraitzen zaitu</string>
     <string name="pref_title_alway_show_sensitive_media">Eduki mingarria erakutsi</string>
     <string name="title_media">Multimedia</string>
@@ -228,8 +208,6 @@
     <string name="title_posts_pinned">Finkatua</string>
     <string name="title_domain_mutes">Ezkutuko domeinuak</string>
     <string name="title_scheduled_posts">Programatutako tutak</string>
-    <string name="action_unreblog">Bultzada kendu</string>
-    <string name="action_unfavourite">Gogokoa kendu</string>
     <string name="action_edit">Editatu</string>
     <string name="action_delete_and_redraft">Ezabatu eta zirriborroa berriro egin</string>
     <string name="action_view_domain_mutes">Ezkutuko domeinuak</string>
@@ -255,41 +233,19 @@
     <string name="pref_title_animate_gif_avatars">GIF abatarrak animatu</string>
     <string name="notification_poll_name">Galdeketak</string>
     <string name="notification_poll_description">Bukatutako galdeketen jakinarazpenak</string>
-    <string name="abbreviated_hours_ago">%dh</string>
-    <string name="abbreviated_minutes_ago">%dm</string>
-    <string name="abbreviated_seconds_ago">%ds</string>
     <string name="pref_title_alway_open_spoiler">Beti zabaldu edukien abisuekin markatutako tootak</string>
     <string name="pref_title_thread_filter_keywords">Elkarrizketak</string>
     <string name="filter_addition_title">Gehitu iragazkia</string>
-    <string name="filter_edit_title">Editatu iragazkia</string>
     <string name="filter_dialog_remove_button">Ezabatu</string>
     <string name="filter_dialog_update_button">Eguneratu</string>
     <string name="filter_dialog_whole_word">Hitz osoa</string>
     <string name="filter_dialog_whole_word_description">Gako-hitza edo esaldia alfanumerikoa denean bakarrik, hitz osoarekin bat datorrenean bakarrik aplikatuko da</string>
     <string name="filter_add_description">Iragazteko esaldia</string>
-    <plurals name="favs">
-        <item quantity="one">Gogoko &lt;b&gt;%1$s&lt;/b&gt;</item>
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Gogoko</item>
-    </plurals>
-    <plurals name="reblogs">
-        <item quantity="one">Bultzada &lt;b&gt;%s&lt;/b&gt;</item>
-        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Bultzada</item>
-    </plurals>
     <string name="title_reblogged_by">Bultzatuta</string>
     <string name="title_favourited_by">Gogokoa</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s eta %2$s</string>
     <string name="conversation_more_recipients">%1$s, %2$s eta %3$d gehiago</string>
-    <string name="description_post_media">Media: %s</string>
-    <string name="description_post_cw">Edukiarekiko abisua: %s</string>
-    <string name="description_post_media_no_description_placeholder">Deskribapenik ez</string>
-    <string name="description_post_reblogged">Partekatua</string>
-    <string name="description_post_favourited">Gogokoa</string>
-    <string name="description_visibility_public">Publikoa</string>
-    <string name="description_visibility_unlisted">Zerrendatu gabea</string>
-    <string name="description_visibility_private">Jarraitzaileak</string>
-    <string name="description_visibility_direct">Zuzena</string>
-    <string name="description_poll">Inkestatu aukerekin: %1$s, %2$s, %3$s, %4$s; %5$s</string>
     <string name="edit_hashtag_hint">Traola # gabe</string>
     <string name="notifications_clear">Garbitu</string>
     <string name="notifications_apply_filter">Iragazi</string>
@@ -298,28 +254,8 @@
     <string name="compose_shortcut_short_label">Idatzi</string>
     <string name="notification_clear_text">Ziur zaude jakinarazpen guztiak betirako garbitu nahi dituzula\?</string>
     <string name="compose_preview_image_description">%s irudiarentzako ekintzak</string>
-    <string name="poll_info_format"><!-- 15 boto • Ordu 1 geratzen da -->%1$s • %2$s</string>
-    <plurals name="poll_info_votes">
-        <item quantity="one">Boto %s</item>
-        <item quantity="other">%s boto</item>
-    </plurals>
-    <string name="poll_info_time_absolute">%s amaitzen da</string>
-    <string name="poll_info_closed">Itxita</string>
-    <string name="poll_vote">Botatu</string>
     <string name="poll_ended_voted">Botoa eman duzun galdeketa amaitu da</string>
     <string name="poll_ended_created">Sortu duzun galdeketa amaitu da</string>
-    <plurals name="poll_timespan_days">
-        <item quantity="one">Egun %d geratzen da</item>
-        <item quantity="other">%d egun geratzen da</item>
-    </plurals>
-    <plurals name="poll_timespan_hours">
-        <item quantity="one">Ordu %d geratzen da</item>
-        <item quantity="other">%d ordu geratzen da</item>
-    </plurals>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">Segundu %d geratzen da</item>
-        <item quantity="other">%d segundu geratzen da</item>
-    </plurals>
     <string name="button_back">Itzuli</string>
     <string name="report_sent_success">\@%s jakinarazi duzu arrakastaz</string>
     <string name="hint_additional_info">Iruzkin gehigarriak</string>
@@ -343,11 +279,9 @@
     <string name="poll_new_choice_hint">%d. aukera</string>
     <string name="edit_poll">Editatu</string>
     <string name="title_bookmarks">Laster-markak</string>
-    <string name="action_bookmark">Laster-marka</string>
     <string name="action_view_bookmarks">Laster-markak</string>
     <string name="action_open_reblogger">Ireki bultzadaren egilea</string>
     <string name="pref_title_public_filter_keywords">Denbora lerro publikoak</string>
-    <string name="description_post_bookmarked">Laster-marketara gehitua</string>
     <string name="select_list_title">Aukeratu zerrenda</string>
     <string name="list">Zerrenda</string>
     <string name="no_drafts">Ez duzu zirriborrorik.</string>
@@ -366,10 +300,6 @@
     <string name="pref_title_confirm_reblogs">Tuta bultzatu aurretik berresteko galdetu</string>
     <string name="pref_title_show_cards_in_timelines">Esteken aurrebista denbora-lerroetan erakutsi</string>
     <string name="pref_title_enable_swipe_for_tabs">Irristatzeko keinua gaitu fitxetan zehar mugitzeko</string>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">Minutu %d faltan</item>
-        <item quantity="other">%d minutu faltan</item>
-    </plurals>
     <string name="add_hashtag_title">Traola gehitu</string>
     <string name="pref_main_nav_position">Nabigazio nagusiaren posizioa</string>
     <string name="pref_title_gradient_for_media">Gradiente koloretsuak erakutsi ezkutuko mediaren lekuan</string>
@@ -380,12 +310,9 @@
     <string name="pref_title_confirm_favourites">Erakutsi baieztapen elkarrizketa-koadroa gogokoenetara gehitu aurretik</string>
     <string name="follow_requests_info">Zure kontua blokeatuta ez badago ere, %1$s-ko langileek kontu hauetako eskaerak eskuz berrikusi nahi dituzula pentsatu dute.</string>
     <string name="pref_title_notification_filter_subscriptions">harpidedun naizen norbaitek tut berria argitaratu du</string>
-    <string name="post_media_attachments">Eranskinak</string>
-    <string name="post_media_audio">Audioa</string>
     <string name="action_subscribe_account">Harpidetu</string>
     <string name="dialog_delete_conversation_warning">Elkarrizketa ezabatu nahi duzu\?</string>
     <string name="pref_title_animate_custom_emojis">Animatu emoji pertsonalizatuak</string>
-    <string name="drafts_failed_loading_reply">Erantzunaren informazioa ezin izan da kargatu</string>
     <string name="wellbeing_hide_stats_profile">Profiletan estatistika kuantitatiboak ezkutatu</string>
     <string name="draft_deleted">Zirriborroa ezabatu da</string>
     <string name="drafts_post_reply_removed">Erantzun nahi zenuen tuta ezabatua izan da</string>
@@ -402,10 +329,6 @@
     <string name="notification_subscription_format">%s argitaratu berri du</string>
     <string name="account_note_saved">Gordeta!</string>
     <string name="notification_subscription_name">Tut berriak</string>
-    <plurals name="poll_info_people">
-        <item quantity="one">Pertsona %s</item>
-        <item quantity="other">%s pertsona</item>
-    </plurals>
     <string name="title_announcements">Iragarpenak</string>
     <string name="notification_subscription_description">Jakinarazpenak harpidetuta zauden norbaitek tut berria argitaratu duenean</string>
     <string name="account_note_hint">Kontu honi buruzko zure ohar pribatua</string>
@@ -443,8 +366,6 @@
 \nZerbitzariarekin ezin izan da komunikatu edo zure tutak baztertuak izan dira.</string>
     <string name="action_post_failed_show_drafts">Zirriborroak erakutsi</string>
     <string name="action_post_failed_do_nothing">Baztertu</string>
-    <string name="post_media_alt">ALT</string>
-    <string name="post_edited">%s editatua</string>
     <string name="notification_sign_up_format">%s-(e)k izena eman du</string>
     <string name="error_status_source_load">Akatsa zerbitzaritik egoeraren iturria kargatzean.</string>
 </resources>

@@ -12,4 +12,23 @@
     <string name="title_hashtags_dialog">Hashtags</string>
     <string name="add_account_name">Account Tafoegje</string>
     <string name="action_logout">Útlogge</string>
+    <string name="abbreviated_in_seconds">oer %ds</string>
+    <string name="abbreviated_in_minutes">oer %dm</string>
+    <string name="abbreviated_in_hours">oer %dh</string>
+    <string name="abbreviated_in_days">oer %dd</string>
+    <string name="abbreviated_years_ago">%dy</string>
+    <string name="post_sensitive_media_title">Gefoelige ynhâld</string>
+    <string name="post_media_images">Ôfbyldingen</string>
+    <string name="post_media_audio">Lûd</string>
+    <string name="post_media_video">Fideo</string>
+    <string name="post_media_attachments">Taheaksels</string>
+    <string name="action_reply">Reagearje</string>
+    <string name="action_reblog">Boost</string>
+    <string name="action_favourite">As favoryt oanmerke</string>
+    <string name="action_unreblog">Boost fuorthelje</string>
+    <string name="action_unfavourite">Net mear as favoryt oanmerke</string>
+    <string name="post_content_warning_show_less">Minder sjen litte</string>
+    <string name="post_content_warning_show_more">Mear sjen litte</string>
+    <string name="post_content_show_less">Yntearre</string>
+    <string name="filter_edit_title">Filter oanpasse</string>
 </resources>

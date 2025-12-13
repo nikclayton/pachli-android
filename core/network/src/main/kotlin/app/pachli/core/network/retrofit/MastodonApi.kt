@@ -166,7 +166,7 @@ interface MastodonApi {
         /** Maximum number of results to return. Defaults to 15, max is 30 */
         @Query("limit") limit: Int? = null,
         /** Types to excludes from the results */
-        @Query("exclude_types[]") excludes: Set<Notification.Type>? = null,
+        @Query("exclude_types[]") excludes: Iterable<Notification.Type>? = null,
         /** Include notifications filtered by the user's notifications filter policy. */
         @Query("include_filtered") includeFiltered: Boolean = true,
     ): ApiResult<List<Notification>>
@@ -339,6 +339,19 @@ interface MastodonApi {
         @Path("id") statusId: String,
     ): ApiResult<Translation>
 
+    @GET("api/v1/statuses/{id}/quotes")
+    suspend fun quotes(
+        @Path(value = "id") statusId: String,
+        @Query("max_id") maxId: String? = null,
+        @Query("limit") limit: Int? = null,
+    ): ApiResult<List<Status>>
+
+    @POST("api/v1/statuses/{quoteId}/quotes/{parentId}/revoke")
+    suspend fun revokeQuote(
+        @Path(value = "quoteId") quoteId: String,
+        @Path(value = "parentId") parentId: String,
+    ): ApiResult<Status>
+
     @GET("api/v1/scheduled_statuses")
     suspend fun scheduledStatuses(
         @Query("limit") limit: Int? = null,
@@ -362,6 +375,7 @@ interface MastodonApi {
         @Field("source[privacy]") privacy: String?,
         @Field("source[sensitive]") sensitive: Boolean?,
         @Field("source[language]") language: String?,
+        @Field("source[quote_policy]") quotePolicy: String?,
     ): ApiResult<CredentialAccount>
 
     @Multipart

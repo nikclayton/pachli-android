@@ -17,8 +17,10 @@
 package app.pachli.usecase
 
 import app.pachli.core.common.di.ApplicationScope
-import app.pachli.core.data.model.StatusViewData
-import app.pachli.core.data.repository.StatusRepository
+import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.OfflineFirstStatusRepository
+import app.pachli.core.data.repository.StatusActionError
 import app.pachli.core.database.dao.RemoteKeyDao
 import app.pachli.core.database.dao.TranslatedStatusDao
 import app.pachli.core.database.model.RemoteKeyEntity
@@ -27,14 +29,16 @@ import app.pachli.core.database.model.TranslationState
 import app.pachli.core.database.model.toEntity
 import app.pachli.core.eventhub.BlockEvent
 import app.pachli.core.eventhub.EventHub
-import app.pachli.core.eventhub.MuteConversationEvent
 import app.pachli.core.eventhub.MuteEvent
 import app.pachli.core.eventhub.StatusDeletedEvent
+import app.pachli.core.eventhub.UnfollowEvent
+import app.pachli.core.model.Status
 import app.pachli.core.model.translation.TranslatedStatus
 import app.pachli.core.network.model.DeletedStatus
 import app.pachli.core.network.model.Relationship
-import app.pachli.core.network.model.Status
 import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.network.retrofit.apiresult.ApiError
+import app.pachli.core.network.retrofit.apiresult.ApiResponse
 import app.pachli.core.network.retrofit.apiresult.ApiResult
 import app.pachli.translation.TranslationService
 import app.pachli.translation.TranslatorError
@@ -52,30 +56,121 @@ import timber.log.Timber
 class TimelineCases @Inject constructor(
     private val mastodonApi: MastodonApi,
     private val eventHub: EventHub,
-    private val statusRepository: StatusRepository,
+    private val statusRepository: OfflineFirstStatusRepository,
     private val translatedStatusDao: TranslatedStatusDao,
     private val translationService: TranslationService,
     private val remoteKeyDao: RemoteKeyDao,
+    private val accountManager: AccountManager,
     @ApplicationScope private val externalScope: CoroutineScope,
 ) {
-    suspend fun muteConversation(pachliAccountId: Long, statusId: String, mute: Boolean): ApiResult<Status> {
-        return if (mute) {
-            mastodonApi.muteConversation(statusId)
-        } else {
-            mastodonApi.unmuteConversation(statusId)
-        }.onSuccess {
-            eventHub.dispatch(MuteConversationEvent(pachliAccountId, statusId, mute))
-        }
+    suspend fun muteConversation(pachliAccountId: Long, statusId: String, mute: Boolean): Result<Status, StatusActionError.Mute> {
+        return statusRepository.mute(pachliAccountId, statusId, mute)
     }
 
-    suspend fun mute(pachliAccountId: Long, statusId: String, notifications: Boolean, duration: Int?) {
-        mastodonApi.muteAccount(statusId, notifications, duration)
-            .onSuccess { eventHub.dispatch(MuteEvent(pachliAccountId, statusId)) }
+    /**
+     * Sends a follow request for [accountId] to the server for [pachliAccountId].
+     *
+     * On success:
+     *
+     * - The following relationship is added to [AccountManager].
+     *
+     * @param pachliAccountId
+     * @param accountId ID of account to follow.
+     * @param showReblogs If true, show reblogs from this account. Null uses server default.
+     * @param notify If true, receive notifications when this account posts. Null uses server default.
+     */
+    suspend fun followAccount(pachliAccountId: Long, accountId: String, showReblogs: Boolean? = null, notify: Boolean? = null): ApiResult<Relationship> {
+        return mastodonApi.followAccount(accountId, showReblogs, notify)
+            .onSuccess { accountManager.followAccount(pachliAccountId, accountId) }
     }
 
-    suspend fun block(pachliAccountId: Long, accountId: String) {
-        mastodonApi.blockAccount(accountId)
+    /**
+     * Unfollow [accountId].
+     *
+     * On success:
+     *
+     * - The following relationship is removed from [AccountManager].
+     * - [UnfollowEvent] is dispatched.
+     *
+     * @param pachliAccountId
+     * @param accountID ID of the account to unfollow.
+     */
+    suspend fun unfollowAccount(pachliAccountId: Long, accountId: String): ApiResult<Relationship> {
+        return mastodonApi.unfollowAccount(accountId)
+            .onSuccess {
+                accountManager.unfollowAccount(pachliAccountId, accountId)
+                eventHub.dispatch(UnfollowEvent(pachliAccountId, accountId))
+            }
+    }
+
+    /**
+     * Subscribe to [accountId].
+     *
+     * @param pachliAccountId
+     * @param accountId ID of the account to subscribe to.
+     */
+    suspend fun subscribeAccount(pachliAccountId: Long, accountId: String): ApiResult<Relationship> {
+        return mastodonApi.subscribeAccount(accountId)
+    }
+
+    /**
+     * Unsubscribe from [accountId].
+     *
+     * @param pachliAccountId
+     * @param accountId ID of the account to unsubscribe from.
+     */
+    suspend fun unsubscribeAccount(pachliAccountId: Long, accountId: String): ApiResult<Relationship> {
+        return mastodonApi.unsubscribeAccount(accountId)
+    }
+
+    /**
+     * Mute [accountId].
+     *
+     * On success:
+     *
+     * - [MuteEvent] is dispatched.
+     *
+     * @param pachliAccountId
+     * @param accountId ID of the account to mute.
+     */
+    suspend fun muteAccount(pachliAccountId: Long, accountId: String, notifications: Boolean? = null, duration: Int? = null): Result<ApiResponse<Relationship>, ApiError> {
+        return mastodonApi.muteAccount(accountId, notifications, duration)
+            .onSuccess { eventHub.dispatch(MuteEvent(pachliAccountId, accountId)) }
+    }
+
+    /**
+     * Unmute [accountId].
+     *
+     * @param pachliAccountId
+     * @param accountId ID of the account to unmute.
+     */
+    suspend fun unmuteAccount(pachliAccountId: Long, accountId: String): ApiResult<Relationship> {
+        return mastodonApi.unmuteAccount(accountId)
+    }
+
+    /**
+     * Block [accountId].
+     *
+     * On success:
+     *
+     * - [BlockEvent] is dispatched.
+     *
+     * @param pachliAccountId
+     * @param accountId ID of the account to block.
+     */
+    suspend fun blockAccount(pachliAccountId: Long, accountId: String): Result<ApiResponse<Relationship>, ApiError> {
+        return mastodonApi.blockAccount(accountId)
             .onSuccess { eventHub.dispatch(BlockEvent(pachliAccountId, accountId)) }
+    }
+
+    /**
+     * Unblock [accountId].
+     *
+     * @param pachliAccountId
+     * @param accountId ID of the account to unblock.
+     */
+    suspend fun unblockAccount(pachliAccountId: Long, accountId: String): ApiResult<Relationship> {
+        return mastodonApi.unblockAccount(accountId)
     }
 
     suspend fun delete(statusId: String): ApiResult<DeletedStatus> {
@@ -105,24 +200,22 @@ class TimelineCases @Inject constructor(
         return mastodonApi.rejectFollowRequest(accountId)
     }
 
-    suspend fun translate(statusViewData: StatusViewData): Result<TranslatedStatus, TranslatorError> {
-        statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.id, TranslationState.TRANSLATING)
-        val translation = translationService.translate(statusViewData)
-        translation.onSuccess {
-            translatedStatusDao.upsert(
-                it.toEntity(statusViewData.pachliAccountId, statusViewData.actionableId),
-            )
-            statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.id, TranslationState.SHOW_TRANSLATION)
-        }.onFailure {
-            // Reset the translation state
-            statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.id, TranslationState.SHOW_ORIGINAL)
-        }
-
-        return translation
+    suspend fun translate(statusViewData: IStatusViewData): Result<TranslatedStatus, TranslatorError> {
+        statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.actionableId, TranslationState.TRANSLATING)
+        return translationService.translate(statusViewData)
+            .onSuccess {
+                translatedStatusDao.upsert(
+                    it.toEntity(statusViewData.pachliAccountId, statusViewData.actionableId),
+                )
+                statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.actionableId, TranslationState.SHOW_TRANSLATION)
+            }.onFailure {
+                // Reset the translation state
+                statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.actionableId, TranslationState.SHOW_ORIGINAL)
+            }
     }
 
-    suspend fun translateUndo(statusViewData: StatusViewData) {
-        statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.id, TranslationState.SHOW_ORIGINAL)
+    suspend fun translateUndo(statusViewData: IStatusViewData) {
+        statusRepository.setTranslationState(statusViewData.pachliAccountId, statusViewData.actionableId, TranslationState.SHOW_ORIGINAL)
     }
 
     /**
@@ -150,5 +243,9 @@ class TimelineCases @Inject constructor(
         remoteKeyDao.upsert(
             RemoteKeyEntity(pachliAccountId, remoteKeyTimelineId, RemoteKeyKind.REFRESH, statusId),
         )
+    }
+
+    suspend fun detachQuote(pachliAccountId: Long, quoteId: String, parentId: String): Result<Status, StatusActionError.RevokeQuote> {
+        return statusRepository.detachQuote(pachliAccountId, quoteId, parentId)
     }
 }

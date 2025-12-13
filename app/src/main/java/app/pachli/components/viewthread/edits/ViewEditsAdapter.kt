@@ -12,31 +12,27 @@ import android.text.style.CharacterStyle
 import android.text.style.MetricAffectingSpan
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.core.graphics.drawable.toDrawable
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
-import app.pachli.adapter.PollAdapter
-import app.pachli.adapter.PollAdapter.DisplayMode
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.util.AbsoluteTimeFormatter
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.StatusEdit
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.ui.BindingHolder
 import app.pachli.core.ui.LinkListener
-import app.pachli.core.ui.decodeBlurHash
+import app.pachli.core.ui.PollAdapter
+import app.pachli.core.ui.PollAdapter.DisplayMode
+import app.pachli.core.ui.PollOptionViewData
 import app.pachli.core.ui.emojify
 import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ItemStatusEditBinding
-import app.pachli.util.aspectRatios
-import app.pachli.viewdata.PollOptionViewData
 import com.bumptech.glide.RequestManager
-import com.google.android.material.color.MaterialColors
 import org.xml.sax.XMLReader
 
 class ViewEditsAdapter(
@@ -148,6 +144,7 @@ class ViewEditsAdapter(
                 animateEmojis = animateEmojis,
                 displayMode = DisplayMode.EDIT_HISTORY,
                 enabled = false,
+                textSize = mediumTextSizePx,
                 resultClickListener = null,
                 pollOptionClickListener = null,
             )
@@ -161,53 +158,15 @@ class ViewEditsAdapter(
             binding.statusEditMediaSensitivity.hide()
         } else {
             binding.statusEditMediaPreview.show()
-            binding.statusEditMediaPreview.aspectRatios = edit.mediaAttachments.aspectRatios()
-
-            binding.statusEditMediaPreview.forEachIndexed { index, imageView, descriptionIndicator ->
-
-                val attachment = edit.mediaAttachments[index]
-                val hasDescription = !attachment.description.isNullOrBlank()
-
-                if (hasDescription) {
-                    imageView.contentDescription = attachment.description
-                } else {
-                    imageView.contentDescription =
-                        imageView.context.getString(R.string.action_view_media)
-                }
-                descriptionIndicator.visibility = if (hasDescription) View.VISIBLE else View.GONE
-
-                val blurhash = attachment.blurhash
-
-                val placeholder = if (blurhash != null && useBlurhash) {
-                    decodeBlurHash(context, blurhash)
-                } else {
-                    MaterialColors.getColor(imageView, android.R.attr.colorBackground).toDrawable()
-                }
-
-                if (attachment.previewUrl.isNullOrEmpty()) {
-                    imageView.removeFocalPoint()
-                    glide.load(placeholder)
-                        .centerInside()
-                        .into(imageView)
-                } else {
-                    val focus = attachment.meta?.focus
-
-                    if (focus != null) {
-                        imageView.setFocalPoint(focus)
-                        glide.load(attachment.previewUrl)
-                            .placeholder(placeholder)
-                            .centerInside()
-                            .addListener(imageView)
-                            .into(imageView)
-                    } else {
-                        imageView.removeFocalPoint()
-                        glide.load(attachment.previewUrl)
-                            .placeholder(placeholder)
-                            .centerInside()
-                            .into(imageView)
-                    }
-                }
-            }
+            // TODO: Passing `Show` here for `displayAction` might not be correct. Would be
+            // better to figure this out from the filter context of whatever activity or
+            // fragment contained the status we're viewing the edits for.
+            binding.statusEditMediaPreview.bind(
+                glide,
+                edit.mediaAttachments,
+                AttachmentDisplayAction.Show(),
+                useBlurhash,
+            )
             binding.statusEditMediaSensitivity.visible(edit.sensitive)
         }
     }

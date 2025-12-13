@@ -22,9 +22,10 @@ import app.pachli.PachliApplication
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.AccountPreferenceDataStore
 import app.pachli.core.data.repository.ContentFiltersRepository
+import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
-import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.data.repository.notifications.NotificationsRepository
+import app.pachli.core.database.AppDatabase
 import app.pachli.core.database.dao.AccountDao
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.network.di.test.DEFAULT_INSTANCE_V2
@@ -96,7 +97,7 @@ abstract class NotificationsViewModelTestBase {
     lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
 
     @Inject
-    lateinit var statusRepository: StatusRepository
+    lateinit var statusRepository: OfflineFirstStatusRepository
 
     @Inject
     lateinit var accountDao: AccountDao
@@ -106,6 +107,9 @@ abstract class NotificationsViewModelTestBase {
     protected lateinit var viewModel: NotificationsViewModel
 
     private val eventHub = EventHub()
+
+    @Inject
+    lateinit var appDatabase: AppDatabase
 
     private lateinit var accountPreferenceDataStore: AccountPreferenceDataStore
 
@@ -125,7 +129,7 @@ abstract class NotificationsViewModelTestBase {
     protected var pachliAccountId by Delegates.notNull<Long>()
 
     @Before
-    fun setup() = runTest {
+    open fun setup() = runTest {
         hilt.inject()
 
         reset(notificationsRepository)

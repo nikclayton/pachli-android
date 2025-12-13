@@ -21,11 +21,12 @@ import androidx.room.Dao
 import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.TypeConverters
+import androidx.room.Update
 import androidx.room.Upsert
 import app.pachli.core.database.Converters
 import app.pachli.core.database.model.StatusEntity
+import app.pachli.core.database.model.StatusViewDataAttachmentDisplayAction
 import app.pachli.core.database.model.StatusViewDataContentCollapsed
-import app.pachli.core.database.model.StatusViewDataContentShowing
 import app.pachli.core.database.model.StatusViewDataEntity
 import app.pachli.core.database.model.StatusViewDataExpanded
 import app.pachli.core.database.model.StatusViewDataTranslationState
@@ -44,6 +45,13 @@ abstract class StatusDao {
     @Upsert
     abstract suspend fun insertStatus(statusEntity: StatusEntity): Long
 
+    /** Update an existing status, does nothing if [statusEntity] does not exist. */
+    @Update
+    abstract suspend fun updateStatus(statusEntity: StatusEntity)
+
+    @Update
+    abstract suspend fun updateStatuses(statuses: Collection<StatusEntity>)
+
     @Query(
         """
 SELECT *
@@ -57,7 +65,8 @@ WHERE timelineUserId = :pachliAccountId AND (serverId = :statusId)
         """
 UPDATE StatusEntity
 SET
-    favourited = :favourited
+    favourited = :favourited,
+    favouritesCount = favouritesCount + CASE WHEN :favourited THEN 1 ELSE -1 END
 WHERE timelineUserId = :pachliAccountId AND (serverId = :statusId OR reblogServerId = :statusId)
 """,
     )
@@ -77,7 +86,8 @@ WHERE timelineUserId = :pachliAccountId AND (serverId = :statusId OR reblogServe
         """
 UPDATE StatusEntity
 SET
-    reblogged = :reblogged
+    reblogged = :reblogged,
+    reblogsCount = reblogsCount + CASE WHEN :reblogged THEN 1 ELSE -1 END
 WHERE timelineUserId = :pachliAccountId AND (serverId = :statusId OR reblogServerId = :statusId)
 """,
     )
@@ -155,7 +165,7 @@ WHERE
     )
     abstract suspend fun getStatusViewData(
         accountId: Long,
-        serverIds: List<String>,
+        serverIds: Collection<String>,
     ): Map<
         @MapColumn(columnName = "serverId")
         String,
@@ -186,13 +196,6 @@ WHERE
     abstract suspend fun setExpanded(partial: StatusViewDataExpanded)
 
     /**
-     * Upserts [partial], setting the [contentShowing][StatusViewDataEntity.contentShowing]
-     * property.
-     */
-    @Upsert(entity = StatusViewDataEntity::class)
-    abstract suspend fun setContentShowing(partial: StatusViewDataContentShowing)
-
-    /**
      * Upserts [partial], setting the [contentCollapsed][StatusViewDataEntity.contentCollapsed]
      * property.
      */
@@ -205,4 +208,11 @@ WHERE
      */
     @Upsert(entity = StatusViewDataEntity::class)
     abstract suspend fun setTranslationState(partial: StatusViewDataTranslationState)
+
+    /**
+     * Upserts [partial], setting the [attachmentDisplayAction][StatusViewDataEntity.attachmentDisplayAction]
+     * property.
+     */
+    @Upsert(entity = StatusViewDataEntity::class)
+    abstract suspend fun setAttachmentDisplayAction(partial: StatusViewDataAttachmentDisplayAction)
 }

@@ -17,27 +17,30 @@
 
 package app.pachli.components.timeline.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import app.pachli.components.timeline.CachedTimelineRepository
-import app.pachli.core.data.model.StatusViewData
+import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.data.model.StatusItemViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
-import app.pachli.core.data.repository.StatusRepository
-import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.database.model.TimelineStatusWithQuote
 import app.pachli.core.eventhub.BookmarkEvent
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.eventhub.FavoriteEvent
 import app.pachli.core.eventhub.PinEvent
 import app.pachli.core.eventhub.ReblogEvent
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.Timeline
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.usecase.TimelineCases
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
@@ -48,37 +51,40 @@ import kotlinx.coroutines.launch
  * TimelineViewModel that caches all statuses in a local database
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
-class CachedTimelineViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val repository: CachedTimelineRepository,
+@HiltViewModel(assistedFactory = CachedTimelineViewModel.Factory::class)
+class CachedTimelineViewModel @AssistedInject constructor(
+    @Assisted("timeline") timeline: Timeline,
+    repository: CachedTimelineRepository,
     timelineCases: TimelineCases,
     eventHub: EventHub,
     accountManager: AccountManager,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     sharedPreferencesRepository: SharedPreferencesRepository,
-    statusRepository: StatusRepository,
-) : TimelineViewModel<TimelineStatusWithAccount>(
-    savedStateHandle,
-    timelineCases,
-    eventHub,
-    accountManager,
-    repository,
-    statusDisplayOptionsRepository,
-    sharedPreferencesRepository,
-    statusRepository,
+) : TimelineViewModel<TimelineStatusWithQuote, CachedTimelineRepository>(
+    timeline = timeline,
+    timelineCases = timelineCases,
+    eventHub = eventHub,
+    accountManager = accountManager,
+    repository = repository,
+    statusDisplayOptionsRepository = statusDisplayOptionsRepository,
+    sharedPreferencesRepository = sharedPreferencesRepository,
 ) {
     override val statuses = pachliAccountFlow.distinctUntilChangedBy { it.id }.flatMapLatest { pachliAccount ->
         repository.getStatusStream(pachliAccount.id, timeline).map { pagingData ->
-            pagingData.map {
-                StatusViewData.from(
-                    pachliAccountId = pachliAccount.id,
-                    it,
-                    isExpanded = pachliAccount.entity.alwaysOpenSpoiler,
-                    isShowingContent = pachliAccount.entity.alwaysShowSensitiveMedia,
-                    contentFilterAction = shouldFilterStatus(it.toStatus()),
-                )
-            }.filter { it.contentFilterAction != FilterAction.HIDE }
+            pagingData
+                .map { Pair(it, shouldFilterStatus(it.timelineStatus)) }
+                .filter { it.second != FilterAction.HIDE }
+                .map { (timelineStatusWithQuote, contentFilterAction) ->
+                    StatusItemViewData.from(
+                        pachliAccount = pachliAccount,
+                        timelineStatusWithQuote,
+                        isExpanded = pachliAccount.entity.alwaysOpenSpoiler,
+                        contentFilterAction = contentFilterAction,
+                        quoteContentFilterAction = timelineStatusWithQuote.quotedStatus?.let { contentFilterModel?.filterActionFor(it.status) },
+                        showSensitiveMedia = pachliAccount.entity.alwaysShowSensitiveMedia,
+                        filterContext = filterContext,
+                    )
+                }
         }
     }.cachedIn(viewModelScope)
 
@@ -94,14 +100,16 @@ class CachedTimelineViewModel @Inject constructor(
         }
     }
 
-    override fun clearWarning(statusViewData: StatusViewData) {
+    override fun clearWarning(statusViewData: IStatusViewData) {
         viewModelScope.launch {
             repository.clearStatusWarning(statusViewData.pachliAccountId, statusViewData.actionableId)
         }
     }
 
-    override fun removeStatusWithId(id: String) {
-        // handled by CacheUpdater
+    override fun removeStatusWithId(statusId: String) {
+        viewModelScope.launch {
+            repository.removeStatusWithId(statusId)
+        }
     }
 
     override fun handleReblogEvent(reblogEvent: ReblogEvent) {
@@ -120,46 +128,43 @@ class CachedTimelineViewModel @Inject constructor(
         // handled by CacheUpdater
     }
 
-    override fun onChangeExpanded(isExpanded: Boolean, statusViewData: StatusViewData) {
+    override fun onChangeExpanded(isExpanded: Boolean, statusViewData: IStatusViewData) {
         viewModelScope.launch {
-            statusRepository.setExpanded(statusViewData.pachliAccountId, statusViewData.id, isExpanded)
-            repository.invalidate(statusViewData.pachliAccountId)
+            repository.setExpanded(statusViewData.pachliAccountId, statusViewData.actionableId, isExpanded)
         }
     }
 
-    override fun onChangeContentShowing(isShowing: Boolean, statusViewData: StatusViewData) {
+    override fun onChangeAttachmentDisplayAction(viewData: IStatusViewData, newAction: AttachmentDisplayAction) {
         viewModelScope.launch {
-            statusRepository.setContentShowing(statusViewData.pachliAccountId, statusViewData.id, isShowing)
-            repository.invalidate(statusViewData.pachliAccountId)
+            repository.setAttachmentDisplayAction(viewData.pachliAccountId, viewData.actionableId, newAction)
         }
     }
 
-    override fun onContentCollapsed(isCollapsed: Boolean, statusViewData: StatusViewData) {
+    override fun onContentCollapsed(isCollapsed: Boolean, statusViewData: IStatusViewData) {
         viewModelScope.launch {
-            statusRepository.setContentCollapsed(statusViewData.pachliAccountId, statusViewData.id, isCollapsed)
-            repository.invalidate(statusViewData.pachliAccountId)
+            repository.setContentCollapsed(statusViewData.pachliAccountId, statusViewData.actionableId, isCollapsed)
         }
     }
 
-    override suspend fun onBookmark(action: FallibleStatusAction.Bookmark) = statusRepository.bookmark(
+    override suspend fun onBookmark(action: FallibleStatusAction.Bookmark) = repository.bookmark(
         action.statusViewData.pachliAccountId,
         action.statusViewData.actionableId,
         action.state,
     )
 
-    override suspend fun onFavourite(action: FallibleStatusAction.Favourite) = statusRepository.favourite(
+    override suspend fun onFavourite(action: FallibleStatusAction.Favourite) = repository.favourite(
         action.statusViewData.pachliAccountId,
         action.statusViewData.actionableId,
         action.state,
     )
 
-    override suspend fun onReblog(action: FallibleStatusAction.Reblog) = statusRepository.reblog(
+    override suspend fun onReblog(action: FallibleStatusAction.Reblog) = repository.reblog(
         action.statusViewData.pachliAccountId,
         action.statusViewData.actionableId,
         action.state,
     )
 
-    override suspend fun onVoteInPoll(action: FallibleStatusAction.VoteInPoll) = statusRepository.voteInPoll(
+    override suspend fun onVoteInPoll(action: FallibleStatusAction.VoteInPoll) = repository.voteInPoll(
         action.statusViewData.pachliAccountId,
         action.statusViewData.actionableId,
         action.poll.id,
@@ -172,5 +177,13 @@ class CachedTimelineViewModel @Inject constructor(
 
     override suspend fun invalidate(pachliAccountId: Long) {
         repository.invalidate(pachliAccountId)
+    }
+
+    @AssistedFactory
+    interface Factory {
+        /** Creates [CachedTimelineViewModel] for [timeline]. */
+        fun create(
+            @Assisted("timeline") timeline: Timeline,
+        ): CachedTimelineViewModel
     }
 }

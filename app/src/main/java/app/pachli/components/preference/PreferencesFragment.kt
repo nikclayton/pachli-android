@@ -53,15 +53,19 @@ import app.pachli.core.domain.notifications.NotificationConfig
 import app.pachli.core.domain.notifications.hasPushScope
 import app.pachli.core.domain.notifications.notificationMethod
 import app.pachli.core.preferences.AppTheme
+import app.pachli.core.preferences.DefaultAudioPlayback
 import app.pachli.core.preferences.DownloadLocation
 import app.pachli.core.preferences.MainNavigationPosition
 import app.pachli.core.preferences.PrefKeys
+import app.pachli.core.preferences.PronounDisplay
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.preferences.ShowSelfUsername
 import app.pachli.core.preferences.TabAlignment
 import app.pachli.core.preferences.TabContents
 import app.pachli.core.preferences.TabTapBehaviour
+import app.pachli.core.preferences.TranslationBackend
 import app.pachli.core.preferences.UpdateNotificationFrequency
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.core.ui.extensions.asDdHhMmSs
 import app.pachli.core.ui.extensions.await
 import app.pachli.core.ui.extensions.instantFormatter
@@ -75,6 +79,7 @@ import app.pachli.settings.preference
 import app.pachli.settings.preferenceCategory
 import app.pachli.settings.sliderPreference
 import app.pachli.settings.switchPreference
+import app.pachli.translation.TranslationService
 import app.pachli.updatecheck.UpdateCheck
 import app.pachli.updatecheck.UpdateCheckResult.AT_LATEST
 import app.pachli.util.LocaleManager
@@ -112,6 +117,9 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     @Inject
     lateinit var proxyPreferenceSummaryProvider: ProxyPreferencesFragment.SummaryProvider
 
+    @Inject
+    lateinit var translationService: TranslationService
+
     private val iconSize by unsafeLazy { resources.getDimensionPixelSize(DR.dimen.preference_icon_size) }
 
     override fun onCreateView(
@@ -119,19 +127,26 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        // Show the "Check for update now" summary. This must also change
-        // depending on the update notification frequency. You can't link two
-        // preferences like that as a dependency, so listen for changes to
-        // the relevant keys and update the summary when they change.
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 sharedPreferencesRepository.changes.collect { prefKey ->
                     when (prefKey) {
+                        // Show the "Check for update now" summary. This must also change
+                        // depending on the update notification frequency. You can't link two
+                        // preferences like that as a dependency, so listen for changes to
+                        // the relevant keys and update the summary when they change.
                         PrefKeys.UPDATE_NOTIFICATION_FREQUENCY,
                         PrefKeys.UPDATE_NOTIFICATION_LAST_NOTIFICATION_MS,
                         -> {
                             findPreference<Preference>(PrefKeys.UPDATE_NOTIFICATION_LAST_NOTIFICATION_MS)?.let {
                                 it.summary = updateCheck.provideSummary(it)
+                            }
+                        }
+                        // If the language changes check if the translation backend supports
+                        // it. If it doesn't then reset to TranslationBackend.SERVER_ONLY.
+                        PrefKeys.LANGUAGE -> {
+                            if (translationService.canTranslateTo(sharedPreferencesRepository.languageExpandDefault) is Err) {
+                                sharedPreferencesRepository.translationBackend = TranslationBackend.SERVER_ONLY
                             }
                         }
                         else -> { /* do nothing */ }
@@ -294,7 +309,21 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     setTitle(R.string.pref_title_confirm_status_language)
                     isSingleLineTitle = false
                 }
+
+                enumListPreference<DefaultAudioPlayback> {
+                    setDefaultValue(DefaultAudioPlayback.UNMUTED)
+                    setTitle(R.string.pref_default_audio_playback)
+                    key = PrefKeys.DEFAULT_AUDIO_PLAYBACK
+                }
+
+                enumListPreference<PronounDisplay> {
+                    setDefaultValue(PronounDisplay.WHEN_COMPOSING)
+                    setTitle(app.pachli.core.preferences.R.string.pref_title_pronoun_display)
+                    key = PrefKeys.PRONOUN_DISPLAY
+                }
             }
+
+            translationService.preferenceCategory(this, parentFragmentManager)
 
             preferenceCategory(app.pachli.core.preferences.R.string.pref_category_tabs) {
                 enumListPreference<MainNavigationPosition> {
@@ -547,6 +576,11 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        listView.applyDefaultWindowInsets()
+    }
+
     private fun makeIcon(icon: GoogleMaterial.Icon): IconicsDrawable {
         return makeIcon(requireContext(), icon, iconSize)
     }
@@ -561,6 +595,12 @@ class PreferencesFragment : PreferenceFragmentCompat() {
             val fragment = FontFamilyDialogFragment.newInstance(PrefKeys.FONT_FAMILY)
             fragment.setTargetFragment(this, 0)
             fragment.show(parentFragmentManager, FontFamilyDialogFragment.TXN_TAG)
+            return
+        }
+        if (PrefKeys.TRANSLATION_BACKEND == preference.key) {
+            val fragment = TranslationBackendDialogFragment.newInstance(PrefKeys.TRANSLATION_BACKEND)
+            fragment.setTargetFragment(this, 0)
+            fragment.show(parentFragmentManager, TranslationBackendDialogFragment.TXN_TAG)
             return
         }
         if (!EmojiPickerPreference.onDisplayPreferenceDialog(this, preference)) {

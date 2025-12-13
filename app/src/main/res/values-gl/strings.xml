@@ -26,7 +26,6 @@
     <string name="action_add_poll">Engadir enquisa</string>
     <string name="action_add_media">Engadir multimedia</string>
     <string name="action_open_in_web">Abrir no navegador</string>
-    <string name="action_view_media">Multimedia</string>
     <string name="action_view_follow_requests">Solicitudes de seguimento</string>
     <string name="action_view_domain_mutes">Dominios agochados</string>
     <string name="action_view_blocks">Usuarias bloqueadas</string>
@@ -48,12 +47,6 @@
     <string name="action_unfollow">Deixar de seguir</string>
     <string name="action_follow">Seguir</string>
     <string name="action_compose">Redactar</string>
-    <string name="action_unfavourite">Eliminar favorito</string>
-    <string name="action_bookmark">Marcar</string>
-    <string name="action_favourite">Favorito</string>
-    <string name="action_unreblog">Eliminar promoción</string>
-    <string name="action_reblog">Promover</string>
-    <string name="action_reply">Responder</string>
     <string name="action_quick_reply">Resposta rápida</string>
     <string name="report_comment_hint">Comentarios adicionais\?</string>
     <string name="report_username_format">Denunciar a @%s</string>
@@ -63,14 +56,7 @@
     <string name="notification_favourite_format">%s fixo favorita a publicación</string>
     <string name="notification_reblog_format">%s promoveu a túa publicación</string>
     <string name="footer_empty">Nada por aquí. Arrastra hacia abaixo para actualizar!</string>
-    <string name="post_content_show_less">Pregar</string>
-    <string name="post_content_show_more">Expandir</string>
-    <string name="post_content_warning_show_less">Ver menos</string>
-    <string name="post_content_warning_show_more">Ver máis</string>
     <string name="post_sensitive_media_directions">Click para ver</string>
-    <string name="post_media_hidden_title">Multimedia agochado</string>
-    <string name="post_sensitive_media_title">Contido sensible</string>
-    <string name="post_boosted_format">%s promoveu</string>
     <string name="title_announcements">Anuncios</string>
     <string name="title_scheduled_posts">Toots programados</string>
     <string name="title_drafts">Borradores</string>
@@ -121,36 +107,8 @@
     <string name="hint_additional_info">Comentarios adicionais</string>
     <string name="report_sent_success">Denuncia feita sobre @%s</string>
     <string name="button_back">Atrás</string>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">queda %d segundo</item>
-        <item quantity="other">quedan %d segundos</item>
-    </plurals>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">queda %d minuto</item>
-        <item quantity="other">quedan %d minutos</item>
-    </plurals>
-    <plurals name="poll_timespan_hours">
-        <item quantity="one">queda %d hora</item>
-        <item quantity="other">quedan %d horas</item>
-    </plurals>
-    <plurals name="poll_timespan_days">
-        <item quantity="one">queda %d día</item>
-        <item quantity="other">quedan %d días</item>
-    </plurals>
     <string name="poll_ended_created">Rematou unha enquisa creada por ti</string>
     <string name="poll_ended_voted">Rematou unha enquisa na que votaches</string>
-    <string name="poll_vote">Votar</string>
-    <string name="poll_info_closed">pechada</string>
-    <string name="poll_info_time_absolute">remata en %s</string>
-    <plurals name="poll_info_people">
-        <item quantity="one">%s persoa</item>
-        <item quantity="other">%s persoas</item>
-    </plurals>
-    <plurals name="poll_info_votes">
-        <item quantity="one">%s voto</item>
-        <item quantity="other">%s votos</item>
-    </plurals>
-    <string name="poll_info_format"><!-- 15 votos • queda 1 hora -->%1$s • %2$s</string>
     <string name="compose_preview_image_description">Accións para a imaxe %s</string>
     <string name="notification_clear_text">Tes a certeza de que queres borrar permanentemente todas as notificacións\?</string>
     <string name="compose_shortcut_short_label">Redactar</string>
@@ -163,29 +121,10 @@
     <string name="hashtags">Cancelos</string>
     <string name="edit_hashtag_hint">Cancelo sen #</string>
     <string name="add_hashtag_title">Engadir cancelo</string>
-    <string name="description_poll">Enquisa con opcións: %1$s, %2$s, %3$s, %4$s; %5$s</string>
-    <string name="description_visibility_direct">Directo</string>
-    <string name="description_visibility_private">Seguidoras</string>
-    <string name="description_visibility_unlisted">Non listado</string>
-    <string name="description_visibility_public">Público</string>
-    <string name="description_post_bookmarked">Marcado</string>
-    <string name="description_post_favourited">Favorecido</string>
-    <string name="description_post_reblogged">Repetido</string>
-    <string name="description_post_media_no_description_placeholder">Sen descrición</string>
-    <string name="description_post_cw">Aviso sobre o contido: %s</string>
-    <string name="description_post_media">Multimedia: %s</string>
     <string name="conversation_more_recipients">%1$s, %2$s e %3$d máis</string>
     <string name="conversation_2_recipients">%1$s e %2$s</string>
     <string name="title_favourited_by">Favorecido por</string>
     <string name="title_reblogged_by">Promovido por</string>
-    <plurals name="reblogs">
-        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Promoción</item>
-        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Promocións</item>
-    </plurals>
-    <plurals name="favs">
-        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Favorito</item>
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Favoritos</item>
-    </plurals>
     <string name="pin_action">Fixar</string>
     <string name="unpin_action">Desafixar</string>
     <string name="label_remote_account">A información inferior sobre a usuaria podería non estar completa. Preme para ver o perfil completo no navegador.</string>
@@ -225,7 +164,6 @@
     <string name="filter_dialog_whole_word">Palabra completa</string>
     <string name="filter_dialog_update_button">Actualizar</string>
     <string name="filter_dialog_remove_button">Eliminar</string>
-    <string name="filter_edit_title">Editar filtro</string>
     <string name="filter_addition_title">Engadir filtro</string>
     <string name="pref_title_thread_filter_keywords">Conversas</string>
     <string name="pref_title_public_filter_keywords">Cronoloxías públicas</string>
@@ -233,21 +171,7 @@
     <string name="pref_title_alway_open_spoiler">Despregar sempre publicacións marcadas con avisos sobre o contido</string>
     <string name="pref_title_alway_show_sensitive_media">Mostrar sempre contido sensible</string>
     <string name="follows_you">Séguete</string>
-    <string name="abbreviated_seconds_ago">%ds</string>
-    <string name="abbreviated_minutes_ago">%dm</string>
-    <string name="abbreviated_hours_ago">%dh</string>
-    <string name="abbreviated_days_ago">%dd</string>
-    <string name="abbreviated_years_ago">%dy</string>
-    <string name="abbreviated_in_seconds">fai %ds</string>
-    <string name="abbreviated_in_hours">fai %dh</string>
-    <string name="abbreviated_in_minutes">fai %dm</string>
-    <string name="abbreviated_in_days">en %dd</string>
-    <string name="abbreviated_in_years">en %dy</string>
     <string name="state_follow_requested">Seguimento solicitado</string>
-    <string name="post_media_attachments">Anexos</string>
-    <string name="post_media_audio">Audio</string>
-    <string name="post_media_video">Vídeo</string>
-    <string name="post_media_images">Imaxes</string>
     <string name="post_share_link">Compartir ligazón ao toot</string>
     <string name="post_share_content">Compartir contido do toot</string>
     <string name="description_account_locked">Conta bloqueada</string>
@@ -349,7 +273,6 @@
     <string name="hint_content_warning">Aviso sobre o contido</string>
     <string name="hint_compose">Que contas\?</string>
     <string name="draft_deleted">Borrador eliminado</string>
-    <string name="drafts_failed_loading_reply">Fallou a carga da información da Resposta</string>
     <string name="drafts_post_failed_to_send">Fallou o envío do toot!</string>
     <plurals name="error_upload_max_media_reached">
         <item quantity="one">Non podes subir máis de %1$d anexo multimedia.</item>
@@ -430,7 +353,6 @@
     <string name="title_migration_relogin">Volve a acceder para ter notificacións push</string>
     <string name="notification_update_format">%s editou a publicación</string>
     <string name="saving_draft">Gardando borrador…</string>
-    <string name="status_count_one_plus">1+</string>
     <string name="action_edit_image">Editar imaxe</string>
     <string name="error_image_edit_failed">A imaxe non puido ser editada.</string>
     <string name="set_focus_description">Toca ou arrastra o círculo para elexir onde centrar a imaxe e sexa máis visible nas miniaturas.</string>
@@ -456,7 +378,6 @@
     <string name="report_category_other">Outra</string>
     <string name="error_following_hashtags_unsupported">Esta instancia non ten soporte para seguimento de cancelos.</string>
     <string name="title_followed_hashtags">Cancelos seguidos</string>
-    <string name="status_created_at_now">agora</string>
     <string name="notification_report_format">Nova denuncia en %s</string>
     <string name="notification_header_report_format">%s denunciou a %s</string>
     <plurals name="notification_summary_report_format">
@@ -468,9 +389,6 @@
     <string name="pref_title_http_proxy_port_message">O porto debe estar entre %d e %d</string>
     <string name="error_muting_hashtag_format">Erro ao acalar #%s</string>
     <string name="error_unmuting_hashtag_format">Erro ao reactivar #%s</string>
-    <string name="description_post_edited">Editado</string>
-    <string name="post_media_alt">ALT</string>
-    <string name="post_edited">Editado %s</string>
     <string name="error_status_source_load">Fallou a carga da fonte do estado desde o servidor.</string>
     <string name="a11y_label_loading_thread">Cargando fío</string>
     <string name="mute_notifications_switch">Acalar notificacións</string>
@@ -519,8 +437,6 @@
     <string name="ui_error_reject_follow_request">Fallou o rexeitamento da solicitude de seguimento: %s</string>
     <string name="ui_success_accepted_follow_request">Aceptado o seguimento</string>
     <string name="ui_success_rejected_follow_request">Bloqueada a solicitude de seguimento</string>
-    <string name="status_filtered_show_anyway">Mostrar igualmente</string>
-    <string name="status_filter_placeholder_label_format">Filtrado: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Perfís</string>
     <string name="label_filter_title">Título</string>
     <string name="filter_action_warn">Aviso</string>
@@ -564,7 +480,6 @@
     <string name="notification_severed_relationships_unknown_body">Razón descoñecida</string>
     <string name="action_translate">Traducir</string>
     <string name="action_translate_undo">Non traducir</string>
-    <string name="poll_show_votes">Ver votos</string>
     <string name="action_filter_search">Filtrar a busca</string>
     <string name="notification_severed_relationships_name">Relacións perdidas</string>
     <string name="compose_schedule_date_time_fmt">%1$s %2$s</string>
@@ -587,9 +502,7 @@
     <string name="pref_title_update_notification_frequency">Avísame cando haxa novas versións de Pachli</string>
     <string name="error_media_playback">Fallou a reprodución: %s</string>
     <string name="update_dialog_title">Hai unha actualización dispoñible</string>
-    <string name="translation_provider_fmt">%1$s</string>
     <string name="update_dialog_neutral">Non avisarme para esta versión</string>
-    <string name="translating">Traducindo…</string>
     <string name="announcement_date">%1$s %2$s</string>
     <string name="load_newest_statuses">Cargar as publicacións máis recentes</string>
     <string name="pref_title_labs">Experimental</string>
@@ -612,8 +525,6 @@
     <string name="error_prepare_media_unknown_mime_type">tipo de ficheiro descoñecido</string>
     <string name="error_prepare_media_unsupported_mime_type_fmt">o servidor non é compatible co tipo de ficheiro: %1$s</string>
     <string name="error_pick_media_fmt">Non se anexou o ficheiro á publicación: %1$s</string>
-    <string name="preview_card_byline_fediverse_account_fmt">Le máis de %1$s</string>
-    <string name="error_load_filter_failed_fmt">Fallou a carga do filtro: %1$s</string>
     <string name="error_save_filter_failed_fmt">Non se gardou o filtro: %1$s</string>
     <string name="search_operator_attachment_dialog_image_label">Imaxes</string>
     <string name="search_operator_attachment_dialog_video_label">Vídeo</string>
@@ -687,7 +598,6 @@
     <string name="search_operator_attachment_none">Nada</string>
     <string name="search_operator_embed_all">Tarxetas de previsualización ▾</string>
     <string name="search_operator_embed_only">Só tarxetas de previsualización</string>
-    <string name="server_repository_error">Non se obtivo a información do servidor %1$s: %2$s</string>
     <string name="error_filter_missing_keyword">Require polo menos unha palabra ou frase</string>
     <string name="error_filter_missing_context">Require polo menos un contexto a filtrar</string>
     <string name="pref_update_check_no_updates">Non hai actualizacións dispoñibles</string>

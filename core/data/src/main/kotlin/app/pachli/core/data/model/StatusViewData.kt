@@ -18,24 +18,45 @@ package app.pachli.core.data.model
 import android.os.Build
 import app.pachli.core.common.util.shouldTrimStatus
 import app.pachli.core.data.BuildConfig
-import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.data.extensions.getAttachmentDisplayAction
+import app.pachli.core.data.repository.PachliAccount
+import app.pachli.core.database.model.TimelineStatusWithQuote
 import app.pachli.core.database.model.TranslatedStatusEntity
 import app.pachli.core.database.model.TranslationState
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.FilterContext
+import app.pachli.core.model.IStatus
 import app.pachli.core.model.Status
+import app.pachli.core.model.TimelineAccount
 import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.network.replaceCrashingCharacters
 
 /**
  * Interface for the data shown when viewing a status, or something that wraps
- * a status, like [NotificationViewData] or
- * [app.pachli.components.conversation.ConversationViewData].
+ * a status, like [NotificationViewData] or [ConversationViewData].
+ *
+ * See [IStatusItemViewData].
  */
-interface IStatusViewData {
+sealed interface IStatusViewData : IStatus {
     /** ID of the Pachli account that loaded this status. */
     val pachliAccountId: Long
+
+    val id: String
+        get() = status.statusId
+
     val username: String
+
+    // TODO: rebloggedAvatar is the wrong name for this property. This is the avatar to show
+    // inset in the main avatar view. When viewing a boosted status in a timeline this is
+    // avatar that boosted it, but when viewing a notification about a boost or favourite
+    // this is the avatar that boosted/favourited it
     val rebloggedAvatar: String?
+        get() = if (status.reblog != null) {
+            status.account.avatar
+        } else {
+            null
+        }
 
     var translation: TranslatedStatusEntity?
 
@@ -46,12 +67,6 @@ interface IStatusViewData {
      * Ignored if there is no content warning.
      */
     val isExpanded: Boolean
-
-    /**
-     * If the status contains attached media, specifies whether whether the media is shown
-     * (true), or not (false).
-     */
-    val isShowingContent: Boolean
 
     /**
      * Specifies whether the content of this status is long enough to be automatically
@@ -69,16 +84,7 @@ interface IStatusViewData {
      */
     val isCollapsed: Boolean
 
-    /** The content warning, may be the empty string */
-    val spoilerText: String
-
-    /**
-     * The content to show for this status. May be the original content, or
-     * translated, depending on `translationState`.
-     */
-    val content: CharSequence
-
-    /** The underlying network status */
+    /** The underlying status */
     val status: Status
 
     /**
@@ -92,19 +98,127 @@ interface IStatusViewData {
      * and `actionable` are the same.
      */
     val actionable: Status
+        get() = status.actionableStatus
 
     /**
      * The ID of the [actionable] status.
      */
     val actionableId: String
+        get() = status.actionableStatus.statusId
 
     val rebloggingStatus: Status?
+        get() = if (status.reblog != null) status else null
 
     /** The [FilterAction] to apply, based on the status' content. */
     var contentFilterAction: FilterAction
 
     /** The current translation state */
     val translationState: TranslationState
+
+    /** How to display attachments on this status. */
+    val attachmentDisplayAction: AttachmentDisplayAction
+
+    /**
+     * If this is a reply, the account being replied to.
+     *
+     * Null in two cases:
+     *
+     * 1. The status is not a reply.
+     * 2. The status is a reply, and we do not have a local copy of the account
+     * details to show, and a generic "Reply" indicator should be shown.
+     */
+    val replyToAccount: TimelineAccount?
+
+    /**
+     * Specifies whether this status should be shown with the "detailed" layout, meaning it is
+     * the status that has a focus when viewing a thread.
+     */
+    val isDetailed: Boolean
+
+    /**
+     * True if this status was posted by the user with [pachliAccountId],
+     * otherwise false.
+     */
+    val isUsersStatus: Boolean
+}
+
+/**
+ * The [IStatusViewData] for a status and any status it quotes (if present).
+ *
+ * Collectively, these form a "status item", ready for display.
+ */
+sealed interface IStatusItemViewData : IStatusViewData {
+    val statusViewData: StatusViewData
+    val quotedViewData: StatusViewData?
+
+    /**
+     * @return [quotedViewData] as a [QuotedStatusViewData].
+     */
+    fun asQuotedStatusViewData() = quotedViewData?.let { quotedViewData ->
+        QuotedStatusViewData(
+            parentId = statusViewData.actionableId,
+            statusViewData = quotedViewData,
+            quoteState = statusViewData.quote!!.state,
+        )
+    }
+}
+
+/**
+ * Contains a status, and an optional status being quoted.
+ */
+data class StatusItemViewData(
+    override val statusViewData: StatusViewData,
+    override val quotedViewData: StatusViewData? = null,
+) : IStatusItemViewData, IStatusViewData by statusViewData {
+
+    companion object {
+        fun from(
+            pachliAccount: PachliAccount,
+            timelineStatusWithQuote: TimelineStatusWithQuote,
+            isExpanded: Boolean,
+            isDetailed: Boolean = false,
+            contentFilterAction: FilterAction,
+            quoteContentFilterAction: FilterAction?,
+            translationState: TranslationState = TranslationState.SHOW_ORIGINAL,
+            showSensitiveMedia: Boolean,
+            filterContext: FilterContext?,
+        ): StatusItemViewData {
+            return StatusItemViewData(
+                statusViewData = StatusViewData.from(
+                    pachliAccount,
+                    timelineStatusWithQuote.timelineStatus.toStatus(),
+                    translation = timelineStatusWithQuote.timelineStatus.translatedStatus,
+                    isExpanded = timelineStatusWithQuote.timelineStatus.viewData?.expanded ?: isExpanded,
+                    isCollapsed = timelineStatusWithQuote.timelineStatus.viewData?.contentCollapsed ?: true,
+                    isDetailed = isDetailed,
+                    contentFilterAction = contentFilterAction,
+                    attachmentDisplayAction = timelineStatusWithQuote.timelineStatus.getAttachmentDisplayAction(
+                        filterContext,
+                        showSensitiveMedia,
+                    ),
+                    translationState = timelineStatusWithQuote.timelineStatus.viewData?.translationState ?: translationState,
+                    replyToAccount = timelineStatusWithQuote.timelineStatus.replyAccount?.asModel(),
+                ),
+                quotedViewData = timelineStatusWithQuote.quotedStatus?.let { status ->
+                    StatusViewData.from(
+                        pachliAccount,
+                        status.toStatus(),
+                        translation = status.translatedStatus,
+                        isExpanded = status.viewData?.expanded ?: isExpanded,
+                        isCollapsed = status.viewData?.contentCollapsed ?: true,
+                        isDetailed = false,
+                        contentFilterAction = quoteContentFilterAction ?: FilterAction.NONE,
+                        attachmentDisplayAction = status.getAttachmentDisplayAction(
+                            filterContext,
+                            showSensitiveMedia,
+                        ),
+                        translationState = status.viewData?.translationState ?: translationState,
+                        replyToAccount = status.replyAccount?.asModel(),
+                    )
+                },
+            )
+        }
+    }
 }
 
 /**
@@ -112,23 +226,23 @@ interface IStatusViewData {
  */
 data class StatusViewData(
     override val pachliAccountId: Long,
-    override var status: Status,
+    override val status: Status,
     override var translation: TranslatedStatusEntity? = null,
     override val isExpanded: Boolean,
-    override val isShowingContent: Boolean,
     override val isCollapsed: Boolean,
     override var contentFilterAction: FilterAction = FilterAction.NONE,
     override val translationState: TranslationState,
+    override val attachmentDisplayAction: AttachmentDisplayAction,
+    override val replyToAccount: TimelineAccount?,
 
     /**
      * Specifies whether this status should be shown with the "detailed" layout, meaning it is
      * the status that has a focus when viewing a thread.
      */
-    val isDetailed: Boolean = false,
-) : IStatusViewData {
-    val id: String
-        get() = status.id
+    override val isDetailed: Boolean = false,
 
+    override val isUsersStatus: Boolean,
+) : IStatusViewData, IStatus by status {
     override val isCollapsible: Boolean
 
     private val _content: CharSequence
@@ -149,21 +263,12 @@ data class StatusViewData(
 
     override val username: String
 
-    override val actionable: Status
-        get() = status.actionableStatus
-
-    override val actionableId: String
-        get() = status.actionableStatus.id
-
     override val rebloggedAvatar: String?
         get() = if (status.reblog != null) {
             status.account.avatar
         } else {
             null
         }
-
-    override val rebloggingStatus: Status?
-        get() = if (status.reblog != null) status else null
 
     init {
         if (Build.VERSION.SDK_INT == 23) {
@@ -189,15 +294,16 @@ data class StatusViewData(
 
     companion object {
         fun from(
-            pachliAccountId: Long,
+            pachliAccount: PachliAccount,
             status: Status,
-            isShowingContent: Boolean,
             isExpanded: Boolean,
             isCollapsed: Boolean,
             isDetailed: Boolean = false,
             contentFilterAction: FilterAction = FilterAction.NONE,
+            attachmentDisplayAction: AttachmentDisplayAction = AttachmentDisplayAction.Show(),
             translationState: TranslationState = TranslationState.SHOW_ORIGINAL,
             translation: TranslatedStatusEntity? = null,
+            replyToAccount: TimelineAccount?,
         ): StatusViewData {
             if (BuildConfig.DEBUG) {
                 // TODO: Ensure that invalid state is not representable.
@@ -211,52 +317,33 @@ data class StatusViewData(
             }
 
             return StatusViewData(
-                pachliAccountId = pachliAccountId,
+                pachliAccountId = pachliAccount.id,
                 status = status,
-                isShowingContent = isShowingContent,
-                isCollapsed = isCollapsed,
+                translation = translation,
                 isExpanded = isExpanded,
-                isDetailed = isDetailed,
+                isCollapsed = isCollapsed,
                 contentFilterAction = contentFilterAction,
                 translationState = translationState,
-                translation = translation,
-            )
-        }
-
-        /**
-         *
-         * @param timelineStatusWithAccount
-         * @param isExpanded Default expansion behaviour for a status with a content
-         * warning. Used if the status viewdata is null
-         * @param isShowingContent Default behaviour for a status with attached media.
-         * Used if the status viewdata is null.
-         * @param isDetailed True if the status should be shown with the detailed
-         * layout, false otherwise.
-         * @param contentFilterAction
-         * @param translationState Default translation state for this status. Used if
-         * the status viewdata is null.
-         */
-        fun from(
-            pachliAccountId: Long,
-            timelineStatusWithAccount: TimelineStatusWithAccount,
-            isExpanded: Boolean,
-            isShowingContent: Boolean,
-            isDetailed: Boolean = false,
-            contentFilterAction: FilterAction,
-            translationState: TranslationState = TranslationState.SHOW_ORIGINAL,
-        ): StatusViewData {
-            val status = timelineStatusWithAccount.toStatus()
-            return StatusViewData(
-                pachliAccountId = pachliAccountId,
-                status = status,
-                translation = timelineStatusWithAccount.translatedStatus,
-                isExpanded = timelineStatusWithAccount.viewData?.expanded ?: isExpanded,
-                isShowingContent = timelineStatusWithAccount.viewData?.contentShowing ?: (isShowingContent || !status.actionableStatus.sensitive),
-                isCollapsed = timelineStatusWithAccount.viewData?.contentCollapsed ?: true,
+                attachmentDisplayAction = attachmentDisplayAction,
+                replyToAccount = replyToAccount,
                 isDetailed = isDetailed,
-                contentFilterAction = contentFilterAction,
-                translationState = timelineStatusWithAccount.viewData?.translationState ?: translationState,
+                isUsersStatus = pachliAccount.entity.accountId == status.actionableStatus.account.id,
             )
         }
     }
 }
+
+/**
+ * Data required to display a quoted status.
+ *
+ * @property parentId Actionable ID of the status that is quoting this
+ * status. Required to revoke the quote.
+ * @property statusViewData [StatusViewData] of the quoted status.
+ * @property quoteState [Status.QuoteState] for the quote. Not all quotes are
+ * displayed.
+ */
+data class QuotedStatusViewData(
+    val parentId: String,
+    val statusViewData: StatusViewData,
+    val quoteState: Status.QuoteState,
+) : IStatusViewData by statusViewData

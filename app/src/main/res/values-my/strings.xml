@@ -28,9 +28,6 @@
     <string name="dialog_follow_hashtag_title">Hashtag ကိုစောင့်ကြည့်မည်</string>
     <string name="dialog_follow_hashtag_hint">#hashtag</string>
     <string name="post_sensitive_media_directions">ကြည့်ရန်နှိပ်ပါ</string>
-    <string name="post_content_warning_show_more">ပို၍</string>
-    <string name="post_content_warning_show_less">ချုံ့မည်</string>
-    <string name="post_edited">ပြုပြင်ထား %s</string>
     <string name="notification_follow_request_format">%s မှသင့်အားစောင့်ကြည့်ခွင့်တောင်းခံထားသည်</string>
     <string name="notification_subscription_format">%s ပိုစ့်တင်သည်</string>
     <string name="notification_update_format">%s သည်၎င်းတို့၌ပိုစ့်ကိုပြုပြင်ခဲ့သည်</string>
@@ -40,9 +37,6 @@
         <item quantity="other">%1$s မှ %2$d အထိပိုစ့်များပါဝင်သည်</item>
     </plurals>
     <string name="report_comment_hint">ဖြည့်စွက်မှတ်ချက်များရှိပါသလား</string>
-    <string name="action_unreblog">ပယ်ဖျက်မည်</string>
-    <string name="action_favourite">ကြိုက်သည်</string>
-    <string name="action_bookmark">သိမ်းဆည်းမည်</string>
     <string name="action_compose">စာစီမည်</string>
     <string name="action_post_failed_show_drafts">ပုံကြမ်းများပြရန်</string>
     <string name="action_post_failed_do_nothing">ပယ်ဖျက်မည်</string>
@@ -78,14 +72,8 @@
     <string name="title_domain_mutes">ဖျောက်ထားသော ဒိုမိန်းများ</string>
     <string name="title_bookmarks">သိမ်းဆည်းမှုများ</string>
     <string name="title_edits">ပြုပြင်မှုများ</string>
-    <string name="post_boosted_format">%s တစ်ဆင့်မျှဝေပြီး</string>
-    <string name="post_sensitive_media_title">ထိလွယ်ရှလွယ်သော</string>
-    <string name="post_media_hidden_title">မီဒီယာဖျောက်ထား</string>
-    <string name="post_media_alt">ပုံစာ</string>
     <string name="notification_reblog_format">%s မှသင့်ပိုစ့်ကိုတစ်ဆင့်မျှဝေသည်</string>
-    <string name="post_content_show_more">ချဲ့မည်</string>
     <string name="notification_favourite_format">%s မှသင့်ပိုစ့်ကိုကြိုက်နှစ်သက်သည်</string>
-    <string name="post_content_show_less">ဖြန့်မည်</string>
     <string name="footer_empty">ဘာမှမရှိ။ ရီဖလက်ရှ်လုပ်ရန်အောက်သို့ဆွဲပါ!</string>
     <string name="notification_follow_format">%s မှသင့်အားစောင့်ကြည့်ခြင်းစတင်သည်</string>
     <string name="notification_severed_relationships_user_domain_block_body">သင် ဒိုမိန်းအားဘလော့ခ်ထားသည်</string>
@@ -94,9 +82,6 @@
     <string name="notification_header_report_format">%s မှ %s အားတိုင်ကြားထားသည်</string>
     <string name="report_username_format">\@%s အားတိုင်ကြားမည်</string>
     <string name="action_quick_reply">အမြန်ပြန်စာ</string>
-    <string name="action_reply">ပြန်စာ</string>
-    <string name="action_reblog">တစ်ဆင့်မျှဝေမှု</string>
-    <string name="action_unfavourite">ပယ်ဖျက်မည်</string>
     <string name="action_unbookmark">သိမ်ဆည်းမှုဖယ်ရှားမည်</string>
     <string name="action_post_failed">ပို့စ်တင်ခြင်းမအောင်မြင်ပါ</string>
     <string name="action_post_failed_detail_plural">ပိုစ့်တင်ခြင်းမအောင်မြင်ပါ ပုံကြမ်းများထဲတွင်သိမ်းထားသည်။\n\nဆာဗာအားမချိတ်ဆက်နိုင်ခြင်း သို့ ပယ်ချခြင်းဖြစ်နိုင်သည်။</string>
@@ -156,7 +141,7 @@
     <string name="pref_summary_content_filters">သင့်ဆာဗာသည် အကြောင်းအရာစစ်ထုတ်မှုကိုမထောက်ပံ့ပါ</string>
     <string name="pref_title_browser_settings">ဘရောက်ဇာ</string>
     <string name="pref_title_custom_tabs">ဘရောက်ဇာ custom တဘ်များကိုသုံးမည်</string>
-    <string name="notification_severed_relationships_format"><b>%1$s</b> နှင့်ဆက်ဆံရေးစတင်သည်</string>
+    <string name="notification_severed_relationships_format">&lt;b>%1$s&lt;/b> နှင့်ဆက်ဆံရေးစတင်သည်</string>
     <string name="action_report">တိုင်ကြားမည်</string>
     <string name="action_view_preferences">ပြင်ဆင်စရာများ</string>
     <string name="action_view_mutes">ကန့်သတ်ထားသောအသုံးပြုသူ</string>
@@ -166,7 +151,6 @@
     <string name="action_view_bookmarks">သိမ်းဆည်းထားသည်များ</string>
     <string name="action_view_follow_requests">စောင့်ကြည့်ရန်တောင်းဆိုမှုများ</string>
     <string name="action_view_domain_mutes">ဖယ်ရှားထားသောဒိုမိန်းများ</string>
-    <string name="action_view_media">မီဒီယာ</string>
     <string name="action_open_in_web">ဘရောက်ဇာတွင်ဖွင့်မည်</string>
     <string name="action_photo_take">ပုံရိုက်မည်</string>
     <string name="action_share">မျှဝေမည်</string>

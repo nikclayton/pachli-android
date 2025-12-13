@@ -49,10 +49,14 @@ data class CredentialAccount(
     val followersCount: Int = 0,
     val followingCount: Int = 0,
     val statusesCount: Int = 0,
-    val role: Role? = null,
+    val role: CredentialedRole? = null,
     val roles: List<Role>? = emptyList(),
 )
 
+/**
+ * @property quotePolicy The default [QuotePolicy] for the user's
+ * statuses.
+ */
 data class AccountSource(
     val privacy: Status.Visibility? = null,
     val sensitive: Boolean? = null,
@@ -60,4 +64,41 @@ data class AccountSource(
     val fields: List<StringField> = emptyList(),
     val language: String? = null,
     val attributionDomains: List<String> = emptyList(),
+    val quotePolicy: QuotePolicy = QuotePolicy.PUBLIC,
+) {
+    enum class QuotePolicy {
+        /** Automatically quoteable by anyone. */
+        PUBLIC,
+
+        /** Automatically quoteable by followers. */
+        FOLLOWERS,
+
+        /** No one can quote. */
+        NOBODY,
+    }
+}
+
+/**
+ * Convert a [Status.QuoteApproval] to a [QuotePolicy].
+ *
+ * Required when editing a status, [StatusSource] does not contain the original
+ * [AccountSource.QuotePolicy], so we have to try and figure it out.
+ *
+ * The imperfect heuristic is:
+ *
+ * - If PUBLIC is automatically approved then the original policy was "public".
+ * - If FOLLOWERS is automatically approved then the original policy was "followers".
+ * - Anything else means the original policy was "NOBODY".
+ */
+fun Status.QuoteApproval.asQuotePolicy(): AccountSource.QuotePolicy {
+    if (this.automatic.contains(Status.QuoteApproval.QuoteApprovalAutomatic.PUBLIC)) return AccountSource.QuotePolicy.PUBLIC
+    if (this.automatic.contains(Status.QuoteApproval.QuoteApprovalAutomatic.FOLLOWERS)) return AccountSource.QuotePolicy.FOLLOWERS
+    return AccountSource.QuotePolicy.NOBODY
+}
+
+data class CredentialedRole(
+    val name: String,
+    val color: String,
+    val permissions: String,
+    val highlighted: Boolean,
 )

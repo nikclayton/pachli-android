@@ -19,11 +19,14 @@ package app.pachli.components.drafts
 import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.core.view.ViewGroupCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.pachli.R
 import app.pachli.core.activity.BaseActivity
+import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.database.model.DraftEntity
 import app.pachli.core.navigation.ComposeActivityIntent
@@ -31,6 +34,9 @@ import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.network.retrofit.apiresult.ClientError
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.appbar.FadeChildScrollEffect
+import app.pachli.core.ui.extensions.addScrollEffect
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.ActivityDraftsBinding
 import app.pachli.db.DraftsAlert
 import com.github.michaelbull.result.onFailure
@@ -51,12 +57,16 @@ class DraftsActivity : BaseActivity(), DraftActionListener {
 
     private val viewModel: DraftsViewModel by viewModels()
 
-    private lateinit var binding: ActivityDraftsBinding
+    private val binding by viewBinding(ActivityDraftsBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.includedToolbar.appbar.applyDefaultWindowInsets()
+        binding.includedToolbar.toolbar.addScrollEffect(FadeChildScrollEffect)
+        binding.draftsRecyclerView.applyDefaultWindowInsets()
 
-        binding = ActivityDraftsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.includedToolbar.toolbar)
@@ -91,50 +101,6 @@ class DraftsActivity : BaseActivity(), DraftActionListener {
     }
 
     override fun onOpenDraft(draft: DraftEntity) {
-        if (draft.inReplyToId == null) {
-            openDraftWithoutReply(draft)
-            return
-        }
-
-        val context = this as Context
-
-        lifecycleScope.launch {
-            viewModel.getStatus(draft.inReplyToId!!)
-                .onSuccess {
-                    val status = it.body.asModel()
-                    val composeOptions = ComposeOptions(
-                        draftId = draft.id,
-                        content = draft.content,
-                        contentWarning = draft.contentWarning,
-                        inReplyTo = ComposeOptions.InReplyTo.Status.from(status),
-                        draftAttachments = draft.attachments,
-                        poll = draft.poll,
-                        sensitive = draft.sensitive,
-                        visibility = draft.visibility,
-                        scheduledAt = draft.scheduledAt,
-                        language = draft.language,
-                        statusId = draft.statusId,
-                        kind = ComposeOptions.ComposeKind.EDIT_DRAFT,
-                    )
-
-                    startActivity(ComposeActivityIntent(context, intent.pachliAccountId, composeOptions))
-                }.onFailure { error ->
-                    Timber.w("failed loading reply information: %s", error)
-
-                    if (error is ClientError.NotFound) {
-                        // the original status to which a reply was drafted has been deleted
-                        // let's open the ComposeActivity without reply information
-                        Toast.makeText(context, getString(R.string.drafts_post_reply_removed), Toast.LENGTH_LONG).show()
-                        openDraftWithoutReply(draft)
-                    } else {
-                        Snackbar.make(binding.root, getString(R.string.drafts_failed_loading_reply), Snackbar.LENGTH_SHORT)
-                            .show()
-                    }
-                }
-        }
-    }
-
-    private fun openDraftWithoutReply(draft: DraftEntity) {
         val composeOptions = ComposeOptions(
             draftId = draft.id,
             content = draft.content,
@@ -147,9 +113,88 @@ class DraftsActivity : BaseActivity(), DraftActionListener {
             language = draft.language,
             statusId = draft.statusId,
             kind = ComposeOptions.ComposeKind.EDIT_DRAFT,
+            quotePolicy = draft.quotePolicy,
         )
 
-        startActivity(ComposeActivityIntent(this, intent.pachliAccountId, composeOptions))
+        if (draft.inReplyToId == null && draft.quotedStatusId == null) {
+            startActivity(ComposeActivityIntent(this, intent.pachliAccountId, composeOptions))
+            return
+        }
+
+        val context = this as Context
+
+        draft.inReplyToId?.let { inReplyToId ->
+            lifecycleScope.launch {
+                viewModel.getStatus(inReplyToId)
+                    .onSuccess {
+                        startActivity(
+                            ComposeActivityIntent(
+                                this@DraftsActivity,
+                                intent.pachliAccountId,
+                                composeOptions.copy(
+                                    referencingStatus = ComposeOptions.ReferencingStatus.ReplyingTo.from(it.body.asModel()),
+                                ),
+                            ),
+                        )
+                    }
+                    .onFailure { error ->
+                        Timber.w("failed loading reply information: %s", error)
+
+                        if (error is ClientError.NotFound) {
+                            // the original status to which a reply was drafted has been deleted
+                            // let's open the ComposeActivity without reply information
+                            Toast.makeText(context, getString(R.string.drafts_post_reply_removed), Toast.LENGTH_LONG).show()
+                            startActivity(ComposeActivityIntent(context, intent.pachliAccountId, composeOptions))
+                        } else {
+                            Snackbar.make(
+                                binding.root,
+                                getString(
+                                    R.string.drafts_load_reply_failed_fmt,
+                                    error.fmt(context),
+                                ),
+                                Snackbar.LENGTH_SHORT,
+                            ).show()
+                        }
+                    }
+            }
+            return
+        }
+
+        draft.quotedStatusId?.let { quotedStatusId ->
+            lifecycleScope.launch {
+                viewModel.getStatus(quotedStatusId)
+                    .onSuccess {
+                        startActivity(
+                            ComposeActivityIntent(
+                                this@DraftsActivity,
+                                intent.pachliAccountId,
+                                composeOptions.copy(
+                                    referencingStatus = ComposeOptions.ReferencingStatus.Quoting.from(it.body.asModel()),
+                                ),
+                            ),
+                        )
+                    }
+                    .onFailure { error ->
+                        Timber.w("failed loading quote information: %s", error)
+
+                        if (error is ClientError.NotFound) {
+                            // the original status being quoted has been deleted
+                            // let's open the ComposeActivity without quote information
+                            Toast.makeText(context, getString(R.string.drafts_post_quote_removed), Toast.LENGTH_LONG).show()
+                            startActivity(ComposeActivityIntent(context, intent.pachliAccountId, composeOptions))
+                        } else {
+                            Snackbar.make(
+                                binding.root,
+                                getString(
+                                    R.string.drafts_load_quote_failed_fmt,
+                                    error.fmt(context),
+                                ),
+                                Snackbar.LENGTH_SHORT,
+                            ).show()
+                        }
+                    }
+            }
+        }
     }
 
     override fun onDeleteDraft(draft: DraftEntity) {

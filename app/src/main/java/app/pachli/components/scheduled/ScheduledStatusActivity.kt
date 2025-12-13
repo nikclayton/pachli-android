@@ -20,9 +20,11 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewGroupCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,9 +38,12 @@ import app.pachli.core.eventhub.StatusScheduledEvent
 import app.pachli.core.model.ScheduledStatus
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
-import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InReplyTo
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.ReferencingStatus
 import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.appbar.FadeChildScrollEffect
+import app.pachli.core.ui.extensions.addScrollEffect
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.ActivityScheduledStatusBinding
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -67,7 +72,12 @@ class ScheduledStatusActivity :
     private val adapter = ScheduledStatusAdapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.includedToolbar.appbar.applyDefaultWindowInsets()
+        binding.includedToolbar.toolbar.addScrollEffect(FadeChildScrollEffect)
+        binding.scheduledTootList.applyDefaultWindowInsets()
 
         setContentView(binding.root)
         addMenuProvider(this)
@@ -88,7 +98,6 @@ class ScheduledStatusActivity :
             MaterialDividerItemDecoration(this, MaterialDividerItemDecoration.VERTICAL),
         )
         binding.scheduledTootList.adapter = adapter
-        binding.includedToolbar.appbar.setLiftOnScrollTargetView(binding.scheduledTootList)
 
         lifecycleScope.launch {
             viewModel.data.collectLatest { pagingData ->
@@ -163,13 +172,18 @@ class ScheduledStatusActivity :
                 content = item.params.text,
                 contentWarning = item.params.spoilerText,
                 mediaAttachments = item.mediaAttachments,
-                inReplyTo = item.params.inReplyToId?.let { InReplyTo.Id(it) },
+                referencingStatus = item.params.inReplyToId?.let {
+                    ReferencingStatus.ReplyId(it)
+                } ?: item.params.quotedStatusId?.let {
+                    ReferencingStatus.QuoteId(it)
+                },
                 visibility = item.params.visibility,
                 scheduledAt = item.scheduledAt,
                 sensitive = item.params.sensitive,
                 kind = ComposeOptions.ComposeKind.EDIT_SCHEDULED,
                 poll = item.params.poll,
                 language = item.params.language,
+                quotePolicy = item.params.quotePolicy,
             ),
         )
         startActivity(intent)

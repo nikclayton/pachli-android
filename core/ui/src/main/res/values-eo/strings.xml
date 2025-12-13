@@ -18,4 +18,85 @@
     <string name="action_logout_confirm">Ĉu vi certas, ke vi volas elsaluti el la konto %1$s?</string>
     <string name="add_account_name">Aldoni konton</string>
     <string name="action_logout">Elsaluti</string>
+    <string name="poll_vote">Voĉdoni</string>
+    <plurals name="poll_timespan_seconds">
+        <item quantity="one">%d sekundo restas</item>
+        <item quantity="other">%d sekundoj restas</item>
+    </plurals>
+    <plurals name="poll_timespan_minutes">
+        <item quantity="one">%d minuto restas</item>
+        <item quantity="other">%d minutoj restas</item>
+    </plurals>
+    <plurals name="poll_timespan_hours">
+        <item quantity="one">%d horo restas</item>
+        <item quantity="other">%d horoj restas</item>
+    </plurals>
+    <plurals name="poll_timespan_days">
+        <item quantity="one">%d tago restas</item>
+        <item quantity="other">%d tagoj restas</item>
+    </plurals>
+    <plurals name="poll_info_votes">
+        <item quantity="one">%s voĉdono</item>
+        <item quantity="other">%s voĉdonoj</item>
+    </plurals>
+    <plurals name="poll_info_people">
+        <item quantity="one">%s homo</item>
+        <item quantity="other">%s homoj</item>
+    </plurals>
+    <string name="poll_info_closed">finita</string>
+    <string name="poll_info_time_absolute">finiĝos je %s</string>
+    <string name="poll_info_format"><!-- 15 votes • 1 hour left -->%1$s • %2$s</string>
+    <string name="description_poll">Balotenketo kun elektoj: %1$s, %2$s, %3$s, %4$s, %5$s</string>
+    <string name="abbreviated_in_seconds">post %ds</string>
+    <string name="abbreviated_seconds_ago">%ds</string>
+    <string name="abbreviated_in_minutes">post %dm</string>
+    <string name="abbreviated_minutes_ago">%dm</string>
+    <string name="abbreviated_in_hours">post %dh</string>
+    <string name="abbreviated_hours_ago">%dh</string>
+    <string name="abbreviated_in_days">post %dt</string>
+    <string name="abbreviated_days_ago">%dt</string>
+    <string name="abbreviated_in_years">post %dj</string>
+    <string name="abbreviated_years_ago">%dj</string>
+    <string name="description_post_media_no_description_placeholder">        Neniu priskribo
+    </string>
+    <string name="description_visibility_public">        Publika
+    </string>
+    <string name="description_visibility_unlisted">        Nelistigita    </string>
+    <string name="description_visibility_private">        Sekvantoj
+    </string>
+    <string name="description_visibility_direct">        Rekta    </string>
+    <string name="post_sensitive_media_title">Tikla enhavo</string>
+    <string name="post_media_images">Bildoj</string>
+    <string name="post_media_audio">Aŭdaĵo</string>
+    <string name="post_media_video">Video</string>
+    <string name="post_media_attachments">Kunsendaĵoj</string>
+    <string name="action_reply">Respondi</string>
+    <string name="action_reblog">Diskonigi</string>
+    <string name="action_favourite">Stelumi</string>
+    <string name="action_bookmark">Aldoni al la legosignoj</string>
+    <string name="status_count_one_plus">1+</string>
+    <string name="action_unreblog">Nuligi diskonigon</string>
+    <string name="action_unfavourite">Nuligi stelumon</string>
+    <string name="post_content_warning_show_less">Montri malpli</string>
+    <string name="post_content_warning_show_more">Montri pli</string>
+    <string name="post_content_show_less">Malgrandigi</string>
+    <string name="description_post_reblogged">        Diskonigita
+    </string>
+    <string name="description_post_favourited">        Stelumita
+    </string>
+    <string name="description_post_bookmarked">Aldonita al la legosignoj</string>
+    <string name="description_post_media">        Aŭdovidaĵo: %s
+    </string>
+    <string name="description_post_cw">        Enhava averto: %s
+    </string>
+    <plurals name="reblogs">
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Diskonigo</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Diskonigoj</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Stelumo</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Stelumoj</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt; diskonigis</string>
+    <string name="filter_edit_title">Redakti filtrilon</string>
 </resources>

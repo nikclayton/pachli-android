@@ -16,25 +16,21 @@
 
 package app.pachli.components.report
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
-import androidx.paging.map
-import app.pachli.components.report.adapter.StatusesPagingSource
-import app.pachli.components.report.model.StatusViewState
+import app.pachli.components.timeline.NetworkTimelineRepository
+import app.pachli.components.timeline.viewmodel.NetworkTimelineViewModel
 import app.pachli.core.common.PachliError
-import app.pachli.core.data.model.StatusViewData
+import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.Loadable
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.data.repository.get
-import app.pachli.core.eventhub.BlockEvent
 import app.pachli.core.eventhub.EventHub
-import app.pachli.core.eventhub.MuteEvent
 import app.pachli.core.model.Relationship
 import app.pachli.core.model.Status
+import app.pachli.core.model.Timeline
 import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.preferences.SharedPreferencesRepository
+import app.pachli.usecase.TimelineCases
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -54,6 +50,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.shareIn
@@ -74,16 +71,32 @@ sealed interface AccountType {
     data class Remote(val server: String) : AccountType
 }
 
+/**
+ * [ReportViewModel] is a [NetworkTimelineViewModel] fixed to the
+ * [Timeline.User.Replies] timeline.
+ */
 @HiltViewModel(assistedFactory = ReportViewModel.Factory::class)
 class ReportViewModel @AssistedInject constructor(
-    @Assisted private val pachliAccountId: Long,
     @Assisted("reportedAccountId") private val reportedAccountId: String,
     @Assisted("reportedAccountUsername") val reportedAccountUsername: String,
     @Assisted("reportedStatusId") private val reportedStatusId: String?,
     private val mastodonApi: MastodonApi,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
-    private val eventHub: EventHub,
-) : ViewModel() {
+    eventHub: EventHub,
+    repository: NetworkTimelineRepository,
+    timelineCases: TimelineCases,
+    accountManager: AccountManager,
+    sharedPreferencesRepository: SharedPreferencesRepository,
+) : NetworkTimelineViewModel(
+    timeline = Timeline.User.Replies(reportedAccountId, excludeReblogs = true),
+    repository = repository,
+    timelineCases = timelineCases,
+    eventHub = eventHub,
+    accountManager = accountManager,
+    statusDisplayOptionsRepository = statusDisplayOptionsRepository,
+    sharedPreferencesRepository = sharedPreferencesRepository,
+) {
+    override val initialRefreshStatusId = flowOf(reportedStatusId)
 
     private val _navigation = MutableStateFlow(Screen.Statuses)
 
@@ -170,23 +183,8 @@ class ReportViewModel @AssistedInject constructor(
     private val _checkUrl = MutableStateFlow<String?>(null)
     val checkUrl: StateFlow<String?> = _checkUrl.asStateFlow()
 
-    val statusDisplayOptions = statusDisplayOptionsRepository.flow
-
-    val statusesFlow = Pager(
-        initialKey = this.reportedStatusId,
-        config = PagingConfig(pageSize = 20, initialLoadSize = 20),
-        pagingSourceFactory = { StatusesPagingSource(reportedAccountId, mastodonApi) },
-    ).flow
-        .map { pagingData ->
-                /* TODO: refactor reports to use the isShowingContent / isExpanded / isCollapsed attributes from StatusViewData
-                 instead of StatusViewState */
-            pagingData.map { status -> StatusViewData.from(pachliAccountId, status.asModel(), false, false, false) }
-        }
-        .cachedIn(viewModelScope)
-
     /** IDs of statuses the user is reporting. */
     private val selectedIds = HashSet<String>().apply { reportedStatusId?.let { add(it) } }
-    val statusViewState = StatusViewState()
 
     /** Text of the comment to include with the report. */
     var reportNote: String = ""
@@ -222,19 +220,16 @@ class ReportViewModel @AssistedInject constructor(
     fun toggleMute() {
         val alreadyMuted = muting.value.get()?.get() == true
 
+        val pachliAccountId = pachliAccountId.replayCache.lastOrNull() ?: return
+
         viewModelScope.launch {
             if (alreadyMuted) {
-                mastodonApi.unmuteAccount(this@ReportViewModel.reportedAccountId)
+                timelineCases.unmuteAccount(pachliAccountId, this@ReportViewModel.reportedAccountId)
             } else {
-                mastodonApi.muteAccount(this@ReportViewModel.reportedAccountId)
+                timelineCases.muteAccount(pachliAccountId, this@ReportViewModel.reportedAccountId)
             }
                 .map { it.body.muting }
-                .onSuccess {
-                    _muting.emit(Ok(Loadable.Loaded(it)))
-                    if (it) {
-                        eventHub.dispatch(MuteEvent(pachliAccountId, this@ReportViewModel.reportedAccountId))
-                    }
-                }
+                .onSuccess { _muting.emit(Ok(Loadable.Loaded(it))) }
                 .onFailure { _muting.emit(Err(it)) }
         }
     }
@@ -242,19 +237,16 @@ class ReportViewModel @AssistedInject constructor(
     fun toggleBlock() {
         val alreadyBlocked = blocking.value.get()?.get() == true
 
+        val pachliAccountId = pachliAccountId.replayCache.lastOrNull() ?: return
+
         viewModelScope.launch {
             if (alreadyBlocked) {
-                mastodonApi.unblockAccount(this@ReportViewModel.reportedAccountId)
+                timelineCases.unblockAccount(pachliAccountId, this@ReportViewModel.reportedAccountId)
             } else {
-                mastodonApi.blockAccount(this@ReportViewModel.reportedAccountId)
+                timelineCases.blockAccount(pachliAccountId, this@ReportViewModel.reportedAccountId)
             }
                 .map { it.body.blocking }
-                .onSuccess {
-                    _blocking.emit(Ok(Loadable.Loaded(it)))
-                    if (it) {
-                        eventHub.dispatch(BlockEvent(pachliAccountId, this@ReportViewModel.reportedAccountId))
-                    }
-                }
+                .onSuccess { _blocking.emit(Ok(Loadable.Loaded(it))) }
                 .onFailure { _blocking.emit(Err(it)) }
         }
     }
@@ -283,9 +275,9 @@ class ReportViewModel @AssistedInject constructor(
 
     fun setStatusChecked(status: Status, checked: Boolean) {
         if (checked) {
-            selectedIds.add(status.id)
+            selectedIds.add(status.statusId)
         } else {
-            selectedIds.remove(status.id)
+            selectedIds.remove(status.statusId)
         }
     }
 
@@ -295,9 +287,14 @@ class ReportViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        /** Creates [ReportViewModel] with [pachliAccountId] as the active account. */
+        /**
+         * Creates [ReportViewModel].
+         *
+         * @param reportedAccountId Server ID of the account to report.
+         * @param reportedAccountUsername Username of the account to report.
+         * @param reportedStatusId Server ID of the status to report.
+         */
         fun create(
-            pachliAccountId: Long,
             @Assisted("reportedAccountId") reportedAccountId: String,
             @Assisted("reportedAccountUsername") reportedAccountUsername: String,
             @Assisted("reportedStatusId") reportedStatusId: String?,

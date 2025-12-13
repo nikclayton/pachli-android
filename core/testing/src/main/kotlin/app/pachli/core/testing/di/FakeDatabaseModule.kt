@@ -17,11 +17,14 @@
 
 package app.pachli.core.testing.di
 
+import android.os.Build
 import androidx.room.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.platform.app.InstrumentationRegistry
 import app.pachli.core.database.AppDatabase
 import app.pachli.core.database.Converters
 import app.pachli.core.database.di.DatabaseModule
+import app.pachli.core.database.di.InvalidationTracker
 import app.pachli.core.database.di.TransactionProvider
 import com.squareup.moshi.Moshi
 import dagger.Module
@@ -40,15 +43,24 @@ object FakeDatabaseModule {
     @Singleton
     fun providesDatabase(moshi: Moshi): AppDatabase {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        return Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+        val roomBuilder = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .addTypeConverter(Converters(moshi))
             .allowMainThreadQueries()
-            .build()
+
+        // Tests run on the device should use the BundledSQLiteDriver, like the app.
+        // Tests run on Robolectic use the default driver provided by Robolectric.
+        if (Build.FINGERPRINT != "robolectric") roomBuilder.setDriver(BundledSQLiteDriver())
+
+        return roomBuilder.build()
     }
 
     @Provides
     @Singleton
     fun provideTransactionProvider(appDatabase: AppDatabase) = TransactionProvider(appDatabase)
+
+    @Provides
+    @Singleton
+    fun provideInvalidationTracker(appDatabase: AppDatabase) = InvalidationTracker(appDatabase)
 
     @Provides
     fun provideAccountDao(appDatabase: AppDatabase) = appDatabase.accountDao()
@@ -91,4 +103,7 @@ object FakeDatabaseModule {
 
     @Provides
     fun providesStatusDao(appDatabase: AppDatabase) = appDatabase.statusDao()
+
+    @Provides
+    fun providesDebugDao(appDatabase: AppDatabase) = appDatabase.debugDao()
 }

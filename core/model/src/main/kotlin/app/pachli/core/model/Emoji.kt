@@ -18,15 +18,27 @@
 package app.pachli.core.model
 
 import android.os.Parcelable
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 
+/**
+ * A custom emoji. Either available on the user's server, or associated with
+ * data returned from the server.
+ *
+ * @property shortcode The emoji's shortcode -- this is the name of the
+ * emoji enclosed in `:`.
+ * @property url URL of the image to show as the emoji.
+ * @property staticUrl As [url], but does not animate.
+ * @param visibleInPicker True if the emoji should be visible to user when
+ * picking emojis.
+ * @param category Arbitrary category the emoji is a member of. Not localised.
+ */
 @Parcelize
 @JsonClass(generateAdapter = true)
 data class Emoji(
     val shortcode: String,
     val url: String,
-    @Json(name = "static_url") val staticUrl: String,
-    @Json(name = "visible_in_picker") val visibleInPicker: Boolean?,
+    val staticUrl: String,
+    val visibleInPicker: Boolean?,
+    val category: String? = null,
 ) : Parcelable

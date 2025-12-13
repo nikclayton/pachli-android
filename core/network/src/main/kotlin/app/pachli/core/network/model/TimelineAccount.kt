@@ -59,6 +59,10 @@ data class TimelineAccount(
      * If true, indicates that the account should be hidden behind a warning screen.
      */
     val limited: Boolean = false,
+
+    val roles: List<Role>? = null,
+
+    val fields: List<Field>? = emptyList(),
 ) {
 
     /**
@@ -82,9 +86,11 @@ data class TimelineAccount(
         avatar = avatar,
         note = note,
         bot = bot,
-        emojis = emojis?.map { it.asModel() },
+        emojis = emojis?.asModel(),
         createdAt = createdAt,
         limited = limited,
+        roles = roles.orEmpty().asModel(),
+        pronouns = fields?.pronouns(),
     )
 }
 

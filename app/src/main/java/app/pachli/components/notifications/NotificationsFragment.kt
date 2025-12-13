@@ -30,6 +30,7 @@ import android.view.accessibility.AccessibilityManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -45,7 +46,7 @@ import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
-import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.components.preference.accountfilters.AccountNotificationFiltersPreferencesDialogFragment
 import app.pachli.components.timeline.TimelineLoadStateAdapter
 import app.pachli.core.activity.ReselectableFragment
@@ -54,6 +55,10 @@ import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.data.model.NotificationViewData
+import app.pachli.core.model.AttachmentDisplayAction
+import app.pachli.core.model.IStatus
 import app.pachli.core.model.Notification
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
@@ -64,15 +69,13 @@ import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.FragmentTimelineNotificationsBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.AccountActionListener
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.ListStatusAccessibilityDelegate
-import app.pachli.viewdata.NotificationViewData
-import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.Glide
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.onFailure
@@ -96,11 +99,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import postPrepend
+import timber.log.Timber
 
 @AndroidEntryPoint
 class NotificationsFragment :
-    SFragment<NotificationViewData>(),
-    StatusActionListener<NotificationViewData>,
+    SFragment<NotificationViewData.WithStatus>(),
     NotificationActionListener,
     AccountActionListener,
     OnRefreshListener,
@@ -132,7 +135,11 @@ class NotificationsFragment :
             emit(Unit)
         }
     }.onEach {
-        adapter.notifyItemRangeChanged(0, adapter.itemCount, listOf(StatusBaseViewHolder.Key.KEY_CREATED))
+        adapter.notifyItemRangeChanged(
+            0,
+            adapter.itemCount,
+            listOf(StatusViewDataDiffCallback.Payload.CREATED),
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -171,7 +178,6 @@ class NotificationsFragment :
             Glide.with(this),
             notificationDiffCallback,
             setStatusContent,
-            statusActionListener = this,
             notificationActionListener = this,
             accountActionListener = this,
         )
@@ -181,6 +187,7 @@ class NotificationsFragment :
         binding.swipeRefreshLayout.setColorSchemeColors(MaterialColors.getColor(binding.root, androidx.appcompat.R.attr.colorPrimary))
 
         // Setup the RecyclerView.
+        binding.recyclerView.applyDefaultWindowInsets()
         binding.recyclerView.setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
@@ -209,7 +216,7 @@ class NotificationsFragment :
         binding.recyclerView.setAccessibilityDelegateCompat(
             ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this@NotificationsFragment, openUrl) { pos: Int ->
                 if (pos in 0 until adapter.itemCount) {
-                    adapter.peek(pos)
+                    adapter.peek(pos) as? NotificationViewData.WithStatus
                 } else {
                     null
                 }
@@ -238,7 +245,7 @@ class NotificationsFragment :
                         .filterNotNull()
                         .collect { key ->
                             val snapshot = adapter.snapshot()
-                            val index = snapshot.items.indexOfFirst { it.id == key }
+                            val index = snapshot.items.indexOfFirst { it.notificationId == key }
                             binding.recyclerView.scrollToPosition(
                                 snapshot.placeholdersBefore + index,
                             )
@@ -269,8 +276,9 @@ class NotificationsFragment :
                     }
                 }
 
-                // Update the UI from the loadState
-                adapter.loadStateFlow.distinctUntilChangedBy { it.refresh }.collect(::bindLoadState)
+                // Can't `distinctUntilChangedBy { it.refresh }` here because of
+                // https://issuetracker.google.com/issues/460960009.
+                adapter.loadStateFlow.collect(::bindLoadState)
             }
         }
     }
@@ -355,15 +363,32 @@ class NotificationsFragment :
      * to show/hide Error, Loading, and NotLoading states.
      */
     private fun bindLoadState(loadState: CombinedLoadStates) {
+        Timber.d("bindLoadState: $loadState")
+
+        // CombinedLoadStates doesn't handle the case when the mediator load completes
+        // successfully but the source load fails. See
+        // https://issuetracker.google.com/issues/460960009 for details.
+        //
+        // So if either the source or mediator had an error loading data show it
+        // to the user.
+        //
+        // TODO: If loadState.mediator.refresh is the error then maybe this should
+        // be a warning the user can dismiss, as the cached data is still usable
+        // and it would allow them access to the timeline.
+        (loadState.mediator?.refresh as? LoadState.Error ?: loadState.source.refresh as? LoadState.Error)?.let { error ->
+            binding.progressIndicator.hide()
+            binding.statusView.setup(error.error) {
+                adapter.retry()
+            }
+            binding.recyclerView.hide()
+            binding.statusView.show()
+            binding.swipeRefreshLayout.isRefreshing = false
+            return
+        }
+
         when (loadState.refresh) {
             is LoadState.Error -> {
-                binding.progressIndicator.hide()
-                binding.statusView.setup((loadState.refresh as LoadState.Error).error) {
-                    adapter.retry()
-                }
-                binding.recyclerView.hide()
-                binding.statusView.show()
-                binding.swipeRefreshLayout.isRefreshing = false
+                /* Handled earlier. */
             }
 
             LoadState.Loading -> {
@@ -437,7 +462,7 @@ class NotificationsFragment :
                     view ?: return@post
                     binding.recyclerView.smoothScrollBy(
                         0,
-                        Utils.dpToPx(requireContext(), -30),
+                        dpToPx(-30f, requireContext().resources.displayMetrics).toInt(),
                     )
                 }
             }
@@ -469,7 +494,7 @@ class NotificationsFragment :
      * Saves the ID of the notification returned by [getFirstVisibleNotification].
      */
     private fun saveVisibleId() = getFirstVisibleNotification()?.let {
-        viewModel.accept(InfallibleUiAction.SaveVisibleId(pachliAccountId, it.id))
+        viewModel.accept(InfallibleUiAction.SaveVisibleId(pachliAccountId, it.notificationId))
     }
 
     override fun onResume() {
@@ -485,49 +510,43 @@ class NotificationsFragment :
         clearNotificationsForAccount(requireContext(), pachliAccountId)
     }
 
-    override fun onReply(viewData: NotificationViewData) {
-        super.reply(viewData.pachliAccountId, viewData.statusViewData!!.actionable)
+    override fun onReply(viewData: IStatusViewData) {
+        super.reply(viewData.pachliAccountId, viewData.actionable)
     }
 
-    override fun onReblog(viewData: NotificationViewData, reblog: Boolean) {
-        viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData.statusViewData!!))
+    override fun onReblog(viewData: IStatusViewData, reblog: Boolean) {
+        viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData))
     }
 
-    override fun onFavourite(viewData: NotificationViewData, favourite: Boolean) {
-        viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData.statusViewData!!))
+    override fun onQuote(viewData: IStatusViewData) {
+        super.quote(viewData.pachliAccountId, viewData.actionable)
     }
 
-    override fun onBookmark(viewData: NotificationViewData, bookmark: Boolean) {
-        viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData.statusViewData!!))
+    override fun onFavourite(viewData: IStatusViewData, favourite: Boolean) {
+        viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData))
     }
 
-    override fun onVoteInPoll(viewData: NotificationViewData, poll: Poll, choices: List<Int>) {
-        viewModel.accept(FallibleStatusAction.VoteInPoll(poll, choices, viewData.statusViewData!!))
+    override fun onBookmark(viewData: IStatusViewData, bookmark: Boolean) {
+        viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData))
     }
 
-    override fun onMore(view: View, viewData: NotificationViewData) {
-        super.more(view, viewData)
+    override fun onVoteInPoll(viewData: IStatusViewData, poll: Poll, choices: List<Int>) {
+        viewModel.accept(FallibleStatusAction.VoteInPoll(poll, choices, viewData))
     }
 
-    override fun canTranslate() = true
-
-    override fun onTranslate(statusViewData: NotificationViewData) {
-        statusViewData.statusViewData?.let {
-            viewModel.accept(FallibleStatusAction.Translate(it))
-        }
+    override fun onTranslate(viewData: IStatusViewData) {
+        viewModel.accept(FallibleStatusAction.Translate(viewData))
     }
 
-    override fun onTranslateUndo(statusViewData: NotificationViewData) {
-        statusViewData.statusViewData?.let {
-            viewModel.accept(InfallibleStatusAction.TranslateUndo(it))
-        }
+    override fun onTranslateUndo(viewData: IStatusViewData) {
+        viewModel.accept(InfallibleStatusAction.TranslateUndo(viewData))
     }
 
-    override fun onViewMedia(viewData: NotificationViewData, attachmentIndex: Int, view: View?) {
+    override fun onViewAttachment(view: View?, viewData: IStatusViewData, attachmentIndex: Int) {
         super.viewMedia(
-            viewData.statusViewData!!.status.account.username,
+            viewData.status.account.username,
             attachmentIndex,
-            list(viewData.statusViewData!!.status, viewModel.statusDisplayOptions.value.showSensitiveMedia),
+            list(viewData.status, viewModel.statusDisplayOptions.value.showSensitiveMedia),
             view,
         )
     }
@@ -536,38 +555,35 @@ class NotificationsFragment :
         super.viewThread(status.actionableId, status.actionableStatus.url)
     }
 
-    override fun onOpenReblog(status: Status) {
+    override fun onOpenReblog(status: IStatus) {
         onViewAccount(status.account.id)
     }
 
-    override fun onExpandedChange(viewData: NotificationViewData, expanded: Boolean) {
+    override fun onExpandedChange(viewData: IStatusViewData, expanded: Boolean) {
         viewModel.accept(
             InfallibleUiAction.SetExpanded(
                 viewData.pachliAccountId,
-                viewData.statusViewData!!,
+                viewData,
                 expanded,
             ),
         )
     }
 
-    override fun onContentHiddenChange(
-        viewData: NotificationViewData,
-        isShowingContent: Boolean,
-    ) {
+    override fun onAttachmentDisplayActionChange(viewData: IStatusViewData, newAction: AttachmentDisplayAction) {
         viewModel.accept(
-            InfallibleUiAction.SetShowingContent(
+            InfallibleUiAction.SetAttachmentDisplayAction(
                 viewData.pachliAccountId,
-                viewData.statusViewData!!,
-                isShowingContent,
+                viewData,
+                newAction,
             ),
         )
     }
 
-    override fun onContentCollapsedChange(viewData: NotificationViewData, isCollapsed: Boolean) {
+    override fun onContentCollapsedChange(viewData: IStatusViewData, isCollapsed: Boolean) {
         viewModel.accept(
             InfallibleUiAction.SetContentCollapsed(
                 viewData.pachliAccountId,
-                viewData.statusViewData!!,
+                viewData,
                 isCollapsed,
             ),
         )
@@ -580,19 +596,19 @@ class NotificationsFragment :
         )
     }
 
-    override fun onNotificationContentCollapsedChange(isCollapsed: Boolean, viewData: NotificationViewData) {
+    override fun onNotificationContentCollapsedChange(isCollapsed: Boolean, viewData: NotificationViewData.WithStatus) {
         onContentCollapsedChange(viewData, isCollapsed)
     }
 
-    override fun clearContentFilter(viewData: NotificationViewData) {
-        viewModel.accept(InfallibleUiAction.ClearContentFilter(viewData.pachliAccountId, viewData.id))
+    override fun clearContentFilter(viewData: IStatusViewData) {
+        viewModel.accept(InfallibleUiAction.ClearContentFilter(viewData.pachliAccountId, viewData.actionableId))
     }
 
     override fun clearAccountFilter(viewData: NotificationViewData) {
         viewModel.accept(
             InfallibleUiAction.OverrideAccountFilter(
                 viewData.pachliAccountId,
-                viewData.id,
+                viewData.notificationId,
                 viewData.accountFilterDecision,
             ),
         )
@@ -640,17 +656,12 @@ class NotificationsFragment :
         }
     }
 
-    override fun onViewThreadForStatus(status: Status) {
-        super.viewThread(status.actionableId, status.actionableStatus.url)
-    }
-
     override fun onViewReport(reportId: String) {
         openUrl("https://${viewModel.account.domain}/admin/reports/$reportId")
     }
 
-    override fun removeItem(viewData: NotificationViewData) {
-        // Empty -- this fragment doesn't remove items
-    }
+    // Empty -- this fragment doesn't remove items
+    override fun removeItem(viewData: IStatusViewData) = Unit
 
     override fun onReselect() {
         if (isAdded) {
@@ -678,7 +689,7 @@ class NotificationsFragment :
                     oldItem: NotificationViewData,
                     newItem: NotificationViewData,
                 ): Boolean {
-                    return oldItem.id == newItem.id
+                    return oldItem.notificationId == newItem.notificationId
                 }
 
                 override fun areContentsTheSame(
@@ -694,7 +705,7 @@ class NotificationsFragment :
                 ): Any? {
                     return if (oldItem == newItem) {
                         //  If items are equal - update timestamp only
-                        listOf(StatusBaseViewHolder.Key.KEY_CREATED)
+                        listOf(StatusViewDataDiffCallback.Payload.CREATED)
                     } else {
                         // If items are different - update a whole view holder
                         null
@@ -747,4 +758,7 @@ fun Notification.Type.uiString(): Int = when (this) {
     Notification.Type.UPDATE -> R.string.notification_update_name
     Notification.Type.REPORT -> R.string.notification_report_name
     Notification.Type.SEVERED_RELATIONSHIPS -> R.string.notification_severed_relationships_name
+    Notification.Type.MODERATION_WARNING -> R.string.notification_moderation_warnings_name
+    Notification.Type.QUOTE -> R.string.notification_quote_name
+    Notification.Type.QUOTED_UPDATE -> R.string.notification_quoted_update_name
 }

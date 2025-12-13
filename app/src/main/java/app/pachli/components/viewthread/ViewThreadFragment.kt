@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.components.viewthread.edits.ViewEditsFragment
 import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
@@ -41,19 +42,26 @@ import app.pachli.core.common.PachliError
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
-import app.pachli.core.data.model.StatusViewData
+import app.pachli.core.common.util.unsafeLazy
+import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.data.model.StatusItemViewData
 import app.pachli.core.database.model.TranslationState
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.model.AttachmentDisplayAction
+import app.pachli.core.model.IStatus
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.EditContentFilterActivityIntent
+import app.pachli.core.navigation.TimelineActivityIntent
+import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.StatusActionListener
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentViewThreadBinding
 import app.pachli.fragment.SFragment
-import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.ListStatusAccessibilityDelegate
 import com.bumptech.glide.Glide
 import com.github.michaelbull.result.Result
@@ -63,16 +71,22 @@ import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlin.properties.Delegates
+import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ViewThreadFragment :
-    SFragment<StatusViewData>(),
+    SFragment<StatusItemViewData>(),
     OnRefreshListener,
-    StatusActionListener<StatusViewData>,
+    StatusActionListener,
     MenuProvider {
+
+    @Inject
+    lateinit var sharedPreferencesRepository: SharedPreferencesRepository
 
     private val viewModel: ViewThreadViewModel by viewModels()
 
@@ -80,6 +94,8 @@ class ViewThreadFragment :
 
     private lateinit var adapter: ThreadAdapter
     private val thisThreadsStatusId by lazy { requireArguments().getString(ARG_ID)!! }
+
+    private val thisThreadsUrl by unsafeLazy { requireArguments().getString(ARG_URL) }
 
     override var pachliAccountId by Delegates.notNull<Long>()
 
@@ -103,7 +119,13 @@ class ViewThreadFragment :
             SetMastodonHtmlContent
         }
 
-        adapter = ThreadAdapter(Glide.with(this), viewModel.statusDisplayOptions.value, this, setStatusContent, openUrl)
+        adapter =
+            ThreadAdapter(
+                Glide.with(this),
+                viewModel.statusDisplayOptions.value.copy(showStatusInfo = false),
+                this,
+                setStatusContent,
+            )
     }
 
     override fun onCreateView(
@@ -121,30 +143,43 @@ class ViewThreadFragment :
         binding.swipeRefreshLayout.setOnRefreshListener(this)
         binding.swipeRefreshLayout.setColorSchemeColors(MaterialColors.getColor(binding.root, androidx.appcompat.R.attr.colorPrimary))
 
-        binding.recyclerView.setHasFixedSize(true)
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.setAccessibilityDelegateCompat(
-            ListStatusAccessibilityDelegate(
-                pachliAccountId,
-                binding.recyclerView,
-                this,
-                openUrl,
-            ) { index -> adapter.currentList.getOrNull(index) },
-        )
-        binding.recyclerView.addItemDecoration(
-            MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
-        )
-        binding.recyclerView.addItemDecoration(ConversationLineItemDecoration(requireContext()))
-
-        binding.recyclerView.adapter = adapter
-
-        (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        with(binding.recyclerView) {
+            applyDefaultWindowInsets()
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            setAccessibilityDelegateCompat(
+                ListStatusAccessibilityDelegate(
+                    pachliAccountId,
+                    binding.recyclerView,
+                    this@ViewThreadFragment,
+                    openUrl,
+                ) { index -> this@ViewThreadFragment.adapter.currentList.getOrNull(index) },
+            )
+            addItemDecoration(
+                MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
+            )
+            addItemDecoration(ConversationLineItemDecoration(requireContext()))
+            adapter = this@ViewThreadFragment.adapter
+            (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 launch { viewModel.uiResult.collect(::bindUiResult) }
 
                 launch { viewModel.errors.collectLatest(::bindError) }
+
+                launch {
+                    val useAbsoluteTime = sharedPreferencesRepository.useAbsoluteTime
+                    while (!useAbsoluteTime) {
+                        delay(1.minutes)
+                        adapter.notifyItemRangeChanged(
+                            0,
+                            adapter.itemCount,
+                            listOf(StatusViewDataDiffCallback.Payload.CREATED),
+                        )
+                    }
+                }
             }
         }
 
@@ -257,10 +292,12 @@ class ViewThreadFragment :
         actionReveal.isVisible = revealButtonState != RevealButtonState.NO_BUTTON
         actionReveal.setIcon(
             when (revealButtonState) {
-                RevealButtonState.REVEAL -> R.drawable.ic_eye_24dp
-                else -> R.drawable.ic_hide_media_24dp
+                RevealButtonState.REVEAL -> app.pachli.core.ui.R.drawable.ic_eye_24dp
+                else -> DR.drawable.ic_hide_media_24dp
             },
         )
+
+        menu.findItem(R.id.action_open_in_web).apply { isVisible = thisThreadsUrl != null }
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -270,7 +307,8 @@ class ViewThreadFragment :
                 true
             }
             R.id.action_open_in_web -> {
-                openUrl(requireArguments().getString(ARG_URL)!!)
+                // Belt-and-braces, menu shouldn't be showing if thisThreadsUrl is null.
+                thisThreadsUrl?.let { openUrl(it) }
                 true
             }
             R.id.action_refresh -> {
@@ -281,14 +319,12 @@ class ViewThreadFragment :
         }
     }
 
-    override fun canTranslate() = true
-
-    override fun onTranslate(statusViewData: StatusViewData) {
-        viewModel.translate(statusViewData)
+    override fun onTranslate(viewData: IStatusViewData) {
+        viewModel.translate(viewData)
     }
 
-    override fun onTranslateUndo(statusViewData: StatusViewData) {
-        viewModel.translateUndo(statusViewData)
+    override fun onTranslateUndo(viewData: IStatusViewData) {
+        viewModel.translateUndo(viewData)
     }
 
     override fun onResume() {
@@ -300,27 +336,27 @@ class ViewThreadFragment :
         viewModel.refresh(thisThreadsStatusId)
     }
 
-    override fun onReply(viewData: StatusViewData) {
+    override fun onReply(viewData: IStatusViewData) {
         super.reply(viewData.pachliAccountId, viewData.actionable)
     }
 
-    override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
+    override fun onReblog(viewData: IStatusViewData, reblog: Boolean) {
         viewModel.reblog(reblog, viewData)
     }
 
-    override fun onFavourite(viewData: StatusViewData, favourite: Boolean) {
+    override fun onQuote(viewData: IStatusViewData) {
+        super.quote(viewData.pachliAccountId, viewData.actionable)
+    }
+
+    override fun onFavourite(viewData: IStatusViewData, favourite: Boolean) {
         viewModel.favorite(favourite, viewData)
     }
 
-    override fun onBookmark(viewData: StatusViewData, bookmark: Boolean) {
+    override fun onBookmark(viewData: IStatusViewData, bookmark: Boolean) {
         viewModel.bookmark(bookmark, viewData)
     }
 
-    override fun onMore(view: View, viewData: StatusViewData) {
-        super.more(view, viewData)
-    }
-
-    override fun onViewMedia(viewData: StatusViewData, attachmentIndex: Int, view: View?) {
+    override fun onViewAttachment(view: View?, viewData: IStatusViewData, attachmentIndex: Int) {
         // Pass the translated media descriptions through (if appropriate)
         val actionable = if (viewData.translationState == TranslationState.SHOW_TRANSLATION) {
             viewData.actionable.copy(
@@ -336,7 +372,7 @@ class ViewThreadFragment :
     }
 
     override fun onViewThread(status: Status) {
-        if (thisThreadsStatusId == status.id) {
+        if (thisThreadsStatusId == status.actionableId) {
             // If already viewing this thread, don't reopen it.
             return
         }
@@ -344,7 +380,7 @@ class ViewThreadFragment :
     }
 
     override fun onViewUrl(url: String) {
-        val status: StatusViewData? = viewModel.detailedStatus()
+        val status = viewModel.detailedStatus()
         if (status != null && status.status.url == url) {
             // already viewing the status with this url
             // probably just a preview federated and the user is clicking again to view more -> open the browser
@@ -355,7 +391,7 @@ class ViewThreadFragment :
         super.onViewUrl(url)
     }
 
-    override fun onOpenReblog(status: Status) {
+    override fun onOpenReblog(status: IStatus) {
         // there are no reblogs in threads
     }
 
@@ -366,12 +402,12 @@ class ViewThreadFragment :
         )
     }
 
-    override fun onExpandedChange(viewData: StatusViewData, expanded: Boolean) {
+    override fun onExpandedChange(viewData: IStatusViewData, expanded: Boolean) {
         viewModel.changeExpanded(expanded, viewData)
     }
 
-    override fun onContentHiddenChange(viewData: StatusViewData, isShowingContent: Boolean) {
-        viewModel.changeContentShowing(isShowingContent, viewData)
+    override fun onAttachmentDisplayActionChange(viewData: IStatusViewData, newAction: AttachmentDisplayAction) {
+        viewModel.changeAttachmentDisplayAction(viewData, newAction)
     }
 
     override fun onShowReblogs(statusId: String) {
@@ -384,7 +420,12 @@ class ViewThreadFragment :
         startActivityWithDefaultTransition(intent)
     }
 
-    override fun onContentCollapsedChange(viewData: StatusViewData, isCollapsed: Boolean) {
+    override fun onShowQuotes(statusId: String) {
+        val intent = TimelineActivityIntent.quote(requireContext(), pachliAccountId, statusId)
+        startActivityWithDefaultTransition(intent)
+    }
+
+    override fun onContentCollapsedChange(viewData: IStatusViewData, isCollapsed: Boolean) {
         viewModel.changeContentCollapsed(isCollapsed, viewData)
     }
 
@@ -396,7 +437,7 @@ class ViewThreadFragment :
         super.viewAccount(id)
     }
 
-    public override fun removeItem(viewData: StatusViewData) {
+    public override fun removeItem(viewData: IStatusViewData) {
         if (viewData.isDetailed) {
             // the main status we are viewing is being removed, finish the activity
             activity?.finish()
@@ -405,7 +446,7 @@ class ViewThreadFragment :
         viewModel.removeStatus(viewData)
     }
 
-    override fun onVoteInPoll(viewData: StatusViewData, poll: Poll, choices: List<Int>) {
+    override fun onVoteInPoll(viewData: IStatusViewData, poll: Poll, choices: List<Int>) {
         viewModel.voteInPoll(poll, choices, viewData)
     }
 
@@ -424,7 +465,7 @@ class ViewThreadFragment :
         }
     }
 
-    override fun clearContentFilter(viewData: StatusViewData) {
+    override fun clearContentFilter(viewData: IStatusViewData) {
         viewModel.clearWarning(viewData)
     }
 
@@ -433,6 +474,13 @@ class ViewThreadFragment :
         private const val ARG_ID = "app.pachli.ARG_ID"
         private const val ARG_URL = "app.pachli.ARG_URL"
 
+        /**
+         * @param pachliAccountId
+         * @param id Actionable ID of the status to root the thread at.
+         * @param url URL of the status in [id]. May be null if the status doesn't have
+         * an associated URL (in which case the "Open in browser" menu item is
+         * disabled).
+         */
         fun newInstance(pachliAccountId: Long, id: String, url: String?): ViewThreadFragment {
             val fragment = ViewThreadFragment()
             fragment.arguments = Bundle(3).apply {

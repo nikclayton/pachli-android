@@ -17,11 +17,18 @@
 
 package app.pachli.core.testing.fakes
 
+import app.pachli.core.data.model.StatusItemViewData
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.data.repository.notifications.asEntity
+import app.pachli.core.database.dao.TimelineStatusWithAccount
 import app.pachli.core.database.model.StatusViewDataEntity
-import app.pachli.core.database.model.TimelineStatusWithAccount
+import app.pachli.core.database.model.TimelineStatusWithQuote
 import app.pachli.core.database.model.TranslationState
+import app.pachli.core.model.AttachmentDisplayAction
+import app.pachli.core.model.AttachmentDisplayReason
+import app.pachli.core.network.model.Attachment
+import app.pachli.core.network.model.Poll
+import app.pachli.core.network.model.PollOption
 import app.pachli.core.network.model.Status
 import app.pachli.core.network.model.TimelineAccount
 import java.util.Date
@@ -29,7 +36,7 @@ import java.util.Date
 private val fixedDate = Date(1638889052000)
 
 fun fakeAccount() = TimelineAccount(
-    id = "1",
+    id = "2",
     localUsername = "connyduck",
     username = "connyduck@mastodon.example",
     displayName = "Conny Duck",
@@ -47,14 +54,18 @@ fun fakeStatus(
     reblogged: Boolean = false,
     favourited: Boolean = true,
     bookmarked: Boolean = true,
+    content: String = "Test",
+    pollOptions: List<String>? = null,
+    attachmentsDescriptions: List<String>? = null,
+    makeFakeAccount: () -> TimelineAccount = ::fakeAccount,
 ) = Status(
     id = id,
     url = "https://mastodon.example/@ConnyDuck/$id",
-    account = fakeAccount(),
+    account = makeFakeAccount(),
     inReplyToId = inReplyToId,
     inReplyToAccountId = inReplyToAccountId,
     reblog = null,
-    content = "Test",
+    content = content,
     createdAt = fixedDate,
     editedAt = null,
     emojis = emptyList(),
@@ -67,16 +78,45 @@ fun fakeStatus(
     sensitive = true,
     spoilerText = spoilerText,
     visibility = Status.Visibility.PUBLIC,
-    attachments = ArrayList(),
+    attachments = attachmentsDescriptions?.let {
+        it.mapIndexed { index, description ->
+            Attachment(
+                id = index.toString(),
+                url = "",
+                previewUrl = "",
+                meta = null,
+                type = Attachment.Type.IMAGE,
+                description = description,
+                blurhash = null,
+            )
+        }
+    } ?: emptyList(),
     mentions = emptyList(),
     tags = emptyList(),
     application = Status.Application("Pachli", "https://pachli.app"),
     pinned = false,
     muted = false,
-    poll = null,
+    poll = pollOptions?.let {
+        Poll(
+            id = "1234",
+            expiresAt = null,
+            expired = false,
+            multiple = false,
+            votesCount = 0,
+            votersCount = 0,
+            options = it.map {
+                PollOption(it, 0)
+            },
+            voted = false,
+            ownVotes = null,
+        )
+    },
     card = null,
     language = null,
     filtered = null,
+    quotesCount = 0,
+    quote = null,
+    quoteApproval = Status.QuoteApproval(),
 )
 
 fun fakeStatusViewData(
@@ -87,45 +127,56 @@ fun fakeStatusViewData(
     spoilerText: String = "",
     isExpanded: Boolean = false,
     isShowingContent: Boolean = false,
-    isCollapsed: Boolean = !isDetailed,
+    isCollapsed: Boolean = true,
     reblogged: Boolean = false,
     favourited: Boolean = true,
     bookmarked: Boolean = true,
-) = StatusViewData(
-    pachliAccountId = 1L,
-    status = fakeStatus(
-        id = id,
-        inReplyToId = inReplyToId,
-        inReplyToAccountId = inReplyToAccountId,
-        spoilerText = spoilerText,
-        reblogged = reblogged,
-        favourited = favourited,
-        bookmarked = bookmarked,
-    ).asModel(),
-    isExpanded = isExpanded,
-    isShowingContent = isShowingContent,
-    isCollapsed = isCollapsed,
-    isDetailed = isDetailed,
-    translationState = TranslationState.SHOW_ORIGINAL,
+) = StatusItemViewData(
+    statusViewData = StatusViewData(
+        pachliAccountId = 1L,
+        status = fakeStatus(
+            id = id,
+            inReplyToId = inReplyToId,
+            inReplyToAccountId = inReplyToAccountId,
+            spoilerText = spoilerText,
+            reblogged = reblogged,
+            favourited = favourited,
+            bookmarked = bookmarked,
+        ).asModel(),
+        isExpanded = isExpanded,
+        isCollapsed = isCollapsed,
+        isDetailed = isDetailed,
+        translationState = TranslationState.SHOW_ORIGINAL,
+        attachmentDisplayAction = if (isShowingContent) {
+            AttachmentDisplayAction.Show(originalAction = AttachmentDisplayAction.Hide(AttachmentDisplayReason.Sensitive))
+        } else {
+            AttachmentDisplayAction.Hide(reason = AttachmentDisplayReason.Sensitive)
+        },
+        replyToAccount = null,
+        isUsersStatus = false,
+    ),
 )
 
 fun fakeStatusEntityWithAccount(
     id: String = "100",
-    userId: Long = 1,
+    pachliAccountId: Long = 1,
     expanded: Boolean = false,
-): TimelineStatusWithAccount {
-    val status = fakeStatus(id)
+    makeFakeStatus: () -> Status = { fakeStatus(id) },
+): TimelineStatusWithQuote {
+    val status = makeFakeStatus()
 
-    return TimelineStatusWithAccount(
-        status = status.asEntity(userId),
-        account = status.account.asEntity(userId),
-        viewData = StatusViewDataEntity(
-            serverId = id,
-            pachliAccountId = userId,
-            expanded = expanded,
-            contentShowing = false,
-            contentCollapsed = true,
-            translationState = TranslationState.SHOW_ORIGINAL,
+    return TimelineStatusWithQuote(
+        timelineStatus = TimelineStatusWithAccount(
+            status = status.asEntity(pachliAccountId),
+            account = status.account.asEntity(pachliAccountId),
+            viewData = StatusViewDataEntity(
+                serverId = status.id,
+                pachliAccountId = pachliAccountId,
+                expanded = expanded,
+                contentCollapsed = true,
+                translationState = TranslationState.SHOW_ORIGINAL,
+                attachmentDisplayAction = AttachmentDisplayAction.Show(),
+            ),
         ),
     )
 }

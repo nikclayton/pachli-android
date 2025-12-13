@@ -1,4 +1,5 @@
-/* Copyright 2017 Andrew Dawson
+/*
+ * Copyright (c) 2025 Pachli Association
  *
  * This file is a part of Pachli.
  *
@@ -16,88 +17,57 @@
 
 package app.pachli.components.conversation
 
-import android.text.InputFilter
-import android.text.TextUtils
-import android.view.View
-import android.widget.ImageView
 import app.pachli.R
 import app.pachli.adapter.StatusBaseViewHolder
-import app.pachli.core.common.extensions.hide
-import app.pachli.core.common.extensions.show
-import app.pachli.core.common.util.SmartLengthInputFilter
+import app.pachli.adapter.StatusViewDataDiffCallback
+import app.pachli.core.data.model.ConversationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.ConversationAccount
 import app.pachli.core.ui.SetStatusContent
-import app.pachli.core.ui.loadAvatar
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.databinding.ItemConversationBinding
-import app.pachli.interfaces.StatusActionListener
 import com.bumptech.glide.RequestManager
 
 class ConversationViewHolder internal constructor(
     private val binding: ItemConversationBinding,
     glide: RequestManager,
     setStatusContent: SetStatusContent,
-    private val listener: StatusActionListener<ConversationViewData>,
+    private val listener: StatusActionListener,
 ) : ConversationAdapter.ViewHolder, StatusBaseViewHolder<ConversationViewData>(binding.root, glide, setStatusContent) {
-    private val avatars: Array<ImageView> = arrayOf(
-        avatar,
-        binding.statusAvatar1,
-        binding.statusAvatar2,
-    )
 
-    override fun bind(viewData: ConversationViewData, payloads: List<*>?, statusDisplayOptions: StatusDisplayOptions) {
-        val account = viewData.actionable.account
-        val inReplyToId = viewData.actionable.inReplyToId
-        val favourited = viewData.actionable.favourited
-        val bookmarked = viewData.actionable.bookmarked
-        val sensitive = viewData.actionable.sensitive
-        val attachments = viewData.actionable.attachments
-
+    override fun bind(viewData: ConversationViewData, payloads: List<List<Any?>>?, statusDisplayOptions: StatusDisplayOptions) {
         if (payloads.isNullOrEmpty()) {
-            setupCollapsedState(viewData, listener)
-            setDisplayName(account.name, account.emojis, statusDisplayOptions)
-            setUsername(account.username)
-            setMetaData(viewData, statusDisplayOptions, listener)
-            setIsReply(inReplyToId != null)
-            setFavourited(favourited)
-            setBookmarked(bookmarked)
-            if (statusDisplayOptions.mediaPreviewEnabled && hasPreviewableAttachment(attachments)) {
-                setMediaPreviews(
-                    viewData,
-                    attachments,
-                    sensitive,
-                    listener,
-                    viewData.isShowingContent,
-                    statusDisplayOptions.useBlurhash,
-                )
-                if (attachments.isEmpty()) {
-                    hideSensitiveMediaWarning()
-                }
-                // Hide the unused label.
-                for (mediaLabel in mediaLabels) {
-                    mediaLabel.visibility = View.GONE
-                }
-            } else {
-                setMediaLabel(viewData, attachments, sensitive, listener, viewData.isShowingContent)
-                // Hide all unused views.
-                mediaPreview.visibility = View.GONE
-                hideSensitiveMediaWarning()
-            }
-            setupButtons(
-                viewData,
-                listener,
-                account.id,
-                statusDisplayOptions,
+            val actionable = viewData.actionable
+
+            binding.statusView.setupWithStatus(setStatusContent, glide, viewData, listener, statusDisplayOptions)
+
+            statusControls.bind(
+                status = actionable,
+                showCounts = statusDisplayOptions.showStatsInline,
+                confirmReblog = statusDisplayOptions.confirmReblogs,
+                confirmFavourite = statusDisplayOptions.confirmFavourites,
+                isReply = actionable.inReplyToId != null,
+                isReblogged = actionable.reblogged,
+                isFavourited = actionable.favourited,
+                isBookmarked = actionable.bookmarked,
+                replyCount = actionable.repliesCount,
+                reblogCount = actionable.reblogsCount,
+                favouriteCount = actionable.favouritesCount,
+                onReplyClick = { listener.onReply(viewData) },
+                onQuoteClick = if (statusDisplayOptions.canQuote) {
+                    { listener.onQuote(viewData) }
+                } else {
+                    null
+                },
+                onFavouriteClick = { favourite -> listener.onFavourite(viewData, favourite) },
+                onBookmarkClick = { bookmark -> listener.onBookmark(viewData, bookmark) },
+                onMoreClick = { view -> listener.onMore(view, viewData) },
             )
-            setSpoilerAndContent(viewData, statusDisplayOptions, listener)
             setConversationName(viewData.accounts)
-            setAvatars(viewData.accounts, statusDisplayOptions.animateAvatars)
         } else {
-            if (payloads is List<*>) {
-                for (item in payloads) {
-                    if (Key.KEY_CREATED == item) {
-                        setMetaData(viewData, statusDisplayOptions, listener)
-                    }
+            payloads.flatten().forEach { item ->
+                if (item == StatusViewDataDiffCallback.Payload.CREATED) {
+                    binding.statusView.setMetaData(viewData, statusDisplayOptions, listener)
                 }
             }
         }
@@ -122,48 +92,5 @@ class ConversationViewHolder internal constructor(
                 accounts.size - 2,
             )
         }
-    }
-
-    private fun setAvatars(accounts: List<ConversationAccount>, animateAvatars: Boolean) {
-        avatars.withIndex().forEach { views ->
-            accounts.getOrNull(views.index)?.also { account ->
-                loadAvatar(
-                    glide,
-                    account.avatar,
-                    views.value,
-                    avatarRadius48dp,
-                    animateAvatars,
-                )
-                views.value.show()
-            } ?: views.value.hide()
-        }
-    }
-
-    private fun setupCollapsedState(
-        viewData: ConversationViewData,
-        listener: StatusActionListener<ConversationViewData>,
-    ) {
-        /* input filter for TextViews have to be set before text */
-        if (viewData.isCollapsible && (viewData.isExpanded || TextUtils.isEmpty(viewData.spoilerText))) {
-            binding.buttonToggleContent.setOnClickListener {
-                listener.onContentCollapsedChange(viewData, !viewData.isCollapsed)
-            }
-            binding.buttonToggleContent.show()
-            if (viewData.isCollapsed) {
-                binding.buttonToggleContent.setText(R.string.post_content_warning_show_more)
-                content.filters = COLLAPSE_INPUT_FILTER
-            } else {
-                binding.buttonToggleContent.setText(R.string.post_content_warning_show_less)
-                content.filters = NO_INPUT_FILTER
-            }
-        } else {
-            binding.buttonToggleContent.visibility = View.GONE
-            content.filters = NO_INPUT_FILTER
-        }
-    }
-
-    companion object {
-        private val COLLAPSE_INPUT_FILTER = arrayOf<InputFilter>(SmartLengthInputFilter)
-        private val NO_INPUT_FILTER = arrayOfNulls<InputFilter>(0)
     }
 }

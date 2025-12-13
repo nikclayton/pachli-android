@@ -18,7 +18,6 @@
 package app.pachli.core.model
 
 import android.os.Parcelable
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 
@@ -28,27 +27,22 @@ data class Attachment(
     val id: String,
     val url: String,
     // can be null for e.g. audio attachments
-    @Json(name = "preview_url") val previewUrl: String?,
+    val previewUrl: String?,
     val meta: MetaData?,
     val type: Type,
+    /**
+     * Alternate text for the media (plain text). May be null if no description
+     * was provided.
+     */
     val description: String?,
     val blurhash: String?,
 ) : Parcelable {
 
     enum class Type {
-        @Json(name = "image")
         IMAGE,
-
-        @Json(name = "gifv")
         GIFV,
-
-        @Json(name = "video")
         VIDEO,
-
-        @Json(name = "audio")
         AUDIO,
-
-        @Json(name = "unknown")
         UNKNOWN,
     }
 
@@ -100,3 +94,10 @@ data class Attachment(
         return !(meta?.original?.width == null && meta?.small?.width == null)
     }
 }
+
+/**
+ * @return True if all [Attachment] are previewable.
+ *
+ * @see Attachment.isPreviewable
+ */
+fun Iterable<Attachment>.arePreviewable() = all { it.isPreviewable() }

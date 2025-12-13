@@ -21,19 +21,18 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.data.model.StatusDisplayOptions
-import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.model.ServerOperation
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
 import app.pachli.core.preferences.CardViewMode
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
-import com.github.michaelbull.result.onFailure
-import com.github.michaelbull.result.onSuccess
 import io.github.z4kn4fein.semver.constraints.toConstraint
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -48,7 +47,6 @@ import timber.log.Timber
 @Singleton
 class StatusDisplayOptionsRepository @Inject constructor(
     private val sharedPreferencesRepository: SharedPreferencesRepository,
-    private val serverRepository: ServerRepository,
     private val accountManager: AccountManager,
     private val accountPreferenceDataStore: AccountPreferenceDataStore,
     @ApplicationScope private val externalScope: CoroutineScope,
@@ -77,6 +75,7 @@ class StatusDisplayOptionsRepository @Inject constructor(
         PrefKeys.WELLBEING_HIDE_STATS_POSTS,
         PrefKeys.SHOW_STATS_INLINE,
         PrefKeys.LAB_RENDER_MARKDOWN,
+        PrefKeys.PRONOUN_DISPLAY,
     )
 
     init {
@@ -128,20 +127,18 @@ class StatusDisplayOptionsRepository @Inject constructor(
                         PrefKeys.LAB_RENDER_MARKDOWN -> prev.copy(
                             renderMarkdown = sharedPreferencesRepository.renderMarkdown,
                         )
-                        else -> {
-                            prev
-                        }
+                        PrefKeys.PRONOUN_DISPLAY -> prev.copy(
+                            pronounDisplay = sharedPreferencesRepository.pronounDisplay,
+                        )
+                        else -> prev
                     }
                 }
             }
         }
 
         externalScope.launch {
-            accountManager.activeAccountFlow.collect {
-                if (it is Loadable.Loaded) {
-                    Timber.d("Updating because active account changed")
-                    _flow.emit(initialStatusDisplayOptions(it.data))
-                }
+            accountManager.activePachliAccountFlow.distinctUntilChangedBy { it.id }.collect {
+                _flow.emit(initialStatusDisplayOptions(it))
             }
         }
 
@@ -160,28 +157,14 @@ class StatusDisplayOptionsRepository @Inject constructor(
                 }
             }
         }
-
-        externalScope.launch {
-            serverRepository.flow.collect { result ->
-                Timber.d("Updating because server capabilities changed")
-                result.onSuccess { server ->
-                    _flow.update {
-                        it.copy(
-                            canTranslate = server.can(ORG_JOINMASTODON_STATUSES_TRANSLATE, ">=1.0".toConstraint()),
-                        )
-                    }
-                }
-                result.onFailure { _flow.update { it.copy(canTranslate = false) } }
-            }
-        }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
-    fun initialStatusDisplayOptions(account: AccountEntity? = null): StatusDisplayOptions {
+    fun initialStatusDisplayOptions(account: PachliAccount? = null): StatusDisplayOptions {
         return StatusDisplayOptions(
             animateAvatars = sharedPreferencesRepository.animateAvatars,
             animateEmojis = sharedPreferencesRepository.animateEmojis,
-            mediaPreviewEnabled = account?.mediaPreviewEnabled ?: default.mediaPreviewEnabled,
+            mediaPreviewEnabled = account?.entity?.mediaPreviewEnabled ?: default.mediaPreviewEnabled,
             useAbsoluteTime = sharedPreferencesRepository.useAbsoluteTime,
             showBotOverlay = sharedPreferencesRepository.showBotOverlay,
             useBlurhash = sharedPreferencesRepository.useBlurHash,
@@ -194,10 +177,12 @@ class StatusDisplayOptionsRepository @Inject constructor(
             confirmFavourites = sharedPreferencesRepository.confirmFavourites,
             hideStatsInDetailedView = sharedPreferencesRepository.hideStatsInDetailedView,
             showStatsInline = sharedPreferencesRepository.showInlineStats,
-            showSensitiveMedia = account?.alwaysShowSensitiveMedia ?: default.showSensitiveMedia,
-            openSpoiler = account?.alwaysOpenSpoiler ?: default.openSpoiler,
-            canTranslate = default.canTranslate,
+            showSensitiveMedia = account?.entity?.alwaysShowSensitiveMedia ?: default.showSensitiveMedia,
+            openSpoiler = account?.entity?.alwaysOpenSpoiler ?: default.openSpoiler,
+            canTranslate = account?.server?.can(ORG_JOINMASTODON_STATUSES_TRANSLATE, ">=1.0".toConstraint()) ?: default.canTranslate,
+            canQuote = account?.server?.can(ServerOperation.ORG_JOINMASTODON_STATUSES_QUOTE, ">=1.0.0".toConstraint()) ?: default.canQuote,
             renderMarkdown = sharedPreferencesRepository.renderMarkdown,
+            pronounDisplay = sharedPreferencesRepository.pronounDisplay,
         )
     }
 }

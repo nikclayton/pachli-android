@@ -55,6 +55,9 @@ dependencies {
     implementation(libs.bundles.glide)
         ?.because("Loads account avatars and emojis")
 
+    implementation(libs.sparkbutton)
+        ?.because("Used in StatusControlView")
+
     api(libs.material.iconics)
     api(libs.material.typeface)
 
@@ -69,4 +72,6 @@ dependencies {
     kapt(libs.prism4j)
     implementation(libs.ksoup.entities)
     implementation(libs.jlatexmath.android)
+
+    testImplementation(libs.bundles.mockito)
 }

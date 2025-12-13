@@ -27,4 +27,88 @@
     <string name="add_account_name">Engadir conta</string>
     <string name="notification_details_last_fetch_label">Última solicitude /api/v1/notifications</string>
     <string name="action_logout">Pechar sesión</string>
+    <string name="preview_card_byline_fediverse_account_fmt">Le máis de %1$s</string>
+    <string name="poll_vote">Votar</string>
+    <string name="poll_show_votes">Ver votos</string>
+    <plurals name="poll_timespan_seconds">
+        <item quantity="one">queda %d segundo</item>
+        <item quantity="other">quedan %d segundos</item>
+    </plurals>
+    <plurals name="poll_timespan_minutes">
+        <item quantity="one">queda %d minuto</item>
+        <item quantity="other">quedan %d minutos</item>
+    </plurals>
+    <plurals name="poll_timespan_hours">
+        <item quantity="one">queda %d hora</item>
+        <item quantity="other">quedan %d horas</item>
+    </plurals>
+    <plurals name="poll_timespan_days">
+        <item quantity="one">queda %d día</item>
+        <item quantity="other">quedan %d días</item>
+    </plurals>
+    <plurals name="poll_info_votes">
+        <item quantity="one">%s voto</item>
+        <item quantity="other">%s votos</item>
+    </plurals>
+    <plurals name="poll_info_people">
+        <item quantity="one">%s persoa</item>
+        <item quantity="other">%s persoas</item>
+    </plurals>
+    <string name="poll_info_closed">pechada</string>
+    <string name="poll_info_time_absolute">remata en %s</string>
+    <string name="poll_info_format"><!-- 15 votos • queda 1 hora -->%1$s • %2$s</string>
+    <string name="description_poll">Enquisa con opcións: %1$s, %2$s, %3$s, %4$s; %5$s</string>
+    <string name="post_media_alt">ALT</string>
+    <string name="status_created_at_now">agora</string>
+    <string name="abbreviated_in_seconds">fai %ds</string>
+    <string name="abbreviated_seconds_ago">%ds</string>
+    <string name="abbreviated_in_minutes">fai %dm</string>
+    <string name="abbreviated_minutes_ago">%dm</string>
+    <string name="abbreviated_in_hours">fai %dh</string>
+    <string name="abbreviated_hours_ago">%dh</string>
+    <string name="abbreviated_in_days">en %dd</string>
+    <string name="abbreviated_days_ago">%dd</string>
+    <string name="abbreviated_in_years">en %dy</string>
+    <string name="abbreviated_years_ago">%dy</string>
+    <string name="description_post_media_no_description_placeholder">Sen descrición</string>
+    <string name="description_visibility_public">Público</string>
+    <string name="description_visibility_unlisted">Non listado</string>
+    <string name="description_visibility_private">Seguidoras</string>
+    <string name="description_visibility_direct">Directo</string>
+    <string name="post_sensitive_media_title">Contido sensible</string>
+    <string name="post_media_images">Imaxes</string>
+    <string name="post_media_audio">Audio</string>
+    <string name="post_media_video">Vídeo</string>
+    <string name="post_media_attachments">Anexos</string>
+    <string name="action_reply">Responder</string>
+    <string name="action_reblog">Promover</string>
+    <string name="action_favourite">Favorito</string>
+    <string name="action_bookmark">Marcar</string>
+    <string name="status_count_one_plus">1+</string>
+    <string name="action_unreblog">Eliminar promoción</string>
+    <string name="action_unfavourite">Eliminar favorito</string>
+    <string name="post_content_warning_show_less">Ver menos</string>
+    <string name="post_content_warning_show_more">Ver máis</string>
+    <string name="post_content_show_less">Pregar</string>
+    <string name="translating">Traducindo…</string>
+    <string name="translation_provider_fmt">%1$s</string>
+    <string name="description_post_edited">Editado</string>
+    <string name="description_post_reblogged">Repetido</string>
+    <string name="description_post_favourited">Favorecido</string>
+    <string name="description_post_bookmarked">Marcado</string>
+    <string name="description_post_media">Multimedia: %s</string>
+    <string name="description_post_cw">Aviso sobre o contido: %s</string>
+    <plurals name="reblogs">
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Promoción</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Promocións</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Favorito</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Favoritos</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt; promoveu</string>
+    <string name="post_edited">Editado %s</string>
+    <string name="filter_edit_title">Editar filtro</string>
+    <string name="status_filtered_show_anyway">Mostrar igualmente</string>
+    <string name="status_filter_placeholder_label_format">Filtrado: &lt;b&gt;%1$s&lt;/b&gt;</string>
 </resources>

@@ -78,7 +78,6 @@
 
         <item name="preferenceTheme">@style/AppPreferenceTheme</item>
 
-        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
 
         <item name="graphViewStyle">@style/Pachli.Widget.GraphView</item>
@@ -90,6 +89,22 @@
         <!-- TODO: Change this to pachli_orange, but also need a lighter version for the
              sparkbutton effect first. -->
         <item name="favoriteIconColor">@color/tusky_orange</item>
+
+        <item name="appBarLayoutStyle">@style/Pachli.Widget.Material3.AppBarLayout</item>
+
+        <item name="pronounsChipStyle">@style/Pachli.Widget.PronounChip</item>
+
+        <item name="pollViewStyle">@style/Pachli.Widget.PollView</item>
+
+        <item name="previewCardViewStyle">@style/Pachli.Widget.PreviewCardView</item>
+    </style>
+
+    <style name="Pachli.Widget.Material3.AppBarLayout" parent="Widget.Material3.AppBarLayout">
+        <!-- Disable liftOnScroll, colour changes are distracting. -->
+        <item name="liftOnScroll">false</item>
+        <!-- Even with liftOnScroll disabled there are still some colour changes.
+             Explicitly set the colour to prevents flashing/colour changes when scrolling. -->
+        <item name="liftOnScrollColor">?colorSurface</item>
     </style>
 
     <style name="AppTheme" parent="Theme.Pachli" />
@@ -155,20 +170,27 @@
         <item name="android:colorBackground">@color/black</item>
         <item name="windowBackgroundColor">@color/black</item>
 
+        <item name="colorOnPrimary">@color/black</item>
         <item name="colorSurface">@color/tusky_grey_10</item>
+        <item name="colorSurfaceContainerLowest">@color/tusky_grey_10</item>
+        <item name="colorSurfaceContainerLow">@color/tusky_grey_10</item>
+        <item name="colorSurfaceContainer">@color/tusky_grey_10</item>
+        <item name="colorSurfaceContainerHigh">@color/tusky_grey_10</item>
+        <item name="colorSurfaceContainerHighest">@color/tusky_grey_10</item>
 
         <!-- TODO: Remove this, use colorControlNormal everywhere instead of iconColor -->
         <item name="iconColor">?attr/colorControlNormal</item>
 
-        <item name="toolbarStyle">@style/Pachli.Widget.Toolbar.Black</item>
+        <item name="appBarLayoutStyle">@style/Pachli.Widget.Material3.AppBarLayout.Black</item>
         <item name="tabStyle">@style/Pachli.Widget.Material3.TabLayout.Black</item>
-        <item name="android:horizontalScrollViewStyle">
-            @style/Pachli.Widget.HorizontalScrollView.Black
-        </item>
+        <item name="android:horizontalScrollViewStyle">@style/Pachli.Widget.HorizontalScrollView.Black</item>
     </style>
 
-    <style name="Pachli.Widget.Toolbar.Black" parent="Widget.Material3.Toolbar">
+    <style name="Pachli.Widget.Material3.AppBarLayout.Black" parent="Pachli.Widget.Material3.AppBarLayout">
         <item name="android:background">@color/black</item>
+
+        <!-- Prevents flashing/colour changes when scrolling. -->
+        <item name="liftOnScrollColor">@color/black</item>
     </style>
 
     <style name="Pachli.Widget.Material3.TabLayout.Black" parent="Widget.Material3.TabLayout">
@@ -178,6 +200,8 @@
     <style name="Pachli.Widget.HorizontalScrollView.Black" parent="">
         <item name="android:background">@color/black</item>
     </style>
+
+    <style name="Theme.Pachli.Black" parent="Base.Theme.Black" />
 
     <style name="Pachli.Widget.GraphView" parent="">
         <item name="primaryLineColor">@color/pachli_blue</item>
@@ -190,7 +214,64 @@
         <item name="showDelay">500</item>
     </style>
 
-    <style name="Theme.Pachli.Black" parent="Base.Theme.Black" />
+    <style name="Pachli.Widget.PronounChip" parent="Widget.Material3.Chip.Suggestion">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textColor">?android:textColorTertiary</item>
+        <item name="android:textSize">?status_text_small</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:minHeight">@dimen/pronounChip_minHeight</item>
+        <item name="chipMinHeight">@dimen/pronounChip_minHeight</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="chipBackgroundColor">?colorSurfaceContainerLow</item>
+        <item name="ensureMinTouchTargetSize">false</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="Pachli.Widget.PollView" parent="">
+        <item name="android:textSize">?status_text_medium</item>
+    </style>
+
+    <style name="Pachli.Widget.PollView.Detailed">
+        <item name="android:textSize">?status_text_large</item>
+    </style>
+
+    <style name="Pachli.Widget.PollView.Quoted">
+        <item name="android:textSize">?status_text_small</item>
+    </style>
+
+    <style name="Pachli.Widget.PreviewCardView" parent="">
+        <item name="android:background">@drawable/card_frame</item>
+        <item name="android:foreground">?selectableItemBackground</item>
+        <item name="previewCardInfoBackground">?colorSurfaceContainerHigh</item>
+        <item name="previewCardImageVerticalHeight">@dimen/card_image_vertical_height</item>
+        <item name="previewCardImageHorizontalWidth">@dimen/card_image_horizontal_width</item>
+        <item name="previewCardTitleTextColor">?colorOnSurface</item>
+        <item name="previewCardTitleTextSize">?status_text_medium</item>
+        <item name="previewCardDescriptionTextColor">?colorOnSurface</item>
+        <item name="previewCardDescriptionTextSize">?status_text_medium</item>
+        <item name="previewCardAuthorTextColor">?colorOnSurface</item>
+        <item name="previewCardAuthorTextSize">?status_text_medium</item>
+        <item name="previewCardAuthorTimelineLinkTextColor">?colorOnSurface</item>
+        <item name="previewCardAuthorTimelineLinkTextSize">?status_text_medium</item>
+        <item name="previewCardAvatarSize">@dimen/card_byline_avatar_dimen</item>
+        <item name="previewCardAvatarCornerRadius">@dimen/avatar_radius_36dp</item>
+    </style>
+
+    <style name="Pachli.Widget.PreviewCardView.Quoted">
+        <item name="previewCardInfoBackground">?colorSurfaceVariant</item>
+        <item name="previewCardImageVerticalHeight">@dimen/card_image_vertical_height_quoted</item>
+        <item name="previewCardImageHorizontalWidth">@dimen/card_image_horizontal_width_quoted</item>
+        <item name="previewCardTitleTextColor">?colorOnSurfaceVariant</item>
+        <item name="previewCardTitleTextSize">?status_text_small</item>
+        <item name="previewCardDescriptionTextColor">?colorOnSurfaceVariant</item>
+        <item name="previewCardDescriptionTextSize">?status_text_small</item>
+        <item name="previewCardAuthorTextColor">?colorOnSurfaceVariant</item>
+        <item name="previewCardAuthorTextSize">?status_text_small</item>
+        <item name="previewCardAuthorTimelineLinkTextColor">?colorOnSurfaceVariant</item>
+        <item name="previewCardAuthorTimelineLinkTextSize">?status_text_small</item>
+        <item name="previewCardAvatarSize">@dimen/card_byline_avatar_dimen_quoted</item>
+    </style>
 
     <!-- customize the shape of the avatars in account selection list -->
     <style name="BezelImageView">

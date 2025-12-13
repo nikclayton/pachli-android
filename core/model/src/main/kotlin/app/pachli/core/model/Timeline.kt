@@ -18,7 +18,6 @@
 package app.pachli.core.model
 
 import android.os.Parcelable
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import dev.zacsweers.moshix.sealed.annotations.NestedSealed
 import dev.zacsweers.moshix.sealed.annotations.TypeLabel
@@ -59,11 +58,17 @@ sealed class Timeline : Parcelable {
 
     /** Federated timeline */
     @TypeLabel("federated")
-    data object PublicFederated : Timeline()
+    data object PublicFederated : Timeline() {
+        @IgnoredOnParcel
+        override val remoteKeyTimelineId: String = "FEDERATED"
+    }
 
     /** Local timeline of the user's server */
     @TypeLabel("local")
-    data object PublicLocal : Timeline()
+    data object PublicLocal : Timeline() {
+        @IgnoredOnParcel
+        override val remoteKeyTimelineId: String = "LOCAL"
+    }
 
     // TODO: LOCAL_REMOTE
 
@@ -74,7 +79,11 @@ sealed class Timeline : Parcelable {
     @TypeLabel("direct")
     data object Conversations : Timeline()
 
-    /** Any timeline showing statuses from a single user */
+    /**
+     * Any timeline showing statuses from a single user.
+     *
+     * @property id ID of the account that posted the statuses.
+     */
     @NestedSealed
     @Parcelize
     sealed class User : Timeline() {
@@ -90,10 +99,21 @@ sealed class Timeline : Parcelable {
         @JsonClass(generateAdapter = true)
         data class Pinned(override val id: String) : User()
 
-        /** Timeline showing a user's top-level statuses and replies they have made */
+        /**
+         * Timeline showing a user's top-level statuses and replies they have made.
+         *
+         * @property excludeReblogs If true, statuses the account has reblogged
+         * are excluded from the timeline.
+         */
         @TypeLabel("userReplies")
         @JsonClass(generateAdapter = true)
-        data class Replies(override val id: String) : User()
+        data class Replies(
+            override val id: String,
+            val excludeReblogs: Boolean = false,
+        ) : User() {
+            @IgnoredOnParcel
+            override val remoteKeyTimelineId: String = "USER.REPLIES:$id"
+        }
     }
 
     @TypeLabel("favourites")
@@ -105,9 +125,7 @@ sealed class Timeline : Parcelable {
     @TypeLabel("list")
     @JsonClass(generateAdapter = true)
     data class UserList(
-        @Json(name = "listId")
         val listId: String,
-        @Json(name = "title")
         val title: String,
     ) : Timeline() {
         @IgnoredOnParcel
@@ -127,6 +145,11 @@ sealed class Timeline : Parcelable {
     @TypeLabel("link")
     @JsonClass(generateAdapter = true)
     data class Link(val url: String, val title: String) : Timeline()
+
+    /** Timeline of statuses that quote [statusId]. */
+    @TypeLabel("quote")
+    @JsonClass(generateAdapter = true)
+    data class Quote(val statusId: String) : Timeline()
 
     // TODO: DRAFTS
 

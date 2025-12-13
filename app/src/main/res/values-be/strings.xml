@@ -41,16 +41,8 @@
     <string name="title_migration_relogin">Увайдзіце зноў, каб атрымліваць push-апавяшчэнні</string>
     <string name="title_announcements">Аб\'явы</string>
     <string name="title_followed_hashtags">Падпіскі на хэштэгі</string>
-    <string name="post_boosted_format">%s пашырыў(-ла)</string>
-    <string name="post_sensitive_media_title">Далікатнае змесціва</string>
-    <string name="post_media_hidden_title">Медыя схаванае</string>
-    <string name="post_content_show_more">Разгарнуць</string>
     <string name="report_comment_hint">Дадатковыя каментарыі\?</string>
     <string name="post_sensitive_media_directions">Націсніце для прагляду</string>
-    <string name="post_content_warning_show_more">Паказаць больш</string>
-    <string name="post_content_warning_show_less">Паказаць менш</string>
-    <string name="post_content_show_less">Згарнуць</string>
-    <string name="post_edited">Рэдагаваны %s</string>
     <string name="footer_empty">Тут нічога няма. Пацягніце ўніз, каб абнавіць!</string>
     <string name="notification_reblog_format">%s пашырыў(-ла) ваш допіс</string>
     <string name="notification_favourite_format">%s падабаўся ваш допіс</string>
@@ -63,13 +55,6 @@
     <string name="notification_header_report_format">%s скардзіцца на %s</string>
     <string name="report_username_format">Паскардзіцца на @%s</string>
     <string name="action_quick_reply">Хуткі адказ</string>
-    <string name="action_reply">Адказаць</string>
-    <string name="post_media_alt">ALT</string>
-    <string name="action_reblog">Пашырыць</string>
-    <string name="action_unreblog">Скасаваць пашырэнне</string>
-    <string name="action_favourite">Упадабаць</string>
-    <string name="action_unfavourite">Выдаліць з абраных</string>
-    <string name="action_bookmark">Дадаць у закладкі</string>
     <string name="action_delete">Выдаліць</string>
     <string name="action_search">Пошук</string>
     <string name="action_content_warning">Папярэджанне пра змесціва</string>
@@ -171,7 +156,6 @@
     <string name="action_view_blocks">Заблакаваныя карыстальнікі</string>
     <string name="action_view_domain_mutes">Схаваныя дамены</string>
     <string name="action_view_follow_requests">Запыты на падпіску</string>
-    <string name="action_view_media">Медыя</string>
     <string name="action_open_in_web">Адкрыць у браўзеры</string>
     <string name="action_add_media">Дадаць медыя</string>
     <string name="action_add_poll">Дадаць апытанне</string>
@@ -258,23 +242,7 @@
     <string name="notification_summary_small">%1$s ды %2$s</string>
     <string name="post_share_content">Падзяліцца зместам допісу</string>
     <string name="post_share_link">Падзяліцца спасылкай на допіс</string>
-    <string name="post_media_images">Выявы</string>
-    <string name="post_media_video">Відэа</string>
-    <string name="post_media_audio">Аўдыё</string>
-    <string name="post_media_attachments">Далучэнні</string>
-    <string name="status_count_one_plus">1+</string>
-    <string name="status_created_at_now">зараз</string>
     <string name="state_follow_requested">Запыт на падпіску</string>
-    <string name="abbreviated_in_years">праз %dг</string>
-    <string name="abbreviated_in_days">праз %dд</string>
-    <string name="abbreviated_in_hours">праз %dгад</string>
-    <string name="abbreviated_in_minutes">праз %dхв</string>
-    <string name="abbreviated_in_seconds">праз %dс</string>
-    <string name="abbreviated_years_ago">%dг</string>
-    <string name="abbreviated_days_ago">%dд</string>
-    <string name="abbreviated_hours_ago">%dгад</string>
-    <string name="abbreviated_minutes_ago">%dхв</string>
-    <string name="abbreviated_seconds_ago">%dс</string>
     <string name="title_media">Медыя</string>
     <string name="pref_title_alway_open_spoiler">Заўсёды разгортваць допіс з далікатным зместам</string>
     <string name="pref_title_public_filter_keywords">Публічныя стужкі</string>
@@ -282,7 +250,6 @@
     <string name="filter_addition_title">Дадаць фільтр</string>
     <string name="follows_you">Вашы падпісчыкі</string>
     <string name="pref_title_alway_show_sensitive_media">Заўсёды паказваць далікатны змест</string>
-    <string name="filter_edit_title">Рэдагаваць фільтр</string>
     <string name="filter_dialog_remove_button">Выдаліць</string>
     <string name="filter_dialog_update_button">Абнавіць</string>
     <string name="filter_dialog_whole_word">Цэлае слова</string>
@@ -305,12 +272,6 @@
     <string name="action_edit_image">Рэдагаваць выяву</string>
     <string name="send_post_notification_channel_name">Дасыланне допісаў</string>
     <string name="later">Пазней</string>
-    <plurals name="favs">
-        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; абраны</item>
-        <item quantity="few">&lt;b&gt;%1$s&lt;/b&gt; абраныя</item>
-        <item quantity="many">&lt;b&gt;%1$s&lt;/b&gt; абраных</item>
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; абраных</item>
-    </plurals>
     <string name="title_reblogged_by">Пашырылі</string>
     <string name="profile_metadata_label">Метазвесткі профілю</string>
     <string name="title_favourited_by">Упадабалі</string>
@@ -334,12 +295,6 @@
     <string name="profile_metadata_content_label">Змест</string>
     <string name="pref_title_absolute_time">Паказваць абсалютны час</string>
     <string name="label_remote_account">Інфармацыя ніжэй можа не паказваць поўны профіль карыстальніка. Націсніце, каб адкрыць поўны профіль у браўзеры.</string>
-    <plurals name="reblogs">
-        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; пашыраны</item>
-        <item quantity="few">&lt;b&gt;%s&lt;/b&gt; пашырана</item>
-        <item quantity="many">&lt;b&gt;%s&lt;/b&gt; пашыраных</item>
-        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; пашыраных</item>
-    </plurals>
     <string name="unsaved_changes">У Вас засталіся незахаваныя змены.</string>
     <string name="expand_collapse_all_posts">Разгарнуць/згарнуць допісы</string>
     <string name="action_open_post">Адкрыць допіс</string>
@@ -350,21 +305,9 @@
     <string name="reblog_private">Пашырыць для пачатковай аўдыторыі</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s і %2$s</string>
-    <string name="description_post_media">Медыя: %s</string>
-    <string name="description_post_cw">Папярэджанне пра змесціва: %s</string>
-    <string name="description_post_media_no_description_placeholder">Няма апісання</string>
-    <string name="description_visibility_private">Падпісчыкі</string>
-    <string name="description_visibility_direct">Асабіста</string>
-    <string name="description_visibility_unlisted">Не ў стужках</string>
     <string name="hashtags">Хэштэгі</string>
     <string name="add_hashtag_title">Дадаць хэштэг</string>
-    <string name="description_post_reblogged">Пашырана</string>
-    <string name="description_poll">Апытанне з варыянтамі: %1$s, %2$s, %3$s, %4$s; %5$s</string>
     <string name="edit_hashtag_hint">Хэштэг без #</string>
-    <string name="description_post_edited">Зменена</string>
-    <string name="description_post_bookmarked">Дададзена ў закладкі</string>
-    <string name="description_post_favourited">Упадабана</string>
-    <string name="description_visibility_public">Публічны</string>
     <string name="description_post_language">Мова допісу</string>
     <string name="select_list_title">Выбраць спіс</string>
     <string name="list">Спіс</string>
@@ -383,32 +326,8 @@
     <string name="create_poll_title">Апытанне</string>
     <string name="duration_1_day">1 дзень</string>
     <string name="duration_3_days">3 дні</string>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">Засталася %d хвіліна</item>
-        <item quantity="few">Засталося %d хвіліны</item>
-        <item quantity="many">Засталося %d хвілін</item>
-        <item quantity="other">Засталося %d хвілін</item>
-    </plurals>
     <string name="report_remote_instance">Пераслаць да %s</string>
     <string name="pref_title_enable_swipe_for_tabs">Уключыць пераключэнне паміж укладкамі жэстам чыркання</string>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">Засталася %d секунда</item>
-        <item quantity="few">Засталося %d секунды</item>
-        <item quantity="many">Засталося %d секунд</item>
-        <item quantity="other">Засталося %d секунд</item>
-    </plurals>
-    <plurals name="poll_info_votes">
-        <item quantity="one">%s голас</item>
-        <item quantity="few">%s галасы</item>
-        <item quantity="many">%s галасоў</item>
-        <item quantity="other">%s галасоў</item>
-    </plurals>
-    <plurals name="poll_info_people">
-        <item quantity="one">%s чалавек</item>
-        <item quantity="few">%s чалавекі</item>
-        <item quantity="many">%s людзей</item>
-        <item quantity="other">%s людзей</item>
-    </plurals>
     <string name="label_duration">Працягласць</string>
     <string name="button_back">Назад</string>
     <string name="failed_report">Не атрымалася адправіць скаргу</string>
@@ -424,24 +343,9 @@
     <string name="send_account_username_to">Падзяліцца імем карыстальніка ўліковага запісу праз…</string>
     <string name="account_username_copied">Імя карыстальніка скапіявана</string>
     <string name="filter_apply">Прымяніць</string>
-    <string name="poll_info_format"><!-- 15 галасоў • 1 гадзіна засталася -->%1$s • %2$s</string>
-    <string name="poll_info_time_absolute">завяршыцца ў %s</string>
-    <plurals name="poll_timespan_hours">
-        <item quantity="one">Засталася %d гадзіна</item>
-        <item quantity="few">Засталося %d гадзіны</item>
-        <item quantity="many">Засталося %d гадзін</item>
-        <item quantity="other">Засталося %d гадзін</item>
-    </plurals>
     <string name="duration_1_hour">1 гадзіну</string>
-    <string name="poll_info_closed">скончаны</string>
     <string name="poll_ended_voted">Апытанне, у якім Вы ўдзельнічалі, скончана</string>
     <string name="poll_ended_created">Створанае Вамі апытанне скончана</string>
-    <plurals name="poll_timespan_days">
-        <item quantity="one">Застаўся %d дзень</item>
-        <item quantity="few">Засталося %d дні</item>
-        <item quantity="many">Засталося %d дзён</item>
-        <item quantity="other">Засталося %d дзён</item>
-    </plurals>
     <string name="duration_6_hours">6 гадзін</string>
     <string name="duration_7_days">7 дзён</string>
     <string name="duration_14_days">14 дзён</string>
@@ -449,7 +353,6 @@
     <string name="duration_60_days">60 дзён</string>
     <string name="duration_90_days">90 дзён</string>
     <string name="duration_180_days">180 дзён</string>
-    <string name="poll_vote">Галасаваць</string>
     <string name="a11y_label_loading_thread">Спампоўваю стужку</string>
     <string name="wellbeing_mode_notice">Некаторая інфармацыя, якая можа ўплываць на Ваш псіхічны стан, будзе скрыта. Гэта ўключае:
 \n
@@ -470,7 +373,6 @@
     <string name="pref_title_confirm_favourites">Патрабаваць пацвярджэнне перад упадабаннем</string>
     <string name="pref_title_confirm_reblogs">Патрабаваць пацвярджэнне перад пашырэннем</string>
     <string name="pref_title_wellbeing_mode">Дабрабыт</string>
-    <string name="drafts_failed_loading_reply">Немагчыма атрымаць інфармацыю пра адказ</string>
     <string name="draft_deleted">Чарнавік выдалены</string>
     <string name="report_category_spam">Спам</string>
     <string name="report_category_other">Іншае</string>
@@ -518,8 +420,6 @@
     <string name="action_post_failed_do_nothing">Адмяніць</string>
     <string name="description_login">Працуе амаль заўсёды. Даныя не ўцякаюць у іншыя праграмы.</string>
     <string name="notification_unknown_name">Невядома</string>
-    <string name="status_filtered_show_anyway">Усё роўна паказаць</string>
-    <string name="status_filter_placeholder_label_format">Адфільтрована: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">Профілі</string>
     <string name="title_public_trending_hashtags">Папулярныя хэштэгі</string>
     <string name="description_browser_login">Можа падтрымліваць дадатковыя метады праверкі сапраўднасці, але для гэтага патрэбны адпаведны браузер.</string>

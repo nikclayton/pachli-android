@@ -23,7 +23,6 @@ import android.widget.BaseAdapter
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.annotation.WorkerThread
-import app.pachli.R
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.util.formatNumber
 import app.pachli.core.designsystem.R as DR
@@ -31,6 +30,7 @@ import app.pachli.core.model.Emoji
 import app.pachli.core.model.TimelineAccount
 import app.pachli.core.ui.databinding.ItemAutocompleteAccountBinding
 import app.pachli.core.ui.emojify
+import app.pachli.core.ui.extensions.contentDescription
 import app.pachli.core.ui.loadAvatar
 import app.pachli.databinding.ItemAutocompleteEmojiBinding
 import app.pachli.databinding.ItemAutocompleteHashtagBinding
@@ -43,6 +43,7 @@ class ComposeAutoCompleteAdapter(
     private val animateAvatar: Boolean,
     private val animateEmojis: Boolean,
     private val showBotBadge: Boolean,
+    private val showPronouns: Boolean,
 ) : BaseAdapter(), Filterable {
 
     private var resultList: List<AutocompleteResult> = emptyList()
@@ -129,6 +130,12 @@ class ComposeAutoCompleteAdapter(
                     animateAvatar,
                 )
                 binding.avatarBadge.visible(showBotBadge && account.bot)
+
+                binding.roleChipGroup.setRoles(account.roles)
+                if (showPronouns) binding.accountPronouns.text = account.pronouns
+                binding.accountPronouns.visible(showPronouns && account.pronouns?.isBlank() == false)
+
+                binding.root.contentDescription = account.contentDescription(context)
             }
             is ItemAutocompleteHashtagBinding -> {
                 val result = getItem(position) as AutocompleteResult.HashtagResult
@@ -137,7 +144,7 @@ class ComposeAutoCompleteAdapter(
             }
             is ItemAutocompleteEmojiBinding -> {
                 val emoji = (getItem(position) as AutocompleteResult.EmojiResult).emoji
-                binding.shortcode.text = context.getString(R.string.emoji_shortcode_format, emoji.shortcode)
+                binding.shortcode.text = emoji.shortcode
                 glide.load(emoji.url).into(binding.preview)
             }
         }
@@ -180,7 +187,7 @@ class ComposeAutoCompleteAdapter(
         }
 
         private fun formatEmoji(result: AutocompleteResult.EmojiResult): String {
-            return ":${result.emoji.shortcode}:"
+            return result.emoji.shortcode
         }
     }
 }

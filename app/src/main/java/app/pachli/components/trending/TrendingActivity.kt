@@ -23,7 +23,9 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewGroupCompat
 import androidx.lifecycle.lifecycleScope
 import app.pachli.R
 import app.pachli.TabViewData
@@ -33,11 +35,12 @@ import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.pachliAccountId
+import app.pachli.core.ui.appbar.FadeChildScrollEffect
+import app.pachli.core.ui.extensions.addScrollEffect
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.databinding.ActivityTrendingBinding
-import app.pachli.interfaces.AppBarLayoutHost
 import app.pachli.pager.MainPagerAdapter
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.android.material.tabs.TabLayoutMediator
@@ -47,14 +50,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class TrendingActivity : ViewUrlActivity(), AppBarLayoutHost, MenuProvider {
+class TrendingActivity : ViewUrlActivity(), MenuProvider {
     @Inject
     lateinit var eventHub: EventHub
 
-    private val binding: ActivityTrendingBinding by viewBinding(ActivityTrendingBinding::inflate)
-
-    override val appBarLayout: AppBarLayout
-        get() = binding.appBar
+    private val binding by viewBinding(ActivityTrendingBinding::inflate)
 
     private lateinit var adapter: MainPagerAdapter
 
@@ -65,7 +65,13 @@ class TrendingActivity : ViewUrlActivity(), AppBarLayoutHost, MenuProvider {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.appBar.applyDefaultWindowInsets()
+        binding.toolbar.addScrollEffect(FadeChildScrollEffect)
+        binding.pager.applyDefaultWindowInsets()
+
         setContentView(binding.root)
         addMenuProvider(this)
 

@@ -22,7 +22,9 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewGroupCompat
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import app.pachli.core.activity.ViewUrlActivity
@@ -41,12 +43,13 @@ import app.pachli.core.model.NewContentFilterKeyword
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.pachliAccountId
+import app.pachli.core.ui.appbar.FadeChildScrollEffect
+import app.pachli.core.ui.extensions.addScrollEffect
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.ActivityTimelineBinding
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.AppBarLayoutHost
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,18 +64,15 @@ import timber.log.Timber
  * Show a single timeline.
  */
 @AndroidEntryPoint
-class TimelineActivity : ViewUrlActivity(), AppBarLayoutHost, ActionButtonActivity, MenuProvider {
+class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
     @Inject
     lateinit var eventHub: EventHub
 
     @Inject
     lateinit var contentFiltersRepository: ContentFiltersRepository
 
-    private val binding: ActivityTimelineBinding by viewBinding(ActivityTimelineBinding::inflate)
+    private val binding by viewBinding(ActivityTimelineBinding::inflate)
     private lateinit var timeline: Timeline
-
-    override val appBarLayout: AppBarLayout
-        get() = binding.includedToolbar.appbar
 
     override val actionButton: FloatingActionButton? by unsafeLazy { binding.composeButton }
 
@@ -90,8 +90,13 @@ class TimelineActivity : ViewUrlActivity(), AppBarLayoutHost, ActionButtonActivi
     private var mutedContentFilter: ContentFilter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Timber.d("onCreate")
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.includedToolbar.appbar.applyDefaultWindowInsets()
+        binding.includedToolbar.toolbar.addScrollEffect(FadeChildScrollEffect)
+        binding.composeButton.applyDefaultWindowInsets()
+
         setContentView(binding.root)
 
         setSupportActionBar(binding.includedToolbar.toolbar)
@@ -155,10 +160,10 @@ class TimelineActivity : ViewUrlActivity(), AppBarLayoutHost, ActionButtonActivi
 
     override fun onPrepareMenu(menu: Menu) {
         // Check if this timeline is in a tab; if not, enable the add_to_tab menu item
-        // Timeline.Link (all posts about a specific link) is special-cased to not be
-        // addable to a tab)
+        // Timeline.Link (all posts about a specific link) and Timeline.Quote are
+        // special-cased to not be addable to a tab).
         val currentTabs = accountManager.activeAccount?.tabPreferences.orEmpty()
-        val hideMenu = timeline is Timeline.Link || currentTabs.contains(timeline)
+        val hideMenu = timeline is Timeline.Link || timeline is Timeline.Quote || currentTabs.contains(timeline)
         menu.findItem(R.id.action_add_to_tab)?.isVisible = !hideMenu
     }
 

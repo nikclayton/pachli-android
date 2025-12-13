@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<resources>
-    <string name="error_network">Произошла ошибка сети! Пожалуйста, проверьте интернет-соединение и попробуйте снова!</string>
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="error_network">Произошла ошибка сети! Пожалуйста, проверьте интернет-соединение и попробуйте снова.</string>
     <string name="error_generic">Произошла ошибка.</string>
     <string name="message_empty">Ничего нет.</string>
     <string name="action_retry">Повторить</string>
@@ -14,7 +14,143 @@
     <string name="title_hashtags_dialog">Хэштеги</string>
     <string name="title_mentions_dialog">Упоминания</string>
     <string name="button_continue">Продолжить</string>
-    <string name="action_logout_confirm">Вы действительно хотите выйти из учётной записи %1$s?</string>
+    <string name="action_logout_confirm">Это удалить все локальные данные из учётной записи %1$s, включая черновики и настройки.\n\nЭто не удалит вашу учётную запись на сервере.</string>
     <string name="add_account_name">Добавить аккаунт</string>
     <string name="action_logout">Выйти</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="url_domain_notifier">" (🔗 %s)"</string>
+    <string name="item_copied">Текст скопирован</string>
+    <string name="action_copy_item">Копировать элемент</string>
+    <string name="pref_notification_method_push">Отправлять (Push)</string>
+    <string name="pref_notification_method_pull">Получать (Pull)</string>
+    <string name="pref_notification_fetch_method_title">Способ уведомления</string>
+    <string name="pref_notification_fetch_ok_timestamp_fmt">✔ %1$s назад @ %2$s</string>
+    <string name="pref_notification_fetch_err_timestamp_fmt">✖ %1$s назад @ %2$s</string>
+    <string name="pref_notification_fetch_server_rejected">%1$s отклонил регистрацию push-уведомлений</string>
+    <string name="pref_notification_fetch_needs_push">Профиль не имеет области действия «push». Выход и повторный вход могут исправить это.</string>
+    <string name="title_logout_fmt">Выход %1$s</string>
+    <string name="notification_details_last_fetch_label">Последний запрос /api/v1/notifications</string>
+    <string name="hint_search_emojis">Поиск эмодзи…</string>
+    <string name="label_emoji_no_category">Без категории</string>
+    <string name="emoji_picker_show_detail">Подробности</string>
+    <string name="preview_card_byline_fediverse_account_fmt">От &lt;b>%1$s&lt;/b>. Посмотреть другие публикации</string>
+    <string name="preview_card_byline_name_only_fmt">От &lt;b>%1$s&lt;/b></string>
+    <string name="preview_card_timeline_link_fmt">Смотреть &lt;b>%1$s&lt;/b> публикаций об этой ссылке</string>
+    <string name="poll_vote">Голосовать</string>
+    <string name="poll_show_votes">Показать голоса</string>
+    <plurals name="poll_timespan_seconds">
+        <item quantity="one">осталась %d секунда</item>
+        <item quantity="few">осталось %d секунды</item>
+        <item quantity="many">осталось %d секунд</item>
+        <item quantity="other">осталось %d секунд</item>
+    </plurals>
+    <plurals name="poll_timespan_minutes">
+        <item quantity="one">осталась %d минута</item>
+        <item quantity="few">осталось %d минуты</item>
+        <item quantity="many">осталось %d минут</item>
+        <item quantity="other">осталось %d минут</item>
+    </plurals>
+    <plurals name="poll_timespan_hours">
+        <item quantity="one">остался %d час</item>
+        <item quantity="few">осталось %d часа</item>
+        <item quantity="many">осталось %d часов</item>
+        <item quantity="other">осталось %d часов</item>
+    </plurals>
+    <plurals name="poll_timespan_days">
+        <item quantity="one">остался %d день</item>
+        <item quantity="few">осталось %d дня</item>
+        <item quantity="many">осталось %d дней</item>
+        <item quantity="other">осталось %d дней</item>
+    </plurals>
+    <plurals name="poll_info_votes">
+        <item quantity="one">%s голос</item>
+        <item quantity="few">%s голоса</item>
+        <item quantity="many">%s голосов</item>
+        <item quantity="other">%s голосов</item>
+    </plurals>
+    <plurals name="poll_info_people">
+        <item quantity="one">%s человек</item>
+        <item quantity="few">%s людей</item>
+        <item quantity="many">%s людей</item>
+        <item quantity="other">%s людей</item>
+    </plurals>
+    <string name="poll_info_closed">завершён</string>
+    <string name="poll_info_time_absolute">завершится %s</string>
+    <string name="poll_info_format"><!-- 15 votes • 1 hour left -->%1$s • %2$s</string>
+    <string name="description_poll">Опрос с выбором: %1$s, %2$s, %3$s, %4$s; %5$s</string>
+    <string name="post_media_alt">Альт</string>
+    <string name="status_created_at_now">сейчас</string>
+    <string name="abbreviated_in_seconds">через %dс</string>
+    <string name="abbreviated_seconds_ago">%dс</string>
+    <string name="abbreviated_in_minutes">через %dм</string>
+    <string name="abbreviated_minutes_ago">%dм</string>
+    <string name="abbreviated_in_hours">через %dч</string>
+    <string name="abbreviated_hours_ago">%dч</string>
+    <string name="abbreviated_in_days">через %dд</string>
+    <string name="abbreviated_days_ago">%dд</string>
+    <string name="abbreviated_in_years">через %dг</string>
+    <string name="abbreviated_years_ago">%dг</string>
+    <string name="description_post_media_no_description_placeholder">
+        Без описания
+    </string>
+    <string name="description_visibility_public">
+        Публичный
+    </string>
+    <string name="description_visibility_unlisted">Не в списке</string>
+    <string name="description_visibility_private">Подписчики</string>
+    <string name="description_visibility_direct">Непосредственно</string>
+    <string name="post_sensitive_media_title">Вызывающее содержимое. Нажмите чтобы отобразить.</string>
+    <string name="post_media_images">Изображения</string>
+    <string name="post_media_audio">Аудио</string>
+    <string name="post_media_video">Видео</string>
+    <string name="post_media_attachments">Вложения</string>
+    <plurals name="description_post_roles">
+        <item quantity="one" tools:ignore="ImpliedQuantity">с ролью:</item>
+        <item quantity="few">с ролями:</item>
+        <item quantity="many">с ролями:</item>
+        <item quantity="other">с ролями:</item>
+    </plurals>
+    <string name="account_contentdescription_fmt">%1$s, %2$s; %3$s</string>
+    <string name="role_content_description_fmt">%1$s, в %2$s</string>
+    <string name="action_hide_attachments">Скрыть вложения</string>
+    <string name="dot_in_name">точка</string>
+    <string name="action_show_attachments">Показать вложения</string>
+    <string name="attachment_matches_filter_other_fmt">Соответствует фильтрам: \"%1$s\", \"%2$s\" и другим. Нажмите, чтобы показать.</string>
+    <string name="action_reply">Ответить</string>
+    <string name="action_reblog">Продвинуть</string>
+    <string name="action_favourite">Нравится</string>
+    <string name="action_bookmark">Добавить в закладки</string>
+    <string name="status_count_one_plus">1+</string>
+    <string name="action_unreblog">Убрать продвижение</string>
+    <string name="action_unfavourite">Убрать из избранного</string>
+    <string name="post_content_warning_show_less">Показать меньше</string>
+    <string name="post_content_warning_show_more">Показать больше</string>
+    <string name="post_content_show_less">Свернуть</string>
+    <string name="translating">Перевод…</string>
+    <string name="translation_provider_fmt">%1$s</string>
+    <string name="description_post_edited">Изменено</string>
+    <string name="description_post_reblogged">Реблогнуто</string>
+    <string name="description_post_favourited">Понравилось</string>
+    <string name="description_post_bookmarked">Добавлено в закладки</string>
+    <string name="description_post_media">
+        Медиафайл: %s
+    </string>
+    <string name="description_post_cw">Предупреждение о содержании: %s</string>
+    <plurals name="reblogs">
+        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Продвинул(а)</item>
+        <item quantity="few">&lt;b&gt;%s&lt;/b&gt; Продвинули</item>
+        <item quantity="many">&lt;b&gt;%s&lt;/b&gt; Продвинули</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Продвинули</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Понравился</item>
+        <item quantity="few">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
+        <item quantity="many">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Понравилось</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt; продвинул(а)</string>
+    <string name="post_edited">Изменено %s</string>
+    <string name="filter_edit_title">Изм. фильтр</string>
+    <string name="status_filtered_show_anyway">Показать всё равно</string>
+    <string name="status_filter_placeholder_label_format">Фильтр: &lt;b>%1$s&lt;/b></string>
 </resources>

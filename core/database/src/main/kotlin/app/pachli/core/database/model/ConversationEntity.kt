@@ -43,7 +43,7 @@ data class ConversationData(
     val accounts: List<ConversationAccount>,
     val unread: Boolean,
     @Embedded(prefix = "s_")
-    val lastStatus: TimelineStatusWithAccount,
+    val lastStatus: TimelineStatusWithQuote,
     val isConversationStarter: Boolean,
     @Embedded(prefix = "cvd_") val viewData: ConversationViewDataEntity?,
 )
@@ -139,7 +139,7 @@ data class ConversationEntity(
                     id = conversation.id,
                     accounts = conversation.accounts.asConversationAccount(),
                     unread = conversation.unread,
-                    lastStatusServerId = it.id,
+                    lastStatusServerId = it.statusId,
                     isConversationStarter = isInitial,
                 )
             }

@@ -40,7 +40,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
 
             extensions.configure<LibraryExtension> {
                 configureKotlinAndroid(this)
-                defaultConfig.targetSdk = 34
+                defaultConfig.targetSdk = 36
                 configureFlavors(this)
             }
 
@@ -54,6 +54,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 add("testImplementation", project(":core:testing"))
                 add("androidTestImplementation", kotlin("test"))
                 add("androidTestImplementation", project(":core:testing"))
+                add("lintChecks", project(":checks"))
             }
         }
     }

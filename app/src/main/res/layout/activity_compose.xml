@@ -73,8 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="14dp"
-            android:layout_marginEnd="8dp"
-            >
+            android:layout_marginEnd="8dp">
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/replyProgressIndicator"
@@ -144,7 +143,7 @@
 
             <TextView
                 android:id="@+id/status_display_name"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
                 android:layout_marginTop="10dp"
@@ -154,16 +153,26 @@
                 android:textColor="?android:textColorPrimary"
                 android:textSize="?attr/status_text_medium"
                 android:textStyle="normal|bold"
-                app:layout_constrainedWidth="true"
-                app:layout_constraintBottom_toTopOf="@id/status_username"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0"
-                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintStart_toEndOf="@id/status_avatar"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/account_pronouns"
+                app:layout_constraintBottom_toTopOf="@id/status_username"
                 app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintHorizontal_weight="1"
                 tools:ignore="SelectableText"
                 tools:text="Display Name" />
+
+            <app.pachli.core.ui.PronounsChip
+                android:id="@+id/account_pronouns"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintBaseline_toBaselineOf="@id/status_display_name"
+                app:layout_constraintStart_toEndOf="@id/status_display_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintWidth_max="@dimen/pronounChip_maxWidth"
+                tools:text="he/him"
+                tools:ignore="SelectableText" />
 
             <TextView
                 android:id="@+id/status_username"
@@ -330,6 +339,10 @@
         android:paddingBottom="52dp"
         app:behavior_hideable="true"
         app:behavior_peekHeight="0dp"
+        app:paddingLeftSystemWindowInsets="true"
+        app:paddingTopSystemWindowInsets="true"
+        app:paddingRightSystemWindowInsets="true"
+        app:paddingBottomSystemWindowInsets="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <TextView
@@ -339,8 +352,7 @@
             android:gravity="center_vertical"
             android:minHeight="48dp"
             android:drawablePadding="8dp"
-            android:text="@string/action_photo_take"
-            android:textColor="?android:textColorTertiary" />
+            android:text="@string/action_photo_take" />
 
         <TextView
             android:id="@+id/action_add_media"
@@ -349,8 +361,7 @@
             android:gravity="center_vertical"
             android:minHeight="48dp"
             android:drawablePadding="8dp"
-            android:text="@string/action_add_media"
-            android:textColor="?android:textColorTertiary" />
+            android:text="@string/action_add_media" />
 
         <TextView
             android:id="@+id/addPollTextActionTextView"
@@ -359,22 +370,27 @@
             android:gravity="center_vertical"
             android:minHeight="48dp"
             android:drawablePadding="8dp"
-            android:text="@string/action_add_poll"
-            android:textColor="?android:textColorTertiary" />
+            android:text="@string/action_add_poll" />
     </LinearLayout>
 
-    <app.pachli.view.EmojiPicker
-        android:id="@+id/emojiView"
+    <app.pachli.core.ui.emoji.EmojiPickerView
+        android:id="@+id/emojiPickerBottomSheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:background="?attr/colorSurface"
         android:elevation="12dp"
         android:paddingStart="16dp"
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="60dp"
+        android:paddingBottom="52dp"
         app:behavior_hideable="true"
         app:behavior_peekHeight="0dp"
+        app:behavior_skipCollapsed="true"
+        app:behavior_draggable="false"
+        app:paddingLeftSystemWindowInsets="true"
+        app:paddingRightSystemWindowInsets="true"
+        app:paddingBottomSystemWindowInsets="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 
     <app.pachli.components.compose.view.ComposeOptionsView
@@ -386,9 +402,31 @@
         android:paddingStart="24dp"
         android:paddingTop="12dp"
         android:paddingEnd="24dp"
-        android:paddingBottom="60dp"
+        android:paddingBottom="52dp"
         app:behavior_hideable="true"
         app:behavior_peekHeight="0dp"
+        app:paddingLeftSystemWindowInsets="true"
+        app:paddingTopSystemWindowInsets="true"
+        app:paddingRightSystemWindowInsets="true"
+        app:paddingBottomSystemWindowInsets="true"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+
+    <app.pachli.components.compose.view.QuotePolicyView
+        android:id="@+id/quotePolicyBottomSheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        android:elevation="12dp"
+        android:paddingStart="24dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="52dp"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="0dp"
+        app:paddingLeftSystemWindowInsets="true"
+        app:paddingTopSystemWindowInsets="true"
+        app:paddingRightSystemWindowInsets="true"
+        app:paddingBottomSystemWindowInsets="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 
     <app.pachli.components.compose.view.ComposeScheduleView
@@ -403,6 +441,10 @@
         android:paddingBottom="52dp"
         app:behavior_hideable="true"
         app:behavior_peekHeight="0dp"
+        app:paddingLeftSystemWindowInsets="true"
+        app:paddingTopSystemWindowInsets="true"
+        app:paddingRightSystemWindowInsets="true"
+        app:paddingBottomSystemWindowInsets="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 
     <LinearLayout
@@ -440,6 +482,18 @@
             android:padding="4dp"
             app:tint="?attr/colorPrimary"
             app:tooltipText="@string/action_toggle_visibility"
+            tools:src="@drawable/ic_public_24dp" />
+
+        <ImageButton
+            android:id="@+id/compose_change_quote_policy_button"
+            style="@style/AppImageButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="4dp"
+            android:contentDescription="@string/action_toggle_quote_policy"
+            android:padding="4dp"
+            app:tint="?attr/colorPrimary"
+            app:tooltipText="@string/action_toggle_quote_policy"
             tools:src="@drawable/ic_public_24dp" />
 
         <ImageButton

@@ -17,4 +17,79 @@
     <string name="action_logout_confirm">Ziur zaude %1$s saioa itxi nahi duzula?</string>
     <string name="add_account_name">Gehitu kontua</string>
     <string name="action_logout">Saioa itxi</string>
+    <string name="poll_vote">Botatu</string>
+    <plurals name="poll_timespan_seconds">
+        <item quantity="one">Segundu %d geratzen da</item>
+        <item quantity="other">%d segundu geratzen da</item>
+    </plurals>
+    <plurals name="poll_timespan_minutes">
+        <item quantity="one">Minutu %d faltan</item>
+        <item quantity="other">%d minutu faltan</item>
+    </plurals>
+    <plurals name="poll_timespan_hours">
+        <item quantity="one">Ordu %d geratzen da</item>
+        <item quantity="other">%d ordu geratzen da</item>
+    </plurals>
+    <plurals name="poll_timespan_days">
+        <item quantity="one">Egun %d geratzen da</item>
+        <item quantity="other">%d egun geratzen da</item>
+    </plurals>
+    <plurals name="poll_info_votes">
+        <item quantity="one">Boto %s</item>
+        <item quantity="other">%s boto</item>
+    </plurals>
+    <plurals name="poll_info_people">
+        <item quantity="one">Pertsona %s</item>
+        <item quantity="other">%s pertsona</item>
+    </plurals>
+    <string name="poll_info_closed">Itxita</string>
+    <string name="poll_info_time_absolute">%s amaitzen da</string>
+    <string name="poll_info_format"><!-- 15 boto • Ordu 1 geratzen da -->%1$s • %2$s</string>
+    <string name="description_poll">Inkestatu aukerekin: %1$s, %2$s, %3$s, %4$s; %5$s</string>
+    <string name="post_media_alt">ALT</string>
+    <string name="abbreviated_in_seconds">%ds-an</string>
+    <string name="abbreviated_seconds_ago">%ds</string>
+    <string name="abbreviated_in_minutes">%dm-an</string>
+    <string name="abbreviated_minutes_ago">%dm</string>
+    <string name="abbreviated_in_hours">%dh-an</string>
+    <string name="abbreviated_hours_ago">%dh</string>
+    <string name="abbreviated_in_days">%de-an</string>
+    <string name="abbreviated_days_ago">%de</string>
+    <string name="abbreviated_in_years">%du-an</string>
+    <string name="abbreviated_years_ago">%du</string>
+    <string name="description_post_media_no_description_placeholder">Deskribapenik ez</string>
+    <string name="description_visibility_public">Publikoa</string>
+    <string name="description_visibility_unlisted">Zerrendatu gabea</string>
+    <string name="description_visibility_private">Jarraitzaileak</string>
+    <string name="description_visibility_direct">Zuzena</string>
+    <string name="post_sensitive_media_title">Eduki hunkigarria</string>
+    <string name="post_media_images">Irudiak</string>
+    <string name="post_media_audio">Audioa</string>
+    <string name="post_media_video">Bideoa</string>
+    <string name="post_media_attachments">Eranskinak</string>
+    <string name="action_reply">Erantzun</string>
+    <string name="action_reblog">Bultzatu</string>
+    <string name="action_favourite">Gogokoa</string>
+    <string name="action_bookmark">Laster-marka</string>
+    <string name="action_unreblog">Bultzada kendu</string>
+    <string name="action_unfavourite">Gogokoa kendu</string>
+    <string name="post_content_warning_show_less">Gutxiago erakutsi</string>
+    <string name="post_content_warning_show_more">Gehiago erakutsi</string>
+    <string name="post_content_show_less">Itxi</string>
+    <string name="description_post_reblogged">Partekatua</string>
+    <string name="description_post_favourited">Gogokoa</string>
+    <string name="description_post_bookmarked">Laster-marketara gehitua</string>
+    <string name="description_post_media">Media: %s</string>
+    <string name="description_post_cw">Edukiarekiko abisua: %s</string>
+    <plurals name="reblogs">
+        <item quantity="one">Bultzada &lt;b&gt;%s&lt;/b&gt;</item>
+        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Bultzada</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">Gogoko &lt;b&gt;%1$s&lt;/b&gt;</item>
+        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Gogoko</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt;-(e)k bultzatu du</string>
+    <string name="post_edited">%s editatua</string>
+    <string name="filter_edit_title">Editatu iragazkia</string>
 </resources>

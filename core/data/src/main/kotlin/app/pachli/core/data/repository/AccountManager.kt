@@ -38,6 +38,7 @@ import app.pachli.core.database.model.FollowingAccountEntity
 import app.pachli.core.database.model.InstanceInfoEntity
 import app.pachli.core.database.model.ServerEntity
 import app.pachli.core.model.Account
+import app.pachli.core.model.AccountSource
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.MastodonList
 import app.pachli.core.model.NodeInfo
@@ -382,6 +383,7 @@ class AccountManager @Inject constructor(
                     defaultPostPrivacy = account.source.privacy?.asModel() ?: Visibility.PUBLIC,
                     defaultPostLanguage = account.source.language.orEmpty(),
                     defaultMediaSensitivity = account.source.sensitive == true,
+                    defaultQuotePolicy = account.source.quotePolicy?.asModel() ?: AccountSource.QuotePolicy.NOBODY,
                     emojis = account.emojis.asModel(),
                     locked = account.locked,
                     isBot = account.bot,
@@ -483,7 +485,7 @@ class AccountManager @Inject constructor(
 
             transactionProvider {
                 followingAccountDao.deleteAllForAccount(account.id)
-                followingAccountDao.insert(following)
+                followingAccountDao.upsert(following)
             }
 
             return@async Ok(following)
@@ -700,75 +702,91 @@ class AccountManager @Inject constructor(
         )
     }
 
-    fun setDefaultPostPrivacy(accountId: Long, value: Visibility) {
+    suspend fun setDefaultPostPrivacy(accountId: Long, value: Visibility) {
         accountDao.setDefaultPostPrivacy(accountId, value)
     }
 
-    fun setDefaultMediaSensitivity(accountId: Long, value: Boolean) {
+    suspend fun setDefaultMediaSensitivity(accountId: Long, value: Boolean) {
         accountDao.setDefaultMediaSensitivity(accountId, value)
     }
 
-    fun setDefaultPostLanguage(accountId: Long, value: String) {
+    suspend fun setDefaultPostLanguage(accountId: Long, value: String) {
         accountDao.setDefaultPostLanguage(accountId, value)
     }
 
-    fun setNotificationsEnabled(accountId: Long, value: Boolean) {
+    suspend fun setDefaultQuotePolicy(accountId: Long, value: AccountSource.QuotePolicy) {
+        accountDao.setDefaultQuotePolicy(accountId, value)
+    }
+
+    suspend fun setNotificationsEnabled(accountId: Long, value: Boolean) {
         accountDao.setNotificationsEnabled(accountId, value)
     }
 
-    fun setNotificationsMentioned(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsMentioned(accountId: Long, value: Boolean) {
         accountDao.setNotificationsMentioned(accountId, value)
     }
 
-    fun setNotificationsFollowed(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsFollowed(accountId: Long, value: Boolean) {
         accountDao.setNotificationsFollowed(accountId, value)
     }
 
-    fun setNotificationsFollowRequested(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsFollowRequested(accountId: Long, value: Boolean) {
         accountDao.setNotificationsFollowRequested(accountId, value)
     }
 
-    fun setNotificationsReblogged(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsReblogged(accountId: Long, value: Boolean) {
         accountDao.setNotificationsReblogged(accountId, value)
     }
 
-    fun setNotificationsFavorited(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsFavorited(accountId: Long, value: Boolean) {
         accountDao.setNotificationsFavorited(accountId, value)
     }
 
-    fun setNotificationsPolls(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsQuote(accountId: Long, value: Boolean) {
+        accountDao.setNotificationsQuotes(accountId, value)
+    }
+
+    suspend fun setNotificationsQuotedUpdate(accountId: Long, value: Boolean) {
+        accountDao.setNotificationsQuotedUpdate(accountId, value)
+    }
+
+    suspend fun setNotificationsPolls(accountId: Long, value: Boolean) {
         accountDao.setNotificationsPolls(accountId, value)
     }
 
-    fun setNotificationsSubscriptions(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsSubscriptions(accountId: Long, value: Boolean) {
         accountDao.setNotificationsSubscriptions(accountId, value)
     }
 
-    fun setNotificationsSignUps(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsSignUps(accountId: Long, value: Boolean) {
         accountDao.setNotificationsSignUps(accountId, value)
     }
 
-    fun setNotificationsUpdates(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsUpdates(accountId: Long, value: Boolean) {
         accountDao.setNotificationsUpdates(accountId, value)
     }
 
-    fun setNotificationsReports(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsReports(accountId: Long, value: Boolean) {
         accountDao.setNotificationsReports(accountId, value)
     }
 
-    fun setNotificationsSeveredRelationships(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsSeveredRelationships(accountId: Long, value: Boolean) {
         accountDao.setNotificationsSeveredRelationships(accountId, value)
     }
 
-    fun setNotificationSound(accountId: Long, value: Boolean) {
+    suspend fun setNotificationsModerationWarnings(accountId: Long, value: Boolean) {
+        accountDao.setNotificationsModerationWarnings(accountId, value)
+    }
+
+    suspend fun setNotificationSound(accountId: Long, value: Boolean) {
         accountDao.setNotificationSound(accountId, value)
     }
 
-    fun setNotificationVibration(accountId: Long, value: Boolean) {
+    suspend fun setNotificationVibration(accountId: Long, value: Boolean) {
         accountDao.setNotificationVibration(accountId, value)
     }
 
-    fun setNotificationLight(accountId: Long, value: Boolean) {
+    suspend fun setNotificationLight(accountId: Long, value: Boolean) {
         accountDao.setNotificationLight(accountId, value)
     }
 
@@ -803,7 +821,7 @@ class AccountManager @Inject constructor(
 
     // -- Following
     suspend fun followAccount(pachliAccountId: Long, serverId: String) {
-        followingAccountDao.insert(FollowingAccountEntity(pachliAccountId, serverId))
+        followingAccountDao.upsert(FollowingAccountEntity(pachliAccountId, serverId))
     }
 
     suspend fun unfollowAccount(pachliAccountId: Long, serverId: String) {

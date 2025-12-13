@@ -32,4 +32,18 @@
     <string name="pref_update_notification_frequency_never">Mai</string>
     <string name="pref_update_notification_frequency_once_per_version">Una volta per versione</string>
     <string name="pref_update_notification_frequency_always">Sempre</string>
+    <string name="pref_title_export_settings">Esporta impostazioni</string>
+    <string name="pref_title_import_settings">Importa impostazioni</string>
+    <string name="pref_default_audio_playback_option_unmuted">Hai riattivato il tuo microfono.</string>
+    <string name="pref_default_audio_playback_option_muted">Muto</string>
+    <string name="pref_summary_export_settings">Tocca per salvare le impostazioni dell’app e dell’account su un file locale</string>
+    <string name="pref_summary_import_settings">Tocca per reimpostare le impostazioni da un file creato usando “Esporta impostazioni”</string>
+    <string name="pref_title_translation">Traduzione</string>
+    <string name="pref_translation_backend">Come tradurre</string>
+    <string name="pref_translation_backend_option_server_only">Solo server</string>
+    <string name="pref_translation_backend_option_local_only">Solo tramite dispositivo</string>
+    <string name="pref_translation_backend_option_server_only_help">Traduce i post usando il tuo server. Non funzionerà se il tuo server non supporta le traduzioni, oppure se la lingua del post è incorretta.</string>
+    <string name="pref_translation_backend_option_server_first">Prima il server</string>
+    <string name="pref_translation_backend_option_local_only_help">Traduce i post sul tuo dispositivo usando Google Traduttore.</string>
+    <string name="pref_pronoun_display_everywhere">Ovunque</string>
 </resources>

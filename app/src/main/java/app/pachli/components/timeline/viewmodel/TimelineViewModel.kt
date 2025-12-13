@@ -20,7 +20,6 @@ package app.pachli.components.timeline.viewmodel
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.bundleOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -29,11 +28,14 @@ import app.pachli.components.timeline.TimelineRepository
 import app.pachli.core.common.PachliError
 import app.pachli.core.common.extensions.throttleFirst
 import app.pachli.core.data.model.ContentFilterModel
+import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.data.model.StatusItemViewData
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.StatusActionError
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
-import app.pachli.core.data.repository.StatusRepository
+import app.pachli.core.database.dao.TimelineStatusWithAccount
 import app.pachli.core.eventhub.BlockEvent
 import app.pachli.core.eventhub.BookmarkEvent
 import app.pachli.core.eventhub.DomainMuteEvent
@@ -48,6 +50,7 @@ import app.pachli.core.eventhub.StatusComposedEvent
 import app.pachli.core.eventhub.StatusDeletedEvent
 import app.pachli.core.eventhub.StatusEditedEvent
 import app.pachli.core.eventhub.UnfollowEvent
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.ContentFilterVersion
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
@@ -171,27 +174,27 @@ sealed interface UiSuccess {
 sealed interface StatusAction : UiAction
 
 sealed interface InfallibleStatusAction : InfallibleUiAction, StatusAction {
-    val statusViewData: StatusViewData
+    val statusViewData: IStatusViewData
 
-    data class TranslateUndo(override val statusViewData: StatusViewData) : InfallibleStatusAction
+    data class TranslateUndo(override val statusViewData: IStatusViewData) : InfallibleStatusAction
 }
 
 /** Actions the user can trigger on an individual status */
 sealed interface FallibleStatusAction : FallibleUiAction, StatusAction {
     // TODO: Include a property for the PachliAccountId the action is being performed as.
 
-    val statusViewData: StatusViewData
+    val statusViewData: IStatusViewData
 
     /** Set the bookmark state for a status */
-    data class Bookmark(val state: Boolean, override val statusViewData: StatusViewData) :
+    data class Bookmark(val state: Boolean, override val statusViewData: IStatusViewData) :
         FallibleStatusAction
 
     /** Set the favourite state for a status */
-    data class Favourite(val state: Boolean, override val statusViewData: StatusViewData) :
+    data class Favourite(val state: Boolean, override val statusViewData: IStatusViewData) :
         FallibleStatusAction
 
     /** Set the reblog state for a status */
-    data class Reblog(val state: Boolean, override val statusViewData: StatusViewData) :
+    data class Reblog(val state: Boolean, override val statusViewData: IStatusViewData) :
         FallibleStatusAction
 
     /**
@@ -204,11 +207,11 @@ sealed interface FallibleStatusAction : FallibleUiAction, StatusAction {
     data class VoteInPoll(
         val poll: Poll,
         val choices: List<Int>,
-        override val statusViewData: StatusViewData,
+        override val statusViewData: IStatusViewData,
     ) : FallibleStatusAction
 
     /** Translate a status */
-    data class Translate(override val statusViewData: StatusViewData) : FallibleStatusAction
+    data class Translate(override val statusViewData: IStatusViewData) : FallibleStatusAction
 }
 
 /** Changes to a status' visible state after API calls */
@@ -303,15 +306,14 @@ sealed interface UiError {
     }
 }
 
-abstract class TimelineViewModel<T : Any>(
-    savedStateHandle: SavedStateHandle,
+abstract class TimelineViewModel<T : Any, R : TimelineRepository<T>>(
+    protected val timeline: Timeline,
     protected val timelineCases: TimelineCases,
     private val eventHub: EventHub,
     protected val accountManager: AccountManager,
-    private val repository: TimelineRepository<T>,
+    protected val repository: R,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     private val sharedPreferencesRepository: SharedPreferencesRepository,
-    protected val statusRepository: StatusRepository,
 ) : ViewModel() {
     /**
      * The account to load statuses for. Receiving [InfallibleUiAction.LoadPachliAccount]
@@ -322,7 +324,7 @@ abstract class TimelineViewModel<T : Any>(
     val uiState: StateFlow<UiState>
 
     /** Flow of statuses that make up the timeline of [timeline] for [pachliAccountId]. */
-    abstract val statuses: Flow<PagingData<StatusViewData>>
+    abstract val statuses: Flow<PagingData<StatusItemViewData>>
 
     /** Flow of changes to statusDisplayOptions, for use by the UI */
     val statusDisplayOptions = statusDisplayOptionsRepository.flow
@@ -338,7 +340,8 @@ abstract class TimelineViewModel<T : Any>(
         viewModelScope.launch { uiAction.emit(action) }
     }
 
-    val timeline: Timeline = savedStateHandle.get<Timeline>(TIMELINE_TAG)!!
+    /** [FilterContext] for this [timeline]. */
+    protected val filterContext = FilterContext.from(timeline)
 
     /**
      * Flow of the status ID to use when initially refreshing the list, and where
@@ -346,7 +349,7 @@ abstract class TimelineViewModel<T : Any>(
      * reading position should not be restored, or the reading position was
      * explicitly cleared.
      */
-    val initialRefreshStatusId = pachliAccountId.distinctUntilChanged().map { pachliAccountId ->
+    open val initialRefreshStatusId = pachliAccountId.distinctUntilChanged().map { pachliAccountId ->
         timeline.remoteKeyTimelineId?.let {
             timelineCases.getRefreshStatusId(pachliAccountId, it)
         }
@@ -364,7 +367,7 @@ abstract class TimelineViewModel<T : Any>(
         accountManager.getPachliAccountFlow(pachliAccountId)
     }.filterNotNull()
 
-    private var contentFilterModel: ContentFilterModel? = null
+    protected var contentFilterModel: ContentFilterModel? = null
 
     init {
         // Handle LoadPachliAcccount. Emit the received account ID to pachliAccountFlow.
@@ -374,7 +377,7 @@ abstract class TimelineViewModel<T : Any>(
         }
 
         viewModelScope.launch {
-            FilterContext.from(timeline)?.let { filterContext ->
+            filterContext?.let { filterContext ->
                 pachliAccountFlow
                     .distinctUntilChangedBy { it.contentFilters }
                     .fold(false) { reload, account ->
@@ -449,14 +452,14 @@ abstract class TimelineViewModel<T : Any>(
                 ),
             )
 
-        // Save the visible status ID (if it's the home timeline)
+        // Save the visible status ID.
         timeline.remoteKeyTimelineId?.let { refreshKeyPrimaryKey ->
             viewModelScope.launch {
                 uiAction
                     .filterIsInstance<InfallibleUiAction.SaveVisibleId>()
                     .distinctUntilChanged()
                     .collectLatest { action ->
-                        Timber.d("setLastVisibleHomeTimelineStatusId: %d, %s", action.pachliAccountId, action.visibleId)
+                        Timber.d("timeline: $timeline, saveRefreshStatusId: %d, %s, %s", action.pachliAccountId, refreshKeyPrimaryKey, action.visibleId)
                         timelineCases.saveRefreshStatusId(action.pachliAccountId, refreshKeyPrimaryKey, action.visibleId)
                     }
             }
@@ -468,6 +471,7 @@ abstract class TimelineViewModel<T : Any>(
                 .filterIsInstance<InfallibleUiAction.LoadNewest>()
                 .collectLatest { action ->
                     timeline.remoteKeyTimelineId?.let { refreshKeyPrimaryKey ->
+                        Timber.d("timeline: $timeline, saveRefreshStatusId: %d, %s, %s", action.pachliAccountId, refreshKeyPrimaryKey, null)
                         timelineCases.saveRefreshStatusId(action.pachliAccountId, refreshKeyPrimaryKey, null)
                     }
                     Timber.d("Reload because InfallibleUiAction.LoadNewest")
@@ -540,7 +544,7 @@ abstract class TimelineViewModel<T : Any>(
      * and update [translation][StatusViewData.translation].     .
      * 3. Revert the status state change from (1) if the operation failed.
      */
-    abstract suspend fun onTranslate(action: FallibleStatusAction.Translate): Result<TranslatedStatus, TranslatorError> // = timelineCases.translate(action.statusViewData)
+    abstract suspend fun onTranslate(action: FallibleStatusAction.Translate): Result<TranslatedStatus, TranslatorError>
 
     /**
      * Undo translating a status.
@@ -553,22 +557,22 @@ abstract class TimelineViewModel<T : Any>(
     abstract suspend fun onUndoTranslate(action: InfallibleStatusAction.TranslateUndo)
 
     /**
-     * Sets the expanded state of [statusViewData] in [StatusRepository] to [isExpanded] and
+     * Sets the expanded state of [statusViewData] in [OfflineFirstStatusRepository] to [isExpanded] and
      * invalidates the repository.
      */
-    abstract fun onChangeExpanded(isExpanded: Boolean, statusViewData: StatusViewData)
+    abstract fun onChangeExpanded(isExpanded: Boolean, statusViewData: IStatusViewData)
 
     /**
-     * Sets the content-showing state of [statusViewData] in [StatusRepository] to
-     * [isShowing] and invalidates the repository.
+     * Sets the attachment display action of [statusViewData] in [OfflineFirstStatusRepository] to
+     * [newAction] and invalidates the repository.
      */
-    abstract fun onChangeContentShowing(isShowing: Boolean, statusViewData: StatusViewData)
+    abstract fun onChangeAttachmentDisplayAction(viewData: IStatusViewData, newAction: AttachmentDisplayAction)
 
     /**
-     * Sets the collapsed state of [statusViewData] in [StatusRepository] to [isCollapsed] and
+     * Sets the collapsed state of [statusViewData] in [OfflineFirstStatusRepository] to [isCollapsed] and
      * invalidates the repository.
      */
-    abstract fun onContentCollapsed(isCollapsed: Boolean, statusViewData: StatusViewData)
+    abstract fun onContentCollapsed(isCollapsed: Boolean, statusViewData: IStatusViewData)
 
     abstract fun removeAllByAccountId(pachliAccountId: Long, accountId: String)
 
@@ -584,22 +588,33 @@ abstract class TimelineViewModel<T : Any>(
 
     abstract fun handlePinEvent(pinEvent: PinEvent)
 
-    abstract fun clearWarning(statusViewData: StatusViewData)
+    abstract fun clearWarning(statusViewData: IStatusViewData)
 
     /** Triggered when currently displayed data must be reloaded. */
     protected abstract suspend fun invalidate(pachliAccountId: Long)
 
-    protected fun shouldFilterStatus(status: Status): FilterAction {
-        return if (
-            (status.inReplyToId != null && filterRemoveReplies) ||
-            (status.reblog != null && filterRemoveReblogs) ||
-            // To determine if the boost is boosting your own toot
-            ((status.account.id == status.reblog?.account?.id) && filterRemoveSelfReblogs)
-        ) {
-            FilterAction.HIDE
-        } else {
-            contentFilterModel?.filterActionFor(status) ?: FilterAction.NONE
+    /**
+     * @return The correct [FilterAction] for [timelineStatus] given the user's
+     * preferences and any filters attached to the status.
+     */
+    protected fun shouldFilterStatus(timelineStatus: TimelineStatusWithAccount): FilterAction {
+        // Local user preferences first
+
+        // Remove self-boosts.
+        if (timelineStatus.account.serverId == timelineStatus.reblogAccount?.serverId && filterRemoveSelfReblogs) {
+            return FilterAction.HIDE
         }
+
+        val status = timelineStatus.status
+
+        // Remove replies
+        if (status.isReply && filterRemoveReplies) return FilterAction.HIDE
+
+        // Remove boosts
+        if (status.isReblog && filterRemoveReblogs) return FilterAction.HIDE
+
+        // Apply content filters.
+        return contentFilterModel?.filterActionFor(status) ?: FilterAction.NONE
     }
 
     // TODO: Update this so that the list of UIPrefs is correct
@@ -658,7 +673,7 @@ abstract class TimelineViewModel<T : Any>(
                 }
             }
             is MuteEvent -> {
-                if (timeline !is Timeline.User) {
+                if (timeline !is Timeline.User && timeline !is Timeline.Bookmarks && timeline !is Timeline.Favourites) {
                     removeAllByAccountId(event.pachliAccountId, event.accountId)
                 }
             }

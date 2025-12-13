@@ -86,13 +86,13 @@ data class TabViewData(
             Timeline.PublicFederated -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_public_federated,
-                icon = R.drawable.ic_public_24dp,
+                icon = app.pachli.core.designsystem.R.drawable.ic_public_24dp,
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
             )
             Timeline.Conversations -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_direct_messages,
-                icon = R.drawable.ic_reblog_direct_24dp,
+                icon = app.pachli.core.ui.R.drawable.ic_reblog_direct_24dp,
                 fragment = { ConversationsFragment.newInstance(pachliAccountId) },
             ) { context, pachliAccountId ->
                 ComposeActivityIntent(
@@ -152,7 +152,7 @@ data class TabViewData(
             Timeline.Bookmarks -> TabViewData(
                 timeline = timeline,
                 text = R.string.title_bookmarks,
-                icon = R.drawable.ic_bookmark_active_24dp,
+                icon = app.pachli.core.ui.R.drawable.ic_bookmark_active_24dp,
                 fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
             )
             Timeline.Favourites -> TabViewData(
@@ -171,6 +171,12 @@ data class TabViewData(
             is Timeline.User.Pinned -> throw IllegalArgumentException("can't add to tab: $timeline")
             is Timeline.User.Posts -> throw IllegalArgumentException("can't add to tab: $timeline")
             is Timeline.User.Replies -> throw IllegalArgumentException("can't add to tab: $timeline")
+            is Timeline.Quote -> TabViewData(
+                timeline = timeline,
+                text = R.string.title_quotes,
+                icon = -1,
+                fragment = { TimelineFragment.newInstance(pachliAccountId, timeline) },
+            )
         }
     }
 }

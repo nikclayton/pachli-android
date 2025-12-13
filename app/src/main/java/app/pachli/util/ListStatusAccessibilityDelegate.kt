@@ -2,31 +2,40 @@ package app.pachli.util
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Checkable
+import android.widget.Toast
+import androidx.core.text.HtmlCompat
+import androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
+import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.adapter.FilterableStatusViewHolder
 import app.pachli.adapter.StatusBaseViewHolder
 import app.pachli.core.activity.OpenUrlUseCase
+import app.pachli.core.data.model.IStatusItemViewData
 import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.model.AttachmentDisplayAction
+import app.pachli.core.model.AttachmentDisplayReason
 import app.pachli.core.model.Status.Companion.MAX_MEDIA_ATTACHMENTS
 import app.pachli.core.network.parseAsMastodonHtml
+import app.pachli.core.ui.StatusActionListener
+import app.pachli.core.ui.StatusControlView
 import app.pachli.core.ui.accessibility.PachliRecyclerViewAccessibilityDelegate
-import app.pachli.interfaces.StatusActionListener
-import app.pachli.viewdata.NotificationViewData
 import kotlin.math.min
 
 // Not using lambdas because there's boxing of int then
-fun interface StatusProvider<T> {
+fun interface StatusProvider<T : IStatusViewData> {
     fun getStatus(pos: Int): T?
 }
 
-class ListStatusAccessibilityDelegate<T : IStatusViewData>(
+class ListStatusAccessibilityDelegate<T : IStatusItemViewData>(
     private val pachliAccountId: Long,
     private val recyclerView: RecyclerView,
-    private val statusActionListener: StatusActionListener<T>,
+    private val statusActionListener: StatusActionListener,
     private val openUrl: OpenUrlUseCase,
     private val statusProvider: StatusProvider<T>,
 ) : PachliRecyclerViewAccessibilityDelegate(recyclerView) {
@@ -49,40 +58,56 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
             val pos = recyclerView.getChildAdapterPosition(host)
             val status = statusProvider.getStatus(pos) ?: return
 
-            // Ignore notifications that don't have an associated statusViewData,
-            // otherwise the accessors throw IllegalStateException.
-            // See https://github.com/pachli/pachli-android/issues/669
-            if (status as? NotificationViewData != null) {
-                if (status.statusViewData == null) return
-            }
-
             val actionable = status.actionable
             if (actionable.spoilerText.isNotEmpty()) {
                 info.addAction(if (status.isExpanded) collapseCwAction else expandCwAction)
             }
 
-            info.addAction(replyAction)
+            // Selecting / deselecting statuses when reporting (or any other Checkable
+            // viewholder).
+            if (viewHolder is Checkable) {
+                info.addAction(if (viewHolder.isChecked) unselectStatusAction else selectStatusAction)
+            }
 
-            if (actionable.rebloggingAllowed()) {
+            // Hack. Not all statuses are displayed with controls. If it is then fetch
+            // extra actions from the control, if present.
+            //
+            // TODO: Figure out a cleaner way to do this.
+            val statusControlView = (viewHolder?.itemView as? ViewGroup)?.children?.firstNotNullOfOrNull { it as? StatusControlView }
+            val controlActions = statusControlView?.actions.orEmpty()
+
+            if (controlActions.contains(replyAction.id)) info.addAction(replyAction)
+
+            if (actionable.rebloggingAllowed() && controlActions.contains(reblogAction.id)) {
                 info.addAction(if (actionable.reblogged) unreblogAction else reblogAction)
             }
-            info.addAction(if (actionable.favourited) unfavouriteAction else favouriteAction)
-            info.addAction(if (actionable.bookmarked) unbookmarkAction else bookmarkAction)
 
-            val mediaActions = intArrayOf(
-                app.pachli.core.ui.R.id.action_open_media_1,
-                app.pachli.core.ui.R.id.action_open_media_2,
-                app.pachli.core.ui.R.id.action_open_media_3,
-                app.pachli.core.ui.R.id.action_open_media_4,
-            )
-            val attachmentCount = min(actionable.attachments.size, MAX_MEDIA_ATTACHMENTS)
-            for (i in 0 until attachmentCount) {
-                info.addAction(
-                    AccessibilityActionCompat(
-                        mediaActions[i],
-                        context.getString(R.string.action_open_media_n, i + 1),
-                    ),
-                )
+            if (controlActions.contains(quoteAction.id)) info.addAction(quoteAction)
+            if (controlActions.contains(favouriteAction.id)) info.addAction(if (actionable.favourited) unfavouriteAction else favouriteAction)
+            if (controlActions.contains(bookmarkAction.id)) info.addAction(if (actionable.bookmarked) unbookmarkAction else bookmarkAction)
+
+            val attachmentDisplayAction = status.attachmentDisplayAction
+            when (attachmentDisplayAction) {
+                is AttachmentDisplayAction.Show -> {
+                    val mediaActions = intArrayOf(
+                        app.pachli.core.ui.R.id.action_open_media_1,
+                        app.pachli.core.ui.R.id.action_open_media_2,
+                        app.pachli.core.ui.R.id.action_open_media_3,
+                        app.pachli.core.ui.R.id.action_open_media_4,
+                    )
+                    val attachmentCount = min(actionable.attachments.size, MAX_MEDIA_ATTACHMENTS)
+                    for (i in 0 until attachmentCount) {
+                        info.addAction(
+                            AccessibilityActionCompat(
+                                mediaActions[i],
+                                context.getString(R.string.action_open_media_n, i + 1),
+                            ),
+                        )
+                        info.addAction(hideAttachmentsAction)
+                    }
+                }
+
+                is AttachmentDisplayAction.Hide -> info.addAction(showAttachmentsAction)
             }
 
             val parsedContent = status.content.parseAsMastodonHtml()
@@ -104,7 +129,15 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
                 info.addAction(openBylineAccountAction)
             }
 
-            info.addAction(moreAction)
+            if (!status.actionable.account.pronouns.isNullOrBlank()) {
+                info.addAction(showPronounsAction)
+            }
+
+            status.quotedViewData?.let {
+                info.addAction(openQuotedPostAction)
+            }
+
+            if (controlActions.contains(moreAction.id)) info.addAction(moreAction)
         }
 
         override fun performAccessibilityAction(
@@ -119,6 +152,7 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
                     interrupt()
                     statusActionListener.onReply(status)
                 }
+
                 app.pachli.core.ui.R.id.action_favourite -> statusActionListener.onFavourite(status, true)
                 app.pachli.core.ui.R.id.action_unfavourite -> statusActionListener.onFavourite(status, false)
                 app.pachli.core.ui.R.id.action_bookmark -> statusActionListener.onBookmark(status, true)
@@ -129,22 +163,27 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
                     interrupt()
                     statusActionListener.onViewAccount(status.actionable.account.id)
                 }
+
                 app.pachli.core.ui.R.id.action_open_media_1 -> {
                     interrupt()
-                    statusActionListener.onViewMedia(status, 0, null)
+                    statusActionListener.onViewAttachment(null, status, 0)
                 }
+
                 app.pachli.core.ui.R.id.action_open_media_2 -> {
                     interrupt()
-                    statusActionListener.onViewMedia(status, 1, null)
+                    statusActionListener.onViewAttachment(null, status, 1)
                 }
+
                 app.pachli.core.ui.R.id.action_open_media_3 -> {
                     interrupt()
-                    statusActionListener.onViewMedia(status, 2, null)
+                    statusActionListener.onViewAttachment(null, status, 2)
                 }
+
                 app.pachli.core.ui.R.id.action_open_media_4 -> {
                     interrupt()
-                    statusActionListener.onViewMedia(status, 3, null)
+                    statusActionListener.onViewAttachment(null, status, 3)
                 }
+
                 app.pachli.core.ui.R.id.action_expand_cw -> {
                     // Toggling it directly to avoid animations
                     // which cannot be disabled for detailed status for some reason
@@ -155,6 +194,7 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
                     // to be possible.
                     forceFocus(host)
                 }
+
                 app.pachli.core.ui.R.id.action_collapse_cw -> {
                     statusActionListener.onExpandedChange(status, false)
                     interrupt()
@@ -188,29 +228,82 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
                     interrupt()
                     statusActionListener.onOpenReblog(status.status)
                 }
+
                 app.pachli.core.ui.R.id.action_open_reblogged_by -> {
                     interrupt()
                     statusActionListener.onShowReblogs(status.actionableId)
                 }
+
                 app.pachli.core.ui.R.id.action_open_faved_by -> {
                     interrupt()
                     statusActionListener.onShowFavs(status.actionableId)
                 }
+
                 app.pachli.core.ui.R.id.action_open_byline_account -> {
                     status.actionable.card?.authors?.firstOrNull()?.account?.let {
                         interrupt()
                         statusActionListener.onViewAccount(it.id)
                     }
                 }
+
                 app.pachli.core.ui.R.id.action_more -> {
                     statusActionListener.onMore(host, status)
                 }
+
                 app.pachli.core.ui.R.id.action_show_anyway -> statusActionListener.clearContentFilter(status)
+
                 app.pachli.core.ui.R.id.action_edit_filter -> {
                     (recyclerView.findContainingViewHolder(host) as? FilterableStatusViewHolder<*>)?.matchedFilter?.let {
                         statusActionListener.onEditFilterById(pachliAccountId, it.id)
                         return@let true
                     } ?: false
+                }
+
+                app.pachli.core.ui.R.id.action_show_attachments -> {
+                    statusActionListener.onAttachmentDisplayActionChange(
+                        status,
+                        AttachmentDisplayAction.Show(status.attachmentDisplayAction as? AttachmentDisplayAction.Hide),
+                    )
+                }
+
+                app.pachli.core.ui.R.id.action_hide_attachments -> {
+                    // The user clicked to hide the attachment. Either they are:
+                    //
+                    // a. Re-hiding an attachment that was hidden that they decided to show, or
+                    // b. Hiding media that wasn't originally hidden.
+                    //
+                    // If (a) then the new decision is `Show.originalDecision`. If (b) then
+                    // then the new decision is UserAction.
+                    val newAction = (status.attachmentDisplayAction as? AttachmentDisplayAction.Show)?.originalAction
+                        ?: AttachmentDisplayAction.Hide(AttachmentDisplayReason.UserAction)
+                    statusActionListener.onAttachmentDisplayActionChange(status, newAction)
+                }
+
+                app.pachli.core.ui.R.id.action_select_status -> {
+                    (recyclerView.findContainingViewHolder(host) as? Checkable)?.isChecked = true
+                }
+
+                app.pachli.core.ui.R.id.action_unselect_status -> {
+                    (recyclerView.findContainingViewHolder(host) as? Checkable)?.isChecked = false
+                }
+
+                app.pachli.core.ui.R.id.action_show_pronouns -> {
+                    val pronouns = status.actionable.account.pronouns?.trim()
+                    if (pronouns.isNullOrBlank()) return true
+                    val formatted = HtmlCompat.fromHtml(pronouns, FROM_HTML_MODE_LEGACY)
+                    Toast.makeText(context, formatted, Toast.LENGTH_LONG).show()
+                }
+
+                app.pachli.core.ui.R.id.action_open_quoted_post -> {
+                    interrupt()
+                    status.quotedViewData?.let {
+                        statusActionListener.onViewThread(it.actionable)
+                    }
+                }
+
+                app.pachli.core.ui.R.id.action_quote -> {
+                    interrupt()
+                    statusActionListener.onQuote(status)
                 }
 
                 else -> return super.performAccessibilityAction(host, action, args)
@@ -221,47 +314,52 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
 
     private val collapseCwAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_collapse_cw,
-        context.getString(R.string.post_content_warning_show_less),
+        context.getString(app.pachli.core.ui.R.string.post_content_warning_show_less),
     )
 
     private val expandCwAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_expand_cw,
-        context.getString(R.string.post_content_warning_show_more),
+        context.getString(app.pachli.core.ui.R.string.post_content_warning_show_more),
     )
 
     private val replyAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_reply,
-        context.getString(R.string.action_reply),
+        context.getString(app.pachli.core.ui.R.string.action_reply),
     )
 
     private val unreblogAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_unreblog,
-        context.getString(R.string.action_unreblog),
+        context.getString(app.pachli.core.ui.R.string.action_unreblog),
     )
 
     private val reblogAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_reblog,
-        context.getString(R.string.action_reblog),
+        context.getString(app.pachli.core.ui.R.string.action_reblog),
+    )
+
+    private val quoteAction = AccessibilityActionCompat(
+        app.pachli.core.ui.R.id.action_quote,
+        context.getString(app.pachli.core.ui.R.string.action_quote),
     )
 
     private val unfavouriteAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_unfavourite,
-        context.getString(R.string.action_unfavourite),
+        context.getString(app.pachli.core.ui.R.string.action_unfavourite),
     )
 
     private val favouriteAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_favourite,
-        context.getString(R.string.action_favourite),
+        context.getString(app.pachli.core.ui.R.string.action_favourite),
     )
 
     private val bookmarkAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_bookmark,
-        context.getString(R.string.action_bookmark),
+        context.getString(app.pachli.core.ui.R.string.action_bookmark),
     )
 
     private val unbookmarkAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_unbookmark,
-        context.getString(R.string.action_bookmark),
+        context.getString(app.pachli.core.ui.R.string.action_bookmark),
     )
 
     private val openProfileAction = AccessibilityActionCompat(
@@ -311,11 +409,41 @@ class ListStatusAccessibilityDelegate<T : IStatusViewData>(
 
     private val showAnywayAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_show_anyway,
-        context.getString(R.string.status_filtered_show_anyway),
+        context.getString(app.pachli.core.ui.R.string.status_filtered_show_anyway),
     )
 
     private val editFilterAction = AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_edit_filter,
-        context.getString(R.string.filter_edit_title),
+        context.getString(app.pachli.core.ui.R.string.filter_edit_title),
+    )
+
+    private val showAttachmentsAction = AccessibilityActionCompat(
+        app.pachli.core.ui.R.id.action_show_attachments,
+        context.getString(app.pachli.core.ui.R.string.action_show_attachments),
+    )
+
+    private val hideAttachmentsAction = AccessibilityActionCompat(
+        app.pachli.core.ui.R.id.action_hide_attachments,
+        context.getString(app.pachli.core.ui.R.string.action_hide_attachments),
+    )
+
+    private val selectStatusAction = AccessibilityActionCompat(
+        app.pachli.core.ui.R.id.action_select_status,
+        context.getString(app.pachli.core.ui.R.string.action_select_status),
+    )
+
+    private val unselectStatusAction = AccessibilityActionCompat(
+        app.pachli.core.ui.R.id.action_unselect_status,
+        context.getString(app.pachli.core.ui.R.string.action_unselect_status),
+    )
+
+    private val showPronounsAction = AccessibilityActionCompat(
+        app.pachli.core.ui.R.id.action_show_pronouns,
+        context.getString(app.pachli.core.ui.R.string.action_show_pronouns),
+    )
+
+    private val openQuotedPostAction = AccessibilityActionCompat(
+        app.pachli.core.ui.R.id.action_open_quoted_post,
+        context.getString(app.pachli.core.ui.R.string.action_open_quoted_post),
     )
 }

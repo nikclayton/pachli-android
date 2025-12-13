@@ -13,21 +13,11 @@
     <string name="add_account_description">Nij Mastodon Account Tafoegje</string>
     <string name="filter_dialog_update_button">Fernije</string>
     <string name="filter_dialog_remove_button">Fuortsmite</string>
-    <string name="filter_edit_title">Filter oanpasse</string>
     <string name="filter_addition_title">Filter tafoegje</string>
     <string name="pref_title_thread_filter_keywords">Petearen</string>
     <string name="title_media">Media</string>
     <string name="pref_title_alway_show_sensitive_media">Altyd gefoeliche ynhâld sjen litte</string>
     <string name="follows_you">Folget jo</string>
-    <string name="abbreviated_years_ago">%dy</string>
-    <string name="abbreviated_in_seconds">oer %ds</string>
-    <string name="abbreviated_in_minutes">oer %dm</string>
-    <string name="abbreviated_in_hours">oer %dh</string>
-    <string name="abbreviated_in_days">oer %dd</string>
-    <string name="post_media_attachments">Taheaksels</string>
-    <string name="post_media_audio">Lûd</string>
-    <string name="post_media_video">Fideo</string>
-    <string name="post_media_images">Ôfbyldingen</string>
     <string name="post_share_link">Keppeling nei toot diele</string>
     <string name="post_share_content">Ynhâld fan toot diele</string>
     <plurals name="notification_title_summary">
@@ -133,7 +123,6 @@
     <string name="action_add_poll">Fragelist tafoegje</string>
     <string name="action_add_media">Media tafoegje</string>
     <string name="action_open_in_web">Yn webblêder iepenje</string>
-    <string name="action_view_media">Media</string>
     <string name="action_view_follow_requests">Folgfersyken</string>
     <string name="action_view_domain_mutes">Ferburgen domeinen</string>
     <string name="action_view_blocks">Blokkearre brûkers</string>
@@ -154,9 +143,6 @@
     <string name="action_unfollow">Net mear folgje</string>
     <string name="action_follow">Folgje</string>
     <string name="action_compose">Gearstelle</string>
-    <string name="action_unfavourite">Net mear as favoryt oanmerke</string>
-    <string name="action_favourite">As favoryt oanmerke</string>
-    <string name="action_reply">Reagearje</string>
     <string name="action_quick_reply">Flugge Reaksje</string>
     <string name="report_comment_hint">Oanfoljende opmerkingen\?</string>
     <string name="report_username_format">Jou @%s oan</string>
@@ -165,13 +151,7 @@
     <string name="notification_follow_format">%s folget jo</string>
     <string name="notification_favourite_format">%s hat jo toot as favoryt oanmurken</string>
     <string name="footer_empty">Hjir is neat. Lûk nei ûnderen om te ferfarskjen!</string>
-    <string name="post_content_show_less">Yntearre</string>
-    <string name="post_content_show_more">Ûttearre</string>
-    <string name="post_content_warning_show_less">Minder sjen litte</string>
-    <string name="post_content_warning_show_more">Mear sjen litte</string>
     <string name="post_sensitive_media_directions">Klik om te besjen</string>
-    <string name="post_media_hidden_title">Media ferburgen</string>
-    <string name="post_sensitive_media_title">Gefoelige ynhâld</string>
     <string name="title_scheduled_posts">Ynplanne toots</string>
     <string name="title_drafts">Sketsen</string>
     <string name="title_edit_profile">Jo profyl oanpasse</string>
@@ -209,8 +189,6 @@
     <string name="action_reset_schedule">Nei standert ynstelling weromsette</string>
     <string name="action_show_reblogs">Boosts sjen litte</string>
     <string name="action_hide_reblogs">Boosts ferburgje</string>
-    <string name="action_unreblog">Boost fuorthelje</string>
-    <string name="action_reblog">Boost</string>
     <string name="notification_reblog_format">%s hat dyn toot boost</string>
     <string name="title_announcements">Oankundigingen</string>
 </resources>

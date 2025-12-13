@@ -17,15 +17,12 @@
 
 package app.pachli.components.timeline
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.pachli.PachliApplication
 import app.pachli.components.timeline.viewmodel.CachedTimelineViewModel
-import app.pachli.components.timeline.viewmodel.TimelineViewModel
 import app.pachli.core.data.repository.AccountManager
-import app.pachli.core.data.repository.ContentFiltersRepository
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
-import app.pachli.core.data.repository.StatusRepository
+import app.pachli.core.database.AppDatabase
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.di.test.DEFAULT_INSTANCE_V2
@@ -42,7 +39,6 @@ import app.pachli.core.testing.success
 import app.pachli.usecase.TimelineCases
 import com.github.michaelbull.result.andThen
 import com.github.michaelbull.result.onSuccess
-import com.squareup.moshi.Moshi
 import dagger.hilt.android.testing.CustomTestApplication
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -88,21 +84,15 @@ abstract class CachedTimelineViewModelTestBase {
     lateinit var sharedPreferencesRepository: SharedPreferencesRepository
 
     @Inject
-    lateinit var contentFiltersRepository: ContentFiltersRepository
-
-    @Inject
     lateinit var cachedTimelineRepository: CachedTimelineRepository
 
     @Inject
     lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
 
     @Inject
-    lateinit var statusRepository: StatusRepository
+    lateinit var appDatabase: AppDatabase
 
-    @Inject
-    lateinit var moshi: Moshi
-
-    protected lateinit var timelineCases: TimelineCases
+    private lateinit var timelineCases: TimelineCases
     protected lateinit var viewModel: CachedTimelineViewModel
 
     private val eventHub = EventHub()
@@ -121,7 +111,7 @@ abstract class CachedTimelineViewModelTestBase {
     )
 
     @Before
-    fun setup() = runTest {
+    open fun setup() = runTest {
         hilt.inject()
 
         reset(mastodonApi)
@@ -166,14 +156,13 @@ abstract class CachedTimelineViewModelTestBase {
         timelineCases = mock()
 
         viewModel = CachedTimelineViewModel(
-            SavedStateHandle(mapOf(TimelineViewModel.TIMELINE_TAG to Timeline.Home)),
+            Timeline.Home,
             cachedTimelineRepository,
             timelineCases,
             eventHub,
             accountManager,
             statusDisplayOptionsRepository,
             sharedPreferencesRepository,
-            statusRepository,
         )
     }
 }

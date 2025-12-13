@@ -18,7 +18,9 @@
 package app.pachli.adapter
 
 import android.content.Context
+import android.text.TextUtils
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.components.notifications.NotificationActionListener
@@ -26,27 +28,26 @@ import app.pachli.components.notifications.NotificationsPagingAdapter
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.string.unicodeWrap
+import app.pachli.core.data.model.NotificationViewData.ReportNotificationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.database.model.NotificationReportEntity
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.TimelineAccount
-import app.pachli.core.ui.emojify
+import app.pachli.core.ui.getRelativeTimeSpanString
 import app.pachli.core.ui.loadAvatar
+import app.pachli.core.ui.updateEmojiTargets
 import app.pachli.databinding.ItemReportNotificationBinding
-import app.pachli.util.getRelativeTimeSpanString
-import app.pachli.viewdata.NotificationViewData
-import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.RequestManager
 
 class ReportNotificationViewHolder(
     private val binding: ItemReportNotificationBinding,
     private val glide: RequestManager,
     private val notificationActionListener: NotificationActionListener,
-) : NotificationsPagingAdapter.ViewHolder, RecyclerView.ViewHolder(binding.root) {
+) : NotificationsPagingAdapter.ViewHolder<ReportNotificationViewData>, RecyclerView.ViewHolder(binding.root) {
 
     override fun bind(
-        viewData: NotificationViewData,
-        payloads: List<*>?,
+        viewData: ReportNotificationViewData,
+        payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
     ) {
         // Skip updates with payloads. That indicates a timestamp update, and
@@ -55,7 +56,7 @@ class ReportNotificationViewHolder(
 
         setupWithReport(
             viewData.account,
-            viewData.report!!,
+            viewData.report,
             statusDisplayOptions.animateAvatars,
             statusDisplayOptions.animateEmojis,
         )
@@ -73,26 +74,20 @@ class ReportNotificationViewHolder(
         animateAvatar: Boolean,
         animateEmojis: Boolean,
     ) {
-        val reporterName = reporter.name.unicodeWrap().emojify(
-            glide,
-            reporter.emojis,
-            binding.root,
-            animateEmojis,
-        )
-        val reporteeName = report.targetAccount.toTimelineAccount().name.unicodeWrap().emojify(
-            glide,
-            report.targetAccount.emojis,
-            itemView,
-            animateEmojis,
-        )
+        binding.notificationTopText.updateEmojiTargets(glide) {
+            val reporterName = reporter.name.unicodeWrap().emojify(glide, reporter.emojis, animateEmojis)
+            val reporteeName = report.targetAccount.displayName.unicodeWrap().emojify(glide, report.targetAccount.emojis, animateEmojis)
+
+            // Context.getString() returns a String and doesn't support Spannable.
+            // Convert the placeholders to the format used by TextUtils.expandTemplate which does.
+            val topText =
+                view.context.getString(R.string.notification_header_report_format, "^1", "^2")
+            view.text = TextUtils.expandTemplate(topText, reporterName, reporteeName)
+        }
+
         val icon = AppCompatResources.getDrawable(binding.root.context, R.drawable.ic_flag_24dp)
 
         binding.notificationTopText.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null)
-        binding.notificationTopText.text = itemView.context.getString(
-            R.string.notification_header_report_format,
-            reporterName,
-            reporteeName,
-        )
         binding.notificationSummary.text = itemView.context.resources.getQuantityString(
             R.plurals.notification_summary_report_format,
             report.statusIds?.size ?: 0,
@@ -114,7 +109,7 @@ class ReportNotificationViewHolder(
         }
 
         // Fancy avatar inset
-        val padding = Utils.dpToPx(binding.notificationReporteeAvatar.context, 12)
+        val padding = dpToPx(12f, binding.notificationReporteeAvatar.context.resources.displayMetrics).toInt()
         binding.notificationReporteeAvatar.setPaddingRelative(0, 0, padding, padding)
 
         loadAvatar(

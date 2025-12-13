@@ -28,19 +28,20 @@ import app.pachli.R
 import app.pachli.core.common.PachliError
 import app.pachli.core.common.extensions.throttleFirst
 import app.pachli.core.data.model.ContentFilterModel
-import app.pachli.core.data.model.StatusViewData
+import app.pachli.core.data.model.IStatusViewData
+import app.pachli.core.data.model.NotificationViewData
 import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.PachliAccount
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
-import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.data.repository.notifications.NotificationsRepository
-import app.pachli.core.data.repository.notifications.asEntity
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.eventhub.BlockEvent
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.eventhub.MuteConversationEvent
 import app.pachli.core.eventhub.MuteEvent
 import app.pachli.core.model.AccountFilterDecision
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.ContentFilterVersion
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
@@ -49,10 +50,10 @@ import app.pachli.core.model.Poll
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.core.preferences.TabTapBehaviour
+import app.pachli.core.ui.extensions.make
 import app.pachli.usecase.TimelineCases
 import app.pachli.util.deserialize
 import app.pachli.util.serialize
-import app.pachli.viewdata.NotificationViewData
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -152,28 +153,28 @@ sealed interface InfallibleUiAction : UiAction {
     /** Set the "collapsed" state (if the status content > 500 chars) */
     data class SetContentCollapsed(
         val pachliAccountId: Long,
-        val statusViewData: StatusViewData,
+        val statusViewData: IStatusViewData,
         val isCollapsed: Boolean,
     ) : InfallibleUiAction
 
-    /** Set whether to show attached media. */
-    data class SetShowingContent(
+    /** Set how to show attached media. */
+    data class SetAttachmentDisplayAction(
         val pachliAccountId: Long,
-        val statusViewData: StatusViewData,
-        val isShowingContent: Boolean,
+        val statusViewData: IStatusViewData,
+        val attachmentDisplayAction: AttachmentDisplayAction,
     ) : InfallibleUiAction
 
     /** Set whether to show just the content warning, or the full content. */
     data class SetExpanded(
         val pachliAccountId: Long,
-        val statusViewData: StatusViewData,
+        val statusViewData: IStatusViewData,
         val isExpanded: Boolean,
     ) : InfallibleUiAction
 
     /** Clear the content filter. */
     data class ClearContentFilter(
         val pachliAccountId: Long,
-        val notificationId: String,
+        val statusId: String,
     ) : InfallibleUiAction
 
     /** Override the account filter and show the content. */
@@ -251,33 +252,33 @@ sealed interface NotificationActionSuccess : UiSuccess {
 sealed interface StatusAction
 
 sealed interface InfallibleStatusAction : InfallibleUiAction, StatusAction {
-    val statusViewData: StatusViewData
+    val statusViewData: IStatusViewData
 
-    data class TranslateUndo(override val statusViewData: StatusViewData) : InfallibleStatusAction
+    data class TranslateUndo(override val statusViewData: IStatusViewData) : InfallibleStatusAction
 }
 
 /** Actions the user can trigger on an individual status */
 sealed interface FallibleStatusAction : FallibleUiAction, StatusAction {
-    val statusViewData: StatusViewData
+    val statusViewData: IStatusViewData
 
     /** Set the bookmark state for a status */
-    data class Bookmark(val state: Boolean, override val statusViewData: StatusViewData) : FallibleStatusAction
+    data class Bookmark(val state: Boolean, override val statusViewData: IStatusViewData) : FallibleStatusAction
 
     /** Set the favourite state for a status */
-    data class Favourite(val state: Boolean, override val statusViewData: StatusViewData) : FallibleStatusAction
+    data class Favourite(val state: Boolean, override val statusViewData: IStatusViewData) : FallibleStatusAction
 
     /** Set the reblog state for a status */
-    data class Reblog(val state: Boolean, override val statusViewData: StatusViewData) : FallibleStatusAction
+    data class Reblog(val state: Boolean, override val statusViewData: IStatusViewData) : FallibleStatusAction
 
     /** Vote in a poll */
     data class VoteInPoll(
         val poll: Poll,
         val choices: List<Int>,
-        override val statusViewData: StatusViewData,
+        override val statusViewData: IStatusViewData,
     ) : FallibleStatusAction
 
     /** Translate a status */
-    data class Translate(override val statusViewData: StatusViewData) : FallibleStatusAction
+    data class Translate(override val statusViewData: IStatusViewData) : FallibleStatusAction
 }
 
 /** Changes to a status' visible state after API calls */
@@ -394,7 +395,7 @@ class NotificationsViewModel @AssistedInject constructor(
     private val eventHub: EventHub,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     private val sharedPreferencesRepository: SharedPreferencesRepository,
-    private val statusRepository: StatusRepository,
+    private val statusRepository: OfflineFirstStatusRepository,
     @Assisted val pachliAccountId: Long,
 ) : ViewModel() {
     private val accountFlow = accountManager.getPachliAccountFlow(pachliAccountId)
@@ -440,7 +441,7 @@ class NotificationsViewModel @AssistedInject constructor(
 
         viewModelScope.launch {
             uiAction.filterIsInstance<InfallibleUiAction.LoadNewest>()
-                .collectLatest { ::onLoadNewest }
+                .collectLatest { onLoadNewest() }
         }
 
         viewModelScope.launch {
@@ -449,8 +450,8 @@ class NotificationsViewModel @AssistedInject constructor(
         }
 
         viewModelScope.launch {
-            uiAction.filterIsInstance<InfallibleUiAction.SetShowingContent>()
-                .collectLatest(::onShowingContent)
+            uiAction.filterIsInstance<InfallibleUiAction.SetAttachmentDisplayAction>()
+                .collectLatest(::onAttachmentDisplayAction)
         }
 
         viewModelScope.launch {
@@ -586,7 +587,7 @@ class NotificationsViewModel @AssistedInject constructor(
             .flatMapLatest { account ->
                 getNotifications(
                     account,
-                    filters = deserialize(account.entity.notificationsFilter),
+                    excludeTypes = deserialize(account.entity.notificationsFilter),
                 )
             }.cachedIn(viewModelScope)
 
@@ -624,39 +625,43 @@ class NotificationsViewModel @AssistedInject constructor(
             .onFailure { _uiResult.send(Err(UiError.make(it, action))) }
     }
 
+    /**
+     * Gets notifications for [pachliAccount], excluding types of notifications in
+     * [excludeTypes], and applies content and account filters.
+     *
+     * @param pachliAccount
+     * @param excludeTypes 0 or more [Notification.Type] to exclude from the results.
+     */
     private suspend fun getNotifications(
         pachliAccount: PachliAccount,
-        filters: Set<Notification.Type>,
+        excludeTypes: Set<Notification.Type>,
     ): Flow<PagingData<NotificationViewData>> {
-        val activeFilters = filters.map { it.asEntity() }
-        // TODO: This could be more efficient if the filters were passed to the
-        // repository.notifications() call, and the repository did the filtering.
-        return repository.notifications(pachliAccountId)
+        return repository.notifications(pachliAccountId, excludeTypes)
             .map { pagingData ->
                 pagingData
-                    .filter { !activeFilters.contains(it.notification.type) }
                     .map { notification ->
                         val contentFilterAction =
-                            notification.viewData?.contentFilterAction
-                                ?: notification.status?.status?.let { contentFilterModel?.filterActionFor(it) }
+                            notification.status?.timelineStatus?.let { contentFilterModel?.filterActionFor(it.status) }
                                 ?: FilterAction.NONE
+                        val quoteContentFilterAction =
+                            notification.status?.quotedStatus?.let { contentFilterModel?.filterActionFor(it.status) }
                         val isAboutSelf = notification.account.serverId == pachliAccount.entity.accountId
                         val accountFilterDecision =
                             notification.viewData?.accountFilterDecision
                                 ?: filterNotificationByAccount(pachliAccount, notification)
 
                         NotificationViewData.make(
-                            pachliAccount.entity,
+                            pachliAccount,
                             notification,
-                            isShowingContent = statusDisplayOptions.value.showSensitiveMedia ||
-                                !(notification.status?.status?.sensitive ?: false),
+                            showSensitiveMedia = statusDisplayOptions.value.showSensitiveMedia,
                             isExpanded = statusDisplayOptions.value.openSpoiler,
                             contentFilterAction = contentFilterAction,
+                            quoteContentFilterAction = quoteContentFilterAction,
                             accountFilterDecision = accountFilterDecision,
                             isAboutSelf = isAboutSelf,
                         )
                     }
-                    .filter { it.statusViewData?.contentFilterAction != FilterAction.HIDE }
+                    .filter { it !is NotificationViewData.WithStatus || it.statusItemViewData.contentFilterAction != FilterAction.HIDE }
                     .filter { it.accountFilterDecision !is AccountFilterDecision.Hide }
             }
     }
@@ -667,22 +672,25 @@ class NotificationsViewModel @AssistedInject constructor(
         .onStart { emit(null) }
 
     private fun onContentCollapsed(action: InfallibleUiAction.SetContentCollapsed) {
-        repository.setContentCollapsed(action.pachliAccountId, action.statusViewData, action.isCollapsed)
-        repository.invalidate()
+        viewModelScope.launch {
+            repository.setContentCollapsed(action.pachliAccountId, action.statusViewData.actionableId, action.isCollapsed)
+        }
     }
 
-    private fun onShowingContent(action: InfallibleUiAction.SetShowingContent) {
-        repository.setShowingContent(action.pachliAccountId, action.statusViewData, action.isShowingContent)
-        repository.invalidate()
+    private fun onAttachmentDisplayAction(action: InfallibleUiAction.SetAttachmentDisplayAction) {
+        viewModelScope.launch {
+            repository.setAttachmentDisplayAction(action.pachliAccountId, action.statusViewData.actionableId, action.attachmentDisplayAction)
+        }
     }
 
     private fun onExpanded(action: InfallibleUiAction.SetExpanded) {
-        repository.setExpanded(action.pachliAccountId, action.statusViewData, action.isExpanded)
-        repository.invalidate()
+        viewModelScope.launch {
+            repository.setExpanded(action.pachliAccountId, action.statusViewData.actionableId, action.isExpanded)
+        }
     }
 
     private fun onClearContentFilter(action: InfallibleUiAction.ClearContentFilter) {
-        repository.clearContentFilter(action.pachliAccountId, action.notificationId)
+        repository.clearContentFilter(action.pachliAccountId, action.statusId)
     }
 
     private fun onOverrideAccountFilter(action: InfallibleUiAction.OverrideAccountFilter) {

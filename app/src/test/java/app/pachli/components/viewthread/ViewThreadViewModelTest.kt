@@ -6,13 +6,15 @@ import app.pachli.PachliApplication
 import app.pachli.components.compose.HiltTestApplication_Application
 import app.pachli.components.timeline.CachedTimelineRepository
 import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
-import app.pachli.core.data.repository.StatusRepository
 import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.eventhub.BookmarkEvent
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.eventhub.FavoriteEvent
 import app.pachli.core.eventhub.ReblogEvent
+import app.pachli.core.model.AttachmentDisplayAction
+import app.pachli.core.model.AttachmentDisplayReason
 import app.pachli.core.network.di.test.DEFAULT_INSTANCE_V2
 import app.pachli.core.network.model.AccountSource
 import app.pachli.core.network.model.CredentialAccount
@@ -92,7 +94,7 @@ class ViewThreadViewModelTest {
     lateinit var statusDisplayOptionsRepository: StatusDisplayOptionsRepository
 
     @Inject
-    lateinit var statusRepository: StatusRepository
+    lateinit var statusRepository: OfflineFirstStatusRepository
 
     private lateinit var viewModel: ViewThreadViewModel
 
@@ -154,7 +156,7 @@ class ViewThreadViewModelTest {
             .onSuccess { accountManager.refresh(it) }
 
         val cachedTimelineRepository: CachedTimelineRepository = mock {
-            onBlocking { getStatusViewData(anyLong(), any()) } doReturn emptyMap()
+            onBlocking { getStatusViewData(anyLong(), any<List<String>>()) } doReturn emptyMap()
             onBlocking { getStatusTranslations(anyLong(), any()) } doReturn emptyMap()
         }
 
@@ -165,7 +167,6 @@ class ViewThreadViewModelTest {
             timelineDao,
             cachedTimelineRepository,
             statusDisplayOptionsRepository,
-            statusRepository,
             timelineCases,
         )
     }
@@ -517,8 +518,8 @@ class ViewThreadViewModelTest {
             while (awaitItem().get() !is ThreadUiState.Loaded) {
             }
             viewModel.changeContentCollapsed(
-                true,
-                fakeStatusViewData(id = "2", inReplyToId = "1", inReplyToAccountId = "1", isDetailed = true, spoilerText = "Test"),
+                false,
+                fakeStatusViewData(id = "3", inReplyToId = "2", inReplyToAccountId = "1", isDetailed = false, spoilerText = "Test"),
             )
 
             assertEquals(
@@ -531,13 +532,13 @@ class ViewThreadViewModelTest {
                             inReplyToAccountId = "1",
                             isDetailed = true,
                             spoilerText = "Test",
-                            isCollapsed = true,
                         ),
                         fakeStatusViewData(
                             id = "3",
                             inReplyToId = "2",
                             inReplyToAccountId = "1",
                             spoilerText = "Test",
+                            isCollapsed = false,
                         ),
                     ),
                     detailedStatusPosition = 1,
@@ -556,9 +557,9 @@ class ViewThreadViewModelTest {
             viewModel.loadThread(threadId)
             while (awaitItem().get() !is ThreadUiState.Loaded) {
             }
-            viewModel.changeContentShowing(
-                true,
+            viewModel.changeAttachmentDisplayAction(
                 fakeStatusViewData(id = "2", inReplyToId = "1", inReplyToAccountId = "1", isDetailed = true, spoilerText = "Test"),
+                AttachmentDisplayAction.Show(originalAction = AttachmentDisplayAction.Hide(AttachmentDisplayReason.Sensitive)),
             )
 
             assertEquals(

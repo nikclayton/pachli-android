@@ -54,6 +54,7 @@ import app.pachli.core.model.SuggestionSources.UNKNOWN
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.core.ui.makeIcon
 import app.pachli.feature.suggestions.UiAction.GetSuggestions
 import app.pachli.feature.suggestions.UiAction.NavigationAction
@@ -115,6 +116,9 @@ class SuggestionsFragment :
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.recyclerView.applyDefaultWindowInsets()
+
         requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         suggestionsAdapter = SuggestionsAdapter(
@@ -122,6 +126,7 @@ class SuggestionsFragment :
             animateAvatars = viewModel.uiState.value.animateAvatars,
             animateEmojis = viewModel.uiState.value.animateEmojis,
             showBotOverlay = viewModel.uiState.value.showBotOverlay,
+            showPronouns = viewModel.uiState.value.showPronouns,
             accept = accept,
         )
 
@@ -169,6 +174,7 @@ class SuggestionsFragment :
         suggestionsAdapter.setAnimateEmojis(uiState.animateEmojis)
         suggestionsAdapter.setAnimateAvatars(uiState.animateAvatars)
         suggestionsAdapter.setShowBotOverlay(uiState.showBotOverlay)
+        suggestionsAdapter.setShowPronouns(uiState.showPronouns)
     }
 
     /** Process user actions. */

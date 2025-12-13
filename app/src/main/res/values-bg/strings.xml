@@ -19,36 +19,8 @@
     <string name="hint_additional_info">Допълнителни коментари</string>
     <string name="report_sent_success">Успешно докладване на @%s</string>
     <string name="button_back">Назад</string>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">Остава %d секунда</item>
-        <item quantity="other">Остават %d секунди</item>
-    </plurals>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">Остава %d минута</item>
-        <item quantity="other">Остават %d минути</item>
-    </plurals>
-    <plurals name="poll_timespan_hours">
-        <item quantity="one">Остава %d час</item>
-        <item quantity="other">Остават %d часа</item>
-    </plurals>
-    <plurals name="poll_timespan_days">
-        <item quantity="one">Остава %d ден</item>
-        <item quantity="other">Остават %d дни</item>
-    </plurals>
     <string name="poll_ended_created">Анкета, която създадохте, приключи</string>
     <string name="poll_ended_voted">Анкета, в която сте гласували, приключи</string>
-    <string name="poll_vote">Гласуване</string>
-    <string name="poll_info_closed">затворено</string>
-    <string name="poll_info_time_absolute">завършва в %s</string>
-    <plurals name="poll_info_people">
-        <item quantity="one">%s човек</item>
-        <item quantity="other">%s човека</item>
-    </plurals>
-    <plurals name="poll_info_votes">
-        <item quantity="one">%s глас</item>
-        <item quantity="other">%s гласа</item>
-    </plurals>
-    <string name="poll_info_format"><!-- 15 votes • 1 hour left -->%1$s • %2$s</string>
     <string name="compose_preview_image_description">Действия за изображение %s</string>
     <string name="notification_clear_text">Сигурни ли сте, че искате да изчистите окончателно всичките си известия\?</string>
     <string name="compose_shortcut_short_label">Композиране</string>
@@ -61,29 +33,11 @@
     <string name="hashtags">Хаштагове</string>
     <string name="edit_hashtag_hint">Хаштаг без #</string>
     <string name="add_hashtag_title">Добавяне на хаштаг</string>
-    <string name="description_poll">Анкета с избори: %1$s, %2$s, %3$s, %4$s; %5$s</string>
-    <string name="description_visibility_direct">Директно</string>
-    <string name="description_visibility_private">Последователи</string>
-    <string name="description_visibility_public">Публично</string>
-    <string name="description_post_bookmarked">Отметнато</string>
-    <string name="description_post_favourited">Поставено в любими</string>
-    <string name="description_post_reblogged">Реблог</string>
-    <string name="description_post_media_no_description_placeholder">Без описание</string>
-    <string name="description_post_cw">Предупреждение за съдържание: %s</string>
-    <string name="description_post_media">Мултимедия: %s</string>
     <string name="conversation_more_recipients">%1$s, %2$s и %3$d други</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s и %2$s</string>
     <string name="title_favourited_by">Поставено в любими от</string>
     <string name="title_reblogged_by">Споделено от</string>
-    <plurals name="reblogs">
-        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; Споделяне</item>
-        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; Споделяния</item>
-    </plurals>
-    <plurals name="favs">
-        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; Любимо</item>
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Любими</item>
-    </plurals>
     <string name="pin_action">Закачане</string>
     <string name="unpin_action">Разкачане</string>
     <string name="label_remote_account">Информацията по-долу може да отразява непълно потребителския профил. Натиснете, за да отворите пълен профил в браузъра.</string>
@@ -123,7 +77,6 @@
     <string name="filter_dialog_whole_word">Цяла дума</string>
     <string name="filter_dialog_update_button">Актуализиране</string>
     <string name="filter_dialog_remove_button">Премахване</string>
-    <string name="filter_edit_title">Редакция на филтър</string>
     <string name="filter_addition_title">Добавяне на филтър</string>
     <string name="pref_title_thread_filter_keywords">Разговори</string>
     <string name="pref_title_public_filter_keywords">Публични емисии</string>
@@ -131,21 +84,7 @@
     <string name="pref_title_alway_open_spoiler">Винаги разгъване на публикации, маркирани с предупреждения за съдържание</string>
     <string name="pref_title_alway_show_sensitive_media">Винаги показване на деликатно съдържание</string>
     <string name="follows_you">Следва ви</string>
-    <string name="abbreviated_seconds_ago">%dс</string>
-    <string name="abbreviated_minutes_ago">%dм</string>
-    <string name="abbreviated_hours_ago">%dч</string>
-    <string name="abbreviated_days_ago">%dд</string>
-    <string name="abbreviated_years_ago">%dг</string>
-    <string name="abbreviated_in_seconds">след %dс</string>
-    <string name="abbreviated_in_minutes">след %dм</string>
-    <string name="abbreviated_in_hours">след %dч</string>
-    <string name="abbreviated_in_years">след %dг</string>
-    <string name="abbreviated_in_days">след %dд</string>
     <string name="state_follow_requested">Заявено последване</string>
-    <string name="post_media_attachments">Прикачени файлове</string>
-    <string name="post_media_audio">Аудио</string>
-    <string name="post_media_video">Видео</string>
-    <string name="post_media_images">Изображения</string>
     <string name="post_share_link">Споделяне на връзка към публикация</string>
     <string name="post_share_content">Споделяне на съдържание на публикация</string>
     <string name="description_account_locked">Заключен акаунт</string>
@@ -164,7 +103,6 @@
     <string name="notification_favourite_name">Любими</string>
     <string name="notification_boost_description">Известия, когато публикациите ви се споделят</string>
     <string name="post_text_size_smallest">Най-малък</string>
-    <string name="description_visibility_unlisted">Скрито</string>
     <string name="pref_title_post_tabs">Раздели</string>
     <string name="pref_title_post_filter">Филтриране на емисия</string>
     <string name="pref_title_animate_custom_emojis">Анимиране на персонализирани емоджита</string>
@@ -264,7 +202,6 @@
     <string name="action_add_poll">Добавяне на анкета</string>
     <string name="action_add_media">Добавяне на мултимедия</string>
     <string name="action_open_in_web">Отваряне в браузър</string>
-    <string name="action_view_media">Мултимедия</string>
     <string name="action_view_follow_requests">Заявки за последване</string>
     <string name="action_view_domain_mutes">Скрити домейни</string>
     <string name="action_view_blocks">Блокирани потребители</string>
@@ -286,12 +223,6 @@
     <string name="action_unfollow">Отследване</string>
     <string name="action_follow">Последване</string>
     <string name="action_compose">Композиране</string>
-    <string name="action_unfavourite">Премахване от любими</string>
-    <string name="action_bookmark">Отмятане</string>
-    <string name="action_favourite">Поставяне в любими</string>
-    <string name="action_unreblog">Премахване на споделяне</string>
-    <string name="action_reblog">Споделяне</string>
-    <string name="action_reply">Отговор</string>
     <string name="action_quick_reply">Бърз отговор</string>
     <string name="report_comment_hint">Допълнителни коментари\?</string>
     <string name="report_username_format">Докладване на @%s</string>
@@ -301,14 +232,7 @@
     <string name="notification_favourite_format">%s постави вашата публикация в любими</string>
     <string name="notification_reblog_format">%s сподели вашата публикация</string>
     <string name="footer_empty">Нищо тук. Дръпнете надолу, за да опресните!</string>
-    <string name="post_content_show_less">Свиване</string>
-    <string name="post_content_show_more">Разгъване</string>
-    <string name="post_content_warning_show_less">Покажи по-малко</string>
-    <string name="post_content_warning_show_more">Покажи повече</string>
     <string name="post_sensitive_media_directions">Щракнете за преглед</string>
-    <string name="post_media_hidden_title">Мултимедията е скрита</string>
-    <string name="post_sensitive_media_title">Деликатно съдържание</string>
-    <string name="post_boosted_format">%s сподели</string>
     <string name="title_announcements">Оповестявания</string>
     <string name="title_scheduled_posts">Планирани публикации</string>
     <string name="title_drafts">Чернови</string>
@@ -340,7 +264,6 @@
     <string name="error_no_web_browser_found">Неуспешно намиране на уеб браузър, който да се използва.</string>
     <string name="error_empty">Това не може да бъде празно.</string>
     <string name="draft_deleted">Черновата е изтрита</string>
-    <string name="drafts_failed_loading_reply">Неуспешно зареждане на информация за отговор</string>
     <string name="drafts_post_failed_to_send">Тази публикация не успя да се изпрати!</string>
     <plurals name="error_upload_max_media_reached">
         <item quantity="other">Не можете да качите повече от %1$d мултимедийни прикачени файлове.</item>

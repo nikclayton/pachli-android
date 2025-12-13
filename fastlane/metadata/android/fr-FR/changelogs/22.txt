@@ -1,0 +1,14 @@
+Pachli 2.8.2
+
+Nouvelles fonctionnalités:
+
+- Permettre à l'utilisateur de choisir le comportement en tapant un onglet
+- Ajouter l'option pour télécharger les médias vers les répertoires par client
+- Ajouter l'option pour enregistrer les pièces jointes aux dossiers de compte
+
+Fixes:
+
+- Afficher les erreurs de notification chercher au lieu de JSON
+- Sauver la position de lecture si aucun post n'est complètement visible
+- Mettre à jour les traductions galiciens
+- Mettre à jour les traductions irlandaises

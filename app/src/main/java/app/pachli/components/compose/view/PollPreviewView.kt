@@ -30,8 +30,7 @@ class PollPreviewView @JvmOverloads constructor(
     context: Context?,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
-) :
-    LinearLayout(context, attrs, defStyleAttr) {
+) : LinearLayout(context, attrs, defStyleAttr) {
 
     private val adapter = PreviewPollOptionsAdapter()
 
@@ -40,7 +39,7 @@ class PollPreviewView @JvmOverloads constructor(
     init {
         orientation = VERTICAL
 
-        setBackgroundResource(R.drawable.card_frame)
+        setBackgroundResource(DR.drawable.card_frame)
 
         val padding = resources.getDimensionPixelSize(DR.dimen.poll_preview_padding)
 

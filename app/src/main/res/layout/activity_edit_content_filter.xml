@@ -16,6 +16,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
+            android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -84,6 +85,13 @@
                 android:id="@+id/filter_action_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
+                <RadioButton
+                    android:id="@+id/filter_action_blur"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/filter_description_blur" />
                 <RadioButton
                     android:id="@+id/filter_action_warn"
                     android:layout_width="match_parent"

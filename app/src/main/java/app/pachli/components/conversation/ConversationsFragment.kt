@@ -24,7 +24,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.PopupMenu
+import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -36,7 +36,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
-import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.components.preference.accountfilters.AccountConversationFiltersPreferenceDialogFragment
 import app.pachli.core.activity.ReselectableFragment
 import app.pachli.core.activity.extensions.TransitionKind
@@ -47,9 +47,13 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.throttleFirst
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
+import app.pachli.core.data.model.ConversationViewData
+import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.AccountFilterDecision
+import app.pachli.core.model.AttachmentDisplayAction
+import app.pachli.core.model.IStatus
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
 import app.pachli.core.navigation.AccountActivityIntent
@@ -62,12 +66,11 @@ import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentTimelineBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.ListStatusAccessibilityDelegate
-import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.Glide
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -85,6 +88,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Actions taken from the broader UI (which can include actions triggered by the
@@ -99,7 +103,7 @@ sealed interface UiAction {
 }
 
 /**
- * Actions taken from an individual [ConversationViewData].
+ * Actions taken from an individual [app.pachli.core.data.model.ConversationViewData].
  */
 internal sealed interface ConversationAction : UiAction {
     /**
@@ -115,7 +119,7 @@ internal sealed interface ConversationAction : UiAction {
     /** Clear the content filter. */
     data class ClearContentFilter(
         val pachliAccountId: Long,
-        val conversationId: String,
+        val statusId: String,
     ) : ConversationAction
 }
 
@@ -123,7 +127,6 @@ internal sealed interface ConversationAction : UiAction {
 class ConversationsFragment :
     SFragment<ConversationViewData>(),
     OnRefreshListener,
-    StatusActionListener<ConversationViewData>,
     ReselectableFragment,
     MenuProvider {
 
@@ -169,6 +172,8 @@ class ConversationsFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.recyclerView.applyDefaultWindowInsets()
+
         requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -187,6 +192,8 @@ class ConversationsFragment :
             initSwipeToRefresh()
 
             adapter.addLoadStateListener { loadState ->
+                Timber.d("loadState: $loadState")
+
                 if (loadState.refresh != LoadState.Loading && loadState.source.refresh != LoadState.Loading) {
                     binding.swipeRefreshLayout.isRefreshing = false
                 }
@@ -224,7 +231,7 @@ class ConversationsFragment :
                                 if (getView() != null) {
                                     binding.recyclerView.scrollBy(
                                         0,
-                                        Utils.dpToPx(requireContext(), -30),
+                                        dpToPx(-30f, requireContext().resources.displayMetrics).toInt(),
                                     )
                                 }
                             }
@@ -263,12 +270,12 @@ class ConversationsFragment :
                 launch {
                     val useAbsoluteTime = sharedPreferencesRepository.useAbsoluteTime
                     while (!useAbsoluteTime) {
+                        delay(1.minutes)
                         adapter.notifyItemRangeChanged(
                             0,
                             adapter.itemCount,
-                            listOf(StatusBaseViewHolder.Key.KEY_CREATED),
+                            listOf(StatusViewDataDiffCallback.Payload.CREATED),
                         )
-                        delay(1.minutes)
                     }
                 }
 
@@ -355,71 +362,69 @@ class ConversationsFragment :
         adapter.refresh()
     }
 
-    // Can't translate conversations because of Mastodon privacy settings.
-    override fun canTranslate() = false
-
-    override fun onReblog(viewData: ConversationViewData, reblog: Boolean) {
+    override fun onReblog(viewData: IStatusViewData, reblog: Boolean) {
         // its impossible to reblog private messages
     }
 
-    override fun onFavourite(viewData: ConversationViewData, favourite: Boolean) {
-        viewModel.favourite(favourite, viewData.lastStatus.actionableId)
+    // Quoting conversations is not supported.
+    override fun onQuote(viewData: IStatusViewData) = Unit
+
+    override fun onFavourite(viewData: IStatusViewData, favourite: Boolean) {
+        viewModel.favourite(favourite, viewData.actionableId)
     }
 
-    override fun onBookmark(viewData: ConversationViewData, bookmark: Boolean) {
-        viewModel.bookmark(bookmark, viewData.lastStatus.actionableId)
+    override fun onBookmark(viewData: IStatusViewData, bookmark: Boolean) {
+        viewModel.bookmark(bookmark, viewData.actionableId)
     }
 
-    override fun onMore(view: View, viewData: ConversationViewData) {
-        val status = viewData.lastStatus.status
+    override fun onPrepareMoreMenu(menu: Menu, viewData: IStatusViewData) {
+        menu.findItem(R.id.conversation_delete).isVisible = true
+    }
 
-        val popup = PopupMenu(requireContext(), view)
-        popup.inflate(R.menu.conversation_more)
-
-        if (status.muted == true) {
-            popup.menu.removeItem(R.id.status_mute_conversation)
-        } else {
-            popup.menu.removeItem(R.id.status_unmute_conversation)
-        }
-
-        popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.status_mute_conversation -> viewModel.muteConversation(true, viewData.lastStatus.id)
-                R.id.status_unmute_conversation -> viewModel.muteConversation(false, viewData.lastStatus.id)
-                R.id.conversation_delete -> deleteConversation(viewData)
+    override fun onMoreMenuItemClick(item: MenuItem, viewData: IStatusViewData): Boolean {
+        return when (item.itemId) {
+            R.id.conversation_delete -> {
+                AlertDialog.Builder(requireContext())
+                    .setMessage(R.string.dialog_delete_conversation_warning)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        viewModel.remove(viewData as ConversationViewData)
+                    }
+                    .show()
+                true
             }
-            true
+
+            else -> super.onMoreMenuItemClick(item, viewData)
         }
-        popup.show()
     }
 
-    override fun onViewMedia(viewData: ConversationViewData, attachmentIndex: Int, view: View?) {
+    override fun onViewAttachment(view: View?, viewData: IStatusViewData, attachmentIndex: Int) {
         viewMedia(
-            viewData.lastStatus.actionable.account.username,
+            viewData.actionable.account.username,
             attachmentIndex,
-            AttachmentViewData.list(viewData.lastStatus.status),
+            AttachmentViewData.list(viewData.status),
             view,
         )
     }
 
     override fun onViewThread(status: Status) {
-        viewThread(status.id, status.url)
+        viewThread(status.actionableId, status.actionableStatus.url)
     }
 
-    override fun onOpenReblog(status: Status) {
+    override fun onOpenReblog(status: IStatus) {
         // there are no reblogs in conversations
     }
 
-    override fun onExpandedChange(viewData: ConversationViewData, expanded: Boolean) {
-        viewModel.expandHiddenStatus(viewData.pachliAccountId, expanded, viewData.lastStatus.id)
+    override fun onExpandedChange(viewData: IStatusViewData, expanded: Boolean) {
+        viewModel.expandHiddenStatus(viewData.pachliAccountId, expanded, viewData.actionableId)
     }
 
-    override fun onContentHiddenChange(viewData: ConversationViewData, isShowingContent: Boolean) {
-        viewModel.showContent(viewData.pachliAccountId, isShowingContent, viewData.lastStatus.id)
+    override fun onAttachmentDisplayActionChange(viewData: IStatusViewData, newAction: AttachmentDisplayAction) {
+        viewModel.changeAttachmentDisplayAction(viewData.pachliAccountId, viewData.actionableId, newAction)
     }
 
-    override fun onContentCollapsedChange(viewData: ConversationViewData, isCollapsed: Boolean) {
-        viewModel.collapseLongStatus(viewData.pachliAccountId, isCollapsed, viewData.lastStatus.id)
+    override fun onContentCollapsedChange(viewData: IStatusViewData, isCollapsed: Boolean) {
+        viewModel.collapseLongStatus(viewData.pachliAccountId, isCollapsed, viewData.actionableId)
     }
 
     override fun onViewAccount(id: String) {
@@ -432,23 +437,25 @@ class ConversationsFragment :
         startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
     }
 
-    override fun removeItem(viewData: ConversationViewData) {
+    override fun removeItem(viewData: IStatusViewData) {
         // not needed
     }
 
-    override fun onReply(viewData: ConversationViewData) {
-        reply(viewData.pachliAccountId, viewData.lastStatus.actionable)
+    override fun onReply(viewData: IStatusViewData) {
+        reply(viewData.pachliAccountId, viewData.actionable)
     }
 
-    override fun onVoteInPoll(viewData: ConversationViewData, poll: Poll, choices: List<Int>) {
-        viewModel.voteInPoll(choices, viewData.lastStatus.actionableId, poll.id)
+    override fun onVoteInPoll(viewData: IStatusViewData, poll: Poll, choices: List<Int>) {
+        viewModel.voteInPoll(choices, viewData.actionableId, poll.id)
     }
 
-    override fun clearContentFilter(viewData: ConversationViewData) {
+    override fun clearContentFilter(viewData: IStatusViewData) {
+        if (viewData !is ConversationViewData) return
+
         viewModel.accept(
             ConversationAction.ClearContentFilter(
                 viewData.pachliAccountId,
-                viewData.id,
+                viewData.conversationId,
             ),
         )
     }
@@ -467,14 +474,24 @@ class ConversationsFragment :
         }
     }
 
-    private fun deleteConversation(conversation: ConversationViewData) {
+    fun onConversationDelete(viewData: ConversationViewData) {
+        if (viewData !is ConversationViewData) return
+
         AlertDialog.Builder(requireContext())
             .setMessage(R.string.dialog_delete_conversation_warning)
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                viewModel.remove(conversation)
+                viewModel.remove(viewData)
             }
             .show()
+    }
+
+    override fun onTranslate(viewData: IStatusViewData) {
+        viewModel.translate(viewData)
+    }
+
+    override fun onTranslateUndo(viewData: IStatusViewData) {
+        viewModel.translateUndo(viewData)
     }
 
     private fun onPreferenceChanged(key: String) {

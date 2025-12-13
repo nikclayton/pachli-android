@@ -23,6 +23,7 @@ import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.TimelineAccount
 import app.pachli.core.ui.LinkListener
 import app.pachli.core.ui.emojify
+import app.pachli.core.ui.extensions.contentDescription
 import app.pachli.core.ui.loadAvatar
 import app.pachli.databinding.ItemAccountBinding
 import app.pachli.interfaces.AccountActionListener
@@ -39,6 +40,7 @@ class AccountViewHolder(
         animateAvatar: Boolean,
         animateEmojis: Boolean,
         showBotOverlay: Boolean,
+        showPronouns: Boolean,
     ) {
         accountId = account.id
 
@@ -60,6 +62,13 @@ class AccountViewHolder(
         loadAvatar(glide, account.avatar, binding.accountAvatar, avatarRadius, animateAvatar)
 
         binding.accountBotBadge.visible(showBotOverlay && account.bot)
+
+        binding.roleChipGroup.setRoles(account.roles)
+
+        if (showPronouns) binding.accountPronouns.text = account.pronouns
+        binding.accountPronouns.visible(showPronouns && account.pronouns?.isBlank() == false)
+
+        binding.root.contentDescription = account.contentDescription(binding.root.context)
     }
 
     fun setupActionListener(listener: AccountActionListener) {

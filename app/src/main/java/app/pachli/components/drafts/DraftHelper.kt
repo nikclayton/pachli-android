@@ -24,6 +24,7 @@ import androidx.core.net.toUri
 import app.pachli.BuildConfig
 import app.pachli.core.database.dao.DraftDao
 import app.pachli.core.database.model.DraftEntity
+import app.pachli.core.model.AccountSource
 import app.pachli.core.model.Attachment
 import app.pachli.core.model.DraftAttachment
 import app.pachli.core.model.NewPoll
@@ -66,6 +67,8 @@ class DraftHelper @Inject constructor(
         scheduledAt: Date?,
         language: String?,
         statusId: String?,
+        quotePolicy: AccountSource.QuotePolicy?,
+        quotedStatusId: String?,
     ) = withContext(Dispatchers.IO) {
         val externalFilesDir = context.getExternalFilesDir("Pachli")
 
@@ -127,6 +130,8 @@ class DraftHelper @Inject constructor(
             scheduledAt = scheduledAt,
             language = language,
             statusId = statusId,
+            quotePolicy = quotePolicy,
+            quotedStatusId = quotedStatusId,
         )
 
         draftDao.upsert(draft)
@@ -157,14 +162,14 @@ class DraftHelper @Inject constructor(
         return File(filePath).parentFile == folder
     }
 
-    private fun Uri.copyToFolder(folder: File, index: Int): Uri? {
+    private suspend fun Uri.copyToFolder(folder: File, index: Int): Uri? = withContext(Dispatchers.IO) {
         val contentResolver = context.contentResolver
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
 
         val fileExtension = if (scheme == "https") {
             lastPathSegment?.substringAfterLast('.', "tmp")
         } else {
-            val mimeType = contentResolver.getType(this)
+            val mimeType = contentResolver.getType(this@copyToFolder)
             val map = MimeTypeMap.getSingleton()
             map.getExtensionFromMimeType(mimeType)
         }
@@ -183,11 +188,11 @@ class DraftHelper @Inject constructor(
                 }
             } catch (ex: IOException) {
                 Timber.w(ex, "failed to save media")
-                return null
+                return@withContext null
             }
         } else {
-            this.copyToFile(contentResolver, file)
+            this@copyToFolder.copyToFile(contentResolver, file)
         }
-        return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", file)
+        return@withContext FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", file)
     }
 }

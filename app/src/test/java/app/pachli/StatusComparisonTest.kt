@@ -3,6 +3,7 @@ package app.pachli
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.pachli.core.data.model.StatusViewData
 import app.pachli.core.database.model.TranslationState
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.VersionAdapter
 import app.pachli.core.network.json.BooleanIfNull
 import app.pachli.core.network.json.DefaultIfNull
@@ -61,17 +62,21 @@ class StatusComparisonTest {
             pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
-            isShowingContent = false,
             isCollapsed = false,
             translationState = TranslationState.SHOW_ORIGINAL,
+            attachmentDisplayAction = AttachmentDisplayAction.Show(),
+            replyToAccount = null,
+            isUsersStatus = false,
         )
         val viewdata2 = StatusViewData(
             pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
-            isShowingContent = false,
             isCollapsed = false,
             translationState = TranslationState.SHOW_ORIGINAL,
+            attachmentDisplayAction = AttachmentDisplayAction.Show(),
+            replyToAccount = null,
+            isUsersStatus = false,
         )
         assertEquals(viewdata1, viewdata2)
     }
@@ -82,17 +87,21 @@ class StatusComparisonTest {
             pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = true,
-            isShowingContent = false,
             isCollapsed = false,
             translationState = TranslationState.SHOW_ORIGINAL,
+            attachmentDisplayAction = AttachmentDisplayAction.Show(),
+            replyToAccount = null,
+            isUsersStatus = false,
         )
         val viewdata2 = StatusViewData(
             pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
-            isShowingContent = false,
             isCollapsed = false,
             translationState = TranslationState.SHOW_ORIGINAL,
+            attachmentDisplayAction = AttachmentDisplayAction.Show(),
+            replyToAccount = null,
+            isUsersStatus = false,
         )
         assertNotEquals(viewdata1, viewdata2)
     }
@@ -103,17 +112,21 @@ class StatusComparisonTest {
             pachliAccountId = 1L,
             status = createStatus(content = "whatever"),
             isExpanded = true,
-            isShowingContent = false,
             isCollapsed = false,
             translationState = TranslationState.SHOW_ORIGINAL,
+            attachmentDisplayAction = AttachmentDisplayAction.Show(),
+            replyToAccount = null,
+            isUsersStatus = false,
         )
         val viewdata2 = StatusViewData(
             pachliAccountId = 1L,
             status = createStatus(),
             isExpanded = false,
-            isShowingContent = false,
             isCollapsed = false,
             translationState = TranslationState.SHOW_ORIGINAL,
+            attachmentDisplayAction = AttachmentDisplayAction.Show(),
+            replyToAccount = null,
+            isUsersStatus = false,
         )
         assertNotEquals(viewdata1, viewdata2)
     }
@@ -227,7 +240,13 @@ class StatusComparisonTest {
                 "tags": [],
                 "emojis": [],
                 "card": null,
-                "poll": null
+                "poll": null,
+                "quote": null,
+                "quote_approval": {
+                    "automatic": ["public"],
+                    "manual": [],
+                    "current_user": "automatic"
+                }
             }
         """.trimIndent()
         return moshi.adapter<Status>().fromJson(statusJson)!!.asModel()

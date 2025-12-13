@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="error_network">பிணைய பிழை ஏற்பட்டது! உங்கள் இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்!</string>
+    <string name="error_network">பிணையப் பிழை ஏற்பட்டது. உங்கள் இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சி.</string>
     <string name="error_generic">பிழை ஏற்பட்டது.</string>
     <string name="action_retry">மீண்டும் முயற்சி</string>
     <string name="action_view_profile">சுயவிவரம்</string>
@@ -13,7 +13,109 @@
     <string name="pref_notification_fetch_err_timestamp_fmt">✖ %1$s முன்பு @ %2$s</string>
     <string name="pref_notification_fetch_server_rejected">%1$s நிராகரிக்கப்பட்ட புச் பதிவு</string>
     <string name="pref_notification_fetch_needs_push">கணக்கில் \"தள்ளு\" நோக்கம் இல்லை. வெளியேறி மீண்டும் உள்நுழைந்தால் இதைச் சரிசெய்யலாம்.</string>
-    <string name="action_logout_confirm">நீங்கள் %1$s கணக்கிலிருந்து வெளியேற விரும்புகிறீர்களா? இது வரைவுகள் மற்றும் விருப்பத்தேர்வுகள் உட்பட கணக்கின் அனைத்து உள்ளூர் தரவையும் நீக்கும்.</string>
+    <string name="action_logout_confirm">%1$s கணக்கிலிருந்து அனைத்து உள்ளூர் தரவையும் நீக்கும், வரைவுகள் மற்றும் விருப்பத்தேர்வுகள் உட்பட.\n\nசேவையகத்தில் கணக்கின் தரவை நீக்காது.</string>
     <string name="add_account_name">கணக்கை சேர்க்க</string>
     <string name="action_logout">வெளியேறு</string>
+    <string name="hint_search_emojis">ஈமோசிகளைத் தேடுங்கள்…</string>
+    <string name="label_emoji_no_category">வகை இல்லை</string>
+    <string name="message_empty">இங்கே எதுவும் இல்லை.</string>
+    <string name="button_done">முடிந்தது</string>
+    <string name="action_refresh">புதுப்பி</string>
+    <string name="url_domain_notifier">" (🔗 %s)"</string>
+    <string name="action_links">இணைப்புகள்</string>
+    <string name="action_mentions">குறிப்பிடுகிறது</string>
+    <string name="action_hashtags">ஏச்டேக்குகள்</string>
+    <string name="title_links_dialog">இணைப்புகள்</string>
+    <string name="title_hashtags_dialog">ஏச்டேக்குகள்</string>
+    <string name="item_copied">உரை நகலெடுக்கப்பட்டது</string>
+    <string name="action_copy_item">உருப்படியை நகலெடுக்கவும்</string>
+    <string name="title_mentions_dialog">குறிப்பிடுகிறது</string>
+    <string name="title_logout_fmt">வெளியேறு %1$s</string>
+    <string name="notification_details_last_fetch_label">கடைசி/ஏபிஐ/வி 1/அறிவிப்புகள் கோரிக்கை</string>
+    <string name="preview_card_byline_fediverse_account_fmt">மூலம் &lt;b>%1$s &lt;/b>. மேலும் இடுகைகளைக் காண்க</string>
+    <string name="preview_card_byline_name_only_fmt">மூலம் &lt;b>%1$s &lt;/b></string>
+    <string name="preview_card_timeline_link_fmt">இந்த இணைப்பைப் பற்றிய &lt;b>%1$s &lt;/b> இடுகைகளைப் பார்க்கவும்</string>
+    <string name="poll_vote">வாக்களிக்கவும்</string>
+    <string name="poll_show_votes">வாக்குகளைக் காட்டு</string>
+    <plurals name="poll_timespan_seconds">
+        <item quantity="one">%d இரண்டாவது இடது</item>
+        <item quantity="other">%d விநாடிகள் எஞ்சியுள்ளன</item>
+    </plurals>
+    <plurals name="poll_timespan_minutes">
+        <item quantity="one">%d மணித்துளி மீதமுள்ளது</item>
+        <item quantity="other">%d நிமிடங்கள் உள்ளன</item>
+    </plurals>
+    <plurals name="poll_timespan_hours">
+        <item quantity="one">%d மணிநேரம் மீதமுள்ளது</item>
+        <item quantity="other">%d மணிநேரங்கள் மீதமுள்ளது</item>
+    </plurals>
+    <plurals name="poll_timespan_days">
+        <item quantity="one">%d நாள் மீதமுள்ளது</item>
+        <item quantity="other">%d நாட்கள் உள்ளன</item>
+    </plurals>
+    <plurals name="poll_info_votes">
+        <item quantity="one">%s வாக்கு</item>
+        <item quantity="other">%s வாக்குகள்</item>
+    </plurals>
+    <plurals name="poll_info_people">
+        <item quantity="one">%s நபர்</item>
+        <item quantity="other">%s நபர்கள்</item>
+    </plurals>
+    <string name="poll_info_closed">மூடப்பட்டது</string>
+    <string name="poll_info_time_absolute">%s இல் முடிகிறது</string>
+    <string name="poll_info_format"><!-- 15 வாக்குகள் • 1 மணிநேரம் மீதமுள்ளது--> %1$s • %2$s</string>
+    <string name="description_poll">தேர்வுகளுடன் வாக்கெடுப்பு: %1$s, %2$s, %3$s, %4$s; %5$s</string>
+    <string name="post_media_alt">மாற்று</string>
+    <string name="status_created_at_now">இப்போது</string>
+    <string name="abbreviated_in_seconds">%dவி-முன்</string>
+    <string name="abbreviated_seconds_ago">%dவி</string>
+    <string name="abbreviated_in_minutes">%dநி-முன்</string>
+    <string name="abbreviated_minutes_ago">%dநி</string>
+    <string name="abbreviated_in_hours">%dம.நே-முன்</string>
+    <string name="abbreviated_hours_ago">%dம.நே</string>
+    <string name="abbreviated_in_days">%dநா-முன்</string>
+    <string name="abbreviated_days_ago">%dநா</string>
+    <string name="abbreviated_in_years">%dஆ-முன்</string>
+    <string name="abbreviated_years_ago">%dஆ</string>
+    <string name="description_post_media_no_description_placeholder">விளக்கம் இல்லை</string>
+    <string name="description_visibility_public">அனைவருக்கும்</string>
+    <string name="description_visibility_unlisted">பட்டியலிடப்படாதவர்களுக்கு</string>
+    <string name="description_visibility_private">பின்பற்றுபவர்கள்</string>
+    <string name="description_visibility_direct">நேரடி</string>
+    <string name="post_sensitive_media_title">உணர்ச்சிகரமான உள்ளடக்கம்</string>
+    <string name="post_media_images">படங்கள்</string>
+    <string name="post_media_audio">ஆடியோ</string>
+    <string name="post_media_video">காணொளி</string>
+    <string name="post_media_attachments">இணைப்புகள்</string>
+    <string name="action_reply">பதிலளி</string>
+    <string name="action_reblog">மேலேற்று</string>
+    <string name="action_favourite">பிடித்தவை</string>
+    <string name="action_bookmark">புத்தககுறி</string>
+    <string name="status_count_one_plus">1+</string>
+    <string name="action_unreblog">பூச்டை அகற்று</string>
+    <string name="action_unfavourite">பிடித்ததை அகற்று</string>
+    <string name="post_content_warning_show_less">கம்மியாக்கு</string>
+    <string name="post_content_warning_show_more">அதிகமாக்கு</string>
+    <string name="post_content_show_less">சரிவு</string>
+    <string name="translating">மொழிபெயர்க்கிறது…</string>
+    <string name="translation_provider_fmt">%1$s</string>
+    <string name="description_post_edited">திருத்தப்பட்டது</string>
+    <string name="description_post_reblogged">மறுபிரசுரம் செய்யப்பட்டது</string>
+    <string name="description_post_favourited">பிடித்தது</string>
+    <string name="description_post_bookmarked">புக்மார்க்கு செய்யப்பட்டது</string>
+    <string name="description_post_media">மீடியா: %s</string>
+    <string name="description_post_cw">உள்ளடக்க எச்சரிக்கை: %s</string>
+    <plurals name="reblogs">
+        <item quantity="one">&lt;b>%s &lt;/b> பூச்ட்</item>
+        <item quantity="other">&lt;b>%s&lt;/b> ஊக்கங்கள்</item>
+    </plurals>
+    <plurals name="favs">
+        <item quantity="one">&lt;b>%1$s &lt;/b> பிடித்தது</item>
+        <item quantity="other">&lt;b>%1$s&lt;/b> பிடித்தவை</item>
+    </plurals>
+    <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt; மேலேற்றப்பட்டது</string>
+    <string name="post_edited">திருத்தப்பட்ட %s</string>
+    <string name="filter_edit_title">வடிகட்டியைத் திருத்து</string>
+    <string name="status_filtered_show_anyway">எப்படியும் காட்டு</string>
+    <string name="status_filter_placeholder_label_format">வடிகட்டப்பட்டது: &lt;b>%1$s &lt;/b></string>
 </resources>

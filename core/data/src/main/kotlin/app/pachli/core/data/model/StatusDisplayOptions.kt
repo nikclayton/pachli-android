@@ -18,7 +18,19 @@
 package app.pachli.core.data.model
 
 import app.pachli.core.preferences.CardViewMode
+import app.pachli.core.preferences.PronounDisplay
 
+/**
+ * @property mediaPreviewEnabled See [app.pachli.core.database.model.AccountEntity.mediaPreviewEnabled].
+ * @property showStatsInline If true, statuses in timelines show the counts
+ * of replies, reblogs, and favourites.
+ *
+ * If false, the counts of reblogs and favourites are hidden, and the
+ *  count of replies is set to either "0", "1", or "1+" so the user can
+ *  tell if there are replies if they click through.
+ * @property canQuote True if the server supports sending quote posts.
+ * @property pronounDisplay How to display account pronouns.
+ */
 data class StatusDisplayOptions(
     @get:JvmName("animateAvatars")
     val animateAvatars: Boolean = false,
@@ -40,6 +52,14 @@ data class StatusDisplayOptions(
     val hideStatsInDetailedView: Boolean = false,
     @get:JvmName("animateEmojis")
     val animateEmojis: Boolean = false,
+    /**
+     * If true, statuses in timelines show the counts of replies, reblogs,
+     * and favourites.
+     *
+     * If false, the counts of reblogs and favourites are hidden, and the
+     * count of replies is set to either "0", "1", or "1+" so the user can
+     * tell if there are replies if they click through.
+     */
     @get:JvmName("showStatsInline")
     val showStatsInline: Boolean = false,
     @get:JvmName("showSensitiveMedia")
@@ -48,5 +68,14 @@ data class StatusDisplayOptions(
     val openSpoiler: Boolean = false,
     @get:JvmName("canTranslate")
     val canTranslate: Boolean = false,
+    val canQuote: Boolean = false,
     val renderMarkdown: Boolean = false,
+
+    /**
+     * True if the "status info" content should be shown (whether the
+     * status is a reblog, reply, etc).
+     */
+    val showStatusInfo: Boolean = true,
+
+    val pronounDisplay: PronounDisplay = PronounDisplay.WHEN_COMPOSING,
 )

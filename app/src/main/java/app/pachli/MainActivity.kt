@@ -23,7 +23,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -39,6 +38,7 @@ import android.view.MenuItem.SHOW_AS_ACTION_NEVER
 import android.view.View
 import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
@@ -48,6 +48,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewGroupCompat
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
@@ -106,7 +107,12 @@ import app.pachli.core.preferences.MainNavigationPosition
 import app.pachli.core.preferences.TabAlignment
 import app.pachli.core.preferences.TabContents
 import app.pachli.core.ui.AlignableTabLayoutAlignment
+import app.pachli.core.ui.appbar.FadeChildScrollEffect
 import app.pachli.core.ui.emojify
+import app.pachli.core.ui.extensions.InsetType
+import app.pachli.core.ui.extensions.addScrollEffect
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
+import app.pachli.core.ui.extensions.applyWindowInsets
 import app.pachli.core.ui.extensions.await
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.core.ui.makeIcon
@@ -245,7 +251,37 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.mainDrawer.applyWindowInsets(
+            left = InsetType.PADDING,
+            top = InsetType.PADDING,
+            right = InsetType.PADDING,
+            bottom = InsetType.PADDING,
+        )
+
+        // If the navigation bar is at the bottom then the pager needs additional
+        // padding to clear it. Do this before applying edge to edge insets, so
+        // the new padding is added to the insets.
+        if (sharedPreferencesRepository.mainNavigationPosition == MainNavigationPosition.BOTTOM) {
+            with(binding.viewPager) {
+                val actionBarSize = getDimension(this@MainActivity, androidx.appcompat.R.attr.actionBarSize)
+                setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom + actionBarSize)
+            }
+        }
+
+        binding.appBar.applyDefaultWindowInsets()
+        binding.viewPager.applyDefaultWindowInsets()
+        actionButton.applyDefaultWindowInsets()
+        binding.mainToolbar.addScrollEffect(FadeChildScrollEffect)
+        binding.topNav.addScrollEffect(FadeChildScrollEffect)
+        binding.bottomNav.applyWindowInsets(
+            left = InsetType.PADDING,
+            right = InsetType.PADDING,
+            bottom = InsetType.PADDING,
+        )
+
         setContentView(binding.root)
 
         viewModel.accept(InfallibleUiAction.LoadPachliAccount(pachliAccountId))
@@ -279,8 +315,6 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             }
         }
 
-        window.statusBarColor = Color.TRANSPARENT // don't draw a status bar, the DrawerLayout and the MaterialDrawerLayout have their own
-
         // Determine which of the three toolbars should be the supportActionBar (which hosts
         // the options menu).
         val hideTopToolbar = viewModel.uiState.value.hideTopToolbar
@@ -307,6 +341,9 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
         // https://github.com/tuskyapp/Tusky/issues/3251 for details.
         tabAdapter = MainPagerAdapter(emptyList(), this)
         binding.viewPager.adapter = tabAdapter
+        // Work around https://issuetracker.google.com/issues/432664597, where the recyclerview
+        // might appear to be empty.
+        binding.viewPager.offscreenPageLimit = 2
 
         // Process different parts of the account flow depending on what's changed
         val account = viewModel.pachliAccountFlow.filterNotNull()
@@ -718,7 +755,7 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 },
                 primaryDrawerItem {
                     nameRes = R.string.title_public_federated
-                    iconRes = R.drawable.ic_public_24dp
+                    iconRes = app.pachli.core.designsystem.R.drawable.ic_public_24dp
                     onClick = {
                         startActivityWithDefaultTransition(
                             TimelineActivityIntent.publicFederated(context, pachliAccountId),
@@ -727,7 +764,7 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 },
                 primaryDrawerItem {
                     nameRes = R.string.title_direct_messages
-                    iconRes = R.drawable.ic_reblog_direct_24dp
+                    iconRes = app.pachli.core.ui.R.drawable.ic_reblog_direct_24dp
                     onClick = {
                         startActivityWithDefaultTransition(
                             TimelineActivityIntent.conversations(context, pachliAccountId),
@@ -898,6 +935,7 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 arrayOf(
                     "Clear home timeline cache",
                     "Remove first 40 statuses",
+                    "Prune cache",
                 ),
             ) { _, which ->
                 Timber.d("Developer tools: %d", which)
@@ -912,6 +950,12 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                         Timber.d("Removing most recent 40 statuses")
                         lifecycleScope.launch {
                             developerToolsUseCase.deleteFirstKStatuses(pachliAccountId, 40)
+                        }
+                    }
+                    2 -> {
+                        Timber.d("Pruning cache")
+                        lifecycleScope.launch {
+                            developerToolsUseCase.pruneCache(pachliAccountId)
                         }
                     }
                 }

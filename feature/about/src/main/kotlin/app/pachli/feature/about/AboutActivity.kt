@@ -19,14 +19,20 @@ package app.pachli.feature.about
 
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
+import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewGroupCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import app.pachli.core.activity.ViewUrlActivity
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.designsystem.R as DR
+import app.pachli.core.ui.appbar.FadeChildScrollEffect
+import app.pachli.core.ui.extensions.addScrollEffect
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.feature.about.databinding.ActivityAboutBinding
 import com.bumptech.glide.request.target.FixedSizeDrawable
@@ -37,8 +43,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AboutActivity : ViewUrlActivity(), MenuProvider {
-
-    private val binding: ActivityAboutBinding by viewBinding(ActivityAboutBinding::inflate)
+    private val binding by viewBinding(ActivityAboutBinding::inflate)
 
     private val onBackPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
@@ -47,7 +52,12 @@ class AboutActivity : ViewUrlActivity(), MenuProvider {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.appBar.applyDefaultWindowInsets()
+        binding.pager.applyDefaultWindowInsets()
+        binding.toolbar.addScrollEffect(FadeChildScrollEffect)
 
         setContentView(binding.root)
 
@@ -90,25 +100,28 @@ class AboutActivity : ViewUrlActivity(), MenuProvider {
 }
 
 class AboutFragmentAdapter(val activity: FragmentActivity) : FragmentStateAdapter(activity) {
-    override fun getItemCount() = 4
+    data class TabData(
+        @StringRes val title: Int,
+        val createFragment: () -> Fragment,
+    )
+
+    val fragments = buildList {
+        add(TabData(R.string.about_title_activity) { AboutFragment.newInstance() })
+        add(TabData(R.string.title_licenses) { LibsBuilder().supportFragment() })
+        add(TabData(R.string.about_privacy_policy) { PrivacyPolicyFragment.newInstance() })
+        add(TabData(R.string.about_notifications) { NotificationFragment.newInstance() })
+        add(TabData(R.string.about_database) { DatabaseFragment.newInstance() })
+    }
+
+    override fun getItemCount() = fragments.size
 
     override fun createFragment(position: Int): Fragment {
-        return when (position) {
-            0 -> AboutFragment.newInstance()
-            1 -> LibsBuilder().supportFragment()
-            2 -> PrivacyPolicyFragment.newInstance()
-            3 -> NotificationFragment.newInstance()
-            else -> throw IllegalStateException()
-        }
+        return fragments.getOrNull(position)?.createFragment?.invoke()
+            ?: throw IllegalStateException()
     }
 
     fun title(position: Int): CharSequence {
-        return when (position) {
-            0 -> activity.getString(R.string.about_title_activity)
-            1 -> activity.getString(R.string.title_licenses)
-            2 -> activity.getString(R.string.about_privacy_policy)
-            3 -> "Notifications"
-            else -> throw IllegalStateException()
-        }
+        return fragments.getOrNull(position)?.title?.let { activity.getString(it) }
+            ?: throw IllegalStateException()
     }
 }

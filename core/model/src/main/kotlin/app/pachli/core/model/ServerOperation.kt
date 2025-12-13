@@ -68,6 +68,14 @@ enum class ServerOperation(id: String, versions: List<Version>) {
         ),
     ),
 
+    ORG_JOINMASTODON_FILTERS_ACTION_BLUR(
+        "org.joinmastodon.filters.action.blur",
+        listOf(
+            // Initial introduction in Mastodon 4.4.0.
+            Version(major = 1),
+        ),
+    ),
+
     /** Translate a status */
     ORG_JOINMASTODON_STATUSES_TRANSLATE(
         "org.joinmastodon.statuses.translate",
@@ -126,6 +134,24 @@ enum class ServerOperation(id: String, versions: List<Version>) {
         "org.joinmastodon.statuses.get",
         listOf(
             // Initial introduction in Mastodon 4.3.0
+            Version(major = 1),
+        ),
+    ),
+
+    /** Set a default quote policy. */
+    ORG_JOINMASTODON_ACCOUNT_QUOTE_POLICY(
+        "org.joinmastodon.quote_policy",
+        listOf(
+            // Initial introduction in Mastodon 4.5.0
+            Version(major = 1),
+        ),
+    ),
+
+    /** Quote a status. */
+    ORG_JOINMASTODON_STATUSES_QUOTE(
+        "org.joinmastodon.statuses.quote",
+        listOf(
+            // Initial introduction in Mastodon 4.5.0
             Version(major = 1),
         ),
     ),

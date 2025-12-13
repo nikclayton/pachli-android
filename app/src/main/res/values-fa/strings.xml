@@ -25,14 +25,7 @@
     <string name="title_follow_requests">درخواست‌های پی‌گیری</string>
     <string name="title_edit_profile">ویرایش نمایه‌تان</string>
     <string name="title_drafts">پیش‌نویس‌ها</string>
-    <string name="post_boosted_format">%s تقویت کرد</string>
-    <string name="post_sensitive_media_title">محتوای حسّاس</string>
-    <string name="post_media_hidden_title">رسانهٔ نهفته</string>
     <string name="post_sensitive_media_directions">کلیک برای نمایش</string>
-    <string name="post_content_warning_show_more">نمایش بیش‌تر</string>
-    <string name="post_content_warning_show_less">نمایش کم‌تر</string>
-    <string name="post_content_show_more">گسترش</string>
-    <string name="post_content_show_less">جمع کردن</string>
     <string name="footer_empty">این‌جا هیچ‌چیز نیست. برای تازه‌سازی، به پایین بکشید!</string>
     <string name="notification_reblog_format">%s فرسته‌تان را تقویت کرد</string>
     <string name="notification_favourite_format">%s فرسته‌تان را برگزید</string>
@@ -40,9 +33,6 @@
     <string name="report_username_format">گزارش @%s</string>
     <string name="report_comment_hint">نظرهای اضافی؟</string>
     <string name="action_quick_reply">پاسخ سریع</string>
-    <string name="action_reply">پاسخ</string>
-    <string name="action_reblog">تقویت</string>
-    <string name="action_favourite">برگزیدن</string>
     <string name="action_compose">ایجاد</string>
     <string name="action_follow">پیگیری</string>
     <string name="action_unfollow">ناپیگیری</string>
@@ -60,7 +50,6 @@
     <string name="action_view_mutes">کاربران خموش</string>
     <string name="action_view_blocks">کاربران مسدود</string>
     <string name="action_view_follow_requests">درخواست‌های پی‌گیری</string>
-    <string name="action_view_media">رسانه</string>
     <string name="action_open_in_web">گشودن در مرورگر</string>
     <string name="action_add_media">افزودن رسانه</string>
     <string name="action_photo_take">گرفتن عکس</string>
@@ -175,15 +164,8 @@
     -->
     <string name="post_share_content">هم‌رسانی محتوای فرسته</string>
     <string name="post_share_link">هم‌رسانی پیوند فرسته</string>
-    <string name="post_media_images">تصویرها</string>
-    <string name="post_media_video">ویدیو</string>
     <string name="state_follow_requested">تقاضای پیگیری شد</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
-    <string name="abbreviated_in_years">در %d سال</string>
-    <string name="abbreviated_in_days">در %d روز</string>
-    <string name="abbreviated_in_hours">در %d ساعت</string>
-    <string name="abbreviated_in_minutes">در %d دقیقه</string>
-    <string name="abbreviated_in_seconds">در %d ثانیه</string>
     <string name="follows_you">پیگیرتان است</string>
     <string name="pref_title_alway_show_sensitive_media">نمایش همیشگی محتوای حساس</string>
     <string name="title_media">رسانه</string>
@@ -225,8 +207,6 @@
     <string name="title_tab_preferences">زبانه‌ها</string>
     <string name="title_posts_pinned">سنجاق شده</string>
     <string name="title_domain_mutes">دامنه‌های نهفته</string>
-    <string name="action_unreblog">برداشتن تقویت</string>
-    <string name="action_unfavourite">برداشتن برگزیدگی</string>
     <string name="action_delete_and_redraft">حذف و بازنویسی</string>
     <string name="action_view_domain_mutes">دامنه‌های نهفته</string>
     <string name="action_add_poll">افزودن نظرسنجی</string>
@@ -248,42 +228,18 @@
     <string name="pref_title_animate_gif_avatars">پویانمایی آواتارهای جیف</string>
     <string name="notification_poll_name">نظرسنجی‌ها</string>
     <string name="notification_poll_description">آگاهی‌ها دربارهٔ نظرسنجی‌های پایان‌یافته</string>
-    <string name="abbreviated_years_ago">%d سال</string>
-    <string name="abbreviated_days_ago">%d روز</string>
-    <string name="abbreviated_hours_ago">%d ساعت</string>
-    <string name="abbreviated_minutes_ago">%d دقیقه</string>
-    <string name="abbreviated_seconds_ago">%d ثانیه</string>
     <string name="pref_title_alway_open_spoiler">گسترش همیشگی فرسته‌های علامت‌خورده با هشدار محتوا</string>
     <string name="pref_title_public_filter_keywords">خط زمانی‌های عمومی</string>
     <string name="pref_title_thread_filter_keywords">گفت‌وگوها</string>
     <string name="filter_addition_title">افزودن پالایه</string>
-    <string name="filter_edit_title">ویرایش پالایه</string>
     <string name="filter_dialog_remove_button">برداشتن</string>
     <string name="filter_dialog_update_button">به‌روز رسانی</string>
     <string name="filter_dialog_whole_word">تمام واژه</string>
-    <plurals name="favs">
-        <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; برگزیدن</item>
-        <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; برگزیدن</item>
-    </plurals>
-    <plurals name="reblogs">
-        <item quantity="one">&lt;b&gt;%s&lt;/b&gt; تقویت</item>
-        <item quantity="other">&lt;b&gt;%s&lt;/b&gt; تقویت</item>
-    </plurals>
     <string name="title_reblogged_by">تقویت‌شده به دست</string>
     <string name="title_favourited_by">برگزیده به دست</string>
     <string name="conversation_1_recipients">%1$s</string>
     <string name="conversation_2_recipients">%1$s و %2$s</string>
     <string name="conversation_more_recipients">%1$s، %2$s و %3$d بیش‌تر</string>
-    <string name="description_post_media">رسانه: %s</string>
-    <string name="description_post_cw">هشدار محتوا: %s</string>
-    <string name="description_post_media_no_description_placeholder">بدون شرح</string>
-    <string name="description_post_reblogged">تقویت شده</string>
-    <string name="description_post_favourited">برگزیده</string>
-    <string name="description_visibility_public">عمومی</string>
-    <string name="description_visibility_unlisted">فهرست نشده</string>
-    <string name="description_visibility_private">پی‌گیران</string>
-    <string name="description_visibility_direct">مستقیم</string>
-    <string name="description_poll">%1$s, %2$s, %3$s, %4$s, %5$s :نظرسنجی با گزینه‌ها</string>
     <string name="edit_hashtag_hint">برچسب بدون #</string>
     <string name="notifications_clear">پاک‌سازی</string>
     <string name="notifications_apply_filter">پالایش</string>
@@ -291,23 +247,8 @@
     <string name="compose_shortcut_long_label">ایجاد فرسته</string>
     <string name="compose_shortcut_short_label">ایجاد</string>
     <string name="notification_clear_text">مطمئنید می‌خواهید تمام آگاهی‌هایتان را برای همیشه پاک کنید؟</string>
-    <string name="poll_info_time_absolute">پایان در %s</string>
-    <string name="poll_info_closed">بسته</string>
-    <string name="poll_vote">رأی</string>
     <string name="poll_ended_voted">یک نظرسنجی که در آن رأی دادید، تمام شد</string>
     <string name="poll_ended_created">یک نظرسنجی که ساختید، تمام شد</string>
-    <plurals name="poll_timespan_days">
-        <item quantity="one">%d روز مانده</item>
-        <item quantity="other">%d روز مانده</item>
-    </plurals>
-    <plurals name="poll_timespan_hours">
-        <item quantity="one">%d ساعت مانده</item>
-        <item quantity="other">%d ساعت مانده</item>
-    </plurals>
-    <plurals name="poll_timespan_minutes">
-        <item quantity="one">%d دقیقه مانده</item>
-        <item quantity="other">%d دقیقه مانده</item>
-    </plurals>
     <string name="button_back">بازگشت</string>
     <string name="report_sent_success">‫@%s با موفّقیت گزارش شد</string>
     <string name="hint_additional_info">نظرهای اضافی</string>
@@ -336,13 +277,10 @@
     <string name="mute_domain_warning">مطمئنید می‌خواهید تمام %s را مسدود کنید؟ محتوای آن دامنه را در هیچ‌یک از خط زمانی‌ها یا در آگاهی‌هایتان نخواهید دید. پی‌گیرانتان از آن دامنه، برداشته خواهند شد.</string>
     <string name="filter_dialog_whole_word_description">هنگامی که کلیدواژه یا عبارت، فقط حروف‌عددی باشد، فقط اگر با تمام واژه مطابق باشد، اعمال خواهد شد</string>
     <string name="filter_add_description">عبارت پالایش</string>
-    <string name="poll_info_format"><!-- ۱۵ رأی • ۱ ساعت مانده -->%1$s • %2$s</string>
     <string name="report_description_1">گزارش به ناظرهای کارسازتان ارسال خواهد شد. در زیر می‌توانید توضیحی در باب چرایی گزارش این حساب بنویسید:</string>
     <string name="report_description_remote_instance">این حساب از کارسازی دیگر است. رونوشتی ناشناس از گزارش، به آن‌جا نیز ارسال شود؟</string>
     <string name="title_bookmarks">نشانک‌ها</string>
-    <string name="action_bookmark">نشانک</string>
     <string name="action_view_bookmarks">نشانک‌ها</string>
-    <string name="description_post_bookmarked">نشان‌شده</string>
     <string name="select_list_title">گزینش سیاهه</string>
     <string name="list">سیاهه</string>
     <string name="no_drafts">هیچ پیش‌نویسی ندارید.</string>
@@ -351,10 +289,6 @@
     <string name="pref_title_confirm_reblogs">نمایش تأیید پیش از تقویت</string>
     <string name="pref_title_show_cards_in_timelines">پیش‌نمایش پیوندها در خط‌زمانی‌ها</string>
     <string name="pref_title_enable_swipe_for_tabs">به کار انداختن اشارهٔ کشیدنی برای تعویض بین زبانه‌ها</string>
-    <plurals name="poll_info_people">
-        <item quantity="one">%s نفر</item>
-        <item quantity="other">%s نفر</item>
-    </plurals>
     <string name="hashtags">برچسب‌ها</string>
     <string name="add_hashtag_title">افزودن برچسب</string>
     <string name="notification_follow_request_description">آگاهی‌ها دربارهٔ درخواست‌های پی‌گیری</string>
@@ -365,19 +299,11 @@
     <string name="action_unmute_conversation">ناخموشی گفت‌وگو</string>
     <string name="action_mute_conversation">خموشی گفت‌وگو</string>
     <string name="notification_follow_request_format">%s می‌خواهد پی‌گیرتان شود</string>
-    <plurals name="poll_timespan_seconds">
-        <item quantity="one">%d ثانیه مانده</item>
-        <item quantity="other">%d ثانیه مانده</item>
-    </plurals>
     <string name="pref_main_nav_position">موقعیت ناوبری اصلی</string>
     <string name="pref_title_gradient_for_media">نمایش گرادیان‌های رنگی برای رسانه‌های نهفته</string>
     <string name="dialog_mute_hide_notifications">نهفتن آگاهی‌ها</string>
     <string name="action_unmute_domain">ناخموشی %s</string>
     <string name="action_unmute_desc">ناخموشی %s</string>
-    <plurals name="poll_info_votes">
-        <item quantity="one">%s رأی</item>
-        <item quantity="other">%s رأی</item>
-    </plurals>
     <string name="pref_title_hide_top_toolbar">نهفتن عنوان نوارابزار بالایی</string>
     <string name="compose_preview_image_description">کنش‌ها برای تصویر %s</string>
     <string name="account_note_saved">ذخیره شد!</string>
@@ -393,15 +319,12 @@
     <string name="review_notifications">بازبینی آگاهی‌ها</string>
     <string name="pref_title_wellbeing_mode">سلامتی</string>
     <string name="label_duration">طول</string>
-    <string name="post_media_attachments">پیوست‌ها</string>
-    <string name="post_media_audio">صدا</string>
     <string name="notification_subscription_description">آگاهی‌ها هنگام انتشار فرسته‌ای جدید از کسی که پی‌می‌گیرید</string>
     <string name="notification_subscription_name">فرسته‌های جدید</string>
     <string name="pref_title_animate_custom_emojis">اموجی‌های شخصی متحرّک</string>
     <string name="pref_title_notification_filter_subscriptions">کسی که پی‌می‌گیرم، فرسته‌ای جدید منتشر کرد</string>
     <string name="notification_subscription_format">%s چیزی فرستاد</string>
     <string name="drafts_post_reply_removed">فرسته‌ای که پاسخی به آن را پیش‌نویس کردید، برداشته شده</string>
-    <string name="drafts_failed_loading_reply">شکست در بار کردن اطّلاعات پاسخ</string>
     <string name="wellbeing_mode_notice">برخی اطّلاعات که ممکن است روی سلامتی ذهنیتان تأثیر بگذارد، پنهان خواهند شد. همچون:
 \n
 \n - آگاهی‌های برگزیدن، تقویت و پی‌گیری
@@ -429,7 +352,6 @@
     <string name="duration_90_days">۹۰ روز</string>
     <string name="duration_365_days">۳۶۵ روز</string>
     <string name="duration_180_days">۱۸۰ روز</string>
-    <string name="status_count_one_plus">۱+</string>
     <string name="pref_title_notification_filter_sign_ups">کسی ثبت‌نام کرد</string>
     <string name="notification_update_name">ویرایش‌های فرسته</string>
     <string name="action_edit_image">ویرایش تصویر</string>
@@ -468,16 +390,12 @@
     <string name="report_category_spam">هرزنامه</string>
     <string name="report_category_other">دیگر</string>
     <string name="action_unfollow_hashtag_format">لغو پی‌گیری #%s؟</string>
-    <string name="status_created_at_now">اکنون</string>
     <string name="hint_media_description_missing">رسانه باید شرحی داشته باشد.</string>
     <string name="pref_default_post_language">زبان فرستهٔ پیش‌گزیده</string>
     <string name="language_display_name_format">%s (%s)</string>
     <string name="pref_title_http_proxy_port_message">درگاه باید بین %d و %d باشد</string>
-    <string name="description_post_edited">ویراسته</string>
     <string name="error_muting_hashtag_format">خطا در خموش کردن #%s</string>
     <string name="error_unmuting_hashtag_format">خطا در ناخموش کردن #%s</string>
-    <string name="post_media_alt">متن جایگزین</string>
-    <string name="post_edited">%s را ویراست</string>
     <string name="error_status_source_load">شکست در بار کردن مبدأ وضعیت از کارساز.</string>
     <string name="a11y_label_loading_thread">بار کردن رشته</string>
     <string name="title_edits">ویرایش‌ها</string>
@@ -523,8 +441,6 @@
     <string name="ui_success_rejected_follow_request">درخواست پی‌گیری مسدود شد</string>
     <string name="ui_error_reblog_fmt">%1$s: تقویت فرسته شکست خورد</string>
     <string name="ui_error_reject_follow_request">رد کردن درخواست پی‌گیری شکست خورد: %s</string>
-    <string name="status_filtered_show_anyway">نمایش به هر روی</string>
-    <string name="status_filter_placeholder_label_format">پالوده: &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="pref_title_account_filter_keywords">نمایه‌ها</string>
     <string name="hint_filter_title">پالایه‌ام</string>
     <string name="label_filter_title">عنوان</string>

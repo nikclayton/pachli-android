@@ -25,33 +25,41 @@ import android.os.Build
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.GestureDetector
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.LinearLayout
+import android.widget.ImageButton
 import androidx.annotation.OptIn
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.util.RepeatModeUtil
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.util.EventLogger
+import androidx.media3.ui.PlayerView
+import app.pachli.AudioPlaybackState
 import app.pachli.BuildConfig
 import app.pachli.R
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.extensions.visible
+import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.model.Attachment
+import app.pachli.core.ui.extensions.InsetType
+import app.pachli.core.ui.extensions.applyWindowInsets
 import app.pachli.databinding.FragmentViewVideoBinding
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -94,6 +102,19 @@ class ViewVideoFragment : ViewMediaFragment() {
     @Volatile
     private var startedTransition = false
 
+    /** The current [AudioPlaybackState]. */
+    private val audioPlaybackState: AudioPlaybackState
+        get() = viewModel.audioPlaybackState.value
+
+    /** Button to toggle the [audioPlaybackState] state.*/
+    private lateinit var toggleMuteButton: ImageButton
+
+    /** Drawable for the "mute" icon. */
+    private val drawableMute by unsafeLazy { AppCompatResources.getDrawable(requireContext(), R.drawable.ic_mute_24dp) }
+
+    /** Drawable for the "unmute" icon. */
+    private val drawableUnmute by unsafeLazy { AppCompatResources.getDrawable(requireContext(), R.drawable.ic_unmute_24dp) }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -104,26 +125,44 @@ class ViewVideoFragment : ViewMediaFragment() {
     @SuppressLint("PrivateResource", "MissingInflatedId")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         toolbar = mediaActivity.toolbar
-        val rootView = inflater.inflate(R.layout.fragment_view_video, container, false)
+        val layout = inflater.inflate(R.layout.fragment_view_video, container, false)
 
-        // Move the controls to the bottom of the screen, with enough bottom margin to clear the seekbar
-        val controls = rootView.findViewById<LinearLayout>(androidx.media3.ui.R.id.exo_center_controls)
-        val layoutParams = controls.layoutParams as FrameLayout.LayoutParams
-        layoutParams.gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
-        layoutParams.bottomMargin = rootView.context.resources.getDimension(androidx.media3.ui.R.dimen.exo_styled_bottom_bar_height)
-            .toInt()
-        controls.layoutParams = layoutParams
+        toggleMuteButton = layout.findViewById(R.id.pachli_exo_mute_toggle)
 
-        return rootView
+        return layout
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Activity has enabled immersive mode, so just dodge the display cutout.
+        binding.mediaDescription.applyWindowInsets(
+            left = InsetType.MARGIN,
+            top = InsetType.MARGIN,
+            right = InsetType.MARGIN,
+            bottom = InsetType.MARGIN,
+            typeMask = WindowInsetsCompat.Type.displayCutout(),
+        )
+        binding.videoView.applyWindowInsets(
+            left = InsetType.PADDING,
+            top = InsetType.PADDING,
+            right = InsetType.PADDING,
+            bottom = InsetType.PADDING,
+            typeMask = WindowInsetsCompat.Type.displayCutout(),
+        )
 
         binding.videoView.controllerShowTimeoutMs = CONTROLS_TIMEOUT.inWholeMilliseconds.toInt()
+        binding.videoView.setShowSubtitleButton(true)
+        binding.videoView.setRepeatToggleModes(
+            RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE or
+                RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL,
+        )
 
         isAudio = attachment.type == Attachment.Type.AUDIO
+
+        toggleMuteButton.setOnClickListener {
+            player?.let { viewModel.setAudioPlaybackState(audioPlaybackState.toggle(it.volume)) }
+        }
 
         /** Handle single taps, flings, and dragging */
         val touchListener = object : View.OnTouchListener {
@@ -217,7 +256,15 @@ class ViewVideoFragment : ViewMediaFragment() {
                         transitionComplete?.let {
                             viewLifecycleOwner.lifecycleScope.launch {
                                 it.await()
+                                // Work-around visual glitch by only setting useController here instead
+                                // of in the layout.  Otherwise a "blank" controller (just playback
+                                // buttons) is displayed while media is loading / preparing, and is then
+                                // replaced with the final controller.
+                                binding.videoView.useController = true
                                 player?.play()
+                                // Show controller *after* playback starts, otherwise the show timeout
+                                // is ignored.
+                                binding.videoView.showController()
                             }
                         }
                     }
@@ -247,6 +294,20 @@ class ViewVideoFragment : ViewMediaFragment() {
             }
         }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.audioPlaybackState.collect { playbackState ->
+                        when (playbackState) {
+                            is AudioPlaybackState.Muted -> player?.volume = 0f
+                            is AudioPlaybackState.Unmuted -> player?.volume = playbackState.volume
+                        }
+                        setToggleMuteButtonContent(toggleMuteButton, playbackState)
+                    }
+                }
+            }
+        }
+
         savedSeekPosition = savedInstanceState?.getLong(SEEK_POSITION) ?: 0
     }
 
@@ -261,9 +322,11 @@ class ViewVideoFragment : ViewMediaFragment() {
     override fun onResume() {
         super.onResume()
 
+        setToggleMuteButtonContent(toggleMuteButton, audioPlaybackState)
+
         if (Build.VERSION.SDK_INT <= 23 || player == null) {
             initializePlayer()
-            if (viewModel.isToolbarVisible && !isAudio) {
+            if (viewModel.isAppBarVisible && !isAudio) {
                 hideToolbarAfterDelay()
             }
             binding.videoView.onResume()
@@ -277,6 +340,14 @@ class ViewVideoFragment : ViewMediaFragment() {
             player = null
             binding.videoView.player = null
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        player?.pause()
+    }
+
+    override fun onAudioBecomingNoisy() {
+        player?.pause()
     }
 
     override fun onPause() {
@@ -319,6 +390,7 @@ class ViewVideoFragment : ViewMediaFragment() {
                 // any transitions have completed.
                 playWhenReady = false
                 seekTo(savedSeekPosition)
+                if (this@ViewVideoFragment.audioPlaybackState is AudioPlaybackState.Muted) volume = 0f
                 prepare()
                 player = this
             }
@@ -329,18 +401,21 @@ class ViewVideoFragment : ViewMediaFragment() {
         if (isAudio) {
             attachment.previewUrl?.let { url ->
                 Glide.with(this).load(url).into(
-                    object : CustomTarget<Drawable>() {
+                    object : CustomViewTarget<PlayerView, Drawable>(binding.videoView) {
+                        override fun onLoadFailed(p0: Drawable?) {
+                            /* Do nothing. */
+                        }
+
                         override fun onResourceReady(
                             resource: Drawable,
                             transition: Transition<in Drawable>?,
                         ) {
                             view ?: return
-                            binding.videoView.defaultArtwork = resource
+                            view.defaultArtwork = resource
                         }
 
-                        override fun onLoadCleared(placeholder: Drawable?) {
-                            view ?: return
-                            binding.videoView.defaultArtwork = null
+                        override fun onResourceCleared(p0: Drawable?) {
+                            view.defaultArtwork = null
                         }
                     },
                 )
@@ -409,7 +484,31 @@ class ViewVideoFragment : ViewMediaFragment() {
         return (player?.isPlaying == true) && !isAudio
     }
 
+    /**
+     * Sets the content ([drawable][ImageButton.drawable] and
+     * [contentDescription][ImageButton.contentDescription]) of [button]
+     * based on [currentAudioPlaybackState].
+     *
+     * Note: the icons show the button's **current state**, not the state
+     * to change to if the button is clicked.
+     */
+    private fun setToggleMuteButtonContent(button: ImageButton, currentAudioPlaybackState: AudioPlaybackState) {
+        with(button) {
+            when (currentAudioPlaybackState) {
+                is AudioPlaybackState.Muted -> {
+                    setImageDrawable(drawableMute)
+                    contentDescription = getString(R.string.action_unmute)
+                }
+
+                is AudioPlaybackState.Unmuted -> {
+                    setImageDrawable(drawableUnmute)
+                    contentDescription = getString(R.string.action_mute)
+                }
+            }
+        }
+    }
+
     companion object {
-        private const val SEEK_POSITION = "seekPosition"
+        private const val SEEK_POSITION = "app.pachli.KEY_SEEK_POSITION"
     }
 }

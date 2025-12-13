@@ -21,17 +21,21 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
+import app.pachli.core.data.model.ConversationViewData
+import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.PachliAccount
-import app.pachli.core.data.repository.StatusRepository
+import app.pachli.core.data.repository.StatusDisplayOptionsRepository
 import app.pachli.core.database.dao.ConversationsDao
 import app.pachli.core.database.model.ConversationData
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.AccountFilterReason
+import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.FilterAction
 import app.pachli.core.network.retrofit.MastodonApi
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.SharedPreferencesRepository
+import app.pachli.usecase.TimelineCases
 import com.github.michaelbull.result.onSuccess
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -54,45 +58,51 @@ import kotlinx.coroutines.launch
 class ConversationsViewModel @AssistedInject constructor(
     private val repository: ConversationsRepository,
     private val conversationsDao: ConversationsDao,
-    private val accountManager: AccountManager,
+    accountManager: AccountManager,
     private val api: MastodonApi,
+    statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     sharedPreferencesRepository: SharedPreferencesRepository,
-    private val statusRepository: StatusRepository,
+    private val timelineCases: TimelineCases,
     @Assisted val pachliAccountId: Long,
 ) : ViewModel() {
     private val accountFlow = accountManager.getPachliAccountFlow(pachliAccountId)
         .filterNotNull()
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
 
+    /** Flow of changes to statusDisplayOptions, for use by the UI */
+    val statusDisplayOptions = statusDisplayOptionsRepository.flow
+
     private val uiAction = MutableSharedFlow<UiAction>()
     val accept: (UiAction) -> Unit = { action -> viewModelScope.launch { uiAction.emit(action) } }
 
-    val conversationFlow = accountFlow
-        .flatMapLatest { pachliAccount ->
-            repository.conversations(pachliAccount.id)
-                .map { pagingData ->
-                    pagingData
-                        .map { conversation ->
-                            val accountFilterDecision = if (conversation.isConversationStarter) {
-                                conversation.viewData?.accountFilterDecision
-                                    ?: filterConversationByAccount(pachliAccount, conversation)
-                            } else {
-                                null
-                            }
-
-                            ConversationViewData.make(
-                                pachliAccount,
-                                conversation,
-                                defaultIsExpanded = pachliAccount.entity.alwaysOpenSpoiler,
-                                defaultIsShowingContent = (pachliAccount.entity.alwaysShowSensitiveMedia || !conversation.lastStatus.status.sensitive),
-                                contentFilterAction = FilterAction.NONE,
-                                accountFilterDecision = accountFilterDecision,
-                            )
-                        }
-                        .filter { it.accountFilterDecision !is AccountFilterDecision.Hide }
+    val conversationFlow = accountFlow.flatMapLatest { pachliAccount ->
+        repository.conversations(pachliAccount.id).map { pagingData ->
+            pagingData
+                .map { conversation ->
+                    val accountFilterDecision = if (conversation.isConversationStarter) {
+                        conversation.viewData?.accountFilterDecision
+                            ?: filterConversationByAccount(pachliAccount, conversation)
+                    } else {
+                        null
+                    }
+                    Pair(conversation, accountFilterDecision)
+                }
+                .filter { it.second !is AccountFilterDecision.Hide }
+                .map { (conversation, accountFilterDecision) ->
+                    ConversationViewData.make(
+                        pachliAccount,
+                        conversation,
+                        showSensitiveMedia = statusDisplayOptions.value.showSensitiveMedia,
+                        defaultIsExpanded = pachliAccount.entity.alwaysOpenSpoiler,
+                        // Mastodon filters don't apply to direct messages, so this
+                        // is always FilterAction.NONE.
+                        contentFilterAction = FilterAction.NONE,
+                        quoteContentFilterAction = FilterAction.NONE,
+                        accountFilterDecision = accountFilterDecision,
+                    )
                 }
         }
-        .cachedIn(viewModelScope)
+    }.cachedIn(viewModelScope)
 
     val showFabWhileScrolling = sharedPreferencesRepository.changes
         .filter { it == null || it == PrefKeys.FAB_HIDE }
@@ -117,13 +127,13 @@ class ConversationsViewModel @AssistedInject constructor(
             is ConversationAction.ClearContentFilter ->
                 repository.clearContentFilter(
                     conversationAction.pachliAccountId,
-                    conversationAction.conversationId,
+                    conversationAction.statusId,
                 )
         }
     }
 
     /**
-     * Returns the [AccountFilterDecision] for [conversationData] based on the notification
+     * Returns the [AccountFilterDecision] for [conversationData] based on the
      * filters in [accountWithFilters].
      *
      * @return The most severe [AccountFilterDecision], in order [Hide][AccountFilterDecision.Hide],
@@ -140,10 +150,10 @@ class ConversationsViewModel @AssistedInject constructor(
         if (!conversationData.isConversationStarter) return AccountFilterDecision.None
 
         // The status to test against
-        val status = conversationData.lastStatus.status
+        val status = conversationData.lastStatus.timelineStatus
 
         // The account that wrote the last status
-        val accountToTest = conversationData.lastStatus.account
+        val accountToTest = conversationData.lastStatus.timelineStatus.account
 
         // Any conversations where we wrote the last status are not filtered.
         if (accountWithFilters.entity.accountId == accountToTest.serverId) return AccountFilterDecision.None
@@ -164,7 +174,7 @@ class ConversationsViewModel @AssistedInject constructor(
             // Check the age of the account relative to the status.
             accountToTest.createdAt?.let { createdAt ->
                 if (accountWithFilters.entity.conversationAccountFilterYounger30d != FilterAction.NONE) {
-                    if (Duration.between(createdAt, Instant.ofEpochMilli(status.createdAt)) < Duration.ofDays(30)) {
+                    if (Duration.between(createdAt, Instant.ofEpochMilli(status.status.createdAt)) < Duration.ofDays(30)) {
                         add(
                             AccountFilterDecision.make(
                                 accountWithFilters.entity.conversationAccountFilterYounger30d,
@@ -196,7 +206,7 @@ class ConversationsViewModel @AssistedInject constructor(
      */
     fun favourite(favourite: Boolean, lastStatusId: String) {
         viewModelScope.launch {
-            statusRepository.favourite(pachliAccountId, lastStatusId, favourite)
+            repository.favourite(pachliAccountId, lastStatusId, favourite)
         }
     }
 
@@ -205,7 +215,7 @@ class ConversationsViewModel @AssistedInject constructor(
      */
     fun bookmark(bookmark: Boolean, lastStatusId: String) {
         viewModelScope.launch {
-            statusRepository.bookmark(pachliAccountId, lastStatusId, bookmark)
+            repository.bookmark(pachliAccountId, lastStatusId, bookmark)
         }
     }
 
@@ -214,7 +224,7 @@ class ConversationsViewModel @AssistedInject constructor(
      */
     fun muteConversation(muted: Boolean, lastStatusId: String) {
         viewModelScope.launch {
-            statusRepository.mute(pachliAccountId, lastStatusId, muted)
+            repository.mute(pachliAccountId, lastStatusId, muted)
         }
     }
 
@@ -223,36 +233,48 @@ class ConversationsViewModel @AssistedInject constructor(
      */
     fun voteInPoll(choices: List<Int>, lastStatusId: String, pollId: String) {
         viewModelScope.launch {
-            statusRepository.voteInPoll(pachliAccountId, lastStatusId, pollId, choices)
+            repository.voteInPoll(pachliAccountId, lastStatusId, pollId, choices)
         }
     }
 
     fun expandHiddenStatus(pachliAccountId: Long, expanded: Boolean, lastStatusId: String) {
         viewModelScope.launch {
-            statusRepository.setExpanded(pachliAccountId, lastStatusId, expanded)
+            repository.setExpanded(pachliAccountId, lastStatusId, expanded)
         }
     }
 
     fun collapseLongStatus(pachliAccountId: Long, collapsed: Boolean, lastStatusId: String) {
         viewModelScope.launch {
-            statusRepository.setContentCollapsed(pachliAccountId, lastStatusId, collapsed)
+            repository.setContentCollapsed(pachliAccountId, lastStatusId, collapsed)
         }
     }
 
-    fun showContent(pachliAccountId: Long, showingHiddenContent: Boolean, lastStatusId: String) {
+    fun changeAttachmentDisplayAction(pachliAccountId: Long, statusId: String, attachmentDisplayAction: AttachmentDisplayAction) {
         viewModelScope.launch {
-            statusRepository.setContentShowing(pachliAccountId, lastStatusId, showingHiddenContent)
+            repository.setAttachmentDisplayAction(pachliAccountId, statusId, attachmentDisplayAction)
         }
     }
 
     fun remove(viewData: ConversationViewData) {
         viewModelScope.launch {
-            api.deleteConversation(conversationId = viewData.id).onSuccess {
+            api.deleteConversation(conversationId = viewData.conversationId).onSuccess {
                 conversationsDao.delete(
-                    id = viewData.id,
+                    id = viewData.conversationId,
                     accountId = viewData.pachliAccountId,
                 )
             }
+        }
+    }
+
+    fun translate(conversationViewData: IStatusViewData) {
+        viewModelScope.launch {
+            timelineCases.translate(conversationViewData)
+        }
+    }
+
+    fun translateUndo(conversationViewData: IStatusViewData) {
+        viewModelScope.launch {
+            timelineCases.translateUndo(conversationViewData)
         }
     }
 

@@ -36,4 +36,24 @@
     <string name="pref_summary_import_settings">Stuknij, by odtworzyć ustawienia z pliku stworzonego przez „Eksport ustawień”</string>
     <string name="pref_summary_export_settings">Stuknij, by zapisać ustawienia aplikacji i kont do lokalnego pliku</string>
     <string name="pref_title_export_settings">Eksport ustawień</string>
+    <string name="pref_default_audio_playback_option_unmuted">Wyłączono wyciszenie mikrofonu</string>
+    <string name="pref_default_audio_playback_option_muted">Wyciszony</string>
+    <string name="pref_title_translation">Tłumaczenie</string>
+    <string name="pref_translation_backend">Jak tłumaczyć</string>
+    <string name="pref_translation_backend_option_server_only">Tylko serwer</string>
+    <string name="pref_translation_backend_option_server_only_help">Tłumaczy wpisy używając twojego serwera. Nie zadziała, jeżeli twój serwer nie wspiera tłumaczenia lub język wpisu jest niewłaściwy.</string>
+    <string name="pref_translation_backend_option_server_first">Najpierw serwer</string>
+    <string name="pref_translation_backend_option_server_first_help">Tłumaczy wpisy przy użyciu twojego serwera. Jeżeli to zawiedzie, tłumaczy na twoim urządzeniu przez Tłumacza Google.</string>
+    <string name="pref_translation_backend_option_local_only">Tylko na urządzeniu</string>
+    <string name="pref_translation_backend_option_local_only_help">Tłumaczy wpisy na twoim urządzeniu przy użyciu Tłumacza Google.</string>
+    <string name="pref_translation_backend_requires_play_label">Zainstaluj z Google Play dla wsparcia dla tłumaczenia na urządzeniu</string>
+    <string name="pref_pronoun_display_everywhere">Wszędzie</string>
+    <string name="pref_quote_policy_followers">jeden z twoich obserwujących</string>
+    <string name="pref_title_pronoun_display">Pokazuj zaimki konta</string>
+    <string name="pref_pronoun_display_when_composing">Podczas pisania wpisu</string>
+    <string name="pref_pronoun_display_hide">Nigdzie</string>
+    <string name="pref_title_quote_policy">Kto może cytować twoje wpisy?</string>
+    <string name="pref_quote_policy_public">Każdy (poza zablokowanymi kontami)</string>
+    <string name="pref_quote_policy_nobody">Tylko ty</string>
+    <string name="pref_summary_quote_policy_disabled">Twój serwer nie wspiera ustawień cytowania</string>
 </resources>

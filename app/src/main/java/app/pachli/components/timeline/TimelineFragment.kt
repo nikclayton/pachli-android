@@ -28,15 +28,16 @@ import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.core.content.ContextCompat
+import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
+import androidx.paging.LoadStateAdapter
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
@@ -44,7 +45,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.BuildConfig
 import app.pachli.R
-import app.pachli.adapter.StatusBaseViewHolder
+import app.pachli.adapter.StatusViewDataDiffCallback
 import app.pachli.components.timeline.viewmodel.CachedTimelineViewModel
 import app.pachli.components.timeline.viewmodel.FallibleStatusAction
 import app.pachli.components.timeline.viewmodel.InfallibleStatusAction
@@ -62,26 +63,27 @@ import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
-import app.pachli.core.data.model.StatusViewData
+import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.database.model.TranslationState
+import app.pachli.core.model.AttachmentDisplayAction
+import app.pachli.core.model.IStatus
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.EditContentFilterActivityIntent
+import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.preferences.TabTapBehaviour
 import app.pachli.core.ui.ActionButtonScrollListener
-import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.BackgroundMessage.Empty
 import app.pachli.core.ui.SetMarkdownContent
 import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentTimelineBinding
 import app.pachli.fragment.SFragment
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.AppBarLayoutHost
-import app.pachli.interfaces.StatusActionListener
 import app.pachli.util.ListStatusAccessibilityDelegate
-import at.connyduck.sparkbutton.helpers.Utils
 import com.bumptech.glide.Glide
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.onFailure
@@ -94,15 +96,16 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -111,34 +114,32 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 class TimelineFragment :
-    SFragment<StatusViewData>(),
+    SFragment<IStatusViewData>(),
     OnRefreshListener,
-    StatusActionListener<StatusViewData>,
     ReselectableFragment,
     RefreshableFragment,
     MenuProvider {
 
     // Create the correct view model. Do this lazily because it depends on the value of
     // `timelineKind`, which won't be known until part way through `onCreate`. Pass this in
-    // the "extras" to the view model, which are populated in to the `SavedStateHandle` it
-    // takes as a parameter.
+    // the "extras" to the view model.
     //
     // If the navigation library was being used this would happen automatically, so this
     // workaround can be removed when that change happens.
-    private val viewModel: TimelineViewModel<out Any> by lazy {
+    private val viewModel: TimelineViewModel<out Any, out TimelineRepository<out Any>> by lazy {
         if (timeline == Timeline.Home) {
             viewModels<CachedTimelineViewModel>(
                 extrasProducer = {
-                    MutableCreationExtras(defaultViewModelCreationExtras).apply {
-                        set(DEFAULT_ARGS_KEY, TimelineViewModel.creationExtras(timeline))
+                    defaultViewModelCreationExtras.withCreationCallback<CachedTimelineViewModel.Factory> {
+                        it.create(timeline)
                     }
                 },
             ).value
         } else {
             viewModels<NetworkTimelineViewModel>(
                 extrasProducer = {
-                    MutableCreationExtras(defaultViewModelCreationExtras).apply {
-                        set(DEFAULT_ARGS_KEY, TimelineViewModel.creationExtras(timeline))
+                    defaultViewModelCreationExtras.withCreationCallback<NetworkTimelineViewModel.Factory> {
+                        it.create(timeline)
                     }
                 },
             ).value
@@ -175,7 +176,11 @@ class TimelineFragment :
             emit(Unit)
         }
     }.onEach {
-        adapter.notifyItemRangeChanged(0, adapter.itemCount, listOf(StatusBaseViewHolder.Key.KEY_CREATED))
+        adapter.notifyItemRangeChanged(
+            0,
+            adapter.itemCount,
+            listOf(StatusViewDataDiffCallback.Payload.CREATED),
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -225,43 +230,72 @@ class TimelineFragment :
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            // Position restoration happens at CREATED so it runs once at the Fragment
+            // start, not every time the Fragment resumes / becomes visible.
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 launch {
-                    // Wait for the initial refresh key and the first page load. If
-                    // the initial refresh key is null then schedule a jump to the top
-                    // after all pages have been loaded. Otherwise restore the user's
-                    // reading position after the first page load so any remaining page
-                    // loads keep it in focus.
-                    viewModel.initialRefreshStatusId.combine(adapter.onPagesUpdatedFlow.conflate()) { statusId, _ -> statusId }
-                        .filter { adapter.snapshot().isNotEmpty() }
-                        .take(1)
-                        .collect { statusId ->
-                            // User's reading position is either not restored, or it is and it was
-                            // explicitly nulled. Jump to the top of the timeline when all
-                            // prepends have finished.
-                            if (statusId == null) {
-                                adapter.postPrepend {
-                                    binding.recyclerView.post {
-                                        getView() ?: return@post
-                                        binding.recyclerView.scrollToPosition(0)
-                                    }
-                                }
-                                return@collect
-                            }
+                    if (timeline.remoteKeyTimelineId == null) {
+                        // Reading position is not restored. Jump to the top of the list
+                        // when prepending completes.
+                        adapter.postPrepend {
+                            Timber.d("timeline: $timeline, scrolling to 0 because null remoteKeyTimelineId")
+                            binding.recyclerView.scrollToPosition(0)
+                        }
+                    } else {
+                        // Reading position is restored. Can't use loadStateFlow here as it
+                        // generally updates too late -- by the time the refresh is emitted
+                        // the prepend might have started and the UI is already updated. This
+                        // results in jerky scrolling around the list as the position is
+                        // restored.
+                        //
+                        // However, onPagesUpdateFlow appears to update sooner, so the position
+                        // of the list can be set before it is first displayed, and the UI
+                        // updates smoothly.
+                        viewModel.initialRefreshStatusId.combine(adapter.onPagesUpdatedFlow) { statusId, _ -> Pair(statusId, adapter.snapshot()) }
+                            // Logging shows that some initial updated pages may be empty or may not
+                            // contain the ID we expect (no idea how that can happen). Filter those
+                            // out.
+                            .onEach { (statusId, _) -> Timber.d("timeline: $timeline, Checking contains $statusId") }
+                            .map { (statusId, snapshot) -> Triple(statusId, snapshot, snapshot.indexOfFirst { it?.statusId == statusId }) }
+                            .filter { (_, _, index) -> index != -1 }
+                            // Only going to restore the position manually once over the lifetime of this
+                            // fragment. Other position restoration is handled by the RecyclerView.
+                            .take(1)
+                            .collect { (statusId, snapshot, index) ->
+                                Timber.d("timeline: $timeline, snapshot.size: ${snapshot.size}")
+                                Timber.d("timeline: $timeline, snapshot.items.size: ${snapshot.items.size}")
+                                Timber.d("timeline: $timeline, snapshot.items.first id: ${snapshot.items.firstOrNull()?.statusId}")
+                                Timber.d("timeline: $timeline, snapshot.items.last  id: ${snapshot.items.lastOrNull()?.statusId}")
+                                Timber.d("timeline: $timeline, placeholdersBefore: ${snapshot.placeholdersBefore}")
 
-                            // Restore the user's reading position now.
-                            val snapshot = adapter.snapshot()
-                            val index = snapshot.items.indexOfFirst { it.id == statusId }
-                            val position = snapshot.placeholdersBefore + index
-                            Timber.d("Restoring last position, statusId: $statusId, index: $index, position: $position")
-                            binding.recyclerView.post {
-                                getView() ?: return@post
+                                // If the recyclerview is using a ConcatAdapter to display a progress spinner while
+                                // loads are happening, and a load is happening, then we need to offset the found
+                                // position by 1 to account for it, otherwise the position is restored one item
+                                // too early.
+                                val offset = if (((binding.recyclerView.adapter as? ConcatAdapter)?.adapters?.firstOrNull() as? LoadStateAdapter)?.loadState is LoadState.NotLoading) {
+                                    0
+                                } else {
+                                    1
+                                }
+                                Timber.d("timeline: $timeline, offset: $offset")
+
+                                val position = index + offset
+                                Timber.d("timeline: $timeline, flow: Restoring last position, statusId: $statusId, index: $index, position: $position")
+                                Timber.d("timeline: $timeline, scrolling to $position because restoring position")
                                 binding.recyclerView.scrollToPosition(position)
                             }
-                        }
+                    }
                 }
+            }
+        }
 
-                launch { viewModel.statuses.collectLatest { adapter.submitData(it) } }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.statuses.collect {
+                        adapter.submitData(it)
+                    }
+                }
 
                 launch { viewModel.uiResult.collect(::bindUiResult) }
 
@@ -291,7 +325,9 @@ class TimelineFragment :
                     }
                 }
 
-                adapter.loadStateFlow.distinctUntilChangedBy { it.refresh }.collect(::bindLoadState)
+                // Can't `distinctUntilChangedBy { it.refresh }` here because of
+                // https://issuetracker.google.com/issues/460960009.
+                adapter.loadStateFlow.collect(::bindLoadState)
             }
         }
     }
@@ -333,7 +369,7 @@ class TimelineFragment :
                 if (action !is FallibleStatusAction) return@let
 
                 adapter.snapshot()
-                    .indexOfFirst { it?.id == action.statusViewData.id }
+                    .indexOfFirst { it?.statusId == action.statusViewData.statusId }
                     .takeIf { it != RecyclerView.NO_POSITION }
                     ?.let { adapter.notifyItemChanged(it) }
             }
@@ -354,6 +390,7 @@ class TimelineFragment :
                         adapter.postPrepend {
                             binding.recyclerView.post {
                                 view ?: return@post
+                                Timber.d("timeline: $timeline, scrolling to 0 because LoadNewest completed")
                                 binding.recyclerView.scrollToPosition(0)
                             }
                         }
@@ -373,15 +410,32 @@ class TimelineFragment :
      * to show/hide Error, Loading, and NotLoading states.
      */
     private fun bindLoadState(loadState: CombinedLoadStates) {
+        Timber.d("bindLoadState: $loadState")
+
+        // CombinedLoadStates doesn't handle the case when the mediator load completes
+        // successfully but the source load fails. See
+        // https://issuetracker.google.com/issues/460960009 for details.
+        //
+        // So if either the source or mediator had an error loading data show it
+        // to the user.
+        //
+        // TODO: If loadState.mediator.refresh is the error then maybe this should
+        // be a warning the user can dismiss, as the cached data is still usable
+        // and it would allow them access to the timeline.
+        (loadState.mediator?.refresh as? LoadState.Error ?: loadState.source.refresh as? LoadState.Error)?.let { error ->
+            binding.progressIndicator.hide()
+            binding.statusView.setup(error.error) {
+                adapter.retry()
+            }
+            binding.recyclerView.hide()
+            binding.statusView.show()
+            binding.swipeRefreshLayout.isRefreshing = false
+            return
+        }
+
         when (loadState.refresh) {
             is LoadState.Error -> {
-                binding.progressIndicator.hide()
-                binding.statusView.setup((loadState.refresh as LoadState.Error).error) {
-                    adapter.retry()
-                }
-                binding.recyclerView.hide()
-                binding.statusView.show()
-                binding.swipeRefreshLayout.isRefreshing = false
+                /* Handled earlier. */
             }
 
             LoadState.Loading -> {
@@ -396,9 +450,10 @@ class TimelineFragment :
                     binding.progressIndicator.hide()
                     binding.swipeRefreshLayout.isRefreshing = false
                     if (adapter.itemCount == 0) {
-                        binding.statusView.setup(BackgroundMessage.Empty())
                         if (timeline == Timeline.Home) {
                             binding.statusView.showHelp(R.string.help_empty_home)
+                        } else {
+                            binding.statusView.setup(Empty())
                         }
                         binding.recyclerView.hide()
                         binding.statusView.show()
@@ -445,6 +500,18 @@ class TimelineFragment :
         }
     }
 
+    /**
+     * Returns the top-most status on the screen that starts on the screen.
+     *
+     * If one or more statuses are fully visible then this is the first fully
+     * visible status.
+     *
+     * Otherwise the screen is showing two statuses where the first status
+     * starts off the top of the screen and the second status runs off the
+     * bottom of the screen. In this case return the the second status.
+     *
+     * May return null if no statuses are showing.
+     */
     private fun getFirstVisibleStatus() = (
         layoutManager.findFirstCompletelyVisibleItemPosition()
             .takeIf { it != RecyclerView.NO_POSITION }
@@ -455,20 +522,13 @@ class TimelineFragment :
     /**
      * Saves the ID of the first visible status as the reading position.
      *
-     * If null then the ID of the best status is used.
+     * Does nothing if [timeline.remoteKeyTimelineId][Timeline.remoteKeyTimelineId] is null.
      *
-     * The best status is the first completely visible status, if available. We assume the user
-     * has read this far, or will recognise it on return.
-     *
-     * However, there may not be a completely visible status. E.g., the user is viewing one
-     * status that is longer the the height of the screen, or the user is at the midpoint of
-     * two statuses that are each longer than half the height of the screen.
-     *
-     * In this case the best status is the last partially visible status, as we can assume the
-     * user has read this far.
+     * @see [getFirstVisibleStatus]
      */
     fun saveVisibleId() {
-        val id = getFirstVisibleStatus()?.id
+        if (timeline.remoteKeyTimelineId == null) return
+        val id = getFirstVisibleStatus()?.statusId
         if (BuildConfig.DEBUG && id == null) {
             Toast.makeText(requireActivity(), "Could not find ID of item to save", LENGTH_LONG).show()
         }
@@ -484,6 +544,7 @@ class TimelineFragment :
     }
 
     private fun setupRecyclerView() {
+        binding.recyclerView.applyDefaultWindowInsets()
         binding.recyclerView.setAccessibilityDelegateCompat(
             ListStatusAccessibilityDelegate(pachliAccountId, binding.recyclerView, this, openUrl) { pos ->
                 if (pos in 0 until adapter.itemCount) {
@@ -534,9 +595,10 @@ class TimelineFragment :
             adapter.postPrepend {
                 binding.recyclerView.post {
                     view ?: return@post
+                    Timber.d("scrolling up by -30dp because peeking after refresh")
                     binding.recyclerView.smoothScrollBy(
                         0,
-                        Utils.dpToPx(requireContext(), -30),
+                        dpToPx(-30f, requireContext().resources.displayMetrics).toInt(),
                     )
                 }
             }
@@ -546,27 +608,31 @@ class TimelineFragment :
         adapter.refresh()
     }
 
-    override fun onReply(viewData: StatusViewData) {
+    override fun onReply(viewData: IStatusViewData) {
         super.reply(viewData.pachliAccountId, viewData.actionable)
     }
 
-    override fun onReblog(viewData: StatusViewData, reblog: Boolean) {
+    override fun onReblog(viewData: IStatusViewData, reblog: Boolean) {
         viewModel.accept(FallibleStatusAction.Reblog(reblog, viewData))
     }
 
-    override fun onFavourite(viewData: StatusViewData, favourite: Boolean) {
+    override fun onQuote(viewData: IStatusViewData) {
+        super.quote(viewData.pachliAccountId, viewData.actionable)
+    }
+
+    override fun onFavourite(viewData: IStatusViewData, favourite: Boolean) {
         viewModel.accept(FallibleStatusAction.Favourite(favourite, viewData))
     }
 
-    override fun onBookmark(viewData: StatusViewData, bookmark: Boolean) {
+    override fun onBookmark(viewData: IStatusViewData, bookmark: Boolean) {
         viewModel.accept(FallibleStatusAction.Bookmark(bookmark, viewData))
     }
 
-    override fun onVoteInPoll(viewData: StatusViewData, poll: Poll, choices: List<Int>) {
+    override fun onVoteInPoll(viewData: IStatusViewData, poll: Poll, choices: List<Int>) {
         viewModel.accept(FallibleStatusAction.VoteInPoll(poll, choices, viewData))
     }
 
-    override fun clearContentFilter(viewData: StatusViewData) {
+    override fun clearContentFilter(viewData: IStatusViewData) {
         viewModel.clearWarning(viewData)
     }
 
@@ -577,20 +643,16 @@ class TimelineFragment :
         )
     }
 
-    override fun onMore(view: View, viewData: StatusViewData) {
-        super.more(view, viewData)
-    }
-
-    override fun onOpenReblog(status: Status) {
+    override fun onOpenReblog(status: IStatus) {
         super.openReblog(status)
     }
 
-    override fun onExpandedChange(viewData: StatusViewData, expanded: Boolean) {
+    override fun onExpandedChange(viewData: IStatusViewData, expanded: Boolean) {
         viewModel.onChangeExpanded(expanded, viewData)
     }
 
-    override fun onContentHiddenChange(viewData: StatusViewData, isShowingContent: Boolean) {
-        viewModel.onChangeContentShowing(isShowingContent, viewData)
+    override fun onAttachmentDisplayActionChange(viewData: IStatusViewData, newAction: AttachmentDisplayAction) {
+        viewModel.onChangeAttachmentDisplayAction(viewData, newAction)
     }
 
     override fun onShowReblogs(statusId: String) {
@@ -603,21 +665,24 @@ class TimelineFragment :
         startActivityWithDefaultTransition(intent)
     }
 
-    override fun onContentCollapsedChange(viewData: StatusViewData, isCollapsed: Boolean) {
+    override fun onShowQuotes(statusId: String) {
+        val intent = TimelineActivityIntent.quote(requireContext(), pachliAccountId, statusId)
+        startActivityWithDefaultTransition(intent)
+    }
+
+    override fun onContentCollapsedChange(viewData: IStatusViewData, isCollapsed: Boolean) {
         viewModel.onContentCollapsed(isCollapsed, viewData)
     }
 
-    override fun canTranslate() = true
-
-    override fun onTranslate(statusViewData: StatusViewData) {
-        viewModel.accept(FallibleStatusAction.Translate(statusViewData))
+    override fun onTranslate(viewData: IStatusViewData) {
+        viewModel.accept(FallibleStatusAction.Translate(viewData))
     }
 
-    override fun onTranslateUndo(statusViewData: StatusViewData) {
-        viewModel.accept(InfallibleStatusAction.TranslateUndo(statusViewData))
+    override fun onTranslateUndo(viewData: IStatusViewData) {
+        viewModel.accept(InfallibleStatusAction.TranslateUndo(viewData))
     }
 
-    override fun onViewMedia(viewData: StatusViewData, attachmentIndex: Int, view: View?) {
+    override fun onViewAttachment(view: View?, viewData: IStatusViewData, attachmentIndex: Int) {
         // Pass the translated media descriptions through (if appropriate)
         val actionable = if (viewData.translationState == TranslationState.SHOW_TRANSLATION) {
             viewData.actionable.copy(
@@ -633,7 +698,7 @@ class TimelineFragment :
     }
 
     override fun onViewThread(status: Status) {
-        super.viewThread(status.id, status.url)
+        super.viewThread(status.actionableId, status.actionableStatus.url)
     }
 
     override fun onViewTag(tag: String) {
@@ -680,12 +745,13 @@ class TimelineFragment :
             Timeline.TrendingHashtags,
             Timeline.TrendingLinks,
             is Timeline.Link,
+            is Timeline.Quote,
             -> return
         }
     }
 
-    public override fun removeItem(viewData: StatusViewData) {
-        viewModel.removeStatusWithId(viewData.id)
+    public override fun removeItem(viewData: IStatusViewData) {
+        viewModel.removeStatusWithId(viewData.statusId)
     }
 
     private var talkBackWasEnabled = false
@@ -701,8 +767,6 @@ class TimelineFragment :
         if (talkBackWasEnabled && !wasEnabled) {
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
         }
-
-        (requireActivity() as? AppBarLayoutHost)?.appBarLayout?.setLiftOnScrollTargetView(binding.recyclerView)
     }
 
     override fun onPause() {
@@ -716,6 +780,7 @@ class TimelineFragment :
         if (isAdded) {
             when (viewModel.uiState.value.tabTapBehaviour) {
                 TabTapBehaviour.JUMP_TO_NEXT_PAGE -> {
+                    Timber.d("timeline: $timeline, scroll to 0 because onReselect")
                     binding.recyclerView.scrollToPosition(0)
                     binding.recyclerView.stopScroll()
                     saveVisibleId()

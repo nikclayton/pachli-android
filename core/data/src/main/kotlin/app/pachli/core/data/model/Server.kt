@@ -40,6 +40,8 @@ import app.pachli.core.model.ServerKind.PLEROMA
 import app.pachli.core.model.ServerKind.SHARKEY
 import app.pachli.core.model.ServerKind.UNKNOWN
 import app.pachli.core.model.ServerOperation
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_ACCOUNT_QUOTE_POLICY
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_FILTERS_ACTION_BLUR
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_FILTERS_CLIENT
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_FILTERS_SERVER
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE
@@ -57,6 +59,7 @@ import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_RE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_SENSITIVE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_LANGUAGE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_GET
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_QUOTE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_SCHEDULED
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_TIMELINES_LINK
@@ -76,7 +79,6 @@ import io.github.z4kn4fein.semver.constraints.Constraint
 import io.github.z4kn4fein.semver.satisfies
 import io.github.z4kn4fein.semver.toVersion
 import java.text.ParseException
-import kotlin.collections.set
 
 data class Server(
     val kind: ServerKind,
@@ -87,10 +89,9 @@ data class Server(
      * @return true if the server supports the given operation at the given minimum version
      * level, false otherwise.
      */
-    fun can(operation: ServerOperation, constraint: Constraint) =
-        capabilities[operation]?.let { version ->
-            version satisfies constraint
-        } ?: false
+    fun can(operation: ServerOperation, constraint: Constraint) = capabilities[operation]?.let { version ->
+        version satisfies constraint
+    } ?: false
 
     companion object {
         /**
@@ -345,6 +346,19 @@ data class Server(
                     when {
                         v >= "4.3.0".toVersion() -> c[ORG_JOINMASTODON_STATUSES_GET] = "1.0.0".toVersion()
                     }
+
+                    // Blur filters.
+                    when {
+                        v >= "4.4.0".toVersion() -> c[ORG_JOINMASTODON_FILTERS_ACTION_BLUR] = "1.0.0".toVersion()
+                    }
+
+                    // Quotes
+                    when {
+                        v >= "4.5.0".toVersion() -> {
+                            c[ORG_JOINMASTODON_ACCOUNT_QUOTE_POLICY] = "1.0.0".toVersion()
+                            c[ORG_JOINMASTODON_STATUSES_QUOTE] = "1.0.0".toVersion()
+                        }
+                    }
                 }
 
                 GOTOSOCIAL -> {
@@ -366,6 +380,20 @@ data class Server(
                         // from: in https://github.com/superseriousbusiness/gotosocial/pull/2943
                         v >= "0.16.0".toVersion() -> {
                             c[ORG_JOINMASTODON_SEARCH_QUERY_FROM] = "1.0.0".toVersion()
+                        }
+                    }
+
+                    // Blur filters
+                    when {
+                        v >= "0.20.0".toVersion() -> {
+                            c[ORG_JOINMASTODON_FILTERS_ACTION_BLUR] = "1.0.0".toVersion()
+                        }
+                    }
+
+                    // Scheduled statuses
+                    when {
+                        v >= "0.20.0".toVersion() -> {
+                            c[ORG_JOINMASTODON_STATUSES_SCHEDULED] = "1.0.0".toVersion()
                         }
                     }
                 }

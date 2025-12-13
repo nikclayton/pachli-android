@@ -17,7 +17,10 @@
 
 package app.pachli.core.network.model
 
+import app.pachli.core.network.json.Default
 import app.pachli.core.network.json.DefaultIfNull
+import app.pachli.core.network.json.HasDefault
+import app.pachli.core.network.model.AccountSource.QuotePolicy
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.Instant
@@ -59,7 +62,7 @@ data class CredentialAccount(
     @Json(name = "followers_count") val followersCount: Int = 0,
     @Json(name = "following_count") val followingCount: Int = 0,
     @Json(name = "statuses_count") val statusesCount: Int = 0,
-    val role: Role? = null,
+    val role: CredentialedRole? = null,
     val roles: List<Role>? = emptyList(),
 ) {
     val name: String
@@ -110,7 +113,35 @@ data class AccountSource(
     val language: String? = null,
     @DefaultIfNull
     @Json(name = "attribution_domains") val attributionDomains: List<String> = emptyList(),
+    @Json(name = "quote_policy")
+    val quotePolicy: QuotePolicy? = QuotePolicy.NOBODY,
 ) {
+    @HasDefault
+    enum class QuotePolicy {
+        @Json(name = "public")
+        PUBLIC,
+
+        @Json(name = "followers")
+        FOLLOWERS,
+
+        @Json(name = "nobody")
+        @Default
+        NOBODY,
+
+        ;
+
+        fun asModel() = when (this) {
+            PUBLIC -> app.pachli.core.model.AccountSource.QuotePolicy.PUBLIC
+            FOLLOWERS -> app.pachli.core.model.AccountSource.QuotePolicy.FOLLOWERS
+            NOBODY -> app.pachli.core.model.AccountSource.QuotePolicy.NOBODY
+        }
+
+        fun asFormValue() = when (this) {
+            PUBLIC -> "public"
+            FOLLOWERS -> "followers"
+            NOBODY -> "nobody"
+        }
+    }
 
     fun asModel() = app.pachli.core.model.AccountSource(
         privacy = privacy?.asModel(),
@@ -119,5 +150,28 @@ data class AccountSource(
         fields = fields.asModel(),
         language = language,
         attributionDomains = attributionDomains,
+        quotePolicy = quotePolicy?.asModel() ?: QuotePolicy.NOBODY.asModel(),
+    )
+}
+
+fun app.pachli.core.model.AccountSource.QuotePolicy.asNetworkModel() = when (this) {
+    app.pachli.core.model.AccountSource.QuotePolicy.PUBLIC -> QuotePolicy.PUBLIC
+    app.pachli.core.model.AccountSource.QuotePolicy.FOLLOWERS -> QuotePolicy.FOLLOWERS
+    app.pachli.core.model.AccountSource.QuotePolicy.NOBODY -> QuotePolicy.NOBODY
+}
+
+@JsonClass(generateAdapter = true)
+data class CredentialedRole(
+    val id: String,
+    val name: String,
+    val color: String,
+    val permissions: String,
+    val highlighted: Boolean,
+) {
+    fun asModel() = app.pachli.core.model.CredentialedRole(
+        name = name,
+        color = color,
+        permissions = permissions,
+        highlighted = highlighted,
     )
 }

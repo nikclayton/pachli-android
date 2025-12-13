@@ -17,6 +17,8 @@
 package app.pachli.components.accountlist
 
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.ViewGroupCompat
 import androidx.fragment.app.commit
 import app.pachli.R
 import app.pachli.core.activity.ViewUrlActivity
@@ -30,23 +32,26 @@ import app.pachli.core.navigation.AccountListActivityIntent.Kind.FOLLOW_REQUESTS
 import app.pachli.core.navigation.AccountListActivityIntent.Kind.MUTES
 import app.pachli.core.navigation.AccountListActivityIntent.Kind.REBLOGGED
 import app.pachli.core.navigation.pachliAccountId
+import app.pachli.core.ui.appbar.FadeChildScrollEffect
+import app.pachli.core.ui.extensions.addScrollEffect
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.ActivityAccountListBinding
-import app.pachli.interfaces.AppBarLayoutHost
-import com.google.android.material.appbar.AppBarLayout
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Show a list of accounts of a particular kind.
  */
 @AndroidEntryPoint
-class AccountListActivity : ViewUrlActivity(), AppBarLayoutHost {
-    private val binding: ActivityAccountListBinding by viewBinding(ActivityAccountListBinding::inflate)
-
-    override val appBarLayout: AppBarLayout
-        get() = binding.includedToolbar.appbar
+class AccountListActivity : ViewUrlActivity() {
+    private val binding by viewBinding(ActivityAccountListBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ViewGroupCompat.installCompatInsetsDispatch(binding.root)
+        binding.includedToolbar.appbar.applyDefaultWindowInsets()
+        binding.includedToolbar.toolbar.addScrollEffect(FadeChildScrollEffect)
+
         setContentView(binding.root)
 
         val kind = AccountListActivityIntent.getKind(intent)

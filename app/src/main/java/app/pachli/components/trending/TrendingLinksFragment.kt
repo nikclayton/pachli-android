@@ -18,6 +18,7 @@
 package app.pachli.components.trending
 
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -32,6 +33,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import app.pachli.R
@@ -53,10 +55,10 @@ import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.ui.ActionButtonScrollListener
 import app.pachli.core.ui.BackgroundMessage
+import app.pachli.core.ui.PreviewCardView.Target
+import app.pachli.core.ui.extensions.applyDefaultWindowInsets
 import app.pachli.databinding.FragmentTrendingLinksBinding
 import app.pachli.interfaces.ActionButtonActivity
-import app.pachli.interfaces.AppBarLayoutHost
-import app.pachli.view.PreviewCardView.Target
 import com.bumptech.glide.Glide
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
@@ -228,11 +230,18 @@ class TrendingLinksFragment :
 
     private fun setupRecyclerView() {
         with(binding.recyclerView) {
+            applyDefaultWindowInsets()
             layoutManager = getLayoutManager(requireContext().resources.getInteger(DR.integer.trending_column_count))
             setHasFixedSize(true)
             (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
             adapter = trendingLinksAdapter
             setAccessibilityDelegateCompat(TrendingLinksAccessibilityDelegate(this, ::onOpenLink))
+
+            addItemDecoration(
+                MarginTopItemDecoration(
+                    resources.getDimensionPixelSize(DR.dimen.trendingLinks_top_margin),
+                ),
+            )
         }
     }
 
@@ -308,8 +317,6 @@ class TrendingLinksFragment :
         if (talkBackWasEnabled && !wasEnabled) {
             trendingLinksAdapter.notifyItemRangeChanged(0, trendingLinksAdapter.itemCount)
         }
-
-        (requireActivity() as? AppBarLayoutHost)?.appBarLayout?.setLiftOnScrollTargetView(binding.recyclerView)
     }
 
     companion object {
@@ -322,5 +329,12 @@ class TrendingLinksFragment :
             }
             return fragment
         }
+    }
+}
+
+/** [RecyclerView.ItemDecoration] that ensures a space of [marginTop] between items. */
+class MarginTopItemDecoration(private val marginTop: Int) : RecyclerView.ItemDecoration() {
+    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+        outRect.top = marginTop
     }
 }

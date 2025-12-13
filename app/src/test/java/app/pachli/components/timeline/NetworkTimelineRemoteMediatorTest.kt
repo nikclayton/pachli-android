@@ -24,83 +24,150 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
-import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import app.pachli.components.timeline.viewmodel.NetworkTimelineRemoteMediator
 import app.pachli.components.timeline.viewmodel.Page
 import app.pachli.components.timeline.viewmodel.PageCache
-import app.pachli.core.database.AppDatabase
-import app.pachli.core.database.Converters
+import app.pachli.components.timeline.viewmodel.asTimelineStatusWithQuote
+import app.pachli.core.common.PachliThrowable
+import app.pachli.core.data.repository.AccountManager
+import app.pachli.core.data.repository.OfflineFirstStatusRepository
+import app.pachli.core.database.dao.RemoteKeyDao
 import app.pachli.core.database.model.AccountEntity
-import app.pachli.core.model.Status
+import app.pachli.core.database.model.TimelineStatusWithQuote
 import app.pachli.core.model.Timeline
-import app.pachli.core.model.VersionAdapter
-import app.pachli.core.network.json.BooleanIfNull
-import app.pachli.core.network.json.DefaultIfNull
-import app.pachli.core.network.json.Guarded
-import app.pachli.core.network.json.InstantJsonAdapter
-import app.pachli.core.network.json.LenientRfc3339DateJsonAdapter
-import app.pachli.core.network.json.UriAdapter
+import app.pachli.core.network.di.test.DEFAULT_INSTANCE_V2
+import app.pachli.core.network.model.AccountSource
+import app.pachli.core.network.model.CredentialAccount
 import app.pachli.core.network.model.asModel
+import app.pachli.core.network.model.nodeinfo.UnvalidatedJrd
+import app.pachli.core.network.model.nodeinfo.UnvalidatedNodeInfo
+import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.network.retrofit.NodeInfoApi
+import app.pachli.core.network.retrofit.apiresult.ApiError
+import app.pachli.core.network.retrofit.apiresult.ServerError
 import app.pachli.core.testing.failure
 import app.pachli.core.testing.fakes.fakeStatus
+import app.pachli.core.testing.rules.MainCoroutineRule
 import app.pachli.core.testing.success
+import com.github.michaelbull.result.andThen
+import com.github.michaelbull.result.onSuccess
 import com.google.common.truth.Truth.assertThat
-import com.squareup.moshi.Moshi
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import java.time.Instant
-import java.util.Date
+import javax.inject.Inject
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.runTest
-import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.stub
 import org.mockito.kotlin.verify
 import org.robolectric.annotation.Config
 import retrofit2.HttpException
 
-@Config(sdk = [29])
+@HiltAndroidTest
+@Config(application = HiltTestApplication_Application::class)
 @RunWith(AndroidJUnit4::class)
 class NetworkTimelineRemoteMediatorTest {
-    private val activeAccount = AccountEntity(
-        id = 1,
-        domain = "mastodon.example",
-        accessToken = "token",
-        clientId = "id",
-        clientSecret = "secret",
-        isActive = true,
+    @get:Rule(order = 0)
+    var hilt = HiltAndroidRule(this)
+
+    @get:Rule(order = 1)
+    val mainCoroutineRule = MainCoroutineRule()
+
+    @Inject
+    lateinit var accountManager: AccountManager
+
+    @Inject
+    lateinit var mastodonApi: MastodonApi
+
+    @Inject
+    lateinit var nodeInfoApi: NodeInfoApi
+
+    @Inject
+    lateinit var remoteKeyDao: RemoteKeyDao
+
+    @Inject
+    lateinit var statusRepository: OfflineFirstStatusRepository
+
+    val account = CredentialAccount(
+        id = "1",
+        localUsername = "username",
+        username = "username@mastodon.example",
+        displayName = "Display Name",
+        createdAt = Instant.now(),
+        note = "",
+        url = "",
+        avatar = "",
+        header = "",
+        source = AccountSource(),
     )
 
-    private lateinit var pagingSourceFactory: InvalidatingPagingSourceFactory<String, Status>
+    private lateinit var activeAccount: AccountEntity
 
-    private lateinit var db: AppDatabase
+    private lateinit var pagingSourceFactory: InvalidatingPagingSourceFactory<String, TimelineStatusWithQuote>
 
-    private val moshi: Moshi = Moshi.Builder()
-        .add(Date::class.java, LenientRfc3339DateJsonAdapter())
-        .add(Instant::class.java, InstantJsonAdapter())
-        .add(UriAdapter())
-        .add(VersionAdapter())
-        .add(Guarded.Factory())
-        .add(DefaultIfNull.Factory())
-        .add(BooleanIfNull.Factory())
-        .build()
+    private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
     @Before
-    fun setup() {
+    fun setup() = runTest {
+        hilt.inject()
+
+        reset(mastodonApi)
+        mastodonApi.stub {
+            onBlocking { accountVerifyCredentials(anyOrNull(), anyOrNull()) } doReturn success(account)
+            onBlocking { getInstanceV2() } doReturn success(DEFAULT_INSTANCE_V2)
+            onBlocking { getLists() } doReturn success(emptyList())
+            onBlocking { getCustomEmojis() } doReturn failure()
+            onBlocking { getContentFilters() } doReturn success(emptyList())
+            onBlocking { listAnnouncements(any()) } doReturn success(emptyList())
+            onBlocking { getContentFiltersV1() } doReturn success(emptyList())
+            onBlocking { accountFollowing(any(), anyOrNull(), any()) } doReturn success(emptyList())
+        }
+
+        reset(nodeInfoApi)
+        nodeInfoApi.stub {
+            onBlocking { nodeInfoJrd() } doReturn success(
+                UnvalidatedJrd(
+                    listOf(
+                        UnvalidatedJrd.Link(
+                            "http://nodeinfo.diaspora.software/ns/schema/2.1",
+                            "https://example.com",
+                        ),
+                    ),
+                ),
+            )
+            onBlocking { nodeInfo(any()) } doReturn success(
+                UnvalidatedNodeInfo(UnvalidatedNodeInfo.Software("mastodon", "4.2.0")),
+            )
+        }
+
+        accountManager.verifyAndAddAccount(
+            accessToken = "token",
+            domain = "domain.example",
+            clientId = "id",
+            clientSecret = "secret",
+            oauthScopes = "scopes",
+        )
+            .andThen {
+                accountManager.setActiveAccount(it).onSuccess {
+                    accountManager.refresh(it)
+                    activeAccount = it
+                }
+            }
+
         pagingSourceFactory = mock()
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-
-        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
-            .addTypeConverter(Converters(moshi))
-            .build()
-    }
-
-    @After
-    fun teardown() {
-        db.close()
     }
 
     @Test
@@ -108,12 +175,13 @@ class NetworkTimelineRemoteMediatorTest {
     fun `should return error when network call returns error code`() = runTest {
         // Given
         val remoteMediator = NetworkTimelineRemoteMediator(
+            context = context,
             api = mock(defaultAnswer = { failure<Unit>(code = 500) }),
             pachliAccountId = activeAccount.id,
             factory = pagingSourceFactory,
             pageCache = PageCache(),
             timeline = Timeline.Home,
-            remoteKeyDao = db.remoteKeyDao(),
+            remoteKeyDao = remoteKeyDao,
         )
 
         // When
@@ -121,8 +189,12 @@ class NetworkTimelineRemoteMediatorTest {
 
         // Then
         assertThat(result).isInstanceOf(RemoteMediator.MediatorResult.Error::class.java)
-        assertThat((result as RemoteMediator.MediatorResult.Error).throwable).isInstanceOf(HttpException::class.java)
-        assertThat((result.throwable as HttpException).code()).isEqualTo(500)
+        assertThat((result as RemoteMediator.MediatorResult.Error).throwable).isInstanceOf(PachliThrowable::class.java)
+
+        val pachliError = (result.throwable as PachliThrowable).pachliError as ApiError
+        assertTrue(pachliError is ServerError.Internal)
+
+        assertEquals(500, (pachliError.throwable as HttpException).code())
     }
 
     @Test
@@ -131,7 +203,8 @@ class NetworkTimelineRemoteMediatorTest {
         // Given
         val pages = PageCache()
         val remoteMediator = NetworkTimelineRemoteMediator(
-            api = mock {
+            context = context,
+            mastodonApi.stub {
                 onBlocking { homeTimeline(maxId = anyOrNull(), minId = anyOrNull(), limit = anyOrNull(), sinceId = anyOrNull()) } doReturn success(
                     listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")),
                     headers = arrayOf(
@@ -144,7 +217,7 @@ class NetworkTimelineRemoteMediatorTest {
             factory = pagingSourceFactory,
             pageCache = pages,
             timeline = Timeline.Home,
-            remoteKeyDao = db.remoteKeyDao(),
+            remoteKeyDao = remoteKeyDao,
         )
 
         val state = state(
@@ -162,14 +235,15 @@ class NetworkTimelineRemoteMediatorTest {
 
         // Then
         val expectedPages = PageCache().apply {
-            add(
-                Page(
-                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
-                    prevKey = "7",
-                    nextKey = "5",
-                ),
-                LoadType.REFRESH,
-            )
+            withLock {
+                add(
+                    Page(
+                        data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
+                        prevKey = "7",
+                        nextKey = "5",
+                    ),
+                )
+            }
         }
 
         assertThat(result).isInstanceOf(RemoteMediator.MediatorResult.Success::class.java)
@@ -185,18 +259,20 @@ class NetworkTimelineRemoteMediatorTest {
     fun `should prepend statuses`() = runTest {
         // Given
         val pages = PageCache().apply {
-            add(
-                Page(
-                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
-                    prevKey = "7",
-                    nextKey = "5",
-                ),
-                LoadType.REFRESH,
-            )
+            withLock {
+                add(
+                    Page(
+                        data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
+                        prevKey = "7",
+                        nextKey = "5",
+                    ),
+                )
+            }
         }
 
         val remoteMediator = NetworkTimelineRemoteMediator(
-            api = mock {
+            context = context,
+            mastodonApi.stub {
                 onBlocking { homeTimeline(maxId = anyOrNull(), minId = anyOrNull(), limit = anyOrNull(), sinceId = anyOrNull()) } doReturn success(
                     listOf(fakeStatus("10"), fakeStatus("9"), fakeStatus("8")),
                     headers = arrayOf(
@@ -209,13 +285,14 @@ class NetworkTimelineRemoteMediatorTest {
             factory = pagingSourceFactory,
             pageCache = pages,
             timeline = Timeline.Home,
-            remoteKeyDao = db.remoteKeyDao(),
+            remoteKeyDao = remoteKeyDao,
         )
 
         val state = state(
             listOf(
                 PagingSource.LoadResult.Page(
-                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel(),
+                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel()
+                        .asTimelineStatusWithQuote(activeAccount.id, statusRepository),
                     prevKey = "7",
                     nextKey = "5",
                 ),
@@ -227,22 +304,22 @@ class NetworkTimelineRemoteMediatorTest {
 
         // Then
         val expectedPages = PageCache().apply {
-            add(
-                Page(
-                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
-                    prevKey = "7",
-                    nextKey = "5",
-                ),
-                LoadType.REFRESH,
-            )
-            add(
-                Page(
-                    data = listOf(fakeStatus("10"), fakeStatus("9"), fakeStatus("8")).asModel().toMutableList(),
-                    prevKey = "10",
-                    nextKey = "8",
-                ),
-                LoadType.PREPEND,
-            )
+            withLock {
+                add(
+                    Page(
+                        data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
+                        prevKey = "7",
+                        nextKey = "5",
+                    ),
+                )
+                prepend(
+                    Page(
+                        data = listOf(fakeStatus("10"), fakeStatus("9"), fakeStatus("8")).asModel().toMutableList(),
+                        prevKey = "10",
+                        nextKey = "8",
+                    ),
+                )
+            }
         }
 
         assertThat(result).isInstanceOf(RemoteMediator.MediatorResult.Success::class.java)
@@ -258,18 +335,20 @@ class NetworkTimelineRemoteMediatorTest {
     fun `should append statuses`() = runTest {
         // Given
         val pages = PageCache().apply {
-            add(
-                Page(
-                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
-                    prevKey = "7",
-                    nextKey = "5",
-                ),
-                LoadType.REFRESH,
-            )
+            withLock {
+                add(
+                    Page(
+                        data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
+                        prevKey = "7",
+                        nextKey = "5",
+                    ),
+                )
+            }
         }
 
         val remoteMediator = NetworkTimelineRemoteMediator(
-            api = mock {
+            context = context,
+            mastodonApi.stub {
                 onBlocking { homeTimeline(maxId = anyOrNull(), minId = anyOrNull(), limit = anyOrNull(), sinceId = anyOrNull()) } doReturn success(
                     listOf(fakeStatus("4"), fakeStatus("3"), fakeStatus("2")),
                     headers = arrayOf(
@@ -282,13 +361,13 @@ class NetworkTimelineRemoteMediatorTest {
             factory = pagingSourceFactory,
             pageCache = pages,
             timeline = Timeline.Home,
-            remoteKeyDao = db.remoteKeyDao(),
+            remoteKeyDao = remoteKeyDao,
         )
 
         val state = state(
             listOf(
                 PagingSource.LoadResult.Page(
-                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
+                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().asTimelineStatusWithQuote(activeAccount.id, statusRepository).toMutableList(),
                     prevKey = "7",
                     nextKey = "5",
                 ),
@@ -300,22 +379,22 @@ class NetworkTimelineRemoteMediatorTest {
 
         // Then
         val expectedPages = PageCache().apply {
-            add(
-                Page(
-                    data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
-                    prevKey = "7",
-                    nextKey = "5",
-                ),
-                LoadType.REFRESH,
-            )
-            add(
-                Page(
-                    data = listOf(fakeStatus("4"), fakeStatus("3"), fakeStatus("2")).asModel().toMutableList(),
-                    prevKey = "4",
-                    nextKey = "2",
-                ),
-                LoadType.APPEND,
-            )
+            withLock {
+                add(
+                    Page(
+                        data = listOf(fakeStatus("7"), fakeStatus("6"), fakeStatus("5")).asModel().toMutableList(),
+                        prevKey = "7",
+                        nextKey = "5",
+                    ),
+                )
+                append(
+                    Page(
+                        data = listOf(fakeStatus("4"), fakeStatus("3"), fakeStatus("2")).asModel().toMutableList(),
+                        prevKey = "4",
+                        nextKey = "2",
+                    ),
+                )
+            }
         }
 
         assertThat(result).isInstanceOf(RemoteMediator.MediatorResult.Success::class.java)
@@ -329,7 +408,7 @@ class NetworkTimelineRemoteMediatorTest {
     companion object {
         private const val PAGE_SIZE = 20
 
-        private fun state(pages: List<PagingSource.LoadResult.Page<String, Status>> = emptyList()) = PagingState(
+        private fun state(pages: List<PagingSource.LoadResult.Page<String, TimelineStatusWithQuote>> = emptyList()) = PagingState(
             pages = pages,
             anchorPosition = null,
             config = PagingConfig(
