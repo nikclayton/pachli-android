@@ -25,6 +25,11 @@ import com.squareup.moshi.JsonClass
 import java.util.Date
 import timber.log.Timber
 
+/**
+ * @property reblog If this status is a reblog, [reblog] is the [Status]
+ * being reblogged.
+ * @property reblogged True if the current user reblogged this status.
+ */
 @JsonClass(generateAdapter = true)
 data class Status(
     val id: String,

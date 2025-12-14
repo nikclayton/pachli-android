@@ -64,6 +64,8 @@ interface IStatus {
 }
 
 /**
+ * @property reblog If this status is a reblog, [reblog] is the [Status]
+ * being reblogged.
  * @property reblogged True if the current user reblogged this status.
  */
 data class Status(

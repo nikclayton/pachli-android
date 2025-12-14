@@ -52,8 +52,9 @@ import java.util.Date
  * @property serverId Status ID (see [reblogServerId])
  * @property reblogServerId If this is a reblog, the ID of the status being reblogged (*not
  * the ID of the reblog status*, that is still [serverId]). Also referred to as the
- * *actionable* ID.
+ * *actionable* ID. Null if this is not a reblog.
  * @property reblogAccountId If this is a reblog, the ID of the account doing the reblogging.
+ * Null if this is not a reblog.
  * @property reblogged True if [timelineUserId] reblogged this status.
  * @property isReblog True if this status is a reblog of another status (see
  * [reblogServerId] and [reblogAccountId])
