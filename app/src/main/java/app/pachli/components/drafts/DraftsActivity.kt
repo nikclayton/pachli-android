@@ -101,6 +101,8 @@ class DraftsActivity : BaseActivity(), DraftActionListener {
 
         // If a failed post is saved to drafts while this activity is up, do nothing; the user is already in the drafts view.
         draftsAlert.observeInContext(this, false)
+
+        viewModel.accept(UiAction.Load(pachliAccountId))
     }
 
     override fun onOpenDraft(draft: Draft) {
@@ -191,7 +193,7 @@ class DraftsActivity : BaseActivity(), DraftActionListener {
     }
 
     override fun onDeleteDraft(draft: Draft) {
-        viewModel.deleteDraft(pachliAccountId, draft)
+        viewModel.accept(UiAction.DeleteDraft(pachliAccountId, draft))
         Snackbar.make(binding.root, getString(R.string.draft_deleted), Snackbar.LENGTH_LONG)
             .setAction(R.string.action_undo) {
                 viewModel.restoreDraft(pachliAccountId, draft)
