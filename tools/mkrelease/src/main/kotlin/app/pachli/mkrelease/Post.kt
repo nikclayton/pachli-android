@@ -67,6 +67,7 @@ val translatorDisplay = mapOf(
     "correoxm@disroot.org" to "", // ?
     "kachelkaiser@htpst.de" to "@Kachelkaiser@social.tchncs.de",
     "realzero@protonmail.com" to "@BryanGreyson@social.tchncs.de",
+    "terrylaire@gmail.com" to "@terrylaire@framapiaf.org"
 )
 
 /**
