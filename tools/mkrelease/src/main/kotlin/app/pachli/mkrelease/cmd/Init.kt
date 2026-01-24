@@ -33,6 +33,7 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.clikt.parameters.types.path
 import java.io.File
 import kotlinx.coroutines.runBlocking
 import org.kohsuke.github.GitHubBuilder
@@ -43,6 +44,8 @@ class Init : CliktCommand() {
     private val appRepoFork by option().convert { GitHubRepository.from(it) }.prompt("URL of your fork of the Pachli repo")
     private val fdroidRepoFork by option().convert { GitlabRepository.from(it) }.prompt("URL of your fork of the F-Droid repo")
     private val workRoot by option(completionCandidates = CompletionCandidates.Path).file().prompt()
+    private val websiteRoot by option(completionCandidates = CompletionCandidates.Path).path().prompt("Path to website root")
+    private val inkscape by option(completionCandidates = CompletionCandidates.Path).file().prompt("Full path to inkscape executable")
 
     override fun run() = runBlocking {
         terminal.info("creating $workRoot")
@@ -82,6 +85,8 @@ class Init : CliktCommand() {
             pachliForkRoot = pachliForkRoot,
             pachliMainRoot = File(workRoot, "pachliMain"),
             fdroidForkRoot = fdroidForkRoot,
+            websiteRoot = websiteRoot,
+            inkscape = inkscape
         )
 
         config.save(CONFIG_FILE)

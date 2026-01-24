@@ -37,11 +37,7 @@ import kotlin.io.path.readText
 import kotlinx.serialization.Serializable
 import org.eclipse.jgit.api.Git
 
-val WEBSITE_DIR = Path("/home/nik/projects/pachli-website/website")
-
 private val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
-
-private const val INKSCAPE = "inkscape"
 
 @Serializable
 sealed interface BlogStep {
@@ -84,18 +80,18 @@ class Blog : CliktCommand(name = "blog") {
  *
  * For example, ".../assets/posts/2024-07-xx-2.7.0-release/"
  */
-fun getAssetDir(spec: ReleaseSpec): Path {
+fun getAssetDir(config: Config, spec: ReleaseSpec): Path {
     val now = LocalDate.now()
     // 2024-06-xx-2.6.0-release
     val postDir = "${formatter.format(now)}-xx-${spec.prevVersion.versionName()}-release"
-    val assetsDir = WEBSITE_DIR / Path("assets/posts") / Path(postDir)
+    val assetsDir = config.websiteRoot / Path("assets/posts") / Path(postDir)
     return assetsDir
 }
 
 @Serializable
 data object EnsureAssetsDirectoryExists : BlogStep {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        val assetsDir = getAssetDir(spec)
+        val assetsDir = getAssetDir(config, spec)
 
         t.info(assetsDir)
 
@@ -114,13 +110,13 @@ data object CreateReleaseImage : BlogStep {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
         // Open image
         // Replace "2.6.0</tspan>" with new version number
-        val releaseImageTemplateFile = WEBSITE_DIR / Path("pachli_release_header.svg")
+        val releaseImageTemplateFile = config.websiteRoot / Path("pachli_release_header.svg")
         val newReleaseImage = releaseImageTemplateFile.readText().replace(
             "2.6.0</tspan>",
             "${spec.prevVersion.versionName()}</tspan>",
         )
 
-        val newReleaseImageSvgPath = (getAssetDir(spec) / Path("og_image.svg"))
+        val newReleaseImageSvgPath = (getAssetDir(config, spec) / Path("og_image.svg"))
         val newReleaseImagePngPath = newReleaseImageSvgPath.parent / "og_image.png"
         val newReleaseImageSvgFile = newReleaseImageSvgPath.toFile()
         newReleaseImageSvgFile.writeText(newReleaseImage)
@@ -130,7 +126,7 @@ data object CreateReleaseImage : BlogStep {
 
         // Launch inkscape to convert the image to PNG
         val result = ProcessBuilder(
-            INKSCAPE,
+            config.inkscape.toString(),
             newReleaseImageSvgFile.absolutePath,
             "-o",
             newReleaseImagePngPath.absolutePathString(),
@@ -213,7 +209,7 @@ fun getChangelog(t: Terminal, git: Git, spec: ReleaseSpec): MutableMap<Section, 
 
 data object CreateBlogPost : BlogStep {
     override fun run(t: Terminal, config: Config, spec: ReleaseSpec): ReleaseSpec? {
-        val postsPath = WEBSITE_DIR / Path("_posts")
+        val postsPath = config.websiteRoot / Path("_posts")
 
         val now = LocalDate.now()
         val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")

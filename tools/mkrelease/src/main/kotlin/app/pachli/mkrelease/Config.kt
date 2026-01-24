@@ -28,6 +28,12 @@ import kotlinx.serialization.json.decodeFromStream
 import org.kohsuke.github.GHRepository
 import java.io.File
 import java.net.URL
+import java.nio.file.Path
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 /** Configuration information needed to start a release */
 @Serializable
@@ -51,7 +57,14 @@ data class Config(
     val pachliMainRoot: File,
 
     /** Path to the root of the F-Droid repo clone from the fork */
-    val fdroidForkRoot: File
+    val fdroidForkRoot: File,
+
+    /** Path to the root of the website directory. */
+    @Serializable(with = PathAsStringSerializer::class)
+    val websiteRoot: Path,
+
+    /** Inkscape binary. */
+    val inkscape: File,
 ) {
     /**
      * Validates the values in the configuration make sense
@@ -69,6 +82,12 @@ data class Config(
         @OptIn(ExperimentalSerializationApi::class)
         fun from(file: File): Config = Json.decodeFromStream(file.inputStream())
     }
+}
+
+object PathAsStringSerializer : KSerializer<Path> {
+    override val descriptor = PrimitiveSerialDescriptor("Path", PrimitiveKind.STRING)
+    override fun serialize(encoder: Encoder, value: Path) = encoder.encodeString(value.toAbsolutePath().toString())
+    override fun deserialize(decoder: Decoder): Path = Path.of(decoder.decodeString())
 }
 
 @Serializable
