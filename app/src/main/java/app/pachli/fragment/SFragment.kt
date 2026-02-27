@@ -28,9 +28,7 @@ import android.widget.Toast
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.net.toUri
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import app.pachli.R
@@ -461,19 +459,22 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
         val attachment = attachments[urlIndex].attachment
         when (attachment.type) {
             Attachment.Type.GIFV, Attachment.Type.VIDEO, Attachment.Type.IMAGE, Attachment.Type.AUDIO -> {
-                val intent = ViewMediaActivityIntent(requireContext(), pachliAccountId, owningUsername, attachments, urlIndex)
-                if (view != null) {
-                    val url = attachment.url
-                    ViewCompat.setTransitionName(view, url)
-                    val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        requireActivity(),
-                        view,
-                        url,
-                    )
-                    startActivityWithDefaultTransition(intent, options.toBundle())
-                } else {
+                if (view == null) {
+                    val intent = ViewMediaActivityIntent(requireContext(), pachliAccountId, owningUsername, attachments, urlIndex)
                     startActivityWithDefaultTransition(intent)
+                    return
                 }
+
+                val (intent, options) = ViewMediaActivityIntent.withSharedElementTransition(
+                    requireActivity(),
+                    pachliAccountId,
+                    owningUsername,
+                    attachments,
+                    urlIndex,
+                    view,
+                )
+
+                startActivityWithDefaultTransition(intent, options)
             }
 
             Attachment.Type.UNKNOWN -> openUrl(attachment.url)
@@ -524,8 +525,12 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                             content = sourceStatus.text,
                             referencingStatus = statusViewData.status.inReplyToId?.let {
                                 ReferencingStatus.ReplyId(it)
-                            } ?: statusViewData.status.quote?.let {
-                                ReferencingStatus.QuoteId(it.statusId)
+                            } ?: statusViewData.status.quote?.let { quote ->
+                                when (quote) {
+                                    is Status.Quote.FullQuote -> quote.statusId
+                                    is Status.Quote.ShallowQuote -> quote.statusId
+                                    is Status.Quote.HiddenQuote -> null
+                                }?.let { ReferencingStatus.QuoteId(it) }
                             },
                             visibility = sourceStatus.visibility,
                             contentWarning = sourceStatus.spoilerText,
@@ -561,8 +566,12 @@ abstract class SFragment<T : IStatusViewData> : Fragment(), StatusActionListener
                     content = source.text,
                     referencingStatus = status.inReplyToId?.let {
                         ReferencingStatus.ReplyId(it)
-                    } ?: status.quote?.let {
-                        ReferencingStatus.QuoteId(it.statusId)
+                    } ?: status.quote?.let { quote ->
+                        when (quote) {
+                            is Status.Quote.FullQuote -> quote.statusId
+                            is Status.Quote.ShallowQuote -> quote.statusId
+                            is Status.Quote.HiddenQuote -> null
+                        }?.let { ReferencingStatus.QuoteId(it) }
                     },
                     visibility = status.visibility,
                     contentWarning = source.spoilerText,

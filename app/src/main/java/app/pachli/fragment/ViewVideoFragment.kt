@@ -32,11 +32,12 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.annotation.OptIn
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -90,7 +91,8 @@ class ViewVideoFragment : ViewMediaFragment() {
     private lateinit var toolbar: View
 
     private lateinit var mediaPlayerListener: Player.Listener
-    private var isAudio = false
+
+    private val isAudio: Boolean by unsafeLazy { attachment.type == Attachment.Type.AUDIO }
 
     private var player: ExoPlayer? = null
 
@@ -157,8 +159,6 @@ class ViewVideoFragment : ViewMediaFragment() {
             RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE or
                 RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL,
         )
-
-        isAudio = attachment.type == Attachment.Type.AUDIO
 
         toggleMuteButton.setOnClickListener {
             player?.let { viewModel.setAudioPlaybackState(audioPlaybackState.toggle(it.volume)) }
@@ -250,12 +250,20 @@ class ViewVideoFragment : ViewMediaFragment() {
 
                         if (shouldCallMediaReady && !startedTransition) {
                             startedTransition = true
-                            mediaActivity.onMediaReady()
+                            mediaActionsListener.onMediaReady()
                         }
 
                         transitionComplete?.let {
                             viewLifecycleOwner.lifecycleScope.launch {
                                 it.await()
+
+                                // Only need to listen for the transition completion once, so null it
+                                // out now. If you don't do this then other actions that trigger
+                                // STATE_READY (e.g., a start-scrub/end-scrub pair) will also run
+                                // here, causing playback to resume even if the player was already
+                                // paused.
+                                transitionComplete = null
+
                                 // Work-around visual glitch by only setting useController here instead
                                 // of in the layout.  Otherwise a "blank" controller (just playback
                                 // buttons) is displayed while media is loading / preparing, and is then
@@ -381,6 +389,13 @@ class ViewVideoFragment : ViewMediaFragment() {
         ExoPlayer.Builder(requireContext())
             .setMediaSourceFactory(mediaSourceFactory)
             .build().apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setContentType(if (isAudio) C.AUDIO_CONTENT_TYPE_UNKNOWN else C.AUDIO_CONTENT_TYPE_MOVIE)
+                        .setUsage(C.USAGE_MEDIA)
+                        .build(),
+                    true,
+                )
                 if (BuildConfig.DEBUG) addAnalyticsListener(EventLogger("${javaClass.simpleName}:ExoPlayer"))
                 setMediaItem(MediaItem.fromUri(attachment.url))
                 addListener(mediaPlayerListener)
@@ -434,7 +449,7 @@ class ViewVideoFragment : ViewMediaFragment() {
         // Ensure the description is visible over the video
         binding.mediaDescription.elevation = binding.videoView.elevation + 1
 
-        ViewCompat.setTransitionName(binding.videoView, attachment.url)
+        binding.videoView.transitionName = attachment.url
 
         if (!startedTransition && shouldCallMediaReady) {
             startedTransition = true

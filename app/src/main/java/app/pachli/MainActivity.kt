@@ -402,7 +402,7 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 // Process changes to the account's profile picture.
                 launch {
                     account.distinctUntilChangedBy { it.entity.profilePictureUrl }.collectLatest {
-                        bindDrawerAvatar(it.entity.profilePictureUrl, false)
+                        bindDrawerAvatar(it.entity.profilePictureUrl, true)
                     }
                 }
 
@@ -859,7 +859,7 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                     }
                     badgeStyle = BadgeStyle().apply {
                         textColor = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorOnPrimary))
-                        color = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorPrimary))
+                        color = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, androidx.appcompat.R.attr.colorPrimary))
                     }
                 },
                 DividerDrawerItem(),

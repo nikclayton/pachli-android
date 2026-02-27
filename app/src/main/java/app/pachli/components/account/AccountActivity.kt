@@ -39,7 +39,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.MenuProvider
-import androidx.core.view.ViewCompat
 import androidx.core.view.ViewGroupCompat
 import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
@@ -69,10 +68,11 @@ import app.pachli.core.navigation.ReportActivityIntent
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.ViewMediaActivityIntent
 import app.pachli.core.navigation.pachliAccountId
-import app.pachli.core.network.parseAsMastodonHtml
 import app.pachli.core.ui.ClipboardUseCase
 import app.pachli.core.ui.LinkListener
 import app.pachli.core.ui.RoleChip
+import app.pachli.core.ui.SetContentAsMarkdown
+import app.pachli.core.ui.SetContentAsMastodonHtml
 import app.pachli.core.ui.emojify
 import app.pachli.core.ui.extensions.InsetType
 import app.pachli.core.ui.extensions.applyDefaultWindowInsets
@@ -82,7 +82,6 @@ import app.pachli.core.ui.extensions.nameContentDescription
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.core.ui.getDomain
 import app.pachli.core.ui.loadAvatar
-import app.pachli.core.ui.setClickableText
 import app.pachli.databinding.ActivityAccountBinding
 import app.pachli.db.DraftsAlert
 import app.pachli.feature.lists.ListsForAccountFragment
@@ -189,6 +188,14 @@ class AccountActivity :
 
     private var noteWatcher: TextWatcher? = null
 
+    private val setContent by unsafeLazy {
+        if (viewModel.statusDisplayOptions.value.renderMarkdown) {
+            SetContentAsMarkdown(this)
+        } else {
+            SetContentAsMastodonHtml
+        }
+    }
+
     private val onBackPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
             binding.accountFragmentViewPager.currentItem = 0
@@ -269,7 +276,7 @@ class AccountActivity :
         binding.accountFollowsYouChip.hide()
 
         // setup the RecyclerView for the account fields
-        accountFieldAdapter = AccountFieldAdapter(glide, this, animateEmojis)
+        accountFieldAdapter = AccountFieldAdapter(glide, setContent, this, animateEmojis)
         binding.accountFieldList.isNestedScrollingEnabled = false
         binding.accountFieldList.layoutManager = LinearLayoutManager(this)
         binding.accountFieldList.adapter = accountFieldAdapter
@@ -533,8 +540,15 @@ class AccountActivity :
             }
         }
 
-        val emojifiedNote = account.note.parseAsMastodonHtml().emojify(glide, account.emojis, binding.accountNoteTextView, animateEmojis)
-        setClickableText(binding.accountNoteTextView, emojifiedNote, emptyList(), null, this)
+        setContent(
+            glide = glide,
+            textView = binding.accountNoteTextView,
+            content = account.note,
+            emojis = account.emojis.orEmpty(),
+            animateEmojis = viewModel.statusDisplayOptions.value.animateEmojis,
+            removeQuoteInline = false,
+            linkListener = this,
+        )
 
         accountFieldAdapter.fields = account.fields.orEmpty()
         accountFieldAdapter.emojis = account.emojis.orEmpty()
@@ -602,7 +616,7 @@ class AccountActivity :
     }
 
     private fun viewImage(view: View, owningUsername: String, uri: String) {
-        ViewCompat.setTransitionName(view, uri)
+        view.transitionName = uri
         startActivity(
             ViewMediaActivityIntent(view.context, intent.pachliAccountId, owningUsername, uri),
             ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, uri).toBundle(),

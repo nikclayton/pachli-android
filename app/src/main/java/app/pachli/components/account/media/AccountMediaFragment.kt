@@ -21,9 +21,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.MenuProvider
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -178,16 +176,17 @@ class AccountMediaFragment :
             Attachment.Type.VIDEO,
             Attachment.Type.AUDIO,
             -> {
-                val intent = ViewMediaActivityIntent(requireContext(), pachliAccountId, selected.username, attachmentsFromSameStatus, currentIndex)
-                if (activity != null) {
-                    val url = selected.attachment.url
-                    ViewCompat.setTransitionName(view, url)
-                    val options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), view, url)
-                    startActivityWithDefaultTransition(intent, options.toBundle())
-                } else {
-                    startActivityWithDefaultTransition(intent)
-                }
+                val (intent, options) = ViewMediaActivityIntent.withSharedElementTransition(
+                    requireActivity(),
+                    pachliAccountId,
+                    selected.username,
+                    attachmentsFromSameStatus,
+                    currentIndex,
+                    view,
+                )
+                startActivityWithDefaultTransition(intent, options)
             }
+
             Attachment.Type.UNKNOWN -> openUrl(selected.attachment.url)
         }
     }

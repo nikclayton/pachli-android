@@ -22,7 +22,6 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
-import app.pachli.core.data.model.IStatusItemViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.data.model.StatusItemViewData
 import app.pachli.core.data.model.StatusViewData
@@ -65,19 +64,20 @@ class ReportStatusView @JvmOverloads constructor(
         setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null)
     }
 
-    override fun setupWithStatus(setStatusContent: SetStatusContent, glide: RequestManager, viewData: StatusItemViewData, listener: StatusActionListener, statusDisplayOptions: StatusDisplayOptions) {
-        super.setupWithStatus(setStatusContent, glide, viewData, listener, statusDisplayOptions)
+    override fun setupWithStatus(setContent: SetContent, glide: RequestManager, viewData: StatusItemViewData, listener: StatusActionListener, statusDisplayOptions: StatusDisplayOptions) {
+        super.setupWithStatus(setContent, glide, viewData, listener, statusDisplayOptions)
 
         // Can't vote while reporting statuses.
         binding.statusPoll.isEnabled = false
 
-        val quotedViewData = (viewData as? IStatusItemViewData)?.asQuotedStatusViewData()
-        if (quotedViewData == null) {
+        val quote = viewData.actionable.quote
+        if (!viewData.isShowingContent || quote == null) {
             binding.statusQuote.hide()
             return
         }
 
-        binding.statusQuote.setupWithStatus(setStatusContent, glide, quotedViewData, listener, statusDisplayOptions)
+        val quotedViewData = viewData.asQuotedStatusViewData()
+        binding.statusQuote.setupWithStatus(setContent, glide, quote.state, quotedViewData, listener, statusDisplayOptions)
         binding.statusQuote.show()
     }
 }

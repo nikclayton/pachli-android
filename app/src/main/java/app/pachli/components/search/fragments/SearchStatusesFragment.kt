@@ -26,9 +26,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.net.toUri
-import androidx.core.view.ViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -63,8 +61,8 @@ import app.pachli.core.navigation.EditContentFilterActivityIntent
 import app.pachli.core.navigation.ReportActivityIntent
 import app.pachli.core.navigation.ViewMediaActivityIntent
 import app.pachli.core.ui.ClipboardUseCase
-import app.pachli.core.ui.SetMarkdownContent
-import app.pachli.core.ui.SetMastodonHtmlContent
+import app.pachli.core.ui.SetContentAsMarkdown
+import app.pachli.core.ui.SetContentAsMastodonHtml
 import app.pachli.core.ui.StatusActionListener
 import app.pachli.usecase.TimelineCases
 import app.pachli.view.showMuteAccountDialog
@@ -124,17 +122,17 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
     override fun createAdapter(): PagingDataAdapter<StatusItemViewData, *> {
         val statusDisplayOptions = statusDisplayOptionsRepository.flow.value
 
-        val setStatusContent = if (statusDisplayOptions.renderMarkdown) {
-            SetMarkdownContent(requireContext())
+        val setContent = if (statusDisplayOptions.renderMarkdown) {
+            SetContentAsMarkdown(requireContext())
         } else {
-            SetMastodonHtmlContent
+            SetContentAsMastodonHtml
         }
 
         binding.searchRecyclerView.addItemDecoration(
             MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL),
         )
         binding.searchRecyclerView.layoutManager = LinearLayoutManager(binding.searchRecyclerView.context)
-        return SearchStatusesAdapter(Glide.with(this), setStatusContent, statusDisplayOptions, this)
+        return SearchStatusesAdapter(Glide.with(this), setContent, statusDisplayOptions, this)
     }
 
     override fun onAttachmentDisplayActionChange(viewData: IStatusViewData, newAction: AttachmentDisplayAction) {
@@ -158,26 +156,30 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
         when (actionable.attachments[attachmentIndex].type) {
             Attachment.Type.GIFV, Attachment.Type.VIDEO, Attachment.Type.IMAGE, Attachment.Type.AUDIO -> {
                 val attachments = AttachmentViewData.list(actionable)
-                val intent = ViewMediaActivityIntent(
-                    requireContext(),
+
+                if (view == null) {
+                    val intent = ViewMediaActivityIntent(
+                        requireContext(),
+                        pachliAccountId,
+                        actionable.account.username,
+                        attachments,
+                        attachmentIndex,
+                    )
+                    startActivityWithDefaultTransition(intent)
+                    return
+                }
+
+                val (intent, options) = ViewMediaActivityIntent.withSharedElementTransition(
+                    requireActivity(),
                     pachliAccountId,
                     actionable.account.username,
                     attachments,
                     attachmentIndex,
+                    view,
                 )
-                if (view != null) {
-                    val url = actionable.attachments[attachmentIndex].url
-                    ViewCompat.setTransitionName(view, url)
-                    val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        requireActivity(),
-                        view,
-                        url,
-                    )
-                    startActivityWithDefaultTransition(intent, options.toBundle())
-                } else {
-                    startActivityWithDefaultTransition(intent)
-                }
+                startActivityWithDefaultTransition(intent, options)
             }
+
             Attachment.Type.UNKNOWN -> openUrl(actionable.attachments[attachmentIndex].url)
         }
     }
@@ -505,8 +507,12 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                                     content = redraftStatus.text.orEmpty(),
                                     referencingStatus = redraftStatus.inReplyToId?.let {
                                         ReferencingStatus.ReplyId(it)
-                                    } ?: redraftStatus.quote?.let {
-                                        ReferencingStatus.QuoteId(it.statusId)
+                                    } ?: redraftStatus.quote?.let { quote ->
+                                        when (quote) {
+                                            is Status.Quote.FullQuote -> quote.statusId
+                                            is Status.Quote.ShallowQuote -> quote.statusId
+                                            is Status.Quote.HiddenQuote -> null
+                                        }?.let { ReferencingStatus.QuoteId(it) }
                                     },
                                     visibility = redraftStatus.visibility,
                                     contentWarning = redraftStatus.spoilerText,
@@ -538,8 +544,12 @@ class SearchStatusesFragment : SearchFragment<StatusItemViewData>(), StatusActio
                     content = source.text,
                     referencingStatus = status.inReplyToId?.let {
                         ReferencingStatus.ReplyId(it)
-                    } ?: status.quote?.let {
-                        ReferencingStatus.QuoteId(it.statusId)
+                    } ?: status.quote?.let { quote ->
+                        when (quote) {
+                            is Status.Quote.FullQuote -> quote.statusId
+                            is Status.Quote.ShallowQuote -> quote.statusId
+                            is Status.Quote.HiddenQuote -> null
+                        }?.let { ReferencingStatus.QuoteId(it) }
                     },
                     visibility = status.visibility,
                     contentWarning = source.spoilerText,

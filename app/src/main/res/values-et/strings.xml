@@ -412,15 +412,12 @@
     <string name="notification_report_description">Anna teada modereerimisteatise koostamisest</string>
     <string name="notification_severed_relationships_name">Katkenud võrgustik</string>
     <string name="notification_severed_relationships_description">Anna teada jälgijate/jälgitavate võrgustiku katkemisest</string>
-    <string name="notification_listenable_worker_name">Tegevus taustal</string>
-    <string name="notification_listenable_worker_description">Teavita ka siis, kui Pachli töötab taustal</string>
     <string name="notification_unknown_name">Tundmatu</string>
     <string name="notification_mention_format">%s mainis sind</string>
     <string name="notification_summary_large" tools:ignore="PluralsCandidate">%1$s, %2$s, %3$s ja %4$d muud kasutajat</string>
     <string name="notification_summary_medium">%1$s, %2$s ja %3$s</string>
     <string name="notification_summary_small">%1$s ja %2$s</string>
     <string name="notification_notification_worker">Laadin teavitusi…</string>
-    <string name="notification_prune_cache">Vahemälu hooldus…</string>
     <string name="description_account_locked">Lukustatud kasutajakonto</string>
     <string name="post_share_content">Jaga postituse sisu</string>
     <string name="post_share_link">Jaga postituse linki</string>
@@ -753,4 +750,11 @@
     <string name="compose_task_description_writing_post">Koostan postitust</string>
     <string name="compose_task_description_replying_fmt">Koostan vastust: %1$s</string>
     <string name="compose_task_description_quoting_fmt">Tsiteerin: %1$s</string>
+    <string name="search_operator_quote_all">Tsiteerimised ▾</string>
+    <string name="search_operator_quote_only">Vaid tsiteerimised</string>
+    <string name="search_operator_quote_no_quotes">Ilma tsiteerimisteta</string>
+    <string name="search_operator_quote_dialog_title">Kas soovid näha postitusi, kus on teisi postitusi tsiteeritud?</string>
+    <string name="search_operator_quote_dialog_all">Tsiteerimistega või ilma</string>
+    <string name="search_operator_quote_dialog_only">Vaid tsiteerimisega postitused</string>
+    <string name="search_operator_quote_dialog_no_quotes">Vaid tsiteerimisteta postitused</string>
 </resources>

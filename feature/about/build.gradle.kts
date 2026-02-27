@@ -33,10 +33,16 @@ android {
 }
 
 aboutLibraries {
-    configPath = "licenses"
-    includePlatform = false
-    duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
-    prettyPrint = true
+    collect {
+        configPath = file("../../licenses")
+        includePlatform = false
+    }
+    export {
+        prettyPrint = true
+    }
+    library {
+        duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
+    }
 }
 
 val privacyPolicySpec = copySpec { from("../../PRIVACY.md") }
@@ -60,6 +66,7 @@ dependencies {
     implementation(projects.core.model)
     implementation(projects.core.navigation)
     implementation(projects.core.ui)
+    implementation(projects.core.worker)
 
     // TODO: These three dependencies are required by BottomSheetActivity,
     // make this part of the projects.core.activity API?

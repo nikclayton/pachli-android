@@ -78,6 +78,9 @@ class AboutActivity : ViewUrlActivity(), MenuProvider {
         addMenuProvider(this)
 
         val adapter = AboutFragmentAdapter(this)
+        // Ensure privacy policy table displays correctly, possibly due to
+        // https://issuetracker.google.com/issues/432664597.
+        binding.pager.offscreenPageLimit = 1
         binding.pager.adapter = adapter
         binding.pager.reduceSwipeSensitivity()
 
@@ -111,6 +114,7 @@ class AboutFragmentAdapter(val activity: FragmentActivity) : FragmentStateAdapte
         add(TabData(R.string.about_privacy_policy) { PrivacyPolicyFragment.newInstance() })
         add(TabData(R.string.about_notifications) { NotificationFragment.newInstance() })
         add(TabData(R.string.about_database) { DatabaseFragment.newInstance() })
+        add(TabData(R.string.about_workers) { WorkersFragment.newInstance() })
     }
 
     override fun getItemCount() = fragments.size

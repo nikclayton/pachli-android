@@ -40,6 +40,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
+import androidx.core.transition.doOnEnd
 import androidx.core.view.ViewGroupCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -58,6 +59,7 @@ import app.pachli.core.common.PachliError
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
+import app.pachli.core.common.util.getTemporaryMediaFilename
 import app.pachli.core.domain.DownloadUrlUseCase
 import app.pachli.core.navigation.AttachmentViewData
 import app.pachli.core.navigation.ViewMediaActivityIntent
@@ -71,7 +73,6 @@ import app.pachli.databinding.ActivityViewMediaBinding
 import app.pachli.fragment.MediaActionsListener
 import app.pachli.pager.ImagePagerAdapter
 import app.pachli.pager.SingleImagePagerAdapter
-import app.pachli.util.getTemporaryMediaFilename
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.runSuspendCatching
@@ -109,6 +110,9 @@ sealed interface DownloadUrlToShareError : PachliError {
 
 /**
  * Show one or more media items (pictures, video, audio, etc).
+ *
+ * To launch this activity with a shared element transition use
+ * [ViewMediaActivityIntent.withSharedElementTransition].
  */
 @AndroidEntryPoint
 class ViewMediaActivity : BaseActivity(), MediaActionsListener {
@@ -211,14 +215,17 @@ class ViewMediaActivity : BaseActivity(), MediaActionsListener {
             true
         }
 
-        window.sharedElementEnterTransition.addListener(
-            object : NoopTransitionListener {
-                override fun onTransitionEnd(transition: Transition) {
-                    window.sharedElementEnterTransition.removeListener(this)
-                    adapter.onTransitionEnd(binding.viewPager.currentItem)
-                }
-            },
-        )
+        // Wait for the (optional) shared element transition to complete. If no
+        // shared element transition was referenced in the intent then complete the
+        // transition immediately so the fragment can play the media.
+        val hasSharedElementTransition = ViewMediaActivityIntent.getHasSharedElementTransition(intent)
+        if (hasSharedElementTransition) {
+            window.sharedElementEnterTransition.doOnEnd {
+                adapter.onTransitionEnd(binding.viewPager.currentItem)
+            }
+        } else {
+            adapter.onTransitionEnd(binding.viewPager.currentItem)
+        }
 
         AudioBecomingNoisyReceiver(this) { adapter.onAudioBecomingNoisy() }
     }
@@ -397,7 +404,7 @@ class ViewMediaActivity : BaseActivity(), MediaActionsListener {
 
         return@withContext runSuspendCatching { call.execute() }
             .onSuccess { response ->
-                response.body?.use { body ->
+                response.body.use { body ->
                     file.sink().buffer().use {
                         it.writeAll(body.source())
                     }

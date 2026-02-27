@@ -57,16 +57,17 @@ class TimelineStatusView @JvmOverloads constructor(
         setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null)
     }
 
-    override fun setupWithStatus(setStatusContent: SetStatusContent, glide: RequestManager, viewData: IStatusItemViewData, listener: StatusActionListener, statusDisplayOptions: StatusDisplayOptions) {
-        super.setupWithStatus(setStatusContent, glide, viewData, listener, statusDisplayOptions)
+    override fun setupWithStatus(setContent: SetContent, glide: RequestManager, viewData: IStatusItemViewData, listener: StatusActionListener, statusDisplayOptions: StatusDisplayOptions) {
+        super.setupWithStatus(setContent, glide, viewData, listener, statusDisplayOptions)
 
-        val quotedViewData = viewData.asQuotedStatusViewData()
-        if (quotedViewData == null) {
+        val quote = viewData.actionable.quote
+        if (!viewData.isShowingContent || quote == null) {
             binding.statusQuote.hide()
             return
         }
 
-        binding.statusQuote.setupWithStatus(setStatusContent, glide, quotedViewData, listener, statusDisplayOptions)
+        val quotedViewData = viewData.asQuotedStatusViewData()
+        binding.statusQuote.setupWithStatus(setContent, glide, quote.state, quotedViewData, listener, statusDisplayOptions)
         binding.statusQuote.show()
     }
 }

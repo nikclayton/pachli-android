@@ -21,20 +21,24 @@ plugins {
     alias(libs.plugins.pachli.android.application)
     alias(libs.plugins.pachli.android.hilt)
     alias(libs.plugins.kotlin.parcelize)
-    kotlin("kapt")
+    alias(libs.plugins.moshixir)
 }
 
 apply(from = "gitTools.gradle")
 val getGitSha: groovy.lang.Closure<String> by extra
 val getGitRevCount: groovy.lang.Closure<Int> by extra
 
+moshi {
+    enableSealed.set(true)
+}
+
 android {
     namespace = "app.pachli"
 
     defaultConfig {
         applicationId = "app.pachli"
-        versionCode = 44
-        versionName = "3.3.0"
+        versionCode = 45
+        versionName = "3.3.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -142,6 +146,7 @@ dependencies {
     implementation(projects.core.network)
     implementation(projects.core.preferences)
     implementation(projects.core.ui)
+    implementation(projects.core.worker)
 
     implementation(projects.feature.about)
     implementation(projects.feature.intentrouter)
@@ -156,10 +161,6 @@ dependencies {
     implementation(libs.androidx.core.animation)
 
     implementation(libs.android.material)
-
-    implementation(libs.moshi)
-    implementation(libs.moshi.adapters)
-    ksp(libs.moshi.codegen)
 
     implementation(libs.bundles.retrofit)
 
