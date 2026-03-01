@@ -103,16 +103,23 @@ data class ReleaseSpec(
         else -> throw(Exception("releaseTag() without setting thisVersion first"))
     }
 
-    /** Path to the fastlane file, relative to the repo root */
-    fun fastlanePath(): String {
+    /**
+     * Path to the fastlane file, relative to the repo root.
+     *
+     * @param languageCode Language code for the desired language (`ga`, `fr-FR`, etc).
+     */
+    fun fastlanePath(languageCode: String = "en-US"): String {
         val versionCode = thisVersion?.versionCode ?: throw(Exception("fastlaneFile() without setting thisVersion first"))
-        return "fastlane/metadata/android/en-US/changelogs/$versionCode.txt"
+        return "fastlane/metadata/android/$languageCode/changelogs/$versionCode.txt"
     }
 
-    /** Fastlane path for this version */
-    fun fastlaneFile(root: File): File {
-        val versionCode = thisVersion?.versionCode ?: throw(Exception("fastlaneFile() without setting thisVersion first"))
-        return root.resolve(fastlanePath())
+    /**
+     * Fastlane path for this version
+     *
+     * @param languageCode See [fastlanePath].
+     */
+    fun fastlaneFile(root: File, languageCode: String = "en-US"): File {
+        return root.resolve(fastlanePath(languageCode))
     }
 
     /** Title of this release on the Github "Releases" page */

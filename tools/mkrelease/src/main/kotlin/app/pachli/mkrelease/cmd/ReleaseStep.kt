@@ -29,8 +29,9 @@ import app.pachli.mkrelease.Section
 import app.pachli.mkrelease.Section.Features
 import app.pachli.mkrelease.Section.Fixes
 import app.pachli.mkrelease.Section.Translations
+import app.pachli.mkrelease.addFilePatterns
 import app.pachli.mkrelease.confirm
-import app.pachli.mkrelease.createFastlaneFromChangelog
+import app.pachli.mkrelease.createFastlanes
 import app.pachli.mkrelease.ensureClean
 import app.pachli.mkrelease.ensureRepo
 import app.pachli.mkrelease.getActualRefObjectId
@@ -600,14 +601,13 @@ ${changelogEntries[Translations]?.joinToString("\n") { "- ${it.withLinks()}" }}
         // TODO: Check the "ENTER NEW LOG HERE" string has been removed
 
         // Pull out the new lines from the changelog
-        val fastlaneFile = spec.fastlaneFile(config.pachliForkRoot)
-        createFastlaneFromChangelog(t, changeLogFile, fastlaneFile, spec.thisVersion.versionName())
+        val fastlanePaths = createFastlanes(config, spec)
 
         git.add()
             .setUpdate(false)
             .addFilepattern("CHANGELOG.md")
             .addFilepattern("app/build.gradle.kts")
-            .addFilepattern(spec.fastlanePath())
+            .addFilePatterns(fastlanePaths)
             .info(t)
             .call()
 
@@ -619,23 +619,8 @@ ${changelogEntries[Translations]?.joinToString("\n") { "- ${it.withLinks()}" }}
                 .call()
             changesAreOk = t.confirm("Do these changes look OK?")
             if (!changesAreOk) {
-                val r = t.prompt(
-                    TextColors.yellow("Edit Changelog or Fastlane?"),
-                    choices = listOf("c", "f"),
-                )
-                when (r) {
-                    "c" -> {
-                        TermUi.editFile(changeLogFile.toString())
-                        createFastlaneFromChangelog(t, changeLogFile, fastlaneFile, spec.thisVersion.versionName())
-                    }
-
-                    "f" -> TermUi.editFile(fastlaneFile.toString())
-                }
-                git.add()
-                    .addFilepattern("CHANGELOG.md")
-                    .addFilepattern(spec.fastlanePath())
-                    .info(t)
-                    .call()
+                TermUi.editFile(changeLogFile.toString())
+                createFastlanes(config, spec)
             }
         }
 

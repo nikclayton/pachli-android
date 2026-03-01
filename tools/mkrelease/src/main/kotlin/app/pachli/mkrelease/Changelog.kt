@@ -158,17 +158,44 @@ fun getChangelogHighlights(changelog: File, nextVersionName: String): Changes {
 }
 
 /**
- * Creates a [fastlane] that links to the release notes.
+ * Creates fastlane files that link to the release notes.
  *
- * @param nextVersionName Version name string, format "Major.minor.patch".
+ * @param config
+ * @param spec
+ *
+ * @return List of paths to the created fastlane files, relative to the repo
+ * root.
  */
-fun createFastlaneFromChangelog(t: Terminal, changelog: File, fastlane: File, nextVersionName: String) {
-    if (fastlane.exists()) fastlane.delete()
-    fastlane.createNewFile()
+fun createFastlanes(config: Config, spec: ReleaseSpec): MutableList<String> {
+    val linkPrefixByLanguage = mapOf(
+        "en-US" to "See",
+        "es-ES" to "Visita",
+        "et" to "Teavet leiad siit:",
+        "fr-FR" to "Voir",
+        "ga" to "Féach",
+        "lv" to "Skatīt",
+        "pl-PL" to "Zobacz",
+        "sk" to "Pozri",
+        "ta-IN" to "பார்க்கவும்",
+    )
 
-    val w = fastlane.printWriter()
-    w.println("Pachli $nextVersionName\n\nSee https://github.com/pachli/pachli-android/releases/tag/v$nextVersionName")
-    w.close()
+    val nextVersionName = spec.thisVersion!!.versionName()
+
+    /** List of created paths. */
+    val fastlanePaths = mutableListOf<String>()
+
+    linkPrefixByLanguage.forEach { (languageCode, linkPrefix) ->
+        fastlanePaths.add(spec.fastlanePath(languageCode))
+        val fastlaneFile = spec.fastlaneFile(config.pachliForkRoot, languageCode)
+        if (fastlaneFile.exists()) fastlaneFile.delete()
+
+        fastlaneFile.createNewFile()
+        val w = fastlaneFile.printWriter()
+        w.println("Pachli $nextVersionName\n\n$linkPrefix https://github.com/pachli/pachli-android/releases/tag/v$nextVersionName")
+        w.close()
+    }
+
+    return fastlanePaths
 }
 
 /**
