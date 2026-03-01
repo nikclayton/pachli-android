@@ -53,6 +53,7 @@ val translatorDisplay = mapOf(
     "weblate@turtle.garden" to "", // "Sunniva Løvstad",
     "sunniva@users.noreply.hosted.weblate.org" to "", // "Sunniva Løvstad",
     "dakilla@gmail.com" to "@LukaszHorodecki@pol.social",
+    "lukasz@horodecki.net" to "@LukaszHorodecki@pol.social",
     "rastislav.podracky@outlook.com" to "@Russssty@mastodon.social",
     "russssty@users.noreply.hosted.weblate.org" to "@Russssty@mastodon.social",
     "jumase@disroot.org" to "", // ""Juan M Sevilla",
@@ -67,7 +68,8 @@ val translatorDisplay = mapOf(
     "correoxm@disroot.org" to "", // ?
     "kachelkaiser@htpst.de" to "@Kachelkaiser@social.tchncs.de",
     "realzero@protonmail.com" to "@BryanGreyson@social.tchncs.de",
-    "terrylaire@gmail.com" to "@terrylaire@framapiaf.org"
+    "terrylaire@gmail.com" to "@terrylaire@framapiaf.org",
+    "hc520520520@gmail.com" to "", // ""
 )
 
 /**
