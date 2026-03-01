@@ -128,8 +128,8 @@ inline fun <reified T : Any, R> T.getPrivateProperty(name: String): R? {
 }
 
 fun AddCommand.info(t: Terminal): AddCommand {
-    val update = if (this.getPrivateProperty<AddCommand, Boolean>("update") == true) " --update" else ""
-    val filePatterns = this.getPrivateProperty<AddCommand, Collection<String>>("filepatterns")
+    val update = if (getPrivateProperty<AddCommand, Boolean>("update") == true) " --update" else ""
+    val filePatterns = getPrivateProperty<AddCommand, Collection<String>>("filepatterns")
         ?.joinToString(" ")
 
     t.info("- git add$update $filePatterns")
@@ -137,39 +137,39 @@ fun AddCommand.info(t: Terminal): AddCommand {
 }
 
 fun CheckoutCommand.info(t: Terminal): CheckoutCommand {
-    val createBranch = when (this.getPrivateProperty<CheckoutCommand, Boolean>("createBranch")) {
+    val createBranch = when (getPrivateProperty<CheckoutCommand, Boolean>("createBranch")) {
         true -> " -b"
         false, null -> ""
     }
-    val upstreamMode = when (this.getPrivateProperty<CheckoutCommand, CreateBranchCommand.SetupUpstreamMode>("upstreamMode")) {
+    val upstreamMode = when (getPrivateProperty<CheckoutCommand, CreateBranchCommand.SetupUpstreamMode>("upstreamMode")) {
         CreateBranchCommand.SetupUpstreamMode.TRACK -> " --track"
         CreateBranchCommand.SetupUpstreamMode.NOTRACK -> " --no-track"
         CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM -> " --set-upstream"
         null -> ""
     }
-    val name = this.getPrivateProperty<CheckoutCommand, String>("name")
-    val startPoint = this.getPrivateProperty<CheckoutCommand, String>("startPoint")?.let { " $it" } ?: ""
+    val name = getPrivateProperty<CheckoutCommand, String>("name")
+    val startPoint = getPrivateProperty<CheckoutCommand, String>("startPoint")?.let { " $it" } ?: ""
 
     t.info("- git checkout$createBranch $name$upstreamMode$startPoint")
     return this
 }
 
 fun CloneCommand.info(t: Terminal): CloneCommand {
-    val uri = this.getPrivateProperty<CloneCommand, String>("uri")
-    val directory = this.getPrivateProperty<CloneCommand, File>("directory")
+    val uri = getPrivateProperty<CloneCommand, String>("uri")
+    val directory = getPrivateProperty<CloneCommand, File>("directory")
     t.info("- git clone $uri $directory")
     return this
 }
 
 fun CommitCommand.info(t: Terminal): CommitCommand {
-    val message = this.getPrivateProperty<CommitCommand, String>("message")
+    val message = getPrivateProperty<CommitCommand, String>("message")
     t.info("- git commit -m '$message'")
     return this
 }
 
 fun CreateBranchCommand.info(t: Terminal): CreateBranchCommand {
-    val name = this.getPrivateProperty<CreateBranchCommand, String>("name")
-    val upstreamMode = when (this.getPrivateProperty<CreateBranchCommand, CreateBranchCommand.SetupUpstreamMode>("upstreamMode")) {
+    val name = getPrivateProperty<CreateBranchCommand, String>("name")
+    val upstreamMode = when (getPrivateProperty<CreateBranchCommand, CreateBranchCommand.SetupUpstreamMode>("upstreamMode")) {
         CreateBranchCommand.SetupUpstreamMode.TRACK -> " --track"
         CreateBranchCommand.SetupUpstreamMode.NOTRACK -> " --no-track"
         CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM -> " --set-upstream"
@@ -180,20 +180,20 @@ fun CreateBranchCommand.info(t: Terminal): CreateBranchCommand {
 }
 
 fun FetchCommand.info(t: Terminal): FetchCommand {
-    val remote = this.getPrivateProperty<FetchCommand, String>("remote") ?: ""
-    val initialBranch = this.getPrivateProperty<FetchCommand, String>("initialBranch") ?: ""
+    val remote = getPrivateProperty<FetchCommand, String>("remote") ?: ""
+    val initialBranch = getPrivateProperty<FetchCommand, String>("initialBranch") ?: ""
     t.info("- git fetch $remote $initialBranch")
     return this
 }
 
 fun LogCommand.info(t: Terminal): LogCommand {
-    val maxCount = this.getPrivateProperty<LogCommand, Int>("maxCount")
+    val maxCount = getPrivateProperty<LogCommand, Int>("maxCount")
         .takeIf { it != -1 }
         ?.let { " --max-count=$it" }
         ?: ""
-    val startSpecified = this.getPrivateProperty<LogCommand, Boolean>("startSpecified") ?: false
+    val startSpecified = getPrivateProperty<LogCommand, Boolean>("startSpecified") ?: false
     val roots = if (startSpecified) {
-        val walk = this.getPrivateProperty<LogCommand, RevWalk>("walk")
+        val walk = getPrivateProperty<LogCommand, RevWalk>("walk")
         walk?.getPrivateProperty<RevWalk, List<RevCommit>>("roots") ?: emptyList()
     } else {
         emptyList()
@@ -204,10 +204,10 @@ fun LogCommand.info(t: Terminal): LogCommand {
 }
 
 fun MergeCommand.info(t: Terminal): MergeCommand {
-    val commits = this.getPrivateProperty<MergeCommand, List<Ref>>("commits")?.let { refs ->
+    val commits = getPrivateProperty<MergeCommand, List<Ref>>("commits")?.let { refs ->
         refs.map { it.name }
     }?.joinToString(" ") ?: ""
-    val fastForwardMode = when (this.getPrivateProperty<MergeCommand, FastForwardMode>("fastForwardMode")) {
+    val fastForwardMode = when (getPrivateProperty<MergeCommand, FastForwardMode>("fastForwardMode")) {
         FastForwardMode.FF -> " --ff"
         FastForwardMode.NO_FF -> " --no-ff"
         FastForwardMode.FF_ONLY -> " --ff-only"
@@ -218,8 +218,8 @@ fun MergeCommand.info(t: Terminal): MergeCommand {
 }
 
 fun PullCommand.info(t: Terminal): PullCommand {
-    val remote = this.getPrivateProperty<PullCommand, String>("remote") ?: ""
-    val fastForwardMode = when (this.getPrivateProperty<PullCommand, FastForwardMode>("fastForwardMode")) {
+    val remote = getPrivateProperty<PullCommand, String>("remote") ?: ""
+    val fastForwardMode = when (getPrivateProperty<PullCommand, FastForwardMode>("fastForwardMode")) {
         FastForwardMode.FF -> " --ff"
         FastForwardMode.NO_FF -> " --no-ff"
         FastForwardMode.FF_ONLY -> " --ff-only"
@@ -230,15 +230,15 @@ fun PullCommand.info(t: Terminal): PullCommand {
 }
 
 fun PushCommand.info(t: Terminal): PushCommand {
-    val remote = this.getPrivateProperty<PushCommand, String>("remote")?.let { " $it" } ?: ""
-    val refSpecs = this.getPrivateProperty<PushCommand, List<RefSpec>>("refSpecs")?.joinToString(" ")
+    val remote = getPrivateProperty<PushCommand, String>("remote")?.let { " $it" } ?: ""
+    val refSpecs = getPrivateProperty<PushCommand, List<RefSpec>>("refSpecs")?.joinToString(" ")
     t.info("- git push$remote $refSpecs")
     return this
 }
 
 fun RemoteAddCommand.info(t: Terminal): RemoteAddCommand {
-    val name = this.getPrivateProperty<RemoteAddCommand, String>("name")
-    val uri = this.getPrivateProperty<RemoteAddCommand, URIish>("uri")
+    val name = getPrivateProperty<RemoteAddCommand, String>("name")
+    val uri = getPrivateProperty<RemoteAddCommand, URIish>("uri")
     t.info("- git remote add $name $uri")
     return this
 }
@@ -249,9 +249,9 @@ fun StatusCommand.info(t: Terminal): StatusCommand {
 }
 
 fun TagCommand.info(t: Terminal): TagCommand {
-    val name = this.getPrivateProperty<TagCommand, String>("name")?.let { " $it" } ?: ""
-    val message = this.getPrivateProperty<TagCommand, String>("message")?.let { " -m '$it'" } ?: ""
-    val signed = this.getPrivateProperty<TagCommand, Boolean>("signed")?.let { " -s" } ?: ""
+    val name = getPrivateProperty<TagCommand, String>("name")?.let { " $it" } ?: ""
+    val message = getPrivateProperty<TagCommand, String>("message")?.let { " -m '$it'" } ?: ""
+    val signed = getPrivateProperty<TagCommand, Boolean>("signed")?.let { " -s" } ?: ""
     t.info("- git tag$signed$message$name")
     return this
 }
