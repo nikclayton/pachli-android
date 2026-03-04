@@ -168,6 +168,7 @@ fun getChangelogHighlights(changelog: File, nextVersionName: String): Changes {
  */
 fun createFastlanes(config: Config, spec: ReleaseSpec): MutableList<String> {
     val linkPrefixByLanguage = mapOf(
+        "de-DE" to "Siehe"
         "en-US" to "See",
         "es-ES" to "Visita",
         "et" to "Teavet leiad siit:",
