@@ -68,7 +68,7 @@ class StartRelease : CliktCommand(name = "start") {
     override fun run() {
         val log = globalFlags.log
 //        (log.underlyingLogger as Logger).level = if (globalFlags.verbose) Level.INFO else Level.WARN
-        log.info("startRelease")
+        log.info { "startRelease" }
 
         val config = Config.from(CONFIG_FILE)
 
@@ -81,13 +81,13 @@ class StartRelease : CliktCommand(name = "start") {
 
         val connection = getGradle(config.pachliForkRoot)
         val androidDsl = connection.model(AndroidDsl::class.java).get()
-        log.info(androidDsl.defaultConfig.versionName)
+        log.info { androidDsl.defaultConfig.versionName }
 
         val versionCode = androidDsl.defaultConfig.versionCode ?: throw UsageError("No versionCode in Gradle config")
         val versionName = androidDsl.defaultConfig.versionName ?: throw UsageError("No versionName in Gradle config")
         val prevRelease = PachliVersion.from(versionName, versionCode)
             ?: throw UsageError("Could not parse '$versionName' as release version")
-        log.info(prevRelease.toString())
+        log.info { prevRelease.toString() }
         connection.close()
 
         if (prevRelease is PachliVersion.Beta) {
