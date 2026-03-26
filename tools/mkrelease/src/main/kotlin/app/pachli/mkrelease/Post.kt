@@ -47,7 +47,7 @@ val translatorDisplay = mapOf(
     "htetoh2006@outlook.com" to "", // ""--//--",
     "github@bjoernengel.de" to "@BjoernEngel@social.anoxinon.de",
     "182783629+doctorreditshere@users.noreply.github.com" to "@alkaf@pixelfed.fr",
-    "aindriu80@gmail.com" to "", // "Aindriú Mac Giolla Eoin",
+    "aindriu80@gmail.com" to "@aindriu@mastodon.ie",
     "boffire@users.noreply.hosted.weblate.org" to "@ButterflyOfFire@mstdn.fr",
     "Gateway_31@protonmail.com" to "@Vac@crumb.lt",
     "weblate@turtle.garden" to "", // "Sunniva Løvstad",
@@ -70,6 +70,9 @@ val translatorDisplay = mapOf(
     "realzero@protonmail.com" to "@BryanGreyson@social.tchncs.de",
     "terrylaire@gmail.com" to "@terrylaire@framapiaf.org",
     "hc520520520@gmail.com" to "", // ""
+    "lwgph@hotmail.com" to "@Lwgph@dftba.club",
+    "coool@mail.lv" to "@Coool@toot.lv",
+    "tamilneram247@gmail.com" to "", // ""
 )
 
 /**
