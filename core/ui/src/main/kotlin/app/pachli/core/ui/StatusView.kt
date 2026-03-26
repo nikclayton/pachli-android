@@ -35,6 +35,7 @@ import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.common.util.AbsoluteTimeFormatter
 import app.pachli.core.common.util.SmartLengthInputFilter
+import app.pachli.core.data.model.IStatusItemViewData
 import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.data.model.StatusViewData
@@ -44,6 +45,7 @@ import app.pachli.core.model.AttachmentDisplayAction
 import app.pachli.core.model.Emoji
 import app.pachli.core.model.PreviewCardKind
 import app.pachli.core.network.parseAsMastodonHtml
+import app.pachli.core.network.removeQuoteInline
 import app.pachli.core.preferences.CardViewMode
 import app.pachli.core.preferences.PronounDisplay
 import app.pachli.core.ui.PollViewData.Companion.from
@@ -51,6 +53,7 @@ import app.pachli.core.ui.extensions.contentDescription
 import app.pachli.core.ui.extensions.description
 import app.pachli.core.ui.extensions.getContentDescription
 import app.pachli.core.ui.extensions.getFormattedDescription
+import app.pachli.core.ui.extensions.handleContentDescription
 import com.bumptech.glide.RequestManager
 import com.google.android.material.color.MaterialColors
 import java.text.NumberFormat
@@ -601,7 +604,7 @@ abstract class StatusView<T : IStatusViewData> @JvmOverloads constructor(
     }
 
     /** Creates the content description for the status. */
-    fun getContentDescription(viewData: T, statusDisplayOptions: StatusDisplayOptions): CharSequence {
+    fun getContentDescription(viewData: IStatusViewData, statusDisplayOptions: StatusDisplayOptions): CharSequence {
         val account = viewData.actionable.account
         val createdAt = viewData.actionable.createdAt
         val editedAt = viewData.actionable.editedAt
@@ -620,13 +623,17 @@ abstract class StatusView<T : IStatusViewData> @JvmOverloads constructor(
         // The full string will look like (content in parentheses is optional),
         //
         // account.name
-        // (; "Roles: " account.roles)
-        // (. contentWarning)
-        // ; (content)
-        // (, poll)
-        // , relativeDate
+        // (";", "Roles: " account.roles)
+        // (";", contentWarning)
+        // ";" (content)
+        // (\n\n media)
+        // (\n\n poll)
+        // (\n\n quote)
+        // \n\n
+        // relativeDate
         // (, editedAt)
         // (, reblogDescription)
+        // (, "X boosted"
         // , username
         // (, "Reblogged")
         // (, "Favourited")
@@ -636,8 +643,6 @@ abstract class StatusView<T : IStatusViewData> @JvmOverloads constructor(
         return StringBuilder().apply {
             append(account.contentDescription(context))
 
-            append(".")
-
             getContentWarningDescription(context, viewData)?.let { append("; ", it) }
 
             append("; ")
@@ -645,26 +650,44 @@ abstract class StatusView<T : IStatusViewData> @JvmOverloads constructor(
             // Content is optional, and hidden if there are spoilers or the status is
             // marked sensitive, and it has not been expanded.
             if (TextUtils.isEmpty(spoilerText) || !sensitive || viewData.isExpanded) {
-                append(viewData.content.parseAsMastodonHtml(), ", ")
+                val removeQuoteInline = viewData.actionable.quote != null
+                val content = if (removeQuoteInline) {
+                    viewData.content.removeQuoteInline().parseAsMastodonHtml()
+                } else {
+                    viewData.content.parseAsMastodonHtml()
+                }
+                append(content)
+
+                getMediaDescription(context, viewData)?.let { append("\n\n", it) }
+
+                viewData.actionable.poll?.let {
+                    append(
+                        "\n\n",
+                        pollView.getPollDescription(
+                            from(it),
+                            statusDisplayOptions,
+                            NUMBER_FORMATTER,
+                            TIME_FORMATTER,
+                        ),
+                    )
+                }
+
+                val quotedViewData = (viewData as? IStatusItemViewData)?.asQuotedStatusViewData()?.statusViewData
+                quotedViewData?.let {
+                    append("\n\n", context.getString(R.string.description_quoted_post_prefix), "\n")
+                    append(getContentDescription(it, statusDisplayOptions))
+                }
             }
 
-            viewData.actionable.poll?.let {
-                append(
-                    pollView.getPollDescription(
-                        from(it),
-                        statusDisplayOptions,
-                        NUMBER_FORMATTER,
-                        TIME_FORMATTER,
-                    ),
-                    ", ",
-                )
-            }
+            append("\n\n")
 
             append(getCreatedAtDescription(createdAt, statusDisplayOptions))
 
             editedAt?.let { append(", ", context.getString(R.string.description_post_edited)) }
 
             getReblogDescription(context, viewData)?.let { append(", ", it) }
+
+            append(", ", account.handleContentDescription(context))
 
             if (reblogged) {
                 append(", ", context.getString(R.string.description_post_reblogged))
@@ -676,7 +699,6 @@ abstract class StatusView<T : IStatusViewData> @JvmOverloads constructor(
             if (bookmarked) {
                 append(", ", context.getString(R.string.description_post_bookmarked))
             }
-            getMediaDescription(context, viewData)?.let { append(", ", it) }
 
             append("; ")
 
@@ -766,7 +788,10 @@ abstract class StatusView<T : IStatusViewData> @JvmOverloads constructor(
         /** @return "{account.username} boosted", for use in a content description. */
         private fun getReblogDescription(context: Context, status: IStatusViewData): String? {
             return status.rebloggingStatus?.let {
-                context.getString(R.string.post_boosted_fmt, it.account.username)
+                HtmlCompat.fromHtml(
+                    context.getString(R.string.post_boosted_fmt, it.account.username),
+                    HtmlCompat.FROM_HTML_MODE_LEGACY,
+                ).toString()
             }
         }
 

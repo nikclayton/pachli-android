@@ -115,7 +115,6 @@
     <string name="dot_in_name">kropka</string>
     <string name="role_content_description_fmt">%1$s, na %2$s</string>
     <string name="handle_contentdescription_fmt">Konto, @%1$s</string>
-    <string name="account_contentdescription_fmt">%1$s, %2$s, %3$s</string>
     <string name="action_reply">Odpowiedz</string>
     <string name="action_reblog">Podbij</string>
     <string name="action_favourite">Polub</string>
@@ -177,4 +176,10 @@
     <string name="label_quote_state_muted_account">Cytowany wpis pochodzi od wyciszonego przez ciebie konta</string>
     <string name="post_replied">Odpowiedź</string>
     <string name="post_continued_thread">Ciąg dalszy wątku</string>
+    <string name="description_quoted_post_prefix">Cytowany wpis:</string>
+    <string name="action_follow_request_accept">Zaakceptuj prośbę o obserwowanie</string>
+    <string name="action_follow_request_reject">Odrzuć prośbę o obserwowanie</string>
+    <string name="action_moderation_warning_view">Pokaż ostrzeżenie moderacji</string>
+    <string name="action_open_reportee_profile">Otwórz profil osoby zgłaszającej</string>
+    <string name="action_open_report">Otwórz raport</string>
 </resources>

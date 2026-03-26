@@ -29,4 +29,22 @@ class MainPagerAdapter(var tabs: List<TabViewData>, activity: FragmentActivity) 
     }
 
     override fun getItemCount() = tabs.size
+
+    override fun getItemId(position: Int): Long {
+        // Tabs can move, so the default implementation of getItem() won't work (it's
+        // based on item position, so can return the wrong fragment if items move).
+        return tabs[position].itemId()
+    }
+
+    override fun containsItem(itemId: Long): Boolean {
+        // Tabs can move, so the default implementation of containsItem() won't work
+        // (it's based on item position, so can return the wrong result if items move).
+        return tabs.map { it.itemId() }.contains(itemId)
+    }
 }
+
+/**
+ * @return A unique ID for this tab, for use as a [MainPagerAdapter]
+ * item ID.
+ */
+private fun TabViewData.itemId(): Long = hashCode().toLong()

@@ -78,7 +78,7 @@ timber = "5.0.1"
 touchimageview = "3.7.1"
 truth = "1.4.5"
 turbine = "1.2.1"
-unified-push = "2.5.0"
+unified-push = "3.0.10"
 xmlwriter = "1.0.4"
 
 # Tool dependencies
@@ -86,8 +86,8 @@ betterparse = "0.4.4"
 clikt = "4.4.0"
 icu4j = "78.2"
 junit-jupiter = "6.0.3"
-kotlin-logging-jvm = "7.0.14"
-logback = "1.5.28"
+kotlin-logging-jvm = "8.0.01"
+logback = "1.5.32"
 
 [plugins]
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutlibraries" }
@@ -100,7 +100,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ktlint = "org.jlleitschuh.gradle.ktlint:14.0.1"
+ktlint = "org.jlleitschuh.gradle.ktlint:14.1.0"
 moshixir = { id = "dev.zacsweers.moshix", version.ref = "moshix" }
 room = { id = "androidx.room", version.ref = "androidx-room" }
 quadrant = { id = "com.gaelmarhic.quadrant", version.ref = "quadrant" }

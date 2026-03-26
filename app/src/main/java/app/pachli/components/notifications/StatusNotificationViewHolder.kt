@@ -17,17 +17,16 @@
 
 package app.pachli.components.notifications
 
-import android.graphics.Typeface
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.StyleSpan
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.TextView
+import androidx.core.text.HtmlCompat
+import androidx.core.util.TypedValueCompat.dpToPx
 import app.pachli.R
 import app.pachli.adapter.StatusViewDataDiffCallback
-import app.pachli.core.common.extensions.show
+import app.pachli.adapter.StatusViewHolder
 import app.pachli.core.common.string.unicodeWrap
-import app.pachli.core.data.model.NotificationViewData
+import app.pachli.core.data.model.NotificationViewData.WithStatus
 import app.pachli.core.data.model.NotificationViewData.WithStatus.FavouriteNotificationViewData
+import app.pachli.core.data.model.NotificationViewData.WithStatus.MentionNotificationViewData
 import app.pachli.core.data.model.NotificationViewData.WithStatus.QuoteNotificationViewData
 import app.pachli.core.data.model.NotificationViewData.WithStatus.QuotedUpdateNotificationViewData
 import app.pachli.core.data.model.NotificationViewData.WithStatus.ReblogNotificationViewData
@@ -35,8 +34,9 @@ import app.pachli.core.data.model.NotificationViewData.WithStatus.StatusNotifica
 import app.pachli.core.data.model.NotificationViewData.WithStatus.UpdateNotificationViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.ui.SetContent
+import app.pachli.core.ui.StatusActionListener
 import app.pachli.core.ui.emojify
-import app.pachli.databinding.ItemStatusNotificationBinding
+import app.pachli.databinding.ItemStatusBinding
 import com.bumptech.glide.RequestManager
 
 /**
@@ -50,30 +50,24 @@ import com.bumptech.glide.RequestManager
  * status in context.
  */
 internal class StatusNotificationViewHolder(
-    private val binding: ItemStatusNotificationBinding,
-    private val glide: RequestManager,
-    private val setContent: SetContent,
+    private val binding: ItemStatusBinding,
+    glide: RequestManager,
+    setContent: SetContent,
     private val notificationActionListener: NotificationActionListener,
-) : NotificationsPagingAdapter.ViewHolder<NotificationViewData.WithStatus>, RecyclerView.ViewHolder(binding.root) {
+) : NotificationsPagingAdapter.ViewHolder<WithStatus>, StatusViewHolder<WithStatus>(binding, glide, setContent) {
+    private val compoundDrawablePadding = dpToPx(10f, context.resources.displayMetrics).toInt()
+    private val relativePadding = dpToPx(28f, context.resources.displayMetrics).toInt()
+
     override fun bind(
-        viewData: NotificationViewData.WithStatus,
+        viewData: WithStatus,
         payloads: List<List<Any?>>?,
         statusDisplayOptions: StatusDisplayOptions,
     ) {
         if (payloads.isNullOrEmpty()) {
-            binding.notificationTopText.setOnClickListener {
+            binding.statusInfo.setOnClickListener {
                 notificationActionListener.onViewAccount(viewData.account.id)
             }
-
-            binding.statusView.setupWithStatus(
-                setContent,
-                glide,
-                viewData,
-                notificationActionListener,
-                statusDisplayOptions,
-            )
-            itemView.show()
-            setMessage(viewData, statusDisplayOptions)
+            showStatusContent(true)
         } else {
             payloads.flatten().forEach { item ->
                 if (item == StatusViewDataDiffCallback.Payload.CREATED) {
@@ -81,45 +75,49 @@ internal class StatusNotificationViewHolder(
                 }
             }
         }
+        setupWithStatus(
+            viewData,
+            notificationActionListener,
+            statusDisplayOptions,
+            payloads,
+        )
+
+        val statusContentDescription = binding.statusView.getContentDescription(viewData, statusDisplayOptions)
+
+        val contentDescriptionPrefix = binding.statusInfo.text
+
+        binding.root.contentDescription = "$contentDescriptionPrefix.\n\n$statusContentDescription"
     }
 
-    fun setMessage(
-        viewData: NotificationViewData.WithStatus,
+    override fun setStatusInfo(
+        statusInfo: TextView,
+        viewData: WithStatus,
         statusDisplayOptions: StatusDisplayOptions,
+        listener: StatusActionListener,
     ) {
         val displayName = viewData.account.name.unicodeWrap()
-        val context = binding.notificationTopText.context
-        val icon = viewData.icon(context)
-        val format = when (viewData) {
-            is FavouriteNotificationViewData -> context.getString(R.string.notification_favourite_format)
-            is ReblogNotificationViewData -> context.getString(R.string.notification_reblog_format)
-            is StatusNotificationViewData -> context.getString(R.string.notification_subscription_format)
-            is UpdateNotificationViewData -> context.getString(R.string.notification_update_format)
-            is QuoteNotificationViewData -> context.getString(R.string.notification_quote_format)
-            is QuotedUpdateNotificationViewData -> context.getString(R.string.notification_quoted_update_format)
-            else -> context.getString(R.string.notification_favourite_format)
+        val msg = when (viewData) {
+            is FavouriteNotificationViewData -> context.getString(R.string.notification_favourite_format, displayName)
+            is ReblogNotificationViewData -> context.getString(R.string.notification_reblog_format, displayName)
+            is StatusNotificationViewData -> context.getString(R.string.notification_subscription_format, displayName)
+            is UpdateNotificationViewData -> context.getString(R.string.notification_update_format, displayName)
+            is QuoteNotificationViewData -> context.getString(R.string.notification_quote_format, displayName)
+            is QuotedUpdateNotificationViewData -> context.getString(R.string.notification_quoted_update_format, displayName)
+            is MentionNotificationViewData -> context.getString(R.string.notification_mention_format, displayName)
+            is WithStatus.PollNotificationViewData -> if (viewData.isAboutSelf) context.getString(R.string.poll_ended_created) else context.getString(R.string.poll_ended_voted)
         }
-        binding.notificationTopText.setCompoundDrawablesWithIntrinsicBounds(
-            icon,
-            null,
-            null,
-            null,
-        )
-        val wholeMessage = String.format(format, displayName)
-        val str = SpannableStringBuilder(wholeMessage)
-        val displayNameIndex = format.indexOf("%s")
-        str.setSpan(
-            StyleSpan(Typeface.BOLD),
-            displayNameIndex,
-            displayNameIndex + displayName.length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-        )
-        val emojifiedText = str.emojify(
+
+        statusInfo.setCompoundDrawablesRelativeWithIntrinsicBounds(viewData.icon(context), null, null, null)
+        statusInfo.compoundDrawablePadding = compoundDrawablePadding
+        statusInfo.setPaddingRelative(relativePadding, 0, 0, 0)
+
+        val wholeMessage = HtmlCompat.fromHtml(msg, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        val emojifiedText = wholeMessage.emojify(
             glide,
             viewData.account.emojis,
-            binding.notificationTopText,
+            statusInfo,
             statusDisplayOptions.animateEmojis,
         )
-        binding.notificationTopText.text = emojifiedText
+        statusInfo.text = emojifiedText
     }
 }

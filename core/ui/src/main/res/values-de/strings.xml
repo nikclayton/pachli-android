@@ -96,7 +96,6 @@
         <item quantity="one">mit Rolle:</item>
         <item quantity="other">mit Rollen:</item>
     </plurals>
-    <string name="account_contentdescription_fmt">%1$s, %2$s; %3$s</string>
     <string name="handle_contentdescription_fmt">Handle, @%1$s</string>
     <string name="role_content_description_fmt">%1$s, bei %2$s</string>
     <string name="dot_in_name">Punkt</string>
@@ -107,7 +106,7 @@
     <string name="action_favourite">Favorisieren</string>
     <string name="action_bookmark">Lesezeichen</string>
     <string name="status_count_one_plus">1+</string>
-    <string name="action_unreblog">Teilen rückgängig machen</string>
+    <string name="action_unreblog">Nicht mehr teilen</string>
     <string name="action_unfavourite">Aus Favoriten entfernen</string>
     <string name="post_content_warning_show_less">Weniger anzeigen</string>
     <string name="post_content_warning_show_more">Mehr anzeigen</string>
@@ -115,7 +114,7 @@
     <string name="translating">Übersetze…</string>
     <string name="translation_provider_fmt">%1$s</string>
     <string name="description_post_edited">Bearbeitet</string>
-    <string name="description_post_reblogged">Wiederveröffentlicht</string>
+    <string name="description_post_reblogged">Geteilt</string>
     <string name="description_post_favourited">Favorisiert    </string>
     <string name="description_post_bookmarked">Als Lesezeichen gespeichert</string>
     <string name="description_post_media">Medien: %s</string>
@@ -158,4 +157,10 @@
     <string name="label_quote_state_blocked_account">Zitierter Beitrag stammt von einem Konto, das du blockiert hast</string>
     <string name="label_quote_state_blocked_domain">Zitierter Beitrag stammt von einem Server, den du blockiert hast</string>
     <string name="label_quote_state_muted_account">Zitierter Beitrag stammt von einem Konto, das du stummgeschaltet hast</string>
+    <string name="action_follow_request_accept">Folgen-Anfrage annehmen</string>
+    <string name="action_follow_request_reject">Folgen-Anfrage ablehnen</string>
+    <string name="action_open_reportee_profile">Profil des Meldenden öffnen</string>
+    <string name="action_open_report">Bericht öffnen</string>
+    <string name="description_quoted_post_prefix">Zitierter Beitrag:</string>
+    <string name="action_moderation_warning_view">Moderation-Warnung anzeigen</string>
 </resources>

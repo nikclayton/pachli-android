@@ -18,11 +18,14 @@
 package app.pachli.translation
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pachli.core.common.PachliError
 import app.pachli.core.data.repository.Loadable
 import app.pachli.core.network.R
+import app.pachli.core.preferences.SharedPreferencesRepository
 import app.pachli.util.getLocaleList
 import app.pachli.util.modernLanguageCode
 import com.github.michaelbull.result.Err
@@ -58,18 +61,16 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
- * The local state of a translation model. See [TranslationModelViewData.state].
+ * The local state of a translation model. See [TranslationModelViewData.translationModelDownloadState].
  */
-private typealias State = Result<Loadable<ModelStats>?, PachliError>
+private typealias TranslationModelDownloadState = Result<Loadable<ModelStats>?, PachliError>
 
 /**
  * Statistics about each model.
  *
  * @property sizeOnDisk The size of the model's files on disk (bytes).
  */
-data class ModelStats(
-    val sizeOnDisk: Long,
-) {
+data class ModelStats(val sizeOnDisk: Long) {
     companion object {
         /**
          * @return A [ModelStats] initialised for [languageTags] with translation
@@ -82,9 +83,9 @@ data class ModelStats(
             //
             // See the comment at the calling location for why multiple language tags
             // are passed in.
-            val sizeOnDisk = languageTags.filterNotNull().distinct().map { listOf(root / "${it}_en", root / "en_$it") }.flatten().sumOf { path ->
-                path.walk().map { it.fileSize() }.sum()
-            }
+            val sizeOnDisk = languageTags.filterNotNull().distinct()
+                .flatMap { listOf(root / "${it}_en", root / "en_$it") }
+                .sumOf { path -> path.walk().sumOf { it.fileSize() } }
 
             return@withContext ModelStats(
                 sizeOnDisk = sizeOnDisk,
@@ -97,7 +98,7 @@ data class ModelStats(
  * View data for a translation model.
  *
  * @param remoteModel MlKit's [TranslateRemoteModel] for this model.
- * @param state The model's download state. Possible values are:
+ * @param translationModelDownloadState The model's download state. Possible values are:
  * - OK(null) - The model is not downloaded.
  * - Ok(Loadable.Loading) - The model is being downloaded.
  * - Ok(Loadable.Loaded) - The model has been downloaded.
@@ -106,7 +107,7 @@ data class ModelStats(
  */
 data class TranslationModelViewData(
     val remoteModel: TranslateRemoteModel,
-    val state: State,
+    val translationModelDownloadState: TranslationModelDownloadState,
     val locale: Locale,
 )
 
@@ -120,6 +121,8 @@ data class MlKitError(val throwable: Throwable) : PachliError {
 @HiltViewModel
 class TranslationModelManagerViewModel @Inject constructor(
     @ApplicationContext context: Context,
+    private val connectivityManager: ConnectivityManager,
+    private val sharedPreferencesRepository: SharedPreferencesRepository,
 ) : ViewModel() {
     private val remoteModelManager = RemoteModelManager.getInstance()
 
@@ -129,8 +132,8 @@ class TranslationModelManagerViewModel @Inject constructor(
      */
     private val localeMap = getLocaleList(emptyList()).associateBy { it.modernLanguageCode }
 
-    /** Map from each [TranslateRemoteModel] to its [State]. */
-    private val states = MutableStateFlow(emptyMap<TranslateRemoteModel, State>())
+    /** Map from each [TranslateRemoteModel] to its [TranslationModelDownloadState]. */
+    private val states = MutableStateFlow(emptyMap<TranslateRemoteModel, TranslationModelDownloadState>())
 
     /** Empty [DownloadConditions], to always download. */
     private val downloadConditions = DownloadConditions.Builder().build()
@@ -139,7 +142,7 @@ class TranslationModelManagerViewModel @Inject constructor(
      * Comparator for [TranslationModelViewData], grouping into downloaded and not downloaded,
      * sorting by displayLanguage within each group. English is always listed first.
      */
-    private val compare: Comparator<TranslationModelViewData> = compareBy({ it.remoteModel.language != "en" }, { it.state.get() !is Loadable.Loaded<*> }, { it.locale.displayLanguage })
+    private val compare: Comparator<TranslationModelViewData> = compareBy({ it.remoteModel.language != "en" }, { it.translationModelDownloadState.get() !is Loadable.Loaded<*> }, { it.locale.displayLanguage })
 
     /** Path MlKit downloads models to. */
     // Note: This is not a public part of the MlKit API and may change at any time.
@@ -149,7 +152,7 @@ class TranslationModelManagerViewModel @Inject constructor(
      * Flow containing a sorted list (see [compare]) of [TranslationModelViewData] suitable
      * for display.
      */
-    val flowViewData = states.onSubscription {
+    val translationModelViewData = states.onSubscription {
         val models = TranslateLanguage.getAllLanguages().map {
             TranslateRemoteModel.Builder(it).build()
         }
@@ -185,7 +188,7 @@ class TranslationModelManagerViewModel @Inject constructor(
             localeMap[remoteModel.language]?.let { locale ->
                 TranslationModelViewData(
                     remoteModel = remoteModel,
-                    state = state,
+                    translationModelDownloadState = state,
                     locale = locale,
                 )
             }
@@ -193,7 +196,21 @@ class TranslationModelManagerViewModel @Inject constructor(
     }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
 
     /**
-     * Downloads [language], with updates appearing in [flowViewData].
+     * @return True if languages can be downloaded based on the user's download
+     * preference and current connectivity.
+     */
+    fun canDownloadNow(): Boolean {
+        if (!sharedPreferencesRepository.translationDownloadRequireWiFi) return true
+
+        connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)?.let { capabilities ->
+            return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        }
+
+        return false
+    }
+
+    /**
+     * Downloads [language], with updates appearing in [translationModelViewData].
      *
      * Always downloads, irrespective of the network type. It is the caller's responsibility
      * to check.
@@ -206,7 +223,7 @@ class TranslationModelManagerViewModel @Inject constructor(
     }
 
     /**
-     * Downloads [model], with updates appearing in [flowViewData].
+     * Downloads [model], with updates appearing in [translationModelViewData].
      */
     private fun downloadModel(model: TranslateRemoteModel) {
         viewModelScope.launch {
@@ -227,7 +244,7 @@ class TranslationModelManagerViewModel @Inject constructor(
     }
 
     /**
-     * Deletes [language], with updates appearing in [flowViewData].
+     * Deletes [language], with updates appearing in [translationModelViewData].
      *
      * @param language Language code to download.
      */
@@ -237,7 +254,7 @@ class TranslationModelManagerViewModel @Inject constructor(
     }
 
     /**
-     * Deletes [model], with updates appearing in [flowViewData].
+     * Deletes [model], with updates appearing in [translationModelViewData].
      */
     private fun deleteModel(model: TranslateRemoteModel) {
         viewModelScope.launch {

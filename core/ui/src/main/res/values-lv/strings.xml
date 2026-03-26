@@ -108,7 +108,6 @@
     <string name="dot_in_name">punkts</string>
     <string name="role_content_description_fmt">%1$s, %2$s</string>
     <string name="handle_contentdescription_fmt">Turis, @%1$s</string>
-    <string name="account_contentdescription_fmt">%1$s, %2$s; %3$s</string>
     <string name="action_reply">Atbildēt</string>
     <string name="action_reblog">Pastiprināt</string>
     <string name="action_favourite">Pievienot izlasei</string>
@@ -156,16 +155,22 @@
         <item quantity="one">&lt;b&gt;%1$s&lt;/b&gt; citāts</item>
         <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; citāti</item>
     </plurals>
-    <string name="action_quote">Citāts</string>
+    <string name="action_quote">Citēt</string>
     <string name="action_request_quote">Pieprasīt citēšanu</string>
     <string name="label_author_denied_quote">Autors ir atspējojis citēšanu</string>
     <string name="label_quote_state_unknown">Citēto ierakstu nevar attēlot</string>
     <string name="label_quote_state_pending">Citāts gaida apstiprināšanu</string>
-    <string name="label_quote_state_rejected">Citētais konts liedza šī citāta attēlošanu</string>
+    <string name="label_quote_state_rejected">\@string/label_quote_state_revoked</string>
     <string name="label_quote_state_revoked">Citētais konts liedza šī citāta attēlošanu</string>
-    <string name="label_quote_state_deleted">Citētais ieraksts tika izdzēsts</string>
+    <string name="label_quote_state_deleted">Citētais ieraksts dzēsts</string>
     <string name="label_quote_state_unauthorized">Citētais ieraksts Tev nav redzams</string>
     <string name="label_quote_state_blocked_account">Citētais ieraksts ir no konta, kuru liedzi</string>
     <string name="label_quote_state_blocked_domain">Citētais ieraksts ir no servera, kuru liedzi</string>
     <string name="label_quote_state_muted_account">Citētais ieraksts ir no konta, kuru apklusināji</string>
+    <string name="action_follow_request_accept">Pieņemt sekošanas pieprasījumu</string>
+    <string name="action_follow_request_reject">Noraidīt sekošanas pieprasījumu</string>
+    <string name="action_moderation_warning_view">Skatīt satura pārraudzības brīdinājumu</string>
+    <string name="action_open_reportee_profile">Atvērt profilu, par kuru sūdzas</string>
+    <string name="description_quoted_post_prefix">Citētais ieraksts:</string>
+    <string name="action_open_report">Atvērt ziņojumu</string>
 </resources>

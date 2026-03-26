@@ -101,7 +101,6 @@
     <string name="dot_in_name">punkt</string>
     <string name="role_content_description_fmt">%1$s, %2$s</string>
     <string name="handle_contentdescription_fmt">Võrgunimi, @%1$s</string>
-    <string name="account_contentdescription_fmt">%1$s, %2$s; %3$s</string>
     <string name="action_reply">Vasta</string>
     <string name="action_reblog">Lisa hoogu</string>
     <string name="action_favourite">Lisa lemmikuks</string>
@@ -115,7 +114,7 @@
     <string name="translating">Sisu on tõlkimisel…</string>
     <string name="translation_provider_fmt">%1$s</string>
     <string name="description_post_edited">Muudetud</string>
-    <string name="description_post_reblogged">Korduspostitus</string>
+    <string name="description_post_reblogged">Hoogu lisatud</string>
     <string name="description_post_favourited">Lemmikuks märgitud</string>
     <string name="description_post_bookmarked">Lisatud järjehoidjaks</string>
     <string name="description_post_media">Meedia: %s</string>
@@ -158,4 +157,10 @@
     <string name="label_quote_state_blocked_account">Tsiteeritud postituse on koostanud sinu poolt blokeeritud kasutaja</string>
     <string name="label_quote_state_blocked_domain">Tsiteeritud postituse kasutaja on sinu poolt blokeeritud serverist</string>
     <string name="label_quote_state_muted_account">Tsiteeritud postituse on koostanud sinu poolt summutatud kasutaja</string>
+    <string name="description_quoted_post_prefix">Tsiteeritud postitus:</string>
+    <string name="action_follow_request_accept">Nõustu jälgimispäringuga</string>
+    <string name="action_follow_request_reject">Lükka jälgimispäring tagasi</string>
+    <string name="action_moderation_warning_view">Vaata modereerimishoiatust</string>
+    <string name="action_open_reportee_profile">Ava teataja profiil</string>
+    <string name="action_open_report">Ava teatis</string>
 </resources>

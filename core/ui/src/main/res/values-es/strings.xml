@@ -115,7 +115,6 @@
     <string name="dot_in_name">punto</string>
     <string name="role_content_description_fmt">%1$s, en %2$s</string>
     <string name="handle_contentdescription_fmt">Identificador, @%1$s</string>
-    <string name="account_contentdescription_fmt">%1$s, %2$s; %3$s</string>
     <string name="post_content_warning_show_less">Mostrar menos</string>
     <string name="post_content_warning_show_more">Mostrar más</string>
     <string name="post_content_show_less">Ocultar</string>
@@ -168,4 +167,10 @@
     <string name="label_quote_state_blocked_account">La publicación citada es de una cuenta que bloqueaste</string>
     <string name="label_quote_state_blocked_domain">La publicación citada es de un servidor que bloqueaste</string>
     <string name="label_quote_state_muted_account">La publicación citada es de una cuenta que silenciaste</string>
+    <string name="action_follow_request_accept">Aceptar solicitud de seguimiento</string>
+    <string name="action_follow_request_reject">Rechazar solicitud de seguimiento</string>
+    <string name="action_moderation_warning_view">Ver advertencia de moderación</string>
+    <string name="action_open_reportee_profile">Abrir perfil de la cuenta denunciada</string>
+    <string name="action_open_report">Abrir denuncia</string>
+    <string name="description_quoted_post_prefix">Publicación citada:</string>
 </resources>

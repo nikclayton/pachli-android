@@ -18,8 +18,10 @@
 package app.pachli.core.ui.extensions
 
 import android.content.Context
+import app.pachli.core.model.Role
 import app.pachli.core.model.TimelineAccount
 import app.pachli.core.ui.R
+import kotlin.text.Regex.Companion.escape
 
 /**
  * Returns a content description for this account.
@@ -27,37 +29,25 @@ import app.pachli.core.ui.R
  * The description looks like (content in parentheses is optional)
  *
  * "${account.name}"
- * ","
- * "Handle, @${account.username}"
- * ";"
- * ("with role: 1-n roles")
+ * (";", "with role: 1-n roles")
  *
  * When reading account names any embedded "." in the name is converted to " dot "
  * to make it explicit (otherwise TalkBack inserts a short pause, which is no use
  * for domains). See [nameContentDescription].
  */
 fun TimelineAccount.contentDescription(context: Context): String {
-    val roleString = if (roles.isNotEmpty()) {
-        StringBuilder().apply {
-            append(context.resources.getQuantityString(R.plurals.description_post_roles, roles.size))
-            append(roles.joinToString(", ") { it.contentDescription(context) })
-        }.toString()
-    } else {
-        ""
+    return buildString {
+        append(nameContentDescription(context))
+        rolesContentDescription(context)?.let {
+            append("; ")
+            append(it)
+        }
     }
-
-    return context.getString(
-        R.string.account_contentdescription_fmt,
-        // Some names have dots in them
-        nameContentDescription(context),
-        handleContentDescription(context),
-        roleString,
-    )
 }
 
 /**
  * @return A content description for the account's name. Dots in the name are
- * replaced with R.string.dot_in_name so TalkBack reads them correctly.
+ * replaced with [R.string.dot_in_name] so TalkBack reads them correctly.
  *
  * For example, for the account "@staff@mastodon.social" the display name is
  * "Mastodon.social Staff", and this ensures this is read as "Mastodon dot social
@@ -76,10 +66,13 @@ internal fun nameContentDescription(context: Context, name: String): String {
  *
  * Work around for https://issuetracker.google.com/issues/447792953.
  */
-val talkbackTlds = mapOf(".xyz" to ".x y z")
+val talkbackTlds = mapOf(
+    ".la" to ".l a",
+    ".xyz" to ".x y z",
+)
 
 /** Regex that matches and groups each domain suffix in [talkbackTlds]. */
-val rxTalkbackTlds = "(${talkbackTlds.keys.joinToString("|")}$)".toRegex()
+val rxTalkbackTlds = "(${talkbackTlds.keys.map { escape(it) }.joinToString("|")}$)".toRegex()
 
 /**
  * @return A content description for the account's handle. If the handle
@@ -95,4 +88,19 @@ internal fun handleContentDescription(context: Context, handle: String): String 
     }
 
     return context.getString(R.string.handle_contentdescription_fmt, correctedHandle)
+}
+
+/**
+ * @return A content description for the account's roles (null if the account
+ * has no roles).
+ */
+fun TimelineAccount.rolesContentDescription(context: Context) = roles.contentDescription(context)
+
+internal fun Collection<Role>.contentDescription(context: Context): String? {
+    if (this.isEmpty()) return null
+
+    return buildString {
+        append(context.resources.getQuantityString(R.plurals.description_post_roles, size))
+        append(joinToString(", ") { it.contentDescription(context) })
+    }
 }

@@ -27,9 +27,9 @@
     <string name="title_drafts">پیش‌نویس‌ها</string>
     <string name="post_sensitive_media_directions">کلیک برای نمایش</string>
     <string name="footer_empty">این‌جا هیچ‌چیز نیست. برای تازه‌سازی، به پایین بکشید!</string>
-    <string name="notification_reblog_format">%s فرسته‌تان را تقویت کرد</string>
-    <string name="notification_favourite_format">%s فرسته‌تان را برگزید</string>
-    <string name="notification_follow_format">%s پی‌گیرتان شد</string>
+    <string name="notification_reblog_format">&lt;b&gt;%1$s&lt;/b&gt; فرسته‌تان را تقویت کرد</string>
+    <string name="notification_favourite_format">&lt;b&gt;%1$s&lt;/b&gt; فرسته‌تان را برگزید</string>
+    <string name="notification_follow_format">&lt;b&gt;%1$s&lt;/b&gt; پی‌گیرتان شد</string>
     <string name="report_username_format">گزارش @%s</string>
     <string name="report_comment_hint">نظرهای اضافی؟</string>
     <string name="action_quick_reply">پاسخ سریع</string>
@@ -147,7 +147,7 @@
     <string name="notification_boost_description">آگاهی‌ها هنگام تقویت فرسته‌هایتان</string>
     <string name="notification_favourite_name">برگزیدن‌ها</string>
     <string name="notification_favourite_description">آگاهی‌ها هنگام برگزیده شدن فرسته‌هایتان</string>
-    <string name="notification_mention_format">%s به شما اشاره کرد</string>
+    <string name="notification_mention_format">&lt;b&gt;%1$s&lt;/b&gt; به شما اشاره کرد</string>
     <string name="notification_summary_large">%1$s، %2$s، %3$s و %4$d دیگر</string>
     <string name="notification_summary_medium">%1$s، %2$s و %3$s</string>
     <string name="notification_summary_small">%1$s و %2$s</string>
@@ -298,7 +298,7 @@
     <string name="dialog_block_warning">انسداد @%s؟</string>
     <string name="action_unmute_conversation">ناخموشی گفت‌وگو</string>
     <string name="action_mute_conversation">خموشی گفت‌وگو</string>
-    <string name="notification_follow_request_format">%s می‌خواهد پی‌گیرتان شود</string>
+    <string name="notification_follow_request_format">&lt;b&gt;%1$s&lt;/b&gt; می‌خواهد پی‌گیرتان شود</string>
     <string name="pref_main_nav_position">موقعیت ناوبری اصلی</string>
     <string name="pref_title_gradient_for_media">نمایش گرادیان‌های رنگی برای رسانه‌های نهفته</string>
     <string name="dialog_mute_hide_notifications">نهفتن آگاهی‌ها</string>
@@ -323,7 +323,7 @@
     <string name="notification_subscription_name">فرسته‌های جدید</string>
     <string name="pref_title_animate_custom_emojis">اموجی‌های شخصی متحرّک</string>
     <string name="pref_title_notification_filter_subscriptions">کسی که پی‌می‌گیرم، فرسته‌ای جدید منتشر کرد</string>
-    <string name="notification_subscription_format">%s چیزی فرستاد</string>
+    <string name="notification_subscription_format">&lt;b&gt;%1$s&lt;/b&gt; چیزی فرستاد</string>
     <string name="drafts_post_reply_removed">فرسته‌ای که پاسخی به آن را پیش‌نویس کردید، برداشته شده</string>
     <string name="wellbeing_mode_notice">برخی اطّلاعات که ممکن است روی سلامتی ذهنیتان تأثیر بگذارد، پنهان خواهند شد. همچون:
 \n
@@ -341,7 +341,7 @@
     <string name="dialog_delete_conversation_warning">حذف این گفت‌وگو؟</string>
     <string name="action_delete_conversation">حذف گفت‌وگو</string>
     <string name="account_date_joined">%1$s در پیوست</string>
-    <string name="notification_sign_up_format">%1$s ثبت‌نام کرد</string>
+    <string name="notification_sign_up_format">&lt;b&gt;%1$s&lt;/b&gt; ثبت‌نام کرد</string>
     <string name="pref_title_confirm_favourites">نمایش تأیید پیش از برگزیدن</string>
     <string name="pachli_compose_post_quicksetting_label">ایجاد فرسته</string>
     <string name="notification_update_description">آگاهی‌ها هنگام ویرایش فرسته‌هایی که با آن‌ها تعامل داشته‌اید</string>
@@ -355,7 +355,7 @@
     <string name="pref_title_notification_filter_sign_ups">کسی ثبت‌نام کرد</string>
     <string name="notification_update_name">ویرایش‌های فرسته</string>
     <string name="action_edit_image">ویرایش تصویر</string>
-    <string name="notification_update_format">%s فرسته‌اش را ویراست</string>
+    <string name="notification_update_format">&lt;b&gt;%1$s&lt;/b&gt; فرسته‌اش را ویراست</string>
     <string name="pref_title_notification_filter_updates">فرسته‌ای که با آن تعامل داشته‌ام ویرایش شده</string>
     <string name="notification_sign_up_name">ثبت‌نام‌ها</string>
     <string name="notification_sign_up_description">آگاهی‌ها دربارهٔ کاربران جدید</string>
