@@ -287,34 +287,26 @@ class EditContentFilterActivity : BaseActivity() {
     }
 
     private fun bindKeywords(newKeywords: List<FilterKeyword>) {
-        newKeywords.forEachIndexed { index, filterKeyword ->
-            val chip = binding.keywordChips.getChildAt(index).takeUnless {
-                it.id == R.id.actionChip
-            } as Chip? ?: Chip(this).apply {
+        binding.keywordChips.removeViews(0, binding.keywordChips.size - 1)
+
+        newKeywords.forEach { filterKeyword ->
+            Chip(this).apply {
                 setCloseIconResource(R.drawable.ic_cancel_24dp)
                 isCheckable = false
+                text = if (filterKeyword.wholeWord) {
+                    binding.root.context.getString(
+                        R.string.filter_keyword_display_format,
+                        filterKeyword.keyword,
+                    )
+                } else {
+                    filterKeyword.keyword
+                }
+                isCloseIconVisible = true
+                setOnClickListener { showEditKeywordDialog(filterKeyword) }
+                setOnCloseIconClickListener { viewModel.deleteKeyword(filterKeyword) }
+
                 binding.keywordChips.addView(this, binding.keywordChips.size - 1)
             }
-
-            chip.text = if (filterKeyword.wholeWord) {
-                binding.root.context.getString(
-                    R.string.filter_keyword_display_format,
-                    filterKeyword.keyword,
-                )
-            } else {
-                filterKeyword.keyword
-            }
-            chip.isCloseIconVisible = true
-            chip.setOnClickListener {
-                showEditKeywordDialog(newKeywords[index])
-            }
-            chip.setOnCloseIconClickListener {
-                viewModel.deleteKeyword(newKeywords[index])
-            }
-        }
-
-        while (binding.keywordChips.size - 1 > newKeywords.size) {
-            binding.keywordChips.removeViewAt(newKeywords.size)
         }
     }
 

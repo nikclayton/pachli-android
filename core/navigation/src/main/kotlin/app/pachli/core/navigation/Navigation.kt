@@ -31,6 +31,9 @@ import app.pachli.core.model.Attachment
 import app.pachli.core.model.ContentFilter
 import app.pachli.core.model.Draft
 import app.pachli.core.model.Emoji
+import app.pachli.core.model.FilterAction
+import app.pachli.core.model.FilterContext
+import app.pachli.core.model.FilterKeyword
 import app.pachli.core.model.Notification
 import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
@@ -548,8 +551,7 @@ class EditContentFilterActivityIntent(context: Context, pachliAccountId: Long) :
 
     companion object {
         private const val EXTRA_CONTENT_FILTER_TO_EDIT = "app.pachli.EXTRA_CONTENT_FILTER_TO_EDIT"
-        private const val EXTRA_CONTENT_FILTER_ID_TO_LOAD =
-            "app.pachli.EXTRA_CONTENT_FILTER_ID_TO_LOAD"
+        private const val EXTRA_CONTENT_FILTER_ID_TO_LOAD = "app.pachli.EXTRA_CONTENT_FILTER_ID_TO_LOAD"
 
         /**
          * Launch with [contentFilter] displayed, ready to edit.
@@ -576,7 +578,28 @@ class EditContentFilterActivityIntent(context: Context, pachliAccountId: Long) :
         }
 
         /** @return the [ContentFilter] passed in this intent, or null */
-        fun getContentFilter(intent: Intent) = IntentCompat.getParcelableExtra(intent, EXTRA_CONTENT_FILTER_TO_EDIT, ContentFilter::class.java)
+        fun getContentFilter(intent: Intent): ContentFilter? {
+            IntentCompat.getParcelableExtra(intent, EXTRA_CONTENT_FILTER_TO_EDIT, ContentFilter::class.java)
+                ?.let { return it }
+
+            intent.getCharSequenceExtra(EXTRA_PROCESS_TEXT)?.let { text ->
+                return ContentFilter(
+                    id = "",
+                    title = text.toString(),
+                    contexts = FilterContext.entries.toSet(),
+                    filterAction = FilterAction.WARN,
+                    keywords = listOf(
+                        FilterKeyword(
+                            id = "",
+                            keyword = text.toString(),
+                            wholeWord = true,
+                        ),
+                    ),
+                )
+            }
+
+            return null
+        }
 
         /** @return the content filter ID passed in this intent, or null */
         fun getContentFilterId(intent: Intent) = intent.getStringExtra(EXTRA_CONTENT_FILTER_ID_TO_LOAD)

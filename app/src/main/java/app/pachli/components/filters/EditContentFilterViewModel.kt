@@ -196,7 +196,7 @@ enum class UiMode {
  * If [contentFilter] is non-null it is used to initialise the view model data,
  * [contentFilterId] is ignored, and [uiMode] is [UiMode.EDIT].
  *
- * If [contentFilterId] is non-null is is fetched from the repository, used to
+ * If [contentFilterId] is non-null it is fetched from the repository, used to
  * initialise the view model, and [uiMode] is [UiMode.EDIT].
  *
  * If both [contentFilter] and [contentFilterId] are null an empty [ContentFilterViewData]
@@ -219,7 +219,7 @@ class EditContentFilterViewModel @AssistedInject constructor(
     private var originalContentFilter: ContentFilter? = null
 
     /** User interface mode. */
-    val uiMode = if (contentFilter == null && contentFilterId == null) UiMode.CREATE else UiMode.EDIT
+    val uiMode = if ((contentFilter == null || contentFilter.id.isEmpty()) && contentFilterId == null) UiMode.CREATE else UiMode.EDIT
 
     private val _uiResult = Channel<Result<UiSuccess, UiError>>()
     val uiResult = _uiResult.receiveAsFlow()
@@ -251,15 +251,14 @@ class EditContentFilterViewModel @AssistedInject constructor(
         }
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000))
 
-    private val _contentFilterViewData = MutableStateFlow<ContentFilterViewData?>(null)
+    private val _contentFilterViewData = MutableStateFlow<ContentFilterViewData?>(ContentFilterViewData())
     val contentFilterViewData = combine(_contentFilterViewData.filterNotNull(), reload) { contentFilter, _ ->
         contentFilter
-    }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            initialValue = null,
-        )
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        initialValue = ContentFilterViewData(),
+    )
 
     /** Set of validation errors for the current filter. */
     val validationErrors = contentFilterViewData.filterNotNull().map { it.validate() }.shareIn(
