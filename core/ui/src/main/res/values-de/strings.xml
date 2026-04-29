@@ -8,7 +8,7 @@
     <string name="action_view_profile">Profil</string>
     <string name="action_more">Mehr</string>
     <string name="action_refresh">Aktualisieren</string>
-    <string name="url_domain_notifier">\u0020(🔗 %s)</string>
+    <string name="url_domain_notifier">\u0020(🔗 %1$s)</string>
     <string name="action_links">Links</string>
     <string name="action_mentions">Erwähnungen</string>
     <string name="action_hashtags">Hashtags</string>
@@ -63,21 +63,21 @@
         <item quantity="other">%s Personen</item>
     </plurals>
     <string name="poll_info_closed">Geschlossen</string>
-    <string name="poll_info_time_absolute">endet um %s</string>
+    <string name="poll_info_time_absolute">endet um %1$s</string>
     <string name="poll_info_format"><!-- 15 Stimmen • noch 1 Stunde -->%1$s • %2$s</string>
     <string name="description_poll">Umfrage mit den Möglichkeiten: %1$s, %2$s, %3$s, %4$s; %5$s</string>
     <string name="post_media_alt">ALT</string>
     <string name="status_created_at_now">Jetzt</string>
-    <string name="abbreviated_in_seconds">in %d Sek.</string>
-    <string name="abbreviated_seconds_ago">%d Sek.</string>
-    <string name="abbreviated_in_minutes">in %d Min.</string>
-    <string name="abbreviated_minutes_ago">%d Min.</string>
-    <string name="abbreviated_in_hours">in %d Std.</string>
-    <string name="abbreviated_hours_ago">%d Std.</string>
-    <string name="abbreviated_in_days">in %d T.</string>
-    <string name="abbreviated_days_ago">%d T.</string>
-    <string name="abbreviated_in_years">in %d J.</string>
-    <string name="abbreviated_years_ago">%d J.</string>
+    <string name="abbreviated_in_seconds">in %1$d Sek.</string>
+    <string name="abbreviated_seconds_ago">%1$d Sek.</string>
+    <string name="abbreviated_in_minutes">in %1$d Min.</string>
+    <string name="abbreviated_minutes_ago">%1$d Min.</string>
+    <string name="abbreviated_in_hours">in %1$d Std.</string>
+    <string name="abbreviated_hours_ago">%1$d Std.</string>
+    <string name="abbreviated_in_days">in %1$d T.</string>
+    <string name="abbreviated_days_ago">%1$d T.</string>
+    <string name="abbreviated_in_years">in %1$d J.</string>
+    <string name="abbreviated_years_ago">%1$d J.</string>
     <string name="description_post_media_no_description_placeholder">        Keine Beschreibung    </string>
     <string name="description_visibility_public">Öffentlich    </string>
     <string name="description_visibility_unlisted">Nicht gelistet</string>
@@ -117,8 +117,8 @@
     <string name="description_post_reblogged">Geteilt</string>
     <string name="description_post_favourited">Favorisiert    </string>
     <string name="description_post_bookmarked">Als Lesezeichen gespeichert</string>
-    <string name="description_post_media">Medien: %s</string>
-    <string name="description_post_cw">Inhaltswarnung: %s</string>
+    <string name="description_post_media">Medien: %1$s</string>
+    <string name="description_post_cw">Inhaltswarnung: %1$s</string>
     <plurals name="reblogs">
         <item quantity="one">&lt;b&gt;%s&lt;/b&gt;-mal geteilt</item>
         <item quantity="other">&lt;b&gt;%s&lt;/b&gt;-mal geteilt</item>
@@ -128,7 +128,7 @@
         <item quantity="other">&lt;b&gt;%1$s&lt;/b&gt; Favoriten</item>
     </plurals>
     <string name="post_boosted_fmt">&lt;b&gt;%1$s&lt;/b&gt; teilte</string>
-    <string name="post_edited">Bearbeitet %s</string>
+    <string name="post_edited">Bearbeitet %1$s</string>
     <string name="post_replied_to_fmt">Antwort auf &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="post_continued_thread">Fortgeführter Thread</string>
     <string name="post_replied">Beantwortet</string>
@@ -163,4 +163,21 @@
     <string name="action_open_report">Bericht öffnen</string>
     <string name="description_quoted_post_prefix">Zitierter Beitrag:</string>
     <string name="action_moderation_warning_view">Moderation-Warnung anzeigen</string>
+    <string name="create_poll_title">Umfrage</string>
+    <string name="duration_5_min">5 Minuten</string>
+    <string name="duration_30_min">30 Minuten</string>
+    <string name="duration_1_hour">1 Stunde</string>
+    <string name="duration_6_hours">6 Stunden</string>
+    <string name="duration_1_day">1 Tag</string>
+    <string name="duration_3_days">3 Tage</string>
+    <string name="duration_7_days">7 Tage</string>
+    <string name="duration_14_days">14 Tage</string>
+    <string name="duration_30_days">30 Tage</string>
+    <string name="duration_60_days">60 Tage</string>
+    <string name="duration_90_days">90 Tage</string>
+    <string name="duration_180_days">180 Tage</string>
+    <string name="duration_365_days">365 Tage</string>
+    <string name="pref_summary_none">Keine</string>
+    <string name="action_add_to_tab">Zum Tab hinzufügen</string>
+    <string name="action_add_to_tab_success">\'%1$s\' zu Tabs hinzugefügt</string>
 </resources>

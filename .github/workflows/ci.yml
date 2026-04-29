@@ -94,7 +94,7 @@ jobs:
           echo "exitcode=$?" >> $GITHUB_OUTPUT
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4
+        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4
         with:
           sarif_file: app/build/reports/lint-results-${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}.sarif
           category: lint-${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
@@ -113,7 +113,7 @@ jobs:
         color: ["orange"]
         store: [ "Fdroid", "Github", "Google" ]
         type: [ "Debug", "Release" ]
-    name: Android Test
+    name: Android Unit Test
     runs-on: ubuntu-latest
 
     steps:
@@ -125,7 +125,7 @@ jobs:
           gradle-cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: test ${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
-        run: ./gradlew test${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
+        run: ./gradlew test${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}UnitTest
 
   # Android assemble is per variant
   assemble:
@@ -147,6 +147,23 @@ jobs:
 
       - name: assemble ${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
         run: ./gradlew assemble${{ matrix.color }}${{ matrix.store }}${{ matrix.type }}
+
+  # Screenshots are taken and validated on orangeGoogleDebug.
+  screenshots:
+    name: Validate screenshots
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          lfs: true
+
+      - uses: ./.github/actions/setup-build-env
+        with:
+          gradle-cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Validate screenshots
+        run: ./gradlew validateOrangeGoogleDebugScreenshotTest
 
   # Connected tests are per-store-variant, debug builds only.
   connected:
@@ -185,7 +202,7 @@ jobs:
 
       - name: Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@b530d96654c385303d652368551fb075bc2f0b6b # v2
+        uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2
         with:
           arch: x86_64
           api-level: ${{ matrix.api-level }}
@@ -195,7 +212,7 @@ jobs:
           script: echo "Generated AVD snapshot for caching."
 
       - name: Run tests
-        uses: reactivecircus/android-emulator-runner@b530d96654c385303d652368551fb075bc2f0b6b # v2
+        uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2
         with:
           arch: x86_64
           api-level: ${{ matrix.api-level }}

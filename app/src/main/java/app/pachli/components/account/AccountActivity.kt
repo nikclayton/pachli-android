@@ -59,10 +59,14 @@ import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.common.util.unsafeLazy
+import app.pachli.core.data.repository.createDraft
+import app.pachli.core.data.repository.createDraftMention
 import app.pachli.core.data.repository.getOrNull
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.Account
+import app.pachli.core.model.Draft
 import app.pachli.core.model.Relationship
+import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent
@@ -87,7 +91,6 @@ import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.core.ui.getDomain
 import app.pachli.core.ui.loadAvatar
 import app.pachli.databinding.ActivityAccountBinding
-import app.pachli.db.DraftsAlert
 import app.pachli.feature.lists.ListsForAccountFragment
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.util.Error
@@ -127,9 +130,6 @@ class AccountActivity :
     MenuProvider,
     LinkListener {
     @Inject
-    lateinit var draftsAlert: DraftsAlert
-
-    @Inject
     lateinit var clipboard: ClipboardUseCase
 
     private val viewModel: AccountViewModel by viewModels(
@@ -162,6 +162,7 @@ class AccountActivity :
 
     private val animateAvatar by unsafeLazy { sharedPreferencesRepository.animateAvatars }
     private val animateEmojis by unsafeLazy { sharedPreferencesRepository.animateEmojis }
+    private val linksToUnderline by unsafeLazy { sharedPreferencesRepository.linksToUnderline }
 
     // fields for scroll animation
     private var hideFab: Boolean = false
@@ -276,7 +277,13 @@ class AccountActivity :
         binding.accountFollowsYouChip.hide()
 
         // setup the RecyclerView for the account fields
-        accountFieldAdapter = AccountFieldAdapter(glide, setContent, this, animateEmojis)
+        accountFieldAdapter = AccountFieldAdapter(
+            glide,
+            setContent,
+            this,
+            animateEmojis,
+            linksToUnderline,
+        )
         binding.accountFieldList.isNestedScrollingEnabled = false
         binding.accountFieldList.layoutManager = LinearLayoutManager(this)
         binding.accountFieldList.adapter = accountFieldAdapter
@@ -518,9 +525,6 @@ class AccountActivity :
         viewModel.noteSaved.observe(this) {
             binding.saveNoteInfo.visible(it, View.INVISIBLE)
         }
-
-        // "Post failed" dialog should display in this activity
-        draftsAlert.observeInContext(this, true)
     }
 
     private fun onRefresh() {
@@ -561,6 +565,7 @@ class AccountActivity :
             emojis = account.emojis.orEmpty(),
             animateEmojis = viewModel.statusDisplayOptions.value.animateEmojis,
             removeQuoteInline = false,
+            linksToUnderline = viewModel.statusDisplayOptions.value.linksToUnderline,
             linkListener = this,
         )
 
@@ -986,15 +991,20 @@ class AccountActivity :
     }
 
     private fun mention(account: Account) {
-        val options = if (viewModel.isSelf.value) {
-            ComposeOptions(kind = ComposeOptions.ComposeKind.NEW)
+        val activeAccount = accountManager.activeAccount!!
+        // Create a draft that mentions the user. Uses `Timeline.Home` to get
+        // generic draft creation behaviour.
+        val draft = if (viewModel.isSelf.value) {
+            Draft.createDraft(this@AccountActivity, activeAccount, Timeline.Home)
         } else {
-            ComposeOptions(
-                mentionedUsernames = setOf(account.username),
-                kind = ComposeOptions.ComposeKind.NEW,
-            )
+            Draft.createDraftMention(this@AccountActivity, activeAccount, Timeline.Home, account.username)
         }
-        val intent = ComposeActivityIntent(this, intent.pachliAccountId, options)
+        val intent = ComposeActivityIntent(
+            this@AccountActivity,
+            intent.pachliAccountId,
+            ComposeOptions(draft = draft, kind = ComposeOptions.ComposeKind.NEW),
+        )
+
         startActivity(intent)
     }
 

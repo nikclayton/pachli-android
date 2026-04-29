@@ -18,6 +18,7 @@
 package app.pachli.components.notifications
 
 import androidx.core.text.HtmlCompat
+import androidx.core.text.htmlEncode
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
 import app.pachli.core.common.extensions.visible
@@ -27,6 +28,7 @@ import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.TimelineAccount
 import app.pachli.core.network.parseAsMastodonHtml
+import app.pachli.core.preferences.LinksToUnderline
 import app.pachli.core.preferences.PronounDisplay
 import app.pachli.core.ui.LinkListener
 import app.pachli.core.ui.SetContent
@@ -61,6 +63,7 @@ class FollowViewHolder(
             statusDisplayOptions.animateAvatars,
             statusDisplayOptions.animateEmojis,
             statusDisplayOptions.pronounDisplay == PronounDisplay.EVERYWHERE,
+            statusDisplayOptions.linksToUnderline,
         )
     }
 
@@ -70,9 +73,10 @@ class FollowViewHolder(
         animateAvatars: Boolean,
         animateEmojis: Boolean,
         showPronouns: Boolean,
+        linksToUnderline: Set<LinksToUnderline>,
     ) {
         val context = binding.notificationText.context
-        val displayName = account.name.unicodeWrap()
+        val displayName = account.name.htmlEncode().unicodeWrap()
         val msg = context.getString(
             if (isSignUp) {
                 R.string.notification_sign_up_format
@@ -111,6 +115,7 @@ class FollowViewHolder(
             emojis = account.emojis.orEmpty(),
             animateEmojis = animateEmojis,
             removeQuoteInline = false,
+            linksToUnderline = linksToUnderline,
             linkListener = linkListener,
         )
 

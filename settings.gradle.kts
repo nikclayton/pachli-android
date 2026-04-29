@@ -30,7 +30,7 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    id("com.gradle.develocity") version "4.3.2"
+    id("com.gradle.develocity") version "4.4.0"
     id("org.gradle.toolchains.foojay-resolver-convention") version ("1.0.0")
 }
 
@@ -63,10 +63,12 @@ include(":core:preferences")
 include(":core:navigation")
 include(":core:network")
 include(":core:network-test")
+include(":core:sendstatus")
 include(":core:testing")
 include(":core:ui")
 include(":core:worker")
 include(":feature:about")
+include(":feature:drafts")
 include(":feature:intentrouter")
 include(":feature:lists")
 include(":feature:login")

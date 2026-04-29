@@ -32,7 +32,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.pachli.R
-import app.pachli.components.compose.ComposeActivity.QueuedMedia
 import app.pachli.components.compose.MediaPreviewAdapter.Companion.Payload
 import app.pachli.components.compose.MediaPreviewAdapter.Companion.QUEUED_MEDIA_DIFFER
 import app.pachli.components.compose.MediaPreviewAdapter.MediaAction
@@ -41,11 +40,14 @@ import app.pachli.components.compose.MediaPreviewAdapter.MediaAction.EDIT_IMAGE
 import app.pachli.components.compose.MediaPreviewAdapter.MediaAction.MOVE_DOWN
 import app.pachli.components.compose.MediaPreviewAdapter.MediaAction.MOVE_UP
 import app.pachli.components.compose.MediaPreviewAdapter.MediaAction.REMOVE
-import app.pachli.components.compose.UploadState.Uploaded
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.visible
 import app.pachli.core.model.Attachment
+import app.pachli.core.sendstatus.MediaUploaderError
+import app.pachli.core.sendstatus.UploadState
+import app.pachli.core.sendstatus.UploadState.Uploaded
+import app.pachli.core.sendstatus.model.QueuedMedia
 import app.pachli.databinding.ItemComposeMediaAttachmentBinding
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -396,7 +398,7 @@ class AttachmentViewHolder(
         if (item.type == QueuedMedia.Type.AUDIO) {
             // TODO: Fancy waveform display?
             glide.clear(this)
-            setImageResource(R.drawable.ic_music_box_preview_24dp)
+            setImageResource(app.pachli.core.ui.R.drawable.ic_music_box_preview_24dp)
             return@with
         }
 

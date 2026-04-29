@@ -55,6 +55,7 @@ import app.pachli.core.domain.notifications.notificationMethod
 import app.pachli.core.preferences.AppTheme
 import app.pachli.core.preferences.DefaultAudioPlayback
 import app.pachli.core.preferences.DownloadLocation
+import app.pachli.core.preferences.LinksToUnderline
 import app.pachli.core.preferences.MainNavigationPosition
 import app.pachli.core.preferences.PrefKeys
 import app.pachli.core.preferences.PronounDisplay
@@ -73,6 +74,7 @@ import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.AccountNotificationDetailsListItemBinding
 import app.pachli.settings.emojiPreference
 import app.pachli.settings.enumListPreference
+import app.pachli.settings.enumMultiSelectListPreference
 import app.pachli.settings.listPreference
 import app.pachli.settings.makePreferenceScreen
 import app.pachli.settings.preference
@@ -171,6 +173,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
                 emojiPreference(requireActivity()) {
                     setTitle(R.string.emoji_style)
+                    setDialogTitle(R.string.emoji_style)
                     icon = makeIcon(GoogleMaterial.Icon.gmd_sentiment_satisfied)
                 }
 
@@ -181,6 +184,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     key = PrefKeys.LANGUAGE + "_" // deliberately not the actual key, the real handling happens in LocaleManager
                     setSummaryProvider { entry }
                     setTitle(R.string.pref_title_language)
+                    setDialogTitle(R.string.pref_title_language)
                     icon = makeIcon(GoogleMaterial.Icon.gmd_translate)
                     preferenceDataStore = localeManager
                 }
@@ -205,6 +209,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     key = PrefKeys.FONT_FAMILY
                     setSummaryProvider { entry }
                     setTitle(R.string.pref_title_font_family)
+                    setDialogTitle(R.string.pref_title_font_family)
                     icon = makeIcon(GoogleMaterial.Icon.gmd_font_download)
                 }
 
@@ -215,6 +220,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     key = PrefKeys.STATUS_TEXT_SIZE
                     setSummaryProvider { entry }
                     setTitle(R.string.pref_post_text_size)
+                    setDialogTitle(R.string.pref_post_text_size)
                     icon = makeIcon(GoogleMaterial.Icon.gmd_format_size)
                 }
 
@@ -320,6 +326,11 @@ class PreferencesFragment : PreferenceFragmentCompat() {
                     setDefaultValue(PronounDisplay.WHEN_COMPOSING)
                     setTitle(app.pachli.core.preferences.R.string.pref_title_pronoun_display)
                     key = PrefKeys.PRONOUN_DISPLAY
+                }
+
+                enumMultiSelectListPreference<LinksToUnderline> {
+                    setTitle(app.pachli.core.preferences.R.string.pref_title_underline_links)
+                    key = PrefKeys.LINKS_TO_UNDERLINE
                 }
             }
 

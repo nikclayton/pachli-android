@@ -28,19 +28,25 @@ import androidx.core.view.ViewGroupCompat
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import app.pachli.core.activity.ViewUrlActivity
+import app.pachli.core.activity.extensions.TransitionKind
+import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.ContentFilterEdit
 import app.pachli.core.data.repository.ContentFiltersRepository
 import app.pachli.core.data.repository.canFilterV1
 import app.pachli.core.data.repository.canFilterV2
+import app.pachli.core.data.repository.createDraft
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.ContentFilter
+import app.pachli.core.model.Draft
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.FilterContext
 import app.pachli.core.model.NewContentFilter
 import app.pachli.core.model.NewContentFilterKeyword
 import app.pachli.core.model.Timeline
+import app.pachli.core.navigation.ComposeActivityIntent
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.TimelineActivityIntent
 import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.ui.appbar.FadeChildScrollEffect
@@ -76,6 +82,8 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
 
     override val actionButton: FloatingActionButton? by unsafeLazy { binding.composeButton }
 
+    private val pachliAccountId by unsafeLazy { intent.pachliAccountId }
+
     /**
      * If showing statuses with a hashtag, the hashtag being used, without the
      * leading `#`.
@@ -105,7 +113,7 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
         timeline = TimelineActivityIntent.getTimeline(intent)
         hashtag = (timeline as? Timeline.Hashtags)?.tags?.firstOrNull()
 
-        val tabViewData = TabViewData.from(intent.pachliAccountId, timeline)
+        val tabViewData = TabViewData.from(pachliAccountId, timeline)
 
         supportActionBar?.run {
             title = tabViewData.title(this@TimelineActivity)
@@ -121,21 +129,19 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             }
         }
 
-        tabViewData.composeIntent?.let { intent ->
-            binding.composeButton.setOnClickListener {
-                startActivity(
-                    intent(
-                        this@TimelineActivity,
-                        this.intent.pachliAccountId,
-                    ),
-                )
+        binding.composeButton.setOnClickListener {
+            lifecycleScope.launch {
+                val account = accountManager.getAccountById(pachliAccountId)!!
+                val draft = Draft.createDraft(this@TimelineActivity, account, timeline)
+                val composeOptions = ComposeOptions(draft = draft)
+                val intent = ComposeActivityIntent(this@TimelineActivity, pachliAccountId, composeOptions)
+                startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
             }
-            binding.composeButton.show()
-        } ?: binding.composeButton.hide()
+        }
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.activity_timeline, menu)
+        menuInflater.inflate(app.pachli.core.ui.R.menu.action_add_to_tab, menu)
 
         hashtag?.let { tag ->
             lifecycleScope.launch {
@@ -164,14 +170,14 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
         // special-cased to not be addable to a tab).
         val currentTabs = accountManager.activeAccount?.tabPreferences.orEmpty()
         val hideMenu = timeline is Timeline.Link || timeline is Timeline.Quote || currentTabs.contains(timeline)
-        menu.findItem(R.id.action_add_to_tab)?.isVisible = !hideMenu
+        menu.findItem(app.pachli.core.ui.R.id.action_add_to_tab)?.isVisible = !hideMenu
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
-            R.id.action_add_to_tab -> {
+            app.pachli.core.ui.R.id.action_add_to_tab -> {
                 addToTab()
-                Toast.makeText(this, getString(R.string.action_add_to_tab_success, supportActionBar?.title), Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(app.pachli.core.ui.R.string.action_add_to_tab_success, supportActionBar?.title), Toast.LENGTH_LONG).show()
                 menuItem.isVisible = false
                 true
             }
@@ -248,7 +254,7 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
         unmuteTagItem?.isVisible = false
 
         lifecycleScope.launch {
-            accountManager.getPachliAccountFlow(intent.pachliAccountId)
+            accountManager.getPachliAccountFlow(pachliAccountId)
                 .filterNotNull()
                 .distinctUntilChangedBy { it.contentFilters }
                 .collect { account ->
@@ -297,7 +303,7 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                 ),
             )
 
-            contentFiltersRepository.createContentFilter(intent.pachliAccountId, newContentFilter)
+            contentFiltersRepository.createContentFilter(pachliAccountId, newContentFilter)
                 .onSuccess {
                     mutedContentFilter = it
                     updateTagMuteState(true)
@@ -317,9 +323,9 @@ class TimelineActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             val result = mutedContentFilter?.let { filter ->
                 val newContexts = filter.contexts.filter { it != FilterContext.HOME }
                 if (newContexts.isEmpty()) {
-                    contentFiltersRepository.deleteContentFilter(intent.pachliAccountId, filter.id)
+                    contentFiltersRepository.deleteContentFilter(pachliAccountId, filter.id)
                 } else {
-                    contentFiltersRepository.updateContentFilter(intent.pachliAccountId, filter, ContentFilterEdit(filter.id, contexts = newContexts))
+                    contentFiltersRepository.updateContentFilter(pachliAccountId, filter, ContentFilterEdit(filter.id, contexts = newContexts))
                 }
             }
 

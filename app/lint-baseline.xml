@@ -88,7 +88,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="273"
+            line="274"
             column="9"/>
     </issue>
 
@@ -99,7 +99,7 @@
         errorLine2="                                                           ~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="425"
+            line="432"
             column="60"/>
     </issue>
 
@@ -110,7 +110,7 @@
         errorLine2="                                                           ~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="426"
+            line="433"
             column="60"/>
     </issue>
 
@@ -121,7 +121,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="813"
+            line="827"
             column="17"/>
     </issue>
 
@@ -132,7 +132,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="816"
+            line="830"
             column="17"/>
     </issue>
 
@@ -143,7 +143,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="821"
+            line="835"
             column="13"/>
     </issue>
 
@@ -237,34 +237,12 @@
 
     <issue
         id="MemberExtensionConflict"
-        message="`show` is defined both as a member in class `com.google.android.material.floatingactionbutton.FloatingActionButton` and an extension in package `app.pachli.core.common.extensions`. The defined behavior for this is to use the member, but since the extension is explicitly imported into this file, there&apos;s a chance that this was not expected. (One common way this happens is for members to be added to a class after code was already written to use an extension)."
-        errorLine1="            binding.composeButton.show()"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="1113"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MemberExtensionConflict"
-        message="`hide` is defined both as a member in class `com.google.android.material.floatingactionbutton.FloatingActionButton` and an extension in package `app.pachli.core.common.extensions`. The defined behavior for this is to use the member, but since the extension is explicitly imported into this file, there&apos;s a chance that this was not expected. (One common way this happens is for members to be added to a class after code was already written to use an extension)."
-        errorLine1="        } ?: binding.composeButton.hide()"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/app/pachli/MainActivity.kt"
-            line="1114"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="MemberExtensionConflict"
         message="`hide` is defined both as a member in class `com.google.android.material.floatingactionbutton.FloatingActionButton` and an extension in package `app.pachli.core.common.extensions`. The defined behavior for this is to use the member, but since the extension is explicitly imported into this file, there&apos;s a chance that this was not expected. (One common way this happens is for members to be added to a class after code was already written to use an extension)."
         errorLine1="                binding.composeButton.hide()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/MainActivity.kt"
-            line="1172"
+            line="1193"
             column="17"/>
     </issue>
 
@@ -275,7 +253,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/notifications/NotificationsFragment.kt"
-            line="199"
+            line="198"
             column="13"/>
     </issue>
 
@@ -286,7 +264,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/notifications/NotificationsFragment.kt"
-            line="379"
+            line="384"
             column="13"/>
     </issue>
 
@@ -297,7 +275,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/notifications/NotificationsFragment.kt"
-            line="396"
+            line="401"
             column="17"/>
     </issue>
 
@@ -308,8 +286,30 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/notifications/NotificationsFragment.kt"
-            line="403"
+            line="408"
             column="21"/>
+    </issue>
+
+    <issue
+        id="MemberExtensionConflict"
+        message="`hide` is defined both as a member in class `com.google.android.material.progressindicator.BaseProgressIndicator` and an extension in package `app.pachli.core.common.extensions`. The defined behavior for this is to use the member, but since the extension is explicitly imported into this file, there&apos;s a chance that this was not expected. (One common way this happens is for members to be added to a class after code was already written to use an extension)."
+        errorLine1="                binding.progressIndicator.hide()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/app/pachli/components/scheduled/ScheduledStatusFragment.kt"
+            line="156"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="MemberExtensionConflict"
+        message="`hide` is defined both as a member in class `com.google.android.material.progressindicator.BaseProgressIndicator` and an extension in package `app.pachli.core.common.extensions`. The defined behavior for this is to use the member, but since the extension is explicitly imported into this file, there&apos;s a chance that this was not expected. (One common way this happens is for members to be added to a class after code was already written to use an extension)."
+        errorLine1="                binding.progressIndicator.hide()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/app/pachli/components/scheduled/ScheduledStatusFragment.kt"
+            line="166"
+            column="17"/>
     </issue>
 
     <issue
@@ -319,7 +319,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/app/pachli/core/ui/StatusView.kt"
-            line="330"
+            line="336"
             column="18"/>
     </issue>
 
@@ -330,7 +330,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/app/pachli/core/ui/StatusView.kt"
-            line="332"
+            line="338"
             column="13"/>
     </issue>
 
@@ -341,7 +341,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/app/pachli/feature/suggestions/SuggestionsFragment.kt"
-            line="174"
+            line="176"
             column="38"/>
     </issue>
 
@@ -352,7 +352,7 @@
         errorLine2="                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/app/pachli/feature/suggestions/SuggestionsFragment.kt"
-            line="174"
+            line="176"
             column="76"/>
     </issue>
 
@@ -528,7 +528,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/styles.xml"
-            line="157"
+            line="160"
             column="42"/>
     </issue>
 
@@ -539,7 +539,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/styles.xml"
-            line="158"
+            line="161"
             column="43"/>
     </issue>
 
@@ -581,11 +581,11 @@
         errorLine1="            val filename = &quot;%s_%d_%s.%s&quot;.format("
         errorLine2="                           ^">
         <location
-            file="src/main/java/app/pachli/components/compose/MediaUploader.kt"
-            line="414"
+            file="src/main/kotlin/app/pachli/core/sendstatus/MediaUploader.kt"
+            line="407"
             column="28"/>
         <location
-            file="../core/activity/build/generated/res/resValues/blueFdroid/debug/values/gradleResValues.xml"
+            file="../designsystem/build/generated/res/resValues/blueFdroid/debug/values/gradleResValues.xml"
             line="7"
             column="5"
             message="This definition does not require arguments"/>
@@ -631,7 +631,7 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="32"
+            line="31"
             column="50"/>
     </issue>
 
@@ -642,7 +642,7 @@
         errorLine2="                                             ~~~~~~~~~~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="32"
+            line="31"
             column="46"/>
     </issue>
 
@@ -653,7 +653,7 @@
         errorLine2="                                             ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="57"
+            line="56"
             column="46"/>
     </issue>
 
@@ -664,18 +664,18 @@
         errorLine2="                                           ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="63"
+            line="62"
             column="44"/>
     </issue>
 
     <issue
         id="Typos"
         message="&quot;media&quot; is a common misspelling; did you mean &quot;medier&quot;?"
-        errorLine1="    &lt;string name=&quot;action_open_media_n&quot;>Åpne media #%d&lt;/string>"
+        errorLine1="    &lt;string name=&quot;action_open_media_n&quot;>Åpne media #%1$d&lt;/string>"
         errorLine2="                                            ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="80"
+            line="79"
             column="45"/>
     </issue>
 
@@ -686,7 +686,7 @@
         errorLine2="                                           ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="83"
+            line="82"
             column="44"/>
     </issue>
 
@@ -697,7 +697,7 @@
         errorLine2="                                                ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="84"
+            line="83"
             column="49"/>
     </issue>
 
@@ -708,19 +708,8 @@
         errorLine2="                                     ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="87"
+            line="86"
             column="38"/>
-    </issue>
-
-    <issue
-        id="Typos"
-        message="&quot;Media&quot; is a common misspelling; did you mean &quot;Medier&quot;?"
-        errorLine1="    &lt;string name=&quot;description_post_media&quot;>Media: %s&lt;/string>"
-        errorLine2="                                          ~~~~~">
-        <location
-            file="src/main/res/values-nb-rNO/strings.xml"
-            line="101"
-            column="43"/>
     </issue>
 
     <issue
@@ -730,8 +719,30 @@
         errorLine2="                                                                     ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="102"
+            line="99"
             column="70"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;Media&quot; is a common misspelling; did you mean &quot;Medier&quot;?"
+        errorLine1="    &lt;string name=&quot;description_post_media&quot;>Media: %1$s&lt;/string>"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/main/res/values-nb-rNO/strings.xml"
+            line="101"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="Repeated word &quot;til&quot; in message: possible typo"
+        errorLine1="    &lt;string name=&quot;action_add_to_tab&quot;>Legg til til fane&lt;/string>"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/main/res/values-nb-rNO/strings.xml"
+            line="130"
+            column="43"/>
     </issue>
 
     <issue
@@ -741,7 +752,7 @@
         errorLine2="                                                                             ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="135"
+            line="132"
             column="78"/>
     </issue>
 
@@ -752,7 +763,7 @@
         errorLine2="                                                                ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="141"
+            line="138"
             column="65"/>
     </issue>
 
@@ -763,7 +774,7 @@
         errorLine2="                               ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="165"
+            line="162"
             column="32"/>
     </issue>
 
@@ -774,7 +785,7 @@
         errorLine2="                                                                                     ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="296"
+            line="278"
             column="86"/>
     </issue>
 
@@ -785,19 +796,8 @@
         errorLine2="                                                  ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="404"
+            line="377"
             column="51"/>
-    </issue>
-
-    <issue
-        id="Typos"
-        message="Repeated word &quot;til&quot; in message: possible typo"
-        errorLine1="    &lt;string name=&quot;action_add_to_tab&quot;>Legg til til fane&lt;/string>"
-        errorLine2="                                          ~~~~~~~">
-        <location
-            file="src/main/res/values-nb-rNO/strings.xml"
-            line="512"
-            column="43"/>
     </issue>
 
     <issue
@@ -807,7 +807,7 @@
         errorLine2="                                                  ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="597"
+            line="552"
             column="51"/>
     </issue>
 
@@ -818,7 +818,7 @@
         errorLine2="                                                                   ~~~~~">
         <location
             file="src/main/res/values-nb-rNO/strings.xml"
-            line="621"
+            line="576"
             column="68"/>
     </issue>
 
@@ -836,11 +836,11 @@
     <issue
         id="PluralsCandidate"
         message="Formatting %d followed by words (&quot;and&quot;): This should probably be a plural rather than a string"
-        errorLine1="    &lt;string name=&quot;pref_title_http_proxy_port_message&quot;>Port should be between %d and %d&lt;/string>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;pref_title_http_proxy_port_message&quot;>Port should be between %1$d and %2$d&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="312"
+            line="306"
             column="5"/>
     </issue>
 
@@ -851,7 +851,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="558"
+            line="531"
             column="5"/>
     </issue>
 
@@ -873,7 +873,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/account/AccountActivity.kt"
-            line="555"
+            line="574"
             column="9"/>
     </issue>
 
@@ -884,7 +884,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/accountlist/adapter/AccountAdapter.kt"
-            line="82"
+            line="84"
             column="9"/>
     </issue>
 
@@ -917,7 +917,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/announcements/AnnouncementAdapter.kt"
-            line="190"
+            line="192"
             column="9"/>
     </issue>
 
@@ -928,7 +928,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/app/pachli/components/accountlist/adapter/MutesAdapter.kt"
-            line="116"
+            line="119"
             column="9"/>
     </issue>
 
@@ -938,8 +938,8 @@
         errorLine1="        notifyDataSetChanged()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/app/pachli/adapter/PreviewPollOptionsAdapter.kt"
-            line="36"
+            file="src/main/kotlin/app/pachli/core/ui/PollPreviewView.kt"
+            line="78"
             column="9"/>
     </issue>
 
@@ -1022,12 +1022,12 @@
 
     <issue
         id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;?attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Possible overdraw: Root element paints background `@drawable/item_activable_background` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
+        errorLine1="    android:background=&quot;@drawable/item_activable_background&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/item_draft.xml"
-            line="8"
+            line="25"
             column="5"/>
     </issue>
 
@@ -1088,6 +1088,17 @@
 
     <issue
         id="Overdraw"
+        message="Possible overdraw: Root element paints background `@drawable/item_activable_background` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;@drawable/item_activable_background&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_scheduled_status.xml"
+            line="7"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
         message="Possible overdraw: Root element paints background `?android:colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
         errorLine1="    android:background=&quot;?android:colorBackground&quot;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1106,17 +1117,6 @@
             file="src/main/res/layout/item_tab_preference_small.xml"
             line="7"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.menu.activity_scheduled_status` appears to be unused"
-        errorLine1="&lt;menu xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/menu/activity_scheduled_status.xml"
-            line="19"
-            column="1"/>
     </issue>
 
     <issue
@@ -3337,7 +3337,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="44"
+            line="42"
             column="19"/>
     </issue>
 
@@ -3348,7 +3348,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="266"
+            line="232"
             column="19"/>
     </issue>
 
@@ -3359,7 +3359,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/donottranslate.xml"
-            line="271"
+            line="237"
             column="19"/>
     </issue>
 
@@ -3535,7 +3535,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="85"
+            line="87"
             column="13"/>
     </issue>
 
@@ -3546,7 +3546,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="86"
+            line="88"
             column="13"/>
     </issue>
 
@@ -3557,7 +3557,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="130"
+            line="132"
             column="13"/>
     </issue>
 
@@ -3568,7 +3568,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="132"
+            line="134"
             column="13"/>
     </issue>
 
@@ -3579,7 +3579,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="168"
+            line="164"
             column="13"/>
     </issue>
 
@@ -3590,7 +3590,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="226"
+            line="222"
             column="13"/>
     </issue>
 
@@ -3601,7 +3601,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="247"
+            line="241"
             column="13"/>
     </issue>
 
@@ -3612,7 +3612,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="248"
+            line="242"
             column="13"/>
     </issue>
 
@@ -3623,7 +3623,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="302"
+            line="296"
             column="13"/>
     </issue>
 
@@ -3634,18 +3634,18 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="391"
+            line="385"
             column="13"/>
     </issue>
 
     <issue
         id="UnusedResources"
         message="The resource `R.string.error_no_custom_emojis` appears to be unused"
-        errorLine1="    &lt;string name=&quot;error_no_custom_emojis&quot;>Your instance %s does not have any custom emojis&lt;/string>"
+        errorLine1="    &lt;string name=&quot;error_no_custom_emojis&quot;>Your instance %1$s does not have any custom emojis&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="419"
+            line="408"
             column="13"/>
     </issue>
 
@@ -3656,7 +3656,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="422"
+            line="411"
             column="13"/>
     </issue>
 
@@ -3667,7 +3667,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="425"
+            line="414"
             column="13"/>
     </issue>
 
@@ -3678,7 +3678,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="426"
+            line="415"
             column="13"/>
     </issue>
 
@@ -3689,7 +3689,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="427"
+            line="416"
             column="13"/>
     </issue>
 
@@ -3700,7 +3700,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="429"
+            line="418"
             column="13"/>
     </issue>
 
@@ -3711,7 +3711,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="441"
+            line="430"
             column="13"/>
     </issue>
 
@@ -3722,7 +3722,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="442"
+            line="431"
             column="13"/>
     </issue>
 
@@ -3733,7 +3733,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="450"
+            line="439"
             column="13"/>
     </issue>
 
@@ -3744,7 +3744,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="451"
+            line="440"
             column="13"/>
     </issue>
 
@@ -3755,7 +3755,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="461"
+            line="450"
             column="13"/>
     </issue>
 
@@ -3766,7 +3766,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="462"
+            line="451"
             column="13"/>
     </issue>
 
@@ -3777,18 +3777,18 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="463"
+            line="452"
             column="13"/>
     </issue>
 
     <issue
         id="UnusedResources"
         message="The resource `R.string.compose_preview_image_description` appears to be unused"
-        errorLine1="    &lt;string name=&quot;compose_preview_image_description&quot;>Actions for image %s&lt;/string>"
+        errorLine1="    &lt;string name=&quot;compose_preview_image_description&quot;>Actions for image %1$s&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="466"
+            line="455"
             column="13"/>
     </issue>
 
@@ -3799,7 +3799,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="474"
+            line="463"
             column="13"/>
     </issue>
 
@@ -3810,7 +3810,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="516"
+            line="490"
             column="13"/>
     </issue>
 
@@ -3821,18 +3821,18 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="522"
+            line="496"
             column="13"/>
     </issue>
 
     <issue
         id="UnusedResources"
         message="The resource `R.string.action_unfollow_hashtag_format` appears to be unused"
-        errorLine1="    &lt;string name=&quot;action_unfollow_hashtag_format&quot;>Unfollow #%s?&lt;/string>"
+        errorLine1="    &lt;string name=&quot;action_unfollow_hashtag_format&quot;>Unfollow #%1$s?&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="550"
+            line="523"
             column="13"/>
     </issue>
 
@@ -3843,7 +3843,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="576"
+            line="549"
             column="13"/>
     </issue>
 
@@ -3854,7 +3854,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../core/designsystem/src/main/res/values/styles.xml"
-            line="155"
+            line="158"
             column="12"/>
     </issue>
 
@@ -3865,7 +3865,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../core/designsystem/src/main/res/values/styles.xml"
-            line="277"
+            line="280"
             column="12"/>
     </issue>
 
@@ -4147,7 +4147,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_draft.xml"
-            line="31"
+            line="75"
             column="6"/>
     </issue>
 
@@ -4158,7 +4158,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_draft.xml"
-            line="45"
+            line="86"
             column="6"/>
     </issue>
 
@@ -4180,7 +4180,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_follow.xml"
-            line="53"
+            line="55"
             column="6"/>
     </issue>
 
@@ -4367,7 +4367,29 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/res/layout/item_scheduled_status.xml"
-            line="24"
+            line="49"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="    &lt;TextView"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_scheduled_status.xml"
+            line="60"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="    &lt;TextView"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_scheduled_status.xml"
+            line="91"
             column="6"/>
     </issue>
 

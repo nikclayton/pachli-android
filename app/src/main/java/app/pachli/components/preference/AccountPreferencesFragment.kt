@@ -178,7 +178,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
 
             preference {
                 setTitle(R.string.title_tab_preferences)
-                setIcon(R.drawable.ic_add_to_tab_24)
+                setIcon(app.pachli.core.ui.R.drawable.ic_add_to_tab_24)
                 setOnPreferenceClickListener {
                     val intent = TabPreferenceActivityIntent(context, pachliAccountId)
                     startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
@@ -278,6 +278,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
             preferenceCategory(R.string.pref_publishing) {
                 listPreference {
                     setTitle(R.string.pref_default_post_privacy)
+                    setDialogTitle(R.string.pref_default_post_privacy)
                     setEntries(R.array.post_privacy_names)
                     setEntryValues(R.array.post_privacy_values)
                     key = PrefKeys.DEFAULT_POST_PRIVACY
@@ -295,6 +296,7 @@ class AccountPreferencesFragment : PreferenceFragmentCompat() {
                 listPreference {
                     val locales = getLocaleList(getInitialLanguages(null, accountManager.activeAccount))
                     setTitle(R.string.pref_default_post_language)
+                    setDialogTitle(R.string.pref_default_post_language)
                     // Explicitly add "System default" to the start of the list
                     entries = (
                         listOf(context.getString(R.string.system_default)) + locales.map {

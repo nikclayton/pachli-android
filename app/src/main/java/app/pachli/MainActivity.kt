@@ -63,7 +63,9 @@ import app.pachli.components.notifications.domain.EnableAllNotificationsUseCase
 import app.pachli.core.activity.PostLookupFallbackBehavior
 import app.pachli.core.activity.ReselectableFragment
 import app.pachli.core.activity.ViewUrlActivity
+import app.pachli.core.activity.extensions.TransitionKind
 import app.pachli.core.activity.extensions.startActivityWithDefaultTransition
+import app.pachli.core.activity.extensions.startActivityWithTransition
 import app.pachli.core.common.di.ApplicationScope
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
@@ -71,11 +73,13 @@ import app.pachli.core.common.extensions.viewBinding
 import app.pachli.core.common.util.unsafeLazy
 import app.pachli.core.data.repository.ListsRepository.Companion.compareByListTitle
 import app.pachli.core.data.repository.PachliAccount
+import app.pachli.core.data.repository.createDraft
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.EmbeddedFontFamily
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.eventhub.EventHub
 import app.pachli.core.model.Announcement
+import app.pachli.core.model.Draft
 import app.pachli.core.model.MastodonList
 import app.pachli.core.model.Notification
 import app.pachli.core.model.Timeline
@@ -84,6 +88,7 @@ import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.navigation.AnnouncementsActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent
+import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.DraftsActivityIntent
 import app.pachli.core.navigation.EditProfileActivityIntent
 import app.pachli.core.navigation.FollowedTagsActivityIntent
@@ -117,7 +122,6 @@ import app.pachli.core.ui.extensions.await
 import app.pachli.core.ui.extensions.reduceSwipeSensitivity
 import app.pachli.core.ui.makeIcon
 import app.pachli.databinding.ActivityMainBinding
-import app.pachli.db.DraftsAlert
 import app.pachli.interfaces.ActionButtonActivity
 import app.pachli.pager.MainPagerAdapter
 import app.pachli.updatecheck.UpdateCheck
@@ -150,6 +154,7 @@ import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
 import com.mikepenz.materialdrawer.model.SectionDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IProfile
 import com.mikepenz.materialdrawer.model.interfaces.Typefaceable
+import com.mikepenz.materialdrawer.model.interfaces.badgeText
 import com.mikepenz.materialdrawer.model.interfaces.descriptionRes
 import com.mikepenz.materialdrawer.model.interfaces.descriptionText
 import com.mikepenz.materialdrawer.model.interfaces.iconRes
@@ -191,9 +196,6 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
 
     @Inject
     lateinit var cacheUpdater: CacheUpdater
-
-    @Inject
-    lateinit var draftsAlert: DraftsAlert
 
     @Inject
     lateinit var updateCheck: UpdateCheck
@@ -420,6 +422,23 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                         bindMainDrawerAnnouncements(it.announcements)
                     }
                 }
+
+                // Process changes to the draft count.
+                launch {
+                    viewModel.draftsCount.collectLatest(::bindMainDrawerDrafts)
+                }
+
+                launch {
+                    account.collect { account ->
+                        binding.composeButton.setOnClickListener {
+                            val timeline = tabAdapter.tabs.getOrNull(binding.viewPager.currentItem)?.timeline ?: return@setOnClickListener
+                            val draft = Draft.createDraft(this@MainActivity, account.entity, timeline)
+                            val composeOptions = ComposeOptions(draft = draft)
+                            val intent = ComposeActivityIntent(this@MainActivity, pachliAccountId, composeOptions)
+                            startActivityWithTransition(intent, TransitionKind.SLIDE_FROM_END)
+                        }
+                    }
+                }
             }
         }
 
@@ -430,9 +449,6 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
         if (Build.VERSION.SDK_INT >= TIRAMISU && ActivityCompat.checkSelfPermission(this, POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(POST_NOTIFICATIONS), 1)
         }
-
-        // "Post failed" dialog should display in this activity
-        draftsAlert.observeInContext(this, true)
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -522,7 +538,18 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             when (keyCode) {
                 KeyEvent.KEYCODE_N -> {
                     // open compose activity by pressing SHIFT + N (or CTRL + N)
-                    val composeIntent = ComposeActivityIntent(applicationContext, pachliAccountId)
+                    val timeline = tabAdapter.tabs[binding.viewPager.currentItem].timeline
+                    val composeIntent = ComposeActivityIntent(
+                        applicationContext,
+                        pachliAccountId,
+                        ComposeOptions(
+                            draft = Draft.createDraft(
+                                this@MainActivity,
+                                viewModel.pachliAccountFlow.replayCache.first().entity,
+                                timeline,
+                            ),
+                        ),
+                    )
                     startActivity(composeIntent)
                     return true
                 }
@@ -842,6 +869,11 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                     identifier = DRAWER_ITEM_DRAFTS
                     nameRes = R.string.action_access_drafts
                     iconRes = R.drawable.ic_notebook
+                    badgeText = viewModel.draftsCount.value.toString()
+                    badgeStyle = BadgeStyle().apply {
+                        textColor = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorOnSecondaryContainer))
+                        color = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorSecondaryContainer))
+                    }
                     onClick = {
                         startActivityWithDefaultTransition(
                             DraftsActivityIntent(context, pachliAccountId),
@@ -858,8 +890,8 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
                         )
                     }
                     badgeStyle = BadgeStyle().apply {
-                        textColor = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorOnPrimary))
-                        color = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, androidx.appcompat.R.attr.colorPrimary))
+                        textColor = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorOnSecondaryContainer))
+                        color = ColorHolder.fromColor(MaterialColors.getColor(binding.mainDrawer, com.google.android.material.R.attr.colorSecondaryContainer))
                     }
                 },
                 DividerDrawerItem(),
@@ -1029,7 +1061,9 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
         tabLayoutMediator?.detach()
 
         tabAdapter.tabs = tabs
-        tabAdapter.notifyItemRangeChanged(0, tabs.size)
+        // Tabs may have been removed, so notifyDataSetChanged is OK here.
+        @SuppressLint("NotifyDataSetChanged")
+        tabAdapter.notifyDataSetChanged()
 
         tabLayoutMediator = TabLayoutMediator(
             activeTabLayout,
@@ -1080,9 +1114,9 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 onBackPressedCallback.isEnabled = tab.position > 0 || binding.mainDrawerLayout.isOpen
 
-                supportActionBar?.title = tabs[tab.position].title(this@MainActivity)
-
-                refreshComposeButtonState(tabs[tab.position])
+                tabAdapter.tabs.getOrNull(tab.position)?.let {
+                    supportActionBar?.title = it.title(this@MainActivity)
+                }
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {}
@@ -1090,8 +1124,6 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
             override fun onTabReselected(tab: TabLayout.Tab) {
                 val fragment = tabAdapter.getFragment(tab.position)
                 (fragment as? ReselectableFragment)?.onReselect()
-
-                refreshComposeButtonState(tabs[tab.position])
             }
         }.also {
             activeTabLayout.addOnTabSelectedListener(it)
@@ -1101,17 +1133,6 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
         binding.mainToolbar.setOnClickListener {
             (tabAdapter.getFragment(activeTabLayout.selectedTabPosition) as? ReselectableFragment)?.onReselect()
         }
-
-        refreshComposeButtonState(tabs[position])
-    }
-
-    private fun refreshComposeButtonState(tabViewData: TabViewData) {
-        tabViewData.composeIntent?.let { intent ->
-            binding.composeButton.setOnClickListener {
-                startActivity(intent(applicationContext, pachliAccountId))
-            }
-            binding.composeButton.show()
-        } ?: binding.composeButton.hide()
     }
 
     /**
@@ -1266,6 +1287,11 @@ class MainActivity : ViewUrlActivity(), ActionButtonActivity, MenuProvider {
     private suspend fun bindMainDrawerAnnouncements(announcements: List<Announcement>) = drawerMutex.withLock {
         val unread = announcements.count { !it.read }
         binding.mainDrawer.updateBadge(DRAWER_ITEM_ANNOUNCEMENTS, StringHolder(if (unread <= 0) null else unread.toString()))
+    }
+
+    /** Updates the badge showing the number of local drafts. */
+    private suspend fun bindMainDrawerDrafts(draftsCount: Int) = drawerMutex.withLock {
+        binding.mainDrawer.updateBadge(DRAWER_ITEM_DRAFTS, StringHolder(draftsCount.toString()))
     }
 
     /**

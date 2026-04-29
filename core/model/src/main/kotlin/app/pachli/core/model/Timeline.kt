@@ -151,7 +151,15 @@ sealed class Timeline : Parcelable {
     @JsonClass(generateAdapter = true)
     data class Quote(val statusId: String) : Timeline()
 
-    // TODO: DRAFTS
+    @TypeLabel("drafts")
+    data object Drafts : Timeline() {
+        @IgnoredOnParcel
+        override val remoteKeyTimelineId: String = "DRAFTS"
+    }
 
-    // TODO: SCHEDULED
+    @TypeLabel("scheduled")
+    data object Scheduled : Timeline() {
+        @IgnoredOnParcel
+        override val remoteKeyTimelineId = "SCHEDULED"
+    }
 }

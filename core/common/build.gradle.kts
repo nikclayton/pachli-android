@@ -31,6 +31,8 @@ android {
 dependencies {
     api(libs.kotlin.result)
     api(libs.kotlin.result.coroutines)
+    api(libs.kotlinx.collections.immutable)
+        ?.because("Immutable collections for Compose stability")
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.exifinterface)

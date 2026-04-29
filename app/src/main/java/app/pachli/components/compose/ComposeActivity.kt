@@ -92,18 +92,18 @@ import app.pachli.core.data.repository.Loadable
 import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.AccountSource
-import app.pachli.core.model.Attachment
 import app.pachli.core.model.Emoji
 import app.pachli.core.model.InstanceInfo.Companion.DEFAULT_CHARACTER_LIMIT
 import app.pachli.core.model.InstanceInfo.Companion.DEFAULT_MAX_MEDIA_ATTACHMENTS
 import app.pachli.core.model.Status
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
-import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.InitialCursorPosition
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions.ReferencingStatus
 import app.pachli.core.navigation.pachliAccountId
 import app.pachli.core.preferences.AppTheme
 import app.pachli.core.preferences.PronounDisplay
+import app.pachli.core.sendstatus.createNewImageFile
+import app.pachli.core.sendstatus.model.QueuedMedia
 import app.pachli.core.ui.EmojiSpan
 import app.pachli.core.ui.clearDragAnimator
 import app.pachli.core.ui.emojify
@@ -129,8 +129,8 @@ import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
-import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import com.google.android.material.R as MaterialR
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.color.MaterialColors
@@ -403,7 +403,7 @@ class ComposeActivity :
         // Disable DIRECT visibility if this contains a quote. This is stricter than the API
         // permits (DIRECT with a quote is OK if the status mentions the account being
         // quoted) but is consistent with the web UI behaviour.
-        if (composeOptions?.referencingStatus?.isQuoting() == true) {
+        if (composeOptions.referencingStatus?.isQuoting() == true) {
             binding.composeOptionsBottomSheet.disableVisibility(Status.Visibility.DIRECT)
         }
 
@@ -431,7 +431,7 @@ class ComposeActivity :
 
                 viewModel.setup(account)
 
-                setupLanguageSpinner(getInitialLanguages(composeOptions?.language, account.entity))
+                setupLanguageSpinner(getInitialLanguages(composeOptions.draft.language, account.entity))
 
                 setupButtons(account.id)
 
@@ -463,11 +463,11 @@ class ComposeActivity :
                 binding.composeMediaPreviewBar.adapter = mediaAdapter
                 touchHelper.attachToRecyclerView(binding.composeMediaPreviewBar)
 
-                composeOptions?.scheduledAt?.let {
+                composeOptions.draft.scheduledAt?.let {
                     binding.composeScheduleView.setDateTime(it)
                 }
 
-                bindContentWarning(composeOptions?.contentWarning)
+                bindContentWarning(composeOptions.draft.contentWarning)
                 setupPollView()
                 applyShareIntent(intent, savedInstanceState)
 
@@ -687,7 +687,7 @@ class ComposeActivity :
 
     private fun setupComposeField(
         startingText: String?,
-        composeOptions: ComposeOptions?,
+        composeOptions: ComposeOptions,
     ) {
         binding.composeEditField.setOnReceiveContentListener(this)
 
@@ -711,22 +711,17 @@ class ComposeActivity :
         )
         binding.composeEditField.setTokenizer(ComposeTokenizer())
 
-        val mentionColour = binding.composeEditField.linkTextColors.defaultColor
-        highlightSpans(binding.composeEditField.text, mentionColour)
+        highlightSpans(binding.composeEditField.text, sharedPreferencesRepository.linksToUnderline)
         binding.composeEditField.doAfterTextChanged { editable ->
-            highlightSpans(editable!!, mentionColour)
+            highlightSpans(editable!!, sharedPreferencesRepository.linksToUnderline)
             viewModel.onContentChanged(editable)
         }
 
         startingText?.let {
             binding.composeEditField.setText(it)
 
-            when (composeOptions?.initialCursorPosition ?: InitialCursorPosition.END) {
-                InitialCursorPosition.START -> binding.composeEditField.setSelection(0)
-                InitialCursorPosition.END -> binding.composeEditField.setSelection(
-                    binding.composeEditField.length(),
-                )
-            }
+            val cursorPosition = min(max(0, composeOptions.draft.cursorPosition), it.length)
+            binding.composeEditField.setSelection(cursorPosition)
         }
 
         // work around Android platform bug -> https://issuetracker.google.com/issues/67102093
@@ -1540,18 +1535,29 @@ class ComposeActivity :
     private fun sendStatus(pachliAccountId: Long) {
         enableButtons(false, viewModel.editing)
         val contentText = binding.composeEditField.text.toString()
-        var spoilerText = ""
-        if (viewModel.showContentWarning.value) {
-            spoilerText = binding.composeContentWarningField.text.toString()
-        }
         val statusLength = viewModel.statusLength.value
         if ((statusLength <= 0 || contentText.isBlank()) && viewModel.media.value.isEmpty()) {
             binding.composeEditField.error = getString(R.string.error_empty)
             enableButtons(true, viewModel.editing)
         } else if (statusLength <= maximumTootCharacters) {
             lifecycleScope.launch {
-                viewModel.sendStatus(contentText, spoilerText, pachliAccountId)
-                deleteDraftAndFinish()
+                viewModel.sendStatus(pachliAccountId, binding.composeEditField.selectionStart)
+                    .onSuccess { finish() }
+                    .onFailure {
+                        // Nothing useful to do here except show the error and allow the user to
+                        // bail out.
+                        viewModel.closeDraft()
+                        Snackbar.make(
+                            binding.activityCompose,
+                            getString(R.string.ui_error_sending_post_fmt, it.fmt(this@ComposeActivity)),
+                            Snackbar.LENGTH_INDEFINITE,
+                        ).apply {
+                            setAction(android.R.string.ok) { finish() }
+                            // necessary so snackbar is shown over everything
+                            view.elevation = resources.getDimension(DR.dimen.compose_activity_snackbar_elevation)
+                            show()
+                        }
+                    }
             }
         } else {
             binding.composeEditField.error = getString(R.string.error_compose_character_limit)
@@ -1713,17 +1719,16 @@ class ComposeActivity :
     }
 
     private fun handleCloseButton() {
-        val contentText = binding.composeEditField.text.toString()
-        val contentWarning = binding.composeContentWarningField.text.toString()
         when (viewModel.closeConfirmationKind.value) {
             ConfirmationKind.NONE -> {
                 viewModel.stopUploads()
+                viewModel.closeDraft()
                 finish()
             }
             ConfirmationKind.SAVE_OR_DISCARD ->
-                getSaveAsDraftOrDiscardDialog(contentText, contentWarning).show()
+                getSaveAsDraftOrDiscardDialog().show()
             ConfirmationKind.UPDATE_OR_DISCARD ->
-                getUpdateDraftOrDiscardDialog(contentText, contentWarning).show()
+                getUpdateDraftOrDiscardDialog().show()
             ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_CHANGES ->
                 getContinueEditingOrDiscardDialog().show()
             ConfirmationKind.CONTINUE_EDITING_OR_DISCARD_DRAFT ->
@@ -1732,18 +1737,20 @@ class ComposeActivity :
     }
 
     /**
-     * User is editing a new post, and can either save the changes as a draft or discard them.
+     * User is editing a new post, and can either save the changes as a new
+     * draft or discard them.
      */
-    private fun getSaveAsDraftOrDiscardDialog(contentText: String, contentWarning: String): AlertDialog.Builder {
+    private fun getSaveAsDraftOrDiscardDialog(): AlertDialog.Builder {
         val builder = AlertDialog.Builder(this)
             .setTitle(R.string.compose_save_draft)
             .setPositiveButton(R.string.action_save) { _, _ ->
                 viewModel.stopUploads()
-                saveDraftAndFinish(contentText, contentWarning)
+                saveDraftAndFinish()
             }
             .setNegativeButton(R.string.action_delete) { _, _ ->
                 viewModel.stopUploads()
-                deleteDraftAndFinish()
+                viewModel.deleteDraft()
+                finish()
             }
 
         if (viewModel.media.value.isNotEmpty()) {
@@ -1757,15 +1764,16 @@ class ComposeActivity :
      * User is editing an existing draft, and can either update the draft with the new changes or
      * discard them.
      */
-    private fun getUpdateDraftOrDiscardDialog(contentText: String, contentWarning: String): AlertDialog.Builder {
+    private fun getUpdateDraftOrDiscardDialog(): AlertDialog.Builder {
         val builder = AlertDialog.Builder(this)
             .setTitle(R.string.compose_save_draft)
             .setPositiveButton(R.string.action_save) { _, _ ->
                 viewModel.stopUploads()
-                saveDraftAndFinish(contentText, contentWarning)
+                saveDraftAndFinish()
             }
             .setNegativeButton(R.string.action_discard) { _, _ ->
                 viewModel.stopUploads()
+                viewModel.closeDraft()
                 finish()
             }
 
@@ -1788,6 +1796,7 @@ class ComposeActivity :
             }
             .setNegativeButton(R.string.action_discard) { _, _ ->
                 viewModel.stopUploads()
+                viewModel.closeDraft()
                 finish()
             }
     }
@@ -1800,8 +1809,8 @@ class ComposeActivity :
         return AlertDialog.Builder(this)
             .setMessage(R.string.compose_delete_draft)
             .setPositiveButton(R.string.action_delete) { _, _ ->
-                viewModel.deleteDraft()
                 viewModel.stopUploads()
+                viewModel.deleteDraft()
                 finish()
             }
             .setNegativeButton(R.string.action_continue_edit) { _, _ ->
@@ -1809,12 +1818,7 @@ class ComposeActivity :
             }
     }
 
-    private fun deleteDraftAndFinish() {
-        viewModel.deleteDraft()
-        finish()
-    }
-
-    private fun saveDraftAndFinish(contentText: String, contentWarning: String) {
+    private fun saveDraftAndFinish() {
         lifecycleScope.launch {
             val dialog = if (viewModel.shouldShowSaveDraftDialog()) {
                 ProgressDialog.show(
@@ -1827,9 +1831,27 @@ class ComposeActivity :
             } else {
                 null
             }
-            viewModel.saveDraft(contentText, contentWarning)
+            viewModel.saveDraft(binding.composeEditField.selectionStart)
+                .onSuccess {
+                    viewModel.closeDraft(it.id)
+                    finish()
+                }
+                .onFailure {
+                    // Nothing useful to do here except show the error and allow the user to
+                    // bail out.
+                    viewModel.closeDraft()
+                    Snackbar.make(
+                        binding.activityCompose,
+                        getString(R.string.ui_error_saving_post_fmt, it.fmt(this@ComposeActivity)),
+                        Snackbar.LENGTH_INDEFINITE,
+                    ).apply {
+                        setAction(android.R.string.ok) { finish() }
+                        // necessary so snackbar is shown over everything
+                        view.elevation = resources.getDimension(DR.dimen.compose_activity_snackbar_elevation)
+                        show()
+                    }
+                }
             dialog?.cancel()
-            finish()
         }
     }
 
@@ -1882,59 +1904,6 @@ class ComposeActivity :
         val animate = sharedPreferencesRepository.animateAvatars
         val target = span.createGlideTarget(this, animate)
         glide.asDrawable().load(if (animate) emoji.url else emoji.staticUrl).into(target)
-    }
-
-    /**
-     * Media queued for upload.
-     *
-     * @param account
-     * @param localId Pachli identified for this media, while it's queued.
-     * @param uri Local URI for this media on device.
-     * @param type Media's [Type].
-     * @param mediaSize Media size in bytes, or [app.pachli.core.common.util.MEDIA_SIZE_UNKNOWN]. See [getMediaSize].
-     * @param description
-     * @param focus
-     * @param uploadState
-     */
-    data class QueuedMedia(
-        val account: AccountEntity,
-        val localId: Int,
-        val uri: Uri,
-        val type: Type,
-        val mediaSize: Long,
-        val description: String? = null,
-        val focus: Attachment.Focus? = null,
-        val uploadState: Result<UploadState, MediaUploaderError>,
-    ) {
-        enum class Type {
-            IMAGE,
-            VIDEO,
-            AUDIO,
-        }
-
-        /**
-         * Server's ID for this attachment. May be null if the media is still
-         * being uploaded, or it was uploaded and there was an error that
-         * meant it couldn't be processed. Attachments that have an error
-         * *after* processing have a non-null `serverId`.
-         */
-        val serverId: String?
-            get() = uploadState.mapBoth(
-                { state ->
-                    when (state) {
-                        is UploadState.Uploading -> null
-                        is UploadState.Uploaded.Processing -> state.serverId
-                        is UploadState.Uploaded.Processed -> state.serverId
-                        is UploadState.Uploaded.Published -> state.serverId
-                    }
-                },
-                { error ->
-                    when (error) {
-                        is MediaUploaderError.UpdateMediaError -> error.serverId
-                        else -> null
-                    }
-                },
-            )
     }
 
     override fun onTimeSet(time: Date?) {

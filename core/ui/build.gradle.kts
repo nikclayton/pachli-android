@@ -17,6 +17,7 @@
 
 plugins {
     alias(libs.plugins.pachli.android.library)
+    alias(libs.plugins.pachli.android.compose)
     alias(libs.plugins.pachli.android.hilt)
     kotlin("kapt")
 }
@@ -25,15 +26,29 @@ android {
     namespace = "app.pachli.core.ui"
 
     defaultConfig {
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "app.pachli.core.ui.HiltTestRunner"
         vectorDrawables.useSupportLibrary = true
+    }
+
+    packaging {
+        resources.excludes.apply {
+            // Otherwise this error:
+            // "2 files found with path 'META-INF/versions/9/OSGI-INF/MANIFEST.MF' from inputs:"
+            add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
+        }
+    }
+}
+
+configurations {
+    androidTestImplementation {
+        exclude(group = "org.jetbrains", module = "annotations")
     }
 }
 
 dependencies {
     implementation(projects.core.common)
     implementation(projects.core.data)
-    implementation(projects.core.designsystem)
+    api(projects.core.designsystem)
     implementation(projects.core.model)
     implementation(projects.core.preferences)
         ?.because("PreferenceEnum types in EnumListPreference")
@@ -71,4 +86,15 @@ dependencies {
     implementation(libs.jlatexmath.android)
 
     testImplementation(libs.bundles.mockito)
+
+    ktlintRuleset(libs.ktlint.compose.rules)
+
+    implementation(libs.composeunstyled)
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    testImplementation(projects.core.testing)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.android)
 }

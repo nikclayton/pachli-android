@@ -33,11 +33,8 @@
     <string name="about_account_info_title">Do chuntas</string>
     <string name="about_copy">Cóipeáil leagan agus faisnéis gléas</string>
     <string name="about_privacy_policy">Beartas Príobháideachais</string>
-    <string name="about_device_info">%s %s
-\nLeagan Android: %s
-\nLeibhéal SDK: %d</string>
-    <string name="about_account_info">\@%s@%s
-\nLeagan: %s</string>
+    <string name="about_device_info">%1$s %2$s\nLeagan Android: %3$s\nLeibhéal SDK: %4$d</string>
+    <string name="about_account_info">\@%1$s@%2$s\nLeagan: %3$s</string>
     <string name="about_nivenly_foundation">Is tionscadal <a href="https://nivenly.org">Fondúireacht Nivenly</a> é Pachli.</string>
     <string name="about_copied">Leagan cóipeáilte agus faisnéis gléas</string>
     <string name="notification_log_filter_content_description">Scag logs de réir clib</string>
@@ -45,7 +42,7 @@
     <string name="notification_details_push_notifications_with_unifiedpush">Brúigh fógraí le UnifiedPush</string>
     <string name="notification_details_any_account_needs_migration_help">Níl an raon feidhme OAuth \'brúigh\' ag cuntas amháin nó níos mó, díchumasaítear fógraí brú.</string>
     <string name="notification_details_standby_bucket_working_set">Sraith oibre. Teoranta do 10 nóiméad gach 2 uair an chloig</string>
-    <string name="notification_details_notifications_enabled_help"><![CDATA[Níl fógraí cumasaithe d\'aon cheann de do chuntais. Athraigh seo i Roghanna Cuntais > Fógraí. Go dtí sin, tá gach fógra díchumasaithe.]]></string>
+    <string name="notification_details_notifications_enabled_help">Níl fógraí cumasaithe d\'aon cheann de do chuntais. Athraigh seo i Roghanna Cuntais > Fógraí. Go dtí sin, tá gach fógra díchumasaithe.</string>
     <string name="notification_details_any_account_needs_migration">An bhfuil raon feidhme OAuth \'brú\' ag gach cuntas?</string>
     <string name="notification_details_unifiedpush_available_help">Níl UnifiedPush (ntfy.sh) ar fáil, tarraingeofar fógraí go tréimhsiúil. Míníonn an chuid eile den alt seo cén fáth nach bhfuil UnifiedPush á úsáid, ach nach bhfuil sé ábhartha maidir le conas a tharraingítear fógraí faoi láthair.</string>
     <string name="notification_details_accounts_unified_push_url">Tá URL UnifiedPush ag gach cuntas?</string>

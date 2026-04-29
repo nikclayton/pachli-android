@@ -13,17 +13,17 @@
     <string name="about_privacy_policy">Datenschutzrichtlinie</string>
     <string name="about_pachli_account">Profil von Pachli</string>
     <string name="title_licenses">Lizenzen</string>
-    <string name="about_device_info">%s %s
-\nAndroid-Version: %s
-\nSDK-Level: %d</string>
-    <string name="about_account_info">\@%s@%s
-\nVersion: %s</string>
+    <string name="about_device_info">%1$s %2$s
+\nAndroid-Version: %3$s
+\nSDK-Level: %4$d</string>
+    <string name="about_account_info">\@%1$s@%2$s
+\nVersion: %3$s</string>
     <string name="license_description">Pachli enthält Code und Inhalte von den folgenden Open-Source-Projekten:</string>
     <string name="notification_details_title">Details</string>
     <string name="notification_details_android_notifications_enabled">Sind Android Benachrichtigungen aktiviert?</string>
     <string name="notification_details_push_notifications_with_unifiedpush">Push-Benachrichtigungen mit UnifiedPush</string>
     <string name="notification_details_unifiedpush_available">Ist UnifiedPush verfügbar?</string>
-    <string name="notification_details_notifications_enabled_help"><![CDATA[Benachrichtigungen sind für keines deiner Konten aktiviert. Ändere das in Kontoeinstellungen > Benachrichtigungen. Bis dahin sind alle Benachrichtigungen deaktiviert.]]></string>
+    <string name="notification_details_notifications_enabled_help">Benachrichtigungen sind für keines deiner Konten aktiviert. Ändere das in Kontoeinstellungen > Benachrichtigungen. Bis dahin sind alle Benachrichtigungen deaktiviert.</string>
     <string name="notification_details_unifiedpush_available_help">UnifiedPush (ntfy.sh) ist nicht verfügbar, Benachrichtigungen werden periodisch abgerufen. Der Rest dieses Abschnitts erklärt, warum UnifiedPush nicht verwendet wird, ist aber nicht relevant dafür, wie Benachrichtigungen aktuell abgerufen werden.</string>
     <string name="notification_details_any_account_needs_migration">Haben alle Profile „Push“-OAuth-Rechte?</string>
     <string name="notification_details_any_account_needs_migration_help">Ein oder mehrere Profile haben keine „Push“-OAuth-Rechte; Push-Benachrichtigungen sind deaktiviert.</string>

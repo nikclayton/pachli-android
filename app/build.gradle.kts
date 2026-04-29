@@ -19,6 +19,7 @@ import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 
 plugins {
     alias(libs.plugins.pachli.android.application)
+    alias(libs.plugins.pachli.android.compose)
     alias(libs.plugins.pachli.android.hilt)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.moshixir)
@@ -37,8 +38,8 @@ android {
 
     defaultConfig {
         applicationId = "app.pachli"
-        versionCode = 46
-        versionName = "3.4.0"
+        versionCode = 47
+        versionName = "3.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -79,6 +80,9 @@ android {
 
     lint {
         checkDependencies = true
+        // Disable lint for release builds, it's already checked as part of
+        // CI, and checking again unnecessarily slows down release builds.
+        checkReleaseBuilds = false
     }
 
     testOptions {
@@ -124,6 +128,15 @@ configurations {
     }
 }
 
+configurations.configureEach {
+    resolutionStrategy {
+        // Fix Cannot find a version of 'androidx.test.espresso:espresso-core' that satisfies the version constraints:
+        // Fix Cannot find a version of 'androidx.test.ext:junit' that satisfies the version constraints:
+        force(libs.espresso.core)
+        force(libs.androidx.test.junit)
+    }
+}
+
 dependencies {
     // CachedTimelineRemoteMediator needs the @Transaction annotation from Room
     compileOnly(libs.bundles.room)
@@ -145,10 +158,12 @@ dependencies {
     implementation(projects.core.navigation)
     implementation(projects.core.network)
     implementation(projects.core.preferences)
+    implementation(projects.core.sendstatus)
     implementation(projects.core.ui)
     implementation(projects.core.worker)
 
     implementation(projects.feature.about)
+    implementation(projects.feature.drafts)
     implementation(projects.feature.intentrouter)
     implementation(projects.feature.lists)
     implementation(projects.feature.login)
@@ -196,6 +211,7 @@ dependencies {
 
     // Translation
     googleImplementation(libs.mlkit.translation)
+    googleImplementation(libs.composeunstyled)
 
     implementation(libs.semver)
 
@@ -219,4 +235,5 @@ dependencies {
     androidTestImplementation(libs.androidx.test.core.ktx)
 
     lintChecks(projects.checks)
+    ktlintRuleset(libs.ktlint.compose.rules)
 }

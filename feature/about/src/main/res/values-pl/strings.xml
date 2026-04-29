@@ -27,8 +27,8 @@
     <string name="notitication_log_filter_dialog_title">Pokaż priorytety dziennika</string>
     <string name="about_copied">Skopiowano numer wersji i informacje o urządzeniu</string>
     <string name="about_copy">Skopiuj numer wersji i informacje o urządzeniu</string>
-    <string name="about_device_info">%s %s\nWersja Androida: %s\nPoziom SDK: %d</string>
-    <string name="about_account_info">\@%s@%s\nWersja: %s</string>
+    <string name="about_device_info">%1$s %2$s\nWersja Androida: %3$s\nPoziom SDK: %4$d</string>
+    <string name="about_account_info">\@%1$s@%2$s\nWersja: %3$s</string>
     <string name="notification_details_last_fetch_help">Niezależnie od sposobu powiadomień, to pokazuje dla każdego konta, kiedy wystąpiło ostatnie pobranie, czy było udane i komunikat o błędzie jeżeli nie było.</string>
     <string name="notification_details_standby_bucket_frequent">Częsty. Ograniczony do 10 minut co 8 godzin</string>
     <string name="notification_details_accounts_unified_push_url">Czy wszystkie konta mają URL UnifiedPush?</string>
@@ -40,7 +40,7 @@
     <string name="about_nivenly_foundation">Pachli jest projektem <a href="https://nivenly.org">Nivenly Foundation</a>.</string>
     <string name="notification_details_any_account_needs_migration">Czy wszystkie konta mają zakres \'push\' OAuth?</string>
     <string name="notification_details_accounts_unified_push_subscription_help">Jedno lub więcej kont nie mogło zaktualizować swojej subskrypcji UnifiedPush i nie będzie otrzymywać powiadomień.</string>
-    <string name="notification_details_notifications_enabled_help"><![CDATA[Powiadomienia nie są włączone dla żadnego z twoich kont. Zmień to w Preferencje konta > Powiadomienia. Do tego czasu wszystkie powiadomienia są wyłączone.]]></string>
+    <string name="notification_details_notifications_enabled_help">Powiadomienia nie są włączone dla żadnego z twoich kont. Zmień to w Preferencje konta > Powiadomienia. Do tego czasu wszystkie powiadomienia są wyłączone.</string>
     <string name="notification_details_unifiedpush_available">Czy UnifiedPush jest dostępny?</string>
     <string name="notification_details_ntfy_exempt">Czy NTFY jest wyłączone z optymalizacji baterii?</string>
     <string name="notification_details_any_account_needs_migration_help">Jedno lub więcej kont nie ma zakresu \'push\' OAuth, powiadomienia push są wyłączone.</string>
