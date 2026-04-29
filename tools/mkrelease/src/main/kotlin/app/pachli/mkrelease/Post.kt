@@ -138,8 +138,8 @@ data object CreatePostText : PostStep {
         val changes = getChangelog(t, git, spec)
 //        t.info("Got changelog: $changes")
 
-        val features = changes[Features]?.joinToString("\n") { "- ${it.withoutLinks()}" }
-        val fixes = changes[Section.Fixes]?.joinToString("\n") { "- ${it.withoutLinks()}" }
+        val features = changes[Features]?.joinToString("\n") { "- ${it.withoutLinks().trim()}" }
+        val fixes = changes[Section.Fixes]?.joinToString("\n") { "- ${it.withoutLinks().trim()}" }
 
         val translations = changes[Section.Translations]
             ?.filter { it.author.emailAddress != "nik@ngo.org.uk" }
