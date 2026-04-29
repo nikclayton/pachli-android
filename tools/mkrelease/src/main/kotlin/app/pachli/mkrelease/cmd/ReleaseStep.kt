@@ -603,16 +603,15 @@ ${changelogEntries[Translations]?.joinToString("\n") { "- ${it.withLinks()}" }}
         // Pull out the new lines from the changelog
         val fastlanePaths = createFastlanes(config, spec)
 
-        git.add()
-            .setUpdate(false)
-            .addFilepattern("CHANGELOG.md")
-            .addFilepattern("app/build.gradle.kts")
-            .addFilePatterns(fastlanePaths)
-            .info(t)
-            .call()
-
         var changesAreOk = false
         while (!changesAreOk) {
+            git.add()
+                .setUpdate(false)
+                .addFilepattern("CHANGELOG.md")
+                .addFilepattern("app/build.gradle.kts")
+                .addFilePatterns(fastlanePaths)
+                .info(t)
+                .call()
             git.diff()
                 .setOutputStream(System.out)
                 .setCached(true)
