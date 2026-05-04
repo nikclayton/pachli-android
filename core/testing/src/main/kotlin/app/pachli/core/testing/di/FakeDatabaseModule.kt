@@ -105,5 +105,8 @@ object FakeDatabaseModule {
     fun providesStatusDao(appDatabase: AppDatabase) = appDatabase.statusDao()
 
     @Provides
+    fun providesHashtagsDao(appDatabase: AppDatabase) = appDatabase.hashtagsDao()
+
+    @Provides
     fun providesDebugDao(appDatabase: AppDatabase) = appDatabase.debugDao()
 }

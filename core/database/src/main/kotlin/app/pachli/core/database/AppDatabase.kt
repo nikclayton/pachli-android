@@ -36,6 +36,7 @@ import app.pachli.core.database.dao.ConversationsDao
 import app.pachli.core.database.dao.DebugDao
 import app.pachli.core.database.dao.DraftDao
 import app.pachli.core.database.dao.FollowingAccountDao
+import app.pachli.core.database.dao.HashtagsDao
 import app.pachli.core.database.dao.InstanceDao
 import app.pachli.core.database.dao.ListsDao
 import app.pachli.core.database.dao.LogEntryDao
@@ -53,6 +54,7 @@ import app.pachli.core.database.model.ConversationViewDataEntity
 import app.pachli.core.database.model.DraftEntity
 import app.pachli.core.database.model.EmojisEntity
 import app.pachli.core.database.model.FollowingAccountEntity
+import app.pachli.core.database.model.HashtagEntity
 import app.pachli.core.database.model.InstanceInfoEntity
 import app.pachli.core.database.model.LogEntryEntity
 import app.pachli.core.database.model.MastodonListEntity
@@ -100,12 +102,13 @@ import java.util.TimeZone
         NotificationAccountWarningEntity::class,
         TimelineStatusEntity::class,
         ConversationViewDataEntity::class,
+        HashtagEntity::class,
     ],
     views = [
         TimelineStatusWithAccount::class,
         ReferencedStatusId::class,
     ],
-    version = 38,
+    version = 39,
     autoMigrations = [
         AutoMigration(from = 1, to = 2, spec = AppDatabase.MIGRATE_1_2::class),
         AutoMigration(from = 2, to = 3),
@@ -159,6 +162,8 @@ import java.util.TimeZone
         AutoMigration(from = 36, to = 37, spec = AppDatabase.MIGRATE_36_37::class),
         // Record cursor position, failure message, etc in DraftEntity
         AutoMigration(from = 37, to = 38, spec = AppDatabase.MIGRATE_37_38::class),
+        // HashtagEntity, to show followed hashtags in timelines.
+        AutoMigration(from = 38, to = 39),
     ],
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -176,6 +181,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun followingAccountDao(): FollowingAccountDao
     abstract fun notificationDao(): NotificationDao
     abstract fun statusDao(): StatusDao
+    abstract fun hashtagsDao(): HashtagsDao
     abstract fun debugDao(): DebugDao
 
     @DeleteColumn("TimelineStatusEntity", "expanded")

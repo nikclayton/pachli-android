@@ -17,21 +17,27 @@
 package app.pachli.adapter
 
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.text.style.StyleSpan
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.Px
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.text.HtmlCompat
+import androidx.core.text.buildSpannedString
 import androidx.core.text.htmlEncode
+import androidx.core.text.set
 import androidx.core.util.TypedValueCompat.dpToPx
+import app.pachli.R
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.string.unicodeWrap
 import app.pachli.core.data.model.IStatusViewData
 import app.pachli.core.data.model.StatusDisplayOptions
 import app.pachli.core.model.FilterAction
+import app.pachli.core.model.Hashtag
 import app.pachli.core.model.TimelineAccount
 import app.pachli.core.ui.SetContent
 import app.pachli.core.ui.StatusActionListener
@@ -106,6 +112,11 @@ open class StatusViewHolder<T : IStatusViewData>(
 
         if (status.inReplyToAccountId != null) {
             setStatusInfoAsReply(statusInfo, viewData, statusDisplayOptions)
+            return
+        }
+
+        status.tags?.firstOrNull { it.following == true }?.let { hashtag ->
+            setStatusInfoAsHashtag(statusInfo, hashtag, listener)
             return
         }
 
@@ -190,6 +201,26 @@ open class StatusViewHolder<T : IStatusViewData>(
 
         setStatusInfoDrawableRes(app.pachli.core.ui.R.drawable.ic_reblog_24dp, statusInfo)
         statusInfo.setOnClickListener { listener.onOpenReblog(viewData.status) }
+        statusInfo.show()
+    }
+
+    /**
+     * Sets [statusInfo] icon to a hashtag mark, and the text to the name
+     * of [hashtag]. Clicks on the hashtag are sent to
+     * [listener.onViewTag][StatusActionListener.onViewTag].
+     */
+    private fun setStatusInfoAsHashtag(
+        statusInfo: TextView,
+        hashtag: Hashtag,
+        listener: StatusActionListener,
+    ) {
+        setStatusInfoDrawableRes(R.drawable.ic_hashtag, statusInfo)
+        val statusInfoText = buildSpannedString {
+            append(hashtag.name)
+            set(0, hashtag.name.length, StyleSpan(Typeface.BOLD))
+        }
+        statusInfo.text = statusInfoText
+        statusInfo.setOnClickListener { listener.onViewTag(hashtag.name) }
         statusInfo.show()
     }
 

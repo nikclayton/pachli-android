@@ -23,6 +23,7 @@ import app.pachli.core.database.model.FollowingAccountEntity
 import app.pachli.core.database.model.asModel
 import app.pachli.core.model.Announcement
 import app.pachli.core.model.Emoji
+import app.pachli.core.model.Hashtag
 import app.pachli.core.model.InstanceInfo
 import app.pachli.core.model.MastodonList
 import app.pachli.core.model.ServerKind
@@ -41,6 +42,8 @@ import io.github.z4kn4fein.semver.Version
  * @property contentFilters Account's content filters.
  * @property announcements Announcements from the account's server.
  * @property following Accounts this account is following.
+ * @property followedHashtags Map of hashtags this account is following. The
+ * key is the hashtag's name, without the leading `#`.
  */
 // TODO: Still not sure if it's better to have one class that contains everything,
 // or provide dedicated functions that return specific flows for the different
@@ -56,6 +59,7 @@ data class PachliAccount(
     val contentFilters: ContentFilters,
     val announcements: List<Announcement>,
     val following: List<FollowingAccountEntity>,
+    val followedHashtags: Map<String, Hashtag>,
 ) {
     companion object {
         fun make(
@@ -71,6 +75,7 @@ data class PachliAccount(
                 contentFilters = account.contentFilters?.let { ContentFilters.from(it) } ?: ContentFilters.EMPTY,
                 announcements = account.announcements.orEmpty().map { it.announcement },
                 following = account.following,
+                followedHashtags = account.followedHashtags.asModel().associateBy { it.name },
             )
         }
     }

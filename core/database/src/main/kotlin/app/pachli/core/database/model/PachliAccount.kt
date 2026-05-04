@@ -69,4 +69,10 @@ data class PachliAccount(
         entityColumn = "pachliAccountId",
     )
     val following: List<FollowingAccountEntity>,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "pachliAccountId",
+    )
+    val followedHashtags: List<HashtagEntity>,
 )
