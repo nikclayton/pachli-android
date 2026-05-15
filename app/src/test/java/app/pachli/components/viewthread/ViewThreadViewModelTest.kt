@@ -126,6 +126,7 @@ class ViewThreadViewModelTest {
             on { getLists() } doReturn success(emptyList())
             on { getContentFilters() } doReturn success(emptyList())
             on { accountFollowing(any(), anyOrNull(), any()) } doReturn success(emptyList())
+            on { followedTags() } doReturn success(emptyList())
         }
 
         reset(nodeInfoApi)

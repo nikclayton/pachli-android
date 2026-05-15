@@ -17,6 +17,7 @@
 
 package app.pachli.core.ui
 
+import android.graphics.Typeface
 import android.text.TextPaint
 import android.text.style.URLSpan
 import android.view.View
@@ -67,4 +68,18 @@ open class MentionSpan(underline: Boolean, url: String, onClickListener: OnClick
  * @param hashtag Text of the tag, without the leading `#`.
  * @param onClickListener Listener for clicks on the tag.
  */
-class HashtagSpan(val hashtag: String, underline: Boolean, url: String, onClickListener: OnClickListener?) : MaybeUnderlineURLSpan(underline, url, onClickListener)
+open class HashtagSpan(val hashtag: String, underline: Boolean, url: String, onClickListener: OnClickListener?) : MaybeUnderlineURLSpan(underline, url, onClickListener)
+
+/**
+ * Hashtags the user is following (`#foo`). Displayed in bold.
+ *
+ * @param hashtag Text of the tag, without the leading `#`.
+ * @param onClickListener Listener for clicks on the tag.
+ */
+class FollowedHashtagSpan(hashtag: String, underline: Boolean, url: String, onClickListener: OnClickListener?) :
+    HashtagSpan(hashtag, underline, url, onClickListener) {
+    override fun updateDrawState(ds: TextPaint) {
+        super.updateDrawState(ds)
+        ds.setTypeface(Typeface.DEFAULT_BOLD)
+    }
+}

@@ -141,6 +141,7 @@ abstract class V2Test : BaseContentFiltersRepositoryTest() {
             on { listAnnouncements(any()) } doReturn success(emptyList())
             on { getContentFilters() } doReturn success(networkFilters)
             on { accountFollowing(any(), anyOrNull(), any()) } doReturn success(emptyList())
+            on { followedTags() } doReturn success(emptyList())
         }
 
         networkFilters.clear()
@@ -205,6 +206,7 @@ abstract class V1Test : BaseContentFiltersRepositoryTest() {
             on { listAnnouncements(any()) } doReturn success(emptyList())
             on { getContentFiltersV1() } doReturn success(networkFiltersV1)
             on { accountFollowing(any(), anyOrNull(), any()) } doReturn success(emptyList())
+            on { followedTags() } doReturn success(emptyList())
         }
 
         reset(nodeInfoApi)

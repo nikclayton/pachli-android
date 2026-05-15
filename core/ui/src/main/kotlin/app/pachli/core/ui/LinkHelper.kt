@@ -169,10 +169,21 @@ fun getTagName(text: CharSequence, tags: List<Hashtag>?): String? {
     }
 }
 
-private fun getCustomSpanForHashtag(underline: Boolean, text: CharSequence, tags: List<Hashtag>?, span: URLSpan, listener: LinkListener): ClickableSpan? {
-    return getTagName(text, tags)?.let { tagName ->
-        HashtagSpan(tagName, underline, span.url) { listener.onViewTag(tagName) }
+private fun getCustomSpanForHashtag(underline: Boolean, text: CharSequence, tags: List<Hashtag>?, span: URLSpan, listener: LinkListener): ClickableSpan {
+    val scrapedName = text.subSequence(1, text.length).replaceAccents()
+    val normalisedName = scrapedName.normaliseHashtag()
+
+    // Return the appropriate span type depending on whether or not the
+    // user is following the tag.
+    tags?.firstOrNull { it.name.normaliseHashtag() == normalisedName }?.let { hashtag ->
+        return if (hashtag.following == true) {
+            FollowedHashtagSpan(hashtag.name, underline, span.url) { listener.onViewTag(hashtag.name) }
+        } else {
+            HashtagSpan(hashtag.name, underline, span.url) { listener.onViewTag(hashtag.name) }
+        }
     }
+
+    return HashtagSpan(scrapedName, underline, span.url) { listener.onViewTag(scrapedName) }
 }
 
 private fun getCustomSpanForMention(underline: Boolean, mentions: List<Mention>?, span: URLSpan, listener: LinkListener): ClickableSpan? {

@@ -124,6 +124,7 @@ abstract class CachedTimelineViewModelTestBase {
             on { listAnnouncements(any()) } doReturn success(emptyList())
             on { getContentFiltersV1() } doReturn success(emptyList())
             on { accountFollowing(any(), anyOrNull(), any()) } doReturn success(emptyList())
+            on { followedTags() } doReturn success(emptyList())
         }
 
         reset(nodeInfoApi)

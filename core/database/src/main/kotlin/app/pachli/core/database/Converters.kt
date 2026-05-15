@@ -30,6 +30,7 @@ import app.pachli.core.model.DraftAttachment
 import app.pachli.core.model.Emoji
 import app.pachli.core.model.FilterResult
 import app.pachli.core.model.Hashtag
+import app.pachli.core.model.HashtagHistory
 import app.pachli.core.model.NewPoll
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Role
@@ -310,4 +311,10 @@ class Converters @Inject constructor(
 
     @TypeConverter
     fun jsonToQuoteApproval(s: String?) = fromJson<Status.QuoteApproval>(s)
+
+    @TypeConverter
+    fun hashtagHistoryToJson(hashtagHistory: List<HashtagHistory>) = toJson(hashtagHistory)
+
+    @TypeConverter
+    fun jsonToHashtagHistory(s: String?) = fromJson<List<HashtagHistory>>(s)
 }

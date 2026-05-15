@@ -19,7 +19,6 @@ package app.pachli.core.data.repository
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
-import app.pachli.core.database.AppDatabase
 import app.pachli.core.model.InstanceInfo.Companion.DEFAULT_CHARACTER_LIMIT
 import app.pachli.core.network.model.AccountSource
 import app.pachli.core.network.model.CredentialAccount
@@ -77,9 +76,6 @@ class InstanceInfoRepositoryTest {
     @Inject
     lateinit var instanceInfoRepository: InstanceInfoRepository
 
-    @Inject
-    lateinit var appDatabase: AppDatabase
-
     /**
      * Tests set this to return a customised fake [InstanceV1].
      *
@@ -118,6 +114,7 @@ class InstanceInfoRepositoryTest {
             on { getContentFilters() } doReturn success(emptyList())
             on { getContentFiltersV1() } doReturn success(emptyList())
             on { accountFollowing(any(), anyOrNull(), any()) } doReturn success(emptyList())
+            on { followedTags() } doReturn success(emptyList())
         }
 
         reset(nodeInfoApi)
