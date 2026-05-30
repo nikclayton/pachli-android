@@ -38,6 +38,9 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.github.ajalt.clikt.parameters.types.choice
 import java.net.URL
+import kotlin.time.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 /**
  * Start a new release train.
@@ -117,6 +120,7 @@ class StartRelease : CliktCommand(name = "start") {
 //            finalVersion = finalRelease,
             prevVersion = prevRelease,
             sourceBranch = sourceBranch,
+            releaseLocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
         )
 
         releaseSpec.save(SPEC_FILE)

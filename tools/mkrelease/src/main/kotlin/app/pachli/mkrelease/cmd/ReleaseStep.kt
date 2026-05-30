@@ -548,6 +548,8 @@ data object UpdateFilesForRelease : ReleaseStep() {
                 if (line.startsWith("## v")) {
                     w.println("## v${spec.thisVersion.versionName()}")
                     w.println()
+                    w.println("See ${spec.asReleaseBlogUrl()} for full details and credits.")
+                    w.println()
                     if (changelogEntries[Features]?.isNotEmpty() == true) {
                         w.println(
                             """

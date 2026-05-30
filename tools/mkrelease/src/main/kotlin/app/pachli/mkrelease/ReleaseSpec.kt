@@ -21,6 +21,12 @@ package app.pachli.mkrelease
 
 import app.pachli.mkrelease.cmd.ReleaseStep
 import java.io.File
+import kotlin.time.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -68,6 +74,9 @@ data class ReleaseSpec(
 
     /** The branch the release is cut from. */
     val sourceBranch: String = "main",
+
+    /** The [LocalDate] the release was made. */
+    val releaseLocalDate: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
 ) {
     fun save(file: File) {
         val json = Json { prettyPrint = true }
@@ -138,10 +147,25 @@ data class ReleaseSpec(
         """.trimIndent()
     }
 
+    fun asReleaseBlogUrl(): String {
+        val releaseDate = releaseLocalDate.format(yyyymmdd)
+        val versionName = thisVersion!!.versionName()
+
+        return "https://pachli.app/pachli/$releaseDate/$versionName-release.html"
+    }
+
     private fun asCheckbox(v: Any?) = "[${v?.let { "x" } ?: " "}]"
 
     companion object {
         @OptIn(ExperimentalSerializationApi::class)
         fun from(file: File): ReleaseSpec = Json.decodeFromStream(file.inputStream())
+
+        private val yyyymmdd = LocalDate.Format {
+            year()
+            char('/')
+            monthNumber()
+            char('/')
+            day()
+        }
     }
 }

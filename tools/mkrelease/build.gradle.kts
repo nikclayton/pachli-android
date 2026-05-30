@@ -38,6 +38,9 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r")
     implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:7.4.0.202509020913-r")
 
+    // LocalDate
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
+
     // Gradle API
     // https://docs.gradle.org/current/userguide/third_party_integration.html#embedding
     implementation("org.gradle:gradle-tooling-api:8.1.1")
