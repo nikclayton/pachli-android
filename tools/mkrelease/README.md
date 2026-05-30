@@ -51,8 +51,8 @@ You will need:
 - A Weblate API token saved in `$WEBLATE_TOKEN`.
 
 ```shell
-export GITHUB_TOKEN=$(op read 'op://Pachli Release/GITHUB_TOKEN/credential')
-export WEBLATE_TOKEN=$(op read 'op://Pachli Release/WEBLATE_TOKEN/credential')
+export GITHUB_TOKEN=$(op read 'op://pachli-release/GITHUB_TOKEN/credential')
+export WEBLATE_TOKEN=$(op read 'op://pachli-release/WEBLATE_TOKEN/credential')
 ```
 
 ### `init`
