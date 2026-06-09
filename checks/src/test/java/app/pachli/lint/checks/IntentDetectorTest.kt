@@ -40,7 +40,6 @@ class IntentDetectorTest : LintDetectorTest() {
 
                 fun makeIntent(context: Context) = Intent(context, String::class.java)
             """,
-
             ).indented(),
         ).allowMissingSdk().run().expect(
             """src/test/pkg/test.kt:6: Warning: Use functions from core.navigation [IntentDetector]

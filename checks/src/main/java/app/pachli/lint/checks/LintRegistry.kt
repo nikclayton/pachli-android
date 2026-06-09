@@ -13,6 +13,7 @@ class LintRegistry : IssueRegistry() {
             DateDotTimeDetector.ISSUE,
             GlideWithViewDetector.ISSUE,
             IntentDetector.ISSUE,
+            PachliErrorSubclassNameDoesNotEndWithErrorDetector.ISSUE,
             StringResourceAngleBracketDetector.ISSUE,
             StringResourceEntityDetector.ISSUE,
             TypedArrayUseDetector.ISSUE,
