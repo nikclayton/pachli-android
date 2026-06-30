@@ -70,9 +70,12 @@ jobs:
       security-events: write
     strategy:
       matrix:
-        color: ["orange"]
+        color: [ "blue", "orange" ]
         store: [ "Fdroid", "Github", "Google" ]
-        type: [ "Debug", "Release" ]
+        type: [ "Debug" ]
+        exclude:
+          - color: "orange"
+            store: "Fdroid"
     name: Android Lint
     runs-on: ubuntu-latest
 
@@ -110,9 +113,12 @@ jobs:
   test:
     strategy:
       matrix:
-        color: ["orange"]
+        color: [ "blue", "orange" ]
         store: [ "Fdroid", "Github", "Google" ]
-        type: [ "Debug", "Release" ]
+        type: [ "Debug" ]
+        exclude:
+          - color: "orange"
+            store: "Fdroid"
     name: Android Unit Test
     runs-on: ubuntu-latest
 
@@ -131,9 +137,12 @@ jobs:
   assemble:
     strategy:
       matrix:
-        color: ["orange"]
+        color: [ "blue", "orange" ]
         store: [ "Fdroid", "Github", "Google" ]
         type: [ "Debug", "Release" ]
+        exclude:
+          - color: "orange"
+            store: "Fdroid"
     name: Android Assemble
     runs-on: ubuntu-latest
 
@@ -166,14 +175,26 @@ jobs:
         run: ./gradlew validateOrangeGoogleDebugScreenshotTest
 
   # Connected tests are per-store-variant, debug builds only.
+  #
+  # Currently disabled because of
+  # https://github.com/ReactiveCircus/android-emulator-runner/issues/478
+  #
+  # To locally verify a PR works run:
+  #
+  # gh pr checkout [pr]
+  # ./gradlew pixel9api31Check
   connected:
+    if: false
     strategy:
       matrix:
-        color: ["Orange"]
+        color: [ "blue", "orange" ]
         store: ["Fdroid", "Github", "Google"]
         type: ["Debug"]
         api-level: [31]
         target: [default]
+        exclude:
+          - color: "orange"
+            store: "Fdroid"
     name: Android Emulator Tests
     runs-on: ubuntu-latest
 

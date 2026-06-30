@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.DeleteColumn
+import androidx.room.DeleteTable
 import androidx.room.RenameColumn
 import androidx.room.RenameTable
 import androidx.room.RoomDatabase
@@ -36,24 +37,23 @@ import app.pachli.core.database.dao.ConversationsDao
 import app.pachli.core.database.dao.DebugDao
 import app.pachli.core.database.dao.DraftDao
 import app.pachli.core.database.dao.FollowingAccountDao
-import app.pachli.core.database.dao.InstanceDao
+import app.pachli.core.database.dao.HashtagsDao
 import app.pachli.core.database.dao.ListsDao
 import app.pachli.core.database.dao.LogEntryDao
 import app.pachli.core.database.dao.NotificationDao
 import app.pachli.core.database.dao.RemoteKeyDao
+import app.pachli.core.database.dao.ServerDao
 import app.pachli.core.database.dao.StatusDao
 import app.pachli.core.database.dao.TimelineDao
 import app.pachli.core.database.dao.TimelineStatusWithAccount
 import app.pachli.core.database.dao.TranslatedStatusDao
-import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.AnnouncementEntity
 import app.pachli.core.database.model.ContentFiltersEntity
 import app.pachli.core.database.model.ConversationEntity
 import app.pachli.core.database.model.ConversationViewDataEntity
 import app.pachli.core.database.model.DraftEntity
-import app.pachli.core.database.model.EmojisEntity
 import app.pachli.core.database.model.FollowingAccountEntity
-import app.pachli.core.database.model.InstanceInfoEntity
+import app.pachli.core.database.model.HashtagEntity
 import app.pachli.core.database.model.LogEntryEntity
 import app.pachli.core.database.model.MastodonListEntity
 import app.pachli.core.database.model.NotificationAccountWarningEntity
@@ -61,6 +61,7 @@ import app.pachli.core.database.model.NotificationEntity
 import app.pachli.core.database.model.NotificationRelationshipSeveranceEventEntity
 import app.pachli.core.database.model.NotificationReportEntity
 import app.pachli.core.database.model.NotificationViewDataEntity
+import app.pachli.core.database.model.PachliAccountEntity
 import app.pachli.core.database.model.ReferencedStatusId
 import app.pachli.core.database.model.RemoteKeyEntity
 import app.pachli.core.database.model.ServerEntity
@@ -78,9 +79,7 @@ import java.util.TimeZone
 @Database(
     entities = [
         DraftEntity::class,
-        AccountEntity::class,
-        InstanceInfoEntity::class,
-        EmojisEntity::class,
+        PachliAccountEntity::class,
         StatusEntity::class,
         TimelineAccountEntity::class,
         ConversationEntity::class,
@@ -100,12 +99,13 @@ import java.util.TimeZone
         NotificationAccountWarningEntity::class,
         TimelineStatusEntity::class,
         ConversationViewDataEntity::class,
+        HashtagEntity::class,
     ],
     views = [
         TimelineStatusWithAccount::class,
         ReferencedStatusId::class,
     ],
-    version = 38,
+    version = 42,
     autoMigrations = [
         AutoMigration(from = 1, to = 2, spec = AppDatabase.MIGRATE_1_2::class),
         AutoMigration(from = 2, to = 3),
@@ -159,11 +159,18 @@ import java.util.TimeZone
         AutoMigration(from = 36, to = 37, spec = AppDatabase.MIGRATE_36_37::class),
         // Record cursor position, failure message, etc in DraftEntity
         AutoMigration(from = 37, to = 38, spec = AppDatabase.MIGRATE_37_38::class),
+        // HashtagEntity, to show followed hashtags in timelines.
+        AutoMigration(from = 38, to = 39),
+        // Converting InstanceInfo to ServerLimits.
+        AutoMigration(from = 39, to = 40, spec = AppDatabase.MIGRATE_39_40::class),
+        AutoMigration(from = 40, to = 41, spec = AppDatabase.MIGRATE_40_41::class),
+        // Store emojis directly in the Server class.
+        AutoMigration(from = 41, to = 42, spec = AppDatabase.MIGRATE_41_42::class),
     ],
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao
-    abstract fun instanceDao(): InstanceDao
+    abstract fun serverDao(): ServerDao
     abstract fun conversationDao(): ConversationsDao
     abstract fun timelineDao(): TimelineDao
     abstract fun draftDao(): DraftDao
@@ -176,6 +183,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun followingAccountDao(): FollowingAccountDao
     abstract fun notificationDao(): NotificationDao
     abstract fun statusDao(): StatusDao
+    abstract fun hashtagsDao(): HashtagsDao
     abstract fun debugDao(): DebugDao
 
     @DeleteColumn("TimelineStatusEntity", "expanded")
@@ -357,6 +365,15 @@ abstract class AppDatabase : RoomDatabase() {
     @DeleteColumn("DraftEntity", "failedToSendNew")
     @RenameColumn("DraftEntity", "accountId", "pachliAccountId")
     class MIGRATE_37_38 : AutoMigrationSpec
+
+    @DeleteTable("InstanceInfoEntity")
+    class MIGRATE_39_40 : AutoMigrationSpec
+
+    @RenameTable("AccountEntity", "PachliAccountEntity")
+    class MIGRATE_40_41 : AutoMigrationSpec
+
+    @DeleteTable("EmojisEntity")
+    class MIGRATE_41_42 : AutoMigrationSpec
 }
 
 val MIGRATE_8_9 = object : Migration(8, 9) {
@@ -507,7 +524,7 @@ val MIGRATE_12_13 = object : Migration(12, 13) {
 }
 
 /**
- * Removes any StatusEntity that reference a non-existent [AccountEntity.id] in
+ * Removes any StatusEntity that reference a non-existent [PachliAccountEntity.id] in
  * [StatusEntity.timelineUserId].
  *
  * Version 20 introduces that as an FK constraint, this ensures that any statuses

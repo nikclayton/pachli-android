@@ -36,17 +36,15 @@ import app.pachli.core.common.string.mastodonLength
 import app.pachli.core.common.string.randomAlphanumericString
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.DraftsRepository
-import app.pachli.core.data.repository.InstanceInfoRepository
 import app.pachli.core.data.repository.Loadable
 import app.pachli.core.data.repository.PachliAccount
-import app.pachli.core.data.repository.ServerRepository
 import app.pachli.core.data.repository.StatusDisplayOptionsRepository
-import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.model.AccountSource
 import app.pachli.core.model.Attachment
 import app.pachli.core.model.Draft
 import app.pachli.core.model.DraftAttachment
 import app.pachli.core.model.NewPoll
+import app.pachli.core.model.ServerLimits
 import app.pachli.core.model.ServerOperation
 import app.pachli.core.model.Status
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
@@ -172,8 +170,6 @@ class ComposeViewModel @AssistedInject constructor(
     private val accountManager: AccountManager,
     private val mediaUploader: MediaUploader,
     private val sendStatus: SendStatusUseCase,
-    instanceInfoRepo: InstanceInfoRepository,
-    serverRepository: ServerRepository,
     statusDisplayOptionsRepository: StatusDisplayOptionsRepository,
     private val sharedPreferencesRepository: SharedPreferencesRepository,
     private val draftsRepository: DraftsRepository,
@@ -258,13 +254,16 @@ class ComposeViewModel @AssistedInject constructor(
     private val modifiedInitialState: Boolean = composeOptions.modifiedInitialState == true
     private var scheduledTimeChanged: Boolean = false
 
-    val instanceInfo = instanceInfoRepo.instanceInfo
+    val serverLimits = accountFlow.map { it.server.limits }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ServerLimits())
 
-    val emojis = instanceInfoRepo.emojis
+    /** Emojis on the server the user can use in their status. */
+    val serverEmojis = accountFlow.map { it.server.emojis }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _markMediaAsSensitive: MutableStateFlow<Boolean?> = MutableStateFlow(composeOptions.draft.sensitive)
     val markMediaAsSensitive = accountFlow.combine(_markMediaAsSensitive) { account, sens ->
-        sens ?: account.entity.defaultMediaSensitivity
+        sens ?: account.defaultMediaSensitivity
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /** Flow of changes to statusDisplayOptions, for use by the UI */
@@ -273,7 +272,7 @@ class ComposeViewModel @AssistedInject constructor(
     private val _statusVisibility: MutableStateFlow<Status.Visibility> = MutableStateFlow(Status.Visibility.UNKNOWN)
     val statusVisibility = accountFlow.combine(_statusVisibility) { account, vis ->
         if (vis == Status.Visibility.UNKNOWN) {
-            account.entity.defaultPostPrivacy
+            account.defaultPostPrivacy
         } else {
             vis
         }
@@ -294,8 +293,8 @@ class ComposeViewModel @AssistedInject constructor(
     val statusLength = _statusLength.asStateFlow()
 
     /** Flow of whether or not the server can schedule posts. */
-    val serverCanSchedule = serverRepository.flow.map {
-        it.get()?.can(ServerOperation.ORG_JOINMASTODON_STATUSES_SCHEDULED, ">= 1.0.0".toConstraint()) == true
+    val serverCanSchedule = accountFlow.map {
+        it.server.can(ServerOperation.ORG_JOINMASTODON_STATUSES_SCHEDULED, ">= 1.0.0".toConstraint())
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /**
@@ -333,10 +332,10 @@ class ComposeViewModel @AssistedInject constructor(
      *
      * In addition, multiple attachments can only be added if they are all images.
      */
-    val canAttachMedia = combine(instanceInfo, media, poll) { instanceInfo, media, poll ->
+    val canAttachMedia = combine(serverLimits, media, poll) { serverLimits, media, poll ->
         composeOptions.referencingStatus?.isQuoting() != true &&
             poll == null &&
-            media.size < instanceInfo.maxMediaAttachments &&
+            media.size < serverLimits.maxMediaAttachments &&
             (media.isEmpty() || media.first().type == QueuedMedia.Type.IMAGE)
     }
 
@@ -378,7 +377,7 @@ class ComposeViewModel @AssistedInject constructor(
             qp != null -> qp
             composeOptions.draft.quotePolicy != null -> composeOptions.draft.quotePolicy
             composeOptions.draft.visibility == Status.Visibility.DIRECT || composeOptions.draft.visibility == Status.Visibility.PRIVATE -> AccountSource.QuotePolicy.NOBODY
-            else -> account.entity.defaultQuotePolicy
+            else -> account.defaultQuotePolicy
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
@@ -408,7 +407,7 @@ class ComposeViewModel @AssistedInject constructor(
      * @param focus focus, if relevant
      */
     suspend fun pickMedia(mediaUri: Uri, description: String? = null, focus: Attachment.Focus? = null): Result<QueuedMedia, PickMediaError> = withContext(Dispatchers.IO) {
-        val (type, uri, size) = mediaUploader.prepareMedia(mediaUri, instanceInfo.value)
+        val (type, uri, size) = mediaUploader.prepareMedia(mediaUri, serverLimits.value)
             .mapError { PickMediaError.PrepareMediaError(it) }.getOrElse { return@withContext Err(it) }
         val mediaItems = media.value
         if (type != QueuedMedia.Type.IMAGE && mediaItems.isNotEmpty() && mediaItems[0].type == QueuedMedia.Type.IMAGE) {
@@ -431,7 +430,7 @@ class ComposeViewModel @AssistedInject constructor(
 
         _media.update { mediaList ->
             val mediaItem = QueuedMedia(
-                account = pachliAccount.entity,
+                account = pachliAccount,
                 localId = mediaUploader.getNewLocalMediaId(),
                 uri = uri,
                 type = type,
@@ -455,7 +454,7 @@ class ComposeViewModel @AssistedInject constructor(
 
         viewModelScope.launch {
             mediaUploader
-                .uploadMedia(mediaItem, instanceInfo.value)
+                .uploadMedia(mediaItem, serverLimits.value)
                 .collect { uploadResult ->
                     updateMediaItem(mediaItem.localId) { it.copy(uploadState = uploadResult) }
                 }
@@ -465,7 +464,7 @@ class ComposeViewModel @AssistedInject constructor(
         return mediaItem
     }
 
-    private fun addUploadedMedia(account: AccountEntity, id: String, type: QueuedMedia.Type, uri: Uri, description: String?, focus: Attachment.Focus?) {
+    private fun addUploadedMedia(account: PachliAccount, id: String, type: QueuedMedia.Type, uri: Uri, description: String?, focus: Attachment.Focus?) {
         _media.update { mediaList ->
             val mediaItem = QueuedMedia(
                 account = account,
@@ -547,7 +546,7 @@ class ComposeViewModel @AssistedInject constructor(
 
     @VisibleForTesting
     fun updateStatusLength() {
-        _statusLength.value = statusLength(content, effectiveContentWarning, instanceInfo.value.charactersReservedPerUrl)
+        _statusLength.value = statusLength(content, effectiveContentWarning, serverLimits.value.charactersReservedPerUrl)
     }
 
     private fun updateCloseConfirmation() {
@@ -737,7 +736,10 @@ class ComposeViewModel @AssistedInject constructor(
         val draft = saveDraft(cursorPosition).andThen { draft ->
             // Can't edit a scheduled status in place. It needs to be deleted so
             // SendStatusService can create a new scheduled status.
-            if (draft.scheduledAt != null && draft.statusId != null) {
+
+            // Delete the original scheduled status if the original draft was
+            // scheduled.
+            if (composeOptions.draft.scheduledAt != null && draft.statusId != null) {
                 api.deleteScheduledStatus(draft.statusId!!)
                     .mapError { UiError.DeleteScheduledStatus(it) }
                     .map {
@@ -824,7 +826,7 @@ class ComposeViewModel @AssistedInject constructor(
             ':' -> {
                 val incomplete = token.substring(1)
 
-                return emojis.value.filter { emoji ->
+                return serverEmojis.value.filter { emoji ->
                     emoji.shortcode.contains(incomplete, ignoreCase = true)
                 }.sortedBy { emoji ->
                     emoji.shortcode.indexOf(incomplete, ignoreCase = true)
@@ -873,7 +875,7 @@ class ComposeViewModel @AssistedInject constructor(
                 Attachment.Type.UNKNOWN, Attachment.Type.IMAGE -> QueuedMedia.Type.IMAGE
                 Attachment.Type.AUDIO -> QueuedMedia.Type.AUDIO
             }
-            addUploadedMedia(account.entity, a.id, mediaType, a.url.toUri(), a.description, a.meta?.focus)
+            addUploadedMedia(account, a.id, mediaType, a.url.toUri(), a.description, a.meta?.focus)
         }
 
         _statusVisibility.value = startingVisibility
@@ -897,8 +899,9 @@ class ComposeViewModel @AssistedInject constructor(
         updateCloseConfirmation()
     }
 
+    /** True if editing a published status (not a scheduled status). */
     val editing: Boolean
-        get() = !originalStatusId.isNullOrEmpty()
+        get() = !originalStatusId.isNullOrEmpty() && composeOptions.draft.scheduledAt == null
 
     /** Closes the open draft when the viewmodel is cleared. */
     override fun onCleared() {

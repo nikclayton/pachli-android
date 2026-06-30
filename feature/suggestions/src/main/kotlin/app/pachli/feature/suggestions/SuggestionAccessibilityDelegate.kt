@@ -56,7 +56,7 @@ internal class SuggestionAccessibilityDelegate(
 
     private val followAccountAction = AccessibilityNodeInfoCompat.AccessibilityActionCompat(
         app.pachli.core.ui.R.id.action_follow_account,
-        context.getString(R.string.action_follow_account),
+        context.getString(app.pachli.core.ui.R.string.action_follow_account),
     )
 
     private val linksAction = AccessibilityNodeInfoCompat.AccessibilityActionCompat(
@@ -111,13 +111,13 @@ internal class SuggestionAccessibilityDelegate(
 
                 app.pachli.core.ui.R.id.action_dismiss_follow_suggestion -> {
                     interrupt()
-                    accept(UiAction.SuggestionAction.DeleteSuggestion(viewData.suggestion))
+                    accept(UiAction.SuggestionAction.DeleteSuggestion(viewData.pachliAccountId, viewData.suggestion))
                     true
                 }
 
                 app.pachli.core.ui.R.id.action_follow_account -> {
                     interrupt()
-                    accept(UiAction.SuggestionAction.AcceptSuggestion(viewData.suggestion))
+                    accept(UiAction.SuggestionAction.AcceptSuggestion(viewData.pachliAccountId, viewData.suggestion))
                     true
                 }
 

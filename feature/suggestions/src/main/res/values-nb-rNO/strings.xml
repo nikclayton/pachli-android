@@ -6,15 +6,9 @@
     <string name="ui_error_delete_suggestion_fmt">Avvising av forslag til %1$s mislyktes: %2$s</string>
     <string name="ui_error_follow_account_fmt">Følging av %1$s mislyktes: %2$s</string>
     <string name="sources_featured">Valgt av moderatorene til instansen din</string>
-    <string name="action_follow_account">Følg</string>
     <string name="sources_most_interactions">Får mye oppmerksomhet på instansen din</string>
     <string name="sources_similar_to_recently_followed">Ligner på kontoer du har fulgt nylig</string>
     <string name="sources_friends_of_friends">Populær blant de du følger</string>
     <string name="sources_unknown">(Serveren ga ukjente kilder)</string>
     <string name="action_dismiss_follow_suggestion">Avvis</string>
-    <string name="follower_count_fmt">&lt;b>%1$s&lt;/b> følgere</string>
-    <string name="follows_count_fmt">Følger &lt;b>%1$s&lt;/b></string>
-    <string name="statuses_count_fmt">&lt;b>%1$s&lt;/b> innlegg</string>
-    <string name="statuses_count_per_week_fmt">&lt;b>%1$s&lt;/b> innlegg (&lt;b>%2$d&lt;/b> om uken)</string>
-    <string name="statuses_count_per_week_last_fmt">&lt;b>%1$s&lt;/b> innlegg (&lt;b>%2$d&lt;/b> om uken, siste uke &lt;b>%3$s&lt;/b>)</string>
 </resources>

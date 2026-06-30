@@ -26,10 +26,12 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.provider.Settings
 import android.service.notification.StatusBarNotification
 import android.text.Spanned
 import android.text.TextUtils
+import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
 import androidx.core.app.TaskStackBuilder
@@ -47,19 +49,17 @@ import app.pachli.BuildConfig
 import app.pachli.MainActivity
 import app.pachli.R
 import app.pachli.core.common.string.unicodeWrap
-import app.pachli.core.data.repository.PachliAccount
 import app.pachli.core.data.repository.createDraftReply
-import app.pachli.core.database.model.AccountEntity
-import app.pachli.core.database.model.NotificationData
-import app.pachli.core.database.model.NotificationEntity
 import app.pachli.core.designsystem.R as DR
 import app.pachli.core.domain.notifications.NotificationConfig
 import app.pachli.core.model.AccountFilterDecision
 import app.pachli.core.model.AccountFilterReason
+import app.pachli.core.model.AccountIdentifier
 import app.pachli.core.model.AccountWarning
 import app.pachli.core.model.Draft
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.Notification
+import app.pachli.core.model.PachliAccount
 import app.pachli.core.model.RelationshipSeveranceEvent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
 import app.pachli.core.navigation.IntentRouterActivityIntent
@@ -90,26 +90,49 @@ const val KEY_SENDER_ACCOUNT_IDENTIFIER = "KEY_SENDER_ACCOUNT_IDENTIFIER"
 const val KEY_SENDER_ACCOUNT_FULL_NAME = "KEY_SENDER_ACCOUNT_FULL_NAME"
 
 /** Key to return the server ID of the notification, equivalent to [Notification.id]. */
-const val KEY_SERVER_NOTOFICATION_ID = "KEY_SERVER_NOTIFICATION_ID"
+const val KEY_SERVER_NOTIFICATION_ID = "KEY_SERVER_NOTIFICATION_ID"
 
 /** Key to return the [Draft]. */
 const val KEY_DRAFT = "KEY_DRAFT"
 
-/** notification channels used on Android O+ */
-const val CHANNEL_MENTION = "CHANNEL_MENTION"
-private const val CHANNEL_FOLLOW = "CHANNEL_FOLLOW"
-private const val CHANNEL_FOLLOW_REQUEST = "CHANNEL_FOLLOW_REQUEST"
-private const val CHANNEL_BOOST = "CHANNEL_BOOST"
-private const val CHANNEL_FAVOURITE = "CHANNEL_FAVOURITE"
-private const val CHANNEL_POLL = "CHANNEL_POLL"
-private const val CHANNEL_SUBSCRIPTIONS = "CHANNEL_SUBSCRIPTIONS"
-private const val CHANNEL_SIGN_UP = "CHANNEL_SIGN_UP"
-private const val CHANNEL_UPDATES = "CHANNEL_UPDATES"
-private const val CHANNEL_REPORT = "CHANNEL_REPORT"
-private const val CHANNEL_SEVERED_RELATIONSHIPS = "CHANNEL_SEVERED_RELATIONSHIPS"
-private const val CHANNEL_MODERATION_WARNINGS = "CHANNEL_MODERATION_WARNING"
-private const val CHANNEL_QUOTE = "CHANNEL_QUOTE"
-private const val CHANNEL_QUOTED_UPDATE = "CHANNEL_QUOTED_UPDATE"
+/**
+ * Notification channels for per-account Mastodon notifications, used on
+ * Android O+
+ *
+ * @property baseId Base ID for the channel. Notification channels are created
+ * per account, use [channelId] to get the full channel ID.
+ * @property nameRes Resource identifier for the notification channel name
+ * @property descriptionRes Resource identifier for the notification
+ * channel description
+ */
+enum class PachliNotificationChannels(
+    private val baseId: String,
+    @StringRes val nameRes: Int,
+    @StringRes val descriptionRes: Int,
+) {
+    MENTION("CHANNEL_MENTION", R.string.notification_mention_name, R.string.notification_mention_descriptions),
+    FOLLOW("CHANNEL_FOLLOW", R.string.notification_follow_name, R.string.notification_follow_description),
+    FOLLOW_REQUEST("CHANNEL_FOLLOW_REQUEST", R.string.notification_follow_request_name, R.string.notification_follow_request_description),
+    REBLOG("CHANNEL_BOOST", R.string.notification_boost_name, R.string.notification_boost_description),
+    FAVOURITE("CHANNEL_FAVOURITE", R.string.notification_favourite_name, R.string.notification_favourite_description),
+    POLL("CHANNEL_POLL", R.string.notification_poll_name, R.string.notification_poll_description),
+    SUBSCRIPTIONS("CHANNEL_SUBSCRIPTIONS", R.string.notification_subscription_name, R.string.notification_subscription_description),
+    SIGN_UP("CHANNEL_SIGN_UP", R.string.notification_sign_up_name, R.string.notification_sign_up_description),
+    UPDATES("CHANNEL_UPDATES", R.string.notification_update_name, R.string.notification_update_description),
+    REPORT("CHANNEL_REPORT", R.string.notification_report_name, R.string.notification_report_description),
+    SEVERED_RELATIONSHIPS("CHANNEL_SEVERED_RELATIONSHIPS", R.string.notification_severed_relationships_name, R.string.notification_severed_relationships_description),
+    MODERATION_WARNINGS("CHANNEL_MODERATION_WARNING", R.string.notification_moderation_warnings_name, R.string.notification_moderation_warnings_description),
+    QUOTE("CHANNEL_QUOTE", R.string.notification_quote_name, R.string.notification_quote_description),
+    QUOTED_UPDATE("CHANNEL_QUOTED_UPDATE", R.string.notification_quoted_update_name, R.string.notification_quoted_update_description),
+
+    ;
+
+    /**
+     * @return The full ID for this channel for the account identified
+     * by [accountIdentifier].
+     */
+    fun channelId(accountIdentifier: AccountIdentifier) = baseId + accountIdentifier
+}
 
 /** WorkManager Tag */
 private const val NOTIFICATION_PULL_TAG = "pullNotifications"
@@ -118,12 +141,10 @@ private const val NOTIFICATION_PULL_TAG = "pullNotifications"
 private const val GROUP_SUMMARY_TAG = BuildConfig.APPLICATION_ID + ".notification.group_summary"
 
 /** The name of the account that caused the notification, for use in a summary  */
-private const val EXTRA_ACCOUNT_NAME =
-    BuildConfig.APPLICATION_ID + ".notification.extra.account_name"
+private const val EXTRA_ACCOUNT_NAME = BuildConfig.APPLICATION_ID + ".notification.extra.account_name"
 
-/** The notification's type (string representation of a Notification.Type)  */
-private const val EXTRA_NOTIFICATION_TYPE =
-    BuildConfig.APPLICATION_ID + ".notification.extra.notification_type"
+/** The notification's type. */
+private const val EXTRA_NOTIFICATION_TYPE = BuildConfig.APPLICATION_ID + ".notification.extra.notification_type"
 
 /**
  * Takes a given Mastodon notification and creates a new Android notification or updates the
@@ -133,20 +154,19 @@ private const val EXTRA_NOTIFICATION_TYPE =
  * is the ID of the account that received the notification.
  *
  * @param context to access application preferences and services
- * @param mastodonNotification    a new Mastodon notification
- * @param account the account for which the notification should be shown
+ * @param mastodonNotification Mastodon [Notification]
+ * @param pachliAccount the account for which the notification should be shown
  * @return the new notification
  */
 fun makeNotification(
     context: Context,
     notificationManager: NotificationManager,
     mastodonNotification: Notification,
-    account: AccountEntity,
+    pachliAccount: PachliAccount,
     isFirstOfBatch: Boolean,
 ): android.app.Notification {
-    val notif = mastodonNotification.rewriteToStatusTypeIfNeeded(account.accountId)
-    val mastodonNotificationId = notif.id
-    val accountId = account.id.toInt()
+    val mastodonNotificationId = mastodonNotification.id
+    val accountId = pachliAccount.id.toInt()
 
     // Check for an existing notification with this Mastodon Notification ID
     val activeNotifications = notificationManager.activeNotifications
@@ -157,30 +177,30 @@ fun makeNotification(
     // =========================
     notificationId++
 
-    // Create the notification -- either create a new one, or use the existing one.
-    val builder = existingAndroidNotification?.let {
+    // Create the Android notification -- either create a new one, or use the existing one.
+    val androidNotificationBuilder = existingAndroidNotification?.let {
         NotificationCompat.Builder(context, it)
-    } ?: newAndroidNotification(context, notificationId, notif, account)
+    } ?: newAndroidNotification(context, notificationId, mastodonNotification, pachliAccount)
 
-    builder
-        .setContentTitle(titleForType(context, notif, account))
-        .setContentText(bodyForType(notif, context, account.alwaysOpenSpoiler))
+    androidNotificationBuilder
+        .setContentTitle(titleForType(context, mastodonNotification, pachliAccount))
+        .setContentText(bodyForType(mastodonNotification, context, pachliAccount.alwaysOpenSpoiler))
 
-    if (notif.type === Notification.Type.MENTION || notif.type === Notification.Type.POLL) {
-        builder.setStyle(
+    if (mastodonNotification is Notification.Mention || mastodonNotification is Notification.Poll) {
+        androidNotificationBuilder.setStyle(
             NotificationCompat.BigTextStyle()
-                .bigText(bodyForType(notif, context, account.alwaysOpenSpoiler)),
+                .bigText(bodyForType(mastodonNotification, context, pachliAccount.alwaysOpenSpoiler)),
         )
     }
 
     // Load the avatar synchronously
     val accountAvatar = try {
-        val target = Glide.with(context)
+        Glide.with(context)
             .asBitmap()
-            .load(notif.account.avatar)
+            .load(mastodonNotification.account.avatar)
             .transform(RoundedCorners(20))
             .submit()
-        target.get()
+            .get()
     } catch (e: ExecutionException) {
         Timber.w(e, "error loading account avatar")
         BitmapFactory.decodeResource(context.resources, DR.drawable.avatar_default)
@@ -188,16 +208,14 @@ fun makeNotification(
         Timber.w(e, "error loading account avatar")
         BitmapFactory.decodeResource(context.resources, DR.drawable.avatar_default)
     }
-    builder.setLargeIcon(accountAvatar)
+    androidNotificationBuilder.setLargeIcon(accountAvatar)
 
     // Reply to mention action; RemoteInput is available from KitKat Watch, but buttons are available from Nougat
-    if (notif.type === Notification.Type.MENTION &&
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-    ) {
+    if (mastodonNotification is Notification.Mention && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         val replyRemoteInput = RemoteInput.Builder(KEY_REPLY)
             .setLabel(context.getString(R.string.label_quick_reply))
             .build()
-        val quickReplyPendingIntent = getStatusReplyIntent(context, notif, account)
+        val quickReplyPendingIntent = getStatusReplyIntent(context, mastodonNotification, pachliAccount)
         val quickReplyAction = NotificationCompat.Action.Builder(
             app.pachli.core.ui.R.drawable.ic_reply_24dp,
             context.getString(R.string.action_quick_reply),
@@ -205,8 +223,8 @@ fun makeNotification(
         )
             .addRemoteInput(replyRemoteInput)
             .build()
-        builder.addAction(quickReplyAction)
-        val composeIntent = getStatusComposeIntent(context, notif, account)
+        androidNotificationBuilder.addAction(quickReplyAction)
+        val composeIntent = getStatusComposeIntent(context, mastodonNotification, pachliAccount)
         val composeAction = NotificationCompat.Action.Builder(
             app.pachli.core.ui.R.drawable.ic_reply_24dp,
             context.getString(R.string.action_compose_shortcut),
@@ -214,28 +232,31 @@ fun makeNotification(
         )
             .setShowsUserInterface(true)
             .build()
-        builder.addAction(composeAction)
+        androidNotificationBuilder.addAction(composeAction)
     }
-    builder.setSubText(account.fullName)
-    builder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
-    builder.setCategory(NotificationCompat.CATEGORY_SOCIAL)
-    builder.setOnlyAlertOnce(true)
+
+    androidNotificationBuilder.setSubText(pachliAccount.fullName)
+    androidNotificationBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+    androidNotificationBuilder.setCategory(NotificationCompat.CATEGORY_SOCIAL)
+    androidNotificationBuilder.setOnlyAlertOnce(true)
 
     // Add the sending account's name, so it can be used when summarising this notification
     val extras = Bundle()
-    extras.putString(EXTRA_ACCOUNT_NAME, notif.account.name)
-    extras.putEnum(EXTRA_NOTIFICATION_TYPE, notif.type)
-    builder.addExtras(extras)
+    extras.putString(EXTRA_ACCOUNT_NAME, mastodonNotification.account.name)
+    extras.putEnum(EXTRA_NOTIFICATION_TYPE, mastodonNotification.type)
+    androidNotificationBuilder.addExtras(extras)
 
     // Only alert for the first notification of a batch to avoid multiple alerts at once
     if (!isFirstOfBatch) {
-        builder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+        androidNotificationBuilder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
     }
-    return builder.build()
+    return androidNotificationBuilder.build()
 }
 
 /**
- * Updates the summary notifications for each notification group.
+ * Regnerates the summary notifications for all active Pachli notifications for `account`.
+ * This may delete the summary notification if there are no active notifications for that
+ * account in a group.
  *
  * Notifications are sent to channels. Within each channel they may be grouped, and the group
  * may have a summary.
@@ -246,31 +267,27 @@ fun makeNotification(
  *
  * The group key is the same as the channel ID.
  *
- * Regnerates the summary notifications for all active Pachli notifications for `account`.
- * This may delete the summary notification if there are no active notifications for that
- * account in a group.
- *
  * @see [Create a
  * notification group](https://developer.android.com/develop/ui/views/notifications/group)
  *
  * @param context to access application preferences and services
  * @param notificationManager the system's NotificationManager
- * @param account the account for which the notification should be shown
+ * @param pachliAccount the account for which the notification should be shown
  */
 fun updateSummaryNotifications(
     context: Context,
     notificationManager: NotificationManager,
-    account: AccountEntity,
+    pachliAccount: PachliAccount,
 ) {
     // Map from the channel ID to a list of notifications in that channel. Those are the
     // notifications that will be summarised.
-    val channelGroups: MutableMap<String?, MutableList<StatusBarNotification>> = HashMap()
-    val accountId = account.id.toInt()
-
-    // Initialise the map with all channel IDs.
-    Notification.Type.entries.forEach {
-        channelGroups[getChannelId(account, it)] = ArrayList()
+    val channelGroups = buildMap {
+        PachliNotificationChannels.entries.forEach {
+            put(it.channelId(pachliAccount.identifier), ArrayList<StatusBarNotification>())
+        }
     }
+
+    val accountId = pachliAccount.id.toInt()
 
     // Fetch all existing notifications. Add them to the map, ignoring notifications that:
     // - belong to a different account
@@ -278,8 +295,8 @@ fun updateSummaryNotifications(
     for (sn in notificationManager.activeNotifications) {
         if (sn.id != accountId) continue
         val channelId = sn.notification.group
-        val summaryTag = "$GROUP_SUMMARY_TAG.$channelId"
-        if (summaryTag == sn.tag) continue
+        val summaryNotificationTag = "$GROUP_SUMMARY_TAG.$channelId"
+        if (summaryNotificationTag == sn.tag) continue
 
         // TODO: API 26 supports getting the channel ID directly (sn.getNotification().getChannelId()).
         // This works here because the channelId and the groupKey are the same.
@@ -293,12 +310,12 @@ fun updateSummaryNotifications(
 
     // Create, update, or cancel the summary notifications for each group.
     for ((channelId, members) in channelGroups) {
-        val summaryTag = "$GROUP_SUMMARY_TAG.$channelId"
+        val summaryNotificationTag = "$GROUP_SUMMARY_TAG.$channelId"
 
         // If there are 0-1 notifications in this group then the additional summary
         // notification is not needed and can be cancelled.
         if (members.size <= 1) {
-            notificationManager.cancel(summaryTag, accountId)
+            notificationManager.cancel(summaryNotificationTag, accountId)
             continue
         }
 
@@ -308,16 +325,16 @@ fun updateSummaryNotifications(
         val notificationType = members[0].notification.extras.getEnum<Notification.Type>(EXTRA_NOTIFICATION_TYPE)
         val summaryResultIntent = IntentRouterActivityIntent.fromNotification(
             context,
-            account.id,
+            pachliAccount.id,
             -1,
             null,
-            type = notificationType,
+            notificationType = notificationType,
         )
         val summaryStackBuilder = TaskStackBuilder.create(context)
         summaryStackBuilder.addParentStack(MainActivity::class.java)
         summaryStackBuilder.addNextIntent(summaryResultIntent)
         val summaryResultPendingIntent = summaryStackBuilder.getPendingIntent(
-            (notificationId + account.id * 10000).toInt(),
+            (notificationId + pachliAccount.id * 10000).toInt(),
             pendingIntentFlags(false),
         )
         val title = context.resources.getQuantityString(
@@ -331,22 +348,22 @@ fun updateSummaryNotifications(
             .setContentIntent(summaryResultPendingIntent)
             .setColor(context.getColor(DR.color.notification_color))
             .setAutoCancel(true)
-            .setShortcutId(account.id.toString())
+            .setShortcutId(pachliAccount.id.toString())
             .setDefaults(0) // So it doesn't ring twice, notify only in Target callback
             .setContentTitle(title)
             .setContentText(text)
-            .setSubText(account.fullName)
+            .setSubText(pachliAccount.fullName)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setCategory(NotificationCompat.CATEGORY_SOCIAL)
             .setOnlyAlertOnce(true)
             .setGroup(channelId)
             .setGroupSummary(true)
-        setSoundVibrationLight(account, summaryBuilder)
+        setSoundVibrationLight(pachliAccount, summaryBuilder)
 
         // TODO: Use the batch notification API available in NotificationManagerCompat
         // 1.11 and up (https://developer.android.com/jetpack/androidx/releases/core#1.11.0-alpha01)
         // when it is released.
-        notificationManager.notify(summaryTag, accountId, summaryBuilder.build())
+        notificationManager.notify(summaryNotificationTag, accountId, summaryBuilder.build())
 
         // Android will rate limit / drop notifications if they're posted too
         // quickly. There is no indication to the user that this happened.
@@ -361,54 +378,55 @@ fun updateSummaryNotifications(
 private fun newAndroidNotification(
     context: Context,
     notificationId: Int,
-    body: Notification,
-    account: AccountEntity,
+    notification: Notification,
+    pachliAccount: PachliAccount,
 ): NotificationCompat.Builder {
     val eventResultIntent = IntentRouterActivityIntent.fromNotification(
         context,
-        account.id,
+        pachliAccount.id,
         notificationId,
-        body.id,
-        body.type,
+        notification.id,
+        notification.type,
     )
     val eventStackBuilder = TaskStackBuilder.create(context)
     eventStackBuilder.addParentStack(MainActivity::class.java)
     eventStackBuilder.addNextIntent(eventResultIntent)
     val eventResultPendingIntent = eventStackBuilder.getPendingIntent(
-        account.id.toInt(),
+        pachliAccount.id.toInt(),
         pendingIntentFlags(false),
     )
-    val channelId = getChannelId(account, body)!!
+    val channelId = getChannelId(pachliAccount, notification)!!
     val builder = NotificationCompat.Builder(context, channelId)
         .setSmallIcon(app.pachli.core.common.R.drawable.ic_notify)
         .setContentIntent(eventResultPendingIntent)
         .setColor(context.getColor(DR.color.notification_color))
         .setGroup(channelId)
         .setAutoCancel(true)
-        .setShortcutId(account.id.toString())
+        .setShortcutId(pachliAccount.id.toString())
         .setDefaults(0) // So it doesn't ring twice, notify only in Target callback
-    setSoundVibrationLight(account, builder)
+    setSoundVibrationLight(pachliAccount, builder)
     return builder
 }
 
 private fun getStatusReplyIntent(
     context: Context,
-    body: Notification,
-    account: AccountEntity,
+    body: Notification.WithStatus,
+    pachliAccount: PachliAccount,
 ): PendingIntent {
-    val status = body.status!!
+    val status = body.status
 
-    val draft = Draft.createDraftReply(account, status.actionableStatus)
+    val draft = Draft.createDraftReply(pachliAccount, status.actionableStatus)
 
     // TODO: Revisit suppressing this when this file is moved
     @SuppressLint("IntentDetector")
     val replyIntent = Intent(context, SendStatusBroadcastReceiver::class.java)
         .setAction(REPLY_ACTION)
         .putExtra(KEY_DRAFT, draft)
-        .putExtra(KEY_SENDER_ACCOUNT_ID, account.id)
-        .putExtra(KEY_SENDER_ACCOUNT_IDENTIFIER, account.identifier)
-        .putExtra(KEY_SENDER_ACCOUNT_FULL_NAME, account.fullName)
-        .putExtra(KEY_SERVER_NOTOFICATION_ID, body.id)
+        .putExtra(KEY_SENDER_ACCOUNT_ID, pachliAccount.id)
+        // Required
+        .putExtra(KEY_SENDER_ACCOUNT_IDENTIFIER, pachliAccount.identifier as Parcelable)
+        .putExtra(KEY_SENDER_ACCOUNT_FULL_NAME, pachliAccount.fullName)
+        .putExtra(KEY_SERVER_NOTIFICATION_ID, body.id)
     return PendingIntent.getBroadcast(
         context.applicationContext,
         notificationId,
@@ -419,21 +437,21 @@ private fun getStatusReplyIntent(
 
 private fun getStatusComposeIntent(
     context: Context,
-    body: Notification,
-    account: AccountEntity,
+    body: Notification.WithStatus,
+    pachliAccount: PachliAccount,
 ): PendingIntent {
-    val status = body.status!!
+    val status = body.status
 
-    val draft = Draft.createDraftReply(account, status.actionableStatus)
+    val draft = Draft.createDraftReply(pachliAccount, status.actionableStatus)
     val composeOptions = ComposeOptions(
         draft = draft,
         referencingStatus = ComposeOptions.ReferencingStatus.ReplyingTo.from(status.actionableStatus),
     )
     val composeIntent = IntentRouterActivityIntent.fromNotificationCompose(
         context,
-        account.id,
+        pachliAccount.id,
         composeOptions,
-        account.id.toInt(),
+        pachliAccount.id.toInt(),
         body.id,
     )
     return PendingIntent.getActivity(
@@ -444,65 +462,18 @@ private fun getStatusComposeIntent(
     )
 }
 
-fun createNotificationChannelsForAccount(account: AccountEntity, context: Context) {
+fun createNotificationChannelsForAccount(account: app.pachli.core.model.PachliAccount, context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelIds = arrayOf(
-            CHANNEL_MENTION + account.identifier,
-            CHANNEL_FOLLOW + account.identifier,
-            CHANNEL_FOLLOW_REQUEST + account.identifier,
-            CHANNEL_BOOST + account.identifier,
-            CHANNEL_FAVOURITE + account.identifier,
-            CHANNEL_POLL + account.identifier,
-            CHANNEL_SUBSCRIPTIONS + account.identifier,
-            CHANNEL_SIGN_UP + account.identifier,
-            CHANNEL_UPDATES + account.identifier,
-            CHANNEL_REPORT + account.identifier,
-            CHANNEL_SEVERED_RELATIONSHIPS + account.identifier,
-            CHANNEL_MODERATION_WARNINGS + account.identifier,
-            CHANNEL_QUOTE + account.identifier,
-            CHANNEL_QUOTED_UPDATE + account.identifier,
-        )
-        val channelNames = intArrayOf(
-            R.string.notification_mention_name,
-            R.string.notification_follow_name,
-            R.string.notification_follow_request_name,
-            R.string.notification_boost_name,
-            R.string.notification_favourite_name,
-            R.string.notification_poll_name,
-            R.string.notification_subscription_name,
-            R.string.notification_sign_up_name,
-            R.string.notification_update_name,
-            R.string.notification_report_name,
-            R.string.notification_severed_relationships_name,
-            R.string.notification_moderation_warnings_name,
-            R.string.notification_quote_name,
-            R.string.notification_quoted_update_name,
-        )
-        val channelDescriptions = intArrayOf(
-            R.string.notification_mention_descriptions,
-            R.string.notification_follow_description,
-            R.string.notification_follow_request_description,
-            R.string.notification_boost_description,
-            R.string.notification_favourite_description,
-            R.string.notification_poll_description,
-            R.string.notification_subscription_description,
-            R.string.notification_sign_up_description,
-            R.string.notification_update_description,
-            R.string.notification_report_description,
-            R.string.notification_severed_relationships_description,
-            R.string.notification_moderation_warnings_description,
-            R.string.notification_quote_description,
-            R.string.notification_quoted_update_description,
-        )
-        val channels: MutableList<NotificationChannel> = ArrayList(6)
-        val channelGroup = NotificationChannelGroup(account.identifier, account.fullName)
+
+        val channelGroup = NotificationChannelGroup(account.identifier.value, account.fullName)
         notificationManager.createNotificationChannelGroup(channelGroup)
-        for (i in channelIds.indices) {
-            val id = channelIds[i]
-            val name = context.getString(channelNames[i])
-            val description = context.getString(channelDescriptions[i])
+
+        val channels = PachliNotificationChannels.entries.map {
+            val id = it.channelId(account.identifier)
+            val name = context.getString(it.nameRes)
+            val description = context.getString(it.descriptionRes)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(id, name, importance)
             channel.description = description
@@ -510,8 +481,8 @@ fun createNotificationChannelsForAccount(account: AccountEntity, context: Contex
             channel.lightColor = -0xd46f27
             channel.enableVibration(true)
             channel.setShowBadge(true)
-            channel.group = account.identifier
-            channels.add(channel)
+            channel.group = account.identifier.value
+            channel
         }
         notificationManager.createNotificationChannels(channels)
     }
@@ -568,37 +539,36 @@ fun clearNotificationsForAccount(context: Context, pachliAccountId: Long) {
 }
 
 /**
- * Returns true if [account] is **not** filtering notifications of [type],
+ * Returns true if [account] is **not** filtering notifications of [notification],
  * otherwise false.
  */
 fun filterNotification(
     notificationManager: NotificationManager,
-    account: AccountEntity,
-    type: Notification.Type,
+    account: PachliAccount,
+    notification: Notification,
 ): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channelId = getChannelId(account, type)
-            ?: // unknown notificationtype
-            return false
+        // unknown notificationtype
+        val channelId = getChannelId(account, notification) ?: return false
         val channel = notificationManager.getNotificationChannel(channelId)
         return channel != null && channel.importance > NotificationManager.IMPORTANCE_NONE
     }
-    return when (type) {
-        Notification.Type.MENTION -> account.notificationsMentioned
-        Notification.Type.STATUS -> account.notificationsSubscriptions
-        Notification.Type.FOLLOW -> account.notificationsFollowed
-        Notification.Type.FOLLOW_REQUEST -> account.notificationsFollowRequested
-        Notification.Type.REBLOG -> account.notificationsReblogged
-        Notification.Type.FAVOURITE -> account.notificationsFavorited
-        Notification.Type.POLL -> account.notificationsPolls
-        Notification.Type.SIGN_UP -> account.notificationsSignUps
-        Notification.Type.UPDATE -> account.notificationsUpdates
-        Notification.Type.REPORT -> account.notificationsReports
-        Notification.Type.SEVERED_RELATIONSHIPS -> account.notificationsSeveredRelationships
-        Notification.Type.MODERATION_WARNING -> account.notificationsModerationWarnings
-        Notification.Type.QUOTE -> account.notificationsQuotes
-        Notification.Type.QUOTED_UPDATE -> account.notificationsQuotedUpdates
-        Notification.Type.UNKNOWN -> false
+    return when (notification) {
+        is Notification.Mention -> account.notificationsMentioned
+        is Notification.Status -> account.notificationsSubscriptions
+        is Notification.Follow -> account.notificationsFollowed
+        is Notification.FollowRequest -> account.notificationsFollowRequested
+        is Notification.Reblog -> account.notificationsReblogged
+        is Notification.Favourite -> account.notificationsFavorited
+        is Notification.Poll -> account.notificationsPolls
+        is Notification.SignUp -> account.notificationsSignUps
+        is Notification.Update -> account.notificationsUpdates
+        is Notification.Report -> account.notificationsReports
+        is Notification.SeveredRelationships -> account.notificationsSeveredRelationships
+        is Notification.ModerationWarning -> account.notificationsModerationWarnings
+        is Notification.Quote -> account.notificationsQuotes
+        is Notification.QuotedUpdate -> account.notificationsQuotedUpdates
+        is Notification.Unknown -> false
     }
 }
 
@@ -609,25 +579,27 @@ fun filterNotification(
  * @return The most severe [AccountFilterDecision], in order [Hide][AccountFilterDecision.Hide],
  * [Warn][AccountFilterDecision.Warn], or [None][AccountFilterDecision.None].
  */
-fun filterNotificationByAccount(accountWithFilters: PachliAccount, notificationData: NotificationData): AccountFilterDecision {
-    val notification = notificationData.notification
+fun filterNotificationByAccount(accountWithFilters: app.pachli.core.data.repository.PachliAccount, notificationData: Notification): AccountFilterDecision {
+    val notification = notificationData // .notification
     // Some notifications are never filtered, irrespective of the account that
     // sent them.
-    when (notification.type) {
+    when (notification) {
         // Poll we interacted with has ended.
-        NotificationEntity.Type.POLL -> return AccountFilterDecision.None
+        is Notification.Poll -> return AccountFilterDecision.None
         // Status we interacted with has been updated.
-        NotificationEntity.Type.UPDATE -> return AccountFilterDecision.None
+        is Notification.Update -> return AccountFilterDecision.None
         // A new moderation report.
-        NotificationEntity.Type.REPORT -> return AccountFilterDecision.None
+        is Notification.Report -> return AccountFilterDecision.None
         // Moderation has resulted in severed relationships.
-        NotificationEntity.Type.SEVERED_RELATIONSHIPS -> return AccountFilterDecision.None
+        is Notification.SeveredRelationships -> return AccountFilterDecision.None
         // Moderators sent a warning.
-        NotificationEntity.Type.MODERATION_WARNING -> return AccountFilterDecision.None
+        is Notification.ModerationWarning -> return AccountFilterDecision.None
         // We explicitly asked to be notified about this user.
-        NotificationEntity.Type.STATUS -> return AccountFilterDecision.None
+        is Notification.Status -> return AccountFilterDecision.None
         // Admin signup notifications should not be filtered.
-        NotificationEntity.Type.SIGN_UP -> return AccountFilterDecision.None
+        is Notification.SignUp -> return AccountFilterDecision.None
+        // TODO: Quote notifications should probably not be filtered
+        // here either.
         else -> {
             /* fall through */
         }
@@ -637,15 +609,15 @@ fun filterNotificationByAccount(accountWithFilters: PachliAccount, notificationD
     val accountToTest = notificationData.account
 
     // Any notifications from our own activity are not filtered.
-    if (accountWithFilters.entity.accountId == accountToTest.serverId) return AccountFilterDecision.None
+    if (accountWithFilters.accountId == accountToTest.id) return AccountFilterDecision.None
 
     val decisions = buildList {
         // Check the following relationship.
-        if (accountWithFilters.entity.notificationAccountFilterNotFollowed != FilterAction.NONE) {
-            if (accountWithFilters.following.none { it.serverId == accountToTest.serverId }) {
+        if (accountWithFilters.notificationAccountFilterNotFollowed != FilterAction.NONE) {
+            if (accountWithFilters.following.none { it.serverId == accountToTest.id }) {
                 add(
                     AccountFilterDecision.make(
-                        accountWithFilters.entity.notificationAccountFilterNotFollowed,
+                        accountWithFilters.notificationAccountFilterNotFollowed,
                         AccountFilterReason.NOT_FOLLOWING,
                     ),
                 )
@@ -654,11 +626,11 @@ fun filterNotificationByAccount(accountWithFilters: PachliAccount, notificationD
 
         // Check the age of the account relative to the notification.
         accountToTest.createdAt?.let { createdAt ->
-            if (accountWithFilters.entity.notificationAccountFilterYounger30d != FilterAction.NONE) {
+            if (accountWithFilters.notificationAccountFilterYounger30d != FilterAction.NONE) {
                 if (Duration.between(createdAt, notification.createdAt) < Duration.ofDays(30)) {
                     add(
                         AccountFilterDecision.make(
-                            accountWithFilters.entity.notificationAccountFilterYounger30d,
+                            accountWithFilters.notificationAccountFilterYounger30d,
                             AccountFilterReason.YOUNGER_30D,
                         ),
                     )
@@ -667,10 +639,10 @@ fun filterNotificationByAccount(accountWithFilters: PachliAccount, notificationD
         }
 
         // Check limited status.
-        if (accountToTest.limited && accountWithFilters.entity.notificationAccountFilterLimitedByServer != FilterAction.NONE) {
+        if (accountToTest.limited && accountWithFilters.notificationAccountFilterLimitedByServer != FilterAction.NONE) {
             add(
                 AccountFilterDecision.make(
-                    accountWithFilters.entity.notificationAccountFilterLimitedByServer,
+                    accountWithFilters.notificationAccountFilterLimitedByServer,
                     AccountFilterReason.LIMITED_BY_SERVER,
                 ),
             )
@@ -682,32 +654,28 @@ fun filterNotificationByAccount(accountWithFilters: PachliAccount, notificationD
         ?: AccountFilterDecision.None
 }
 
-private fun getChannelId(account: AccountEntity, notification: Notification): String? {
-    return getChannelId(account, notification.type)
-}
-
-private fun getChannelId(account: AccountEntity, type: Notification.Type): String? {
-    return when (type) {
-        Notification.Type.MENTION -> CHANNEL_MENTION + account.identifier
-        Notification.Type.STATUS -> CHANNEL_SUBSCRIPTIONS + account.identifier
-        Notification.Type.FOLLOW -> CHANNEL_FOLLOW + account.identifier
-        Notification.Type.FOLLOW_REQUEST -> CHANNEL_FOLLOW_REQUEST + account.identifier
-        Notification.Type.REBLOG -> CHANNEL_BOOST + account.identifier
-        Notification.Type.FAVOURITE -> CHANNEL_FAVOURITE + account.identifier
-        Notification.Type.POLL -> CHANNEL_POLL + account.identifier
-        Notification.Type.SIGN_UP -> CHANNEL_SIGN_UP + account.identifier
-        Notification.Type.UPDATE -> CHANNEL_UPDATES + account.identifier
-        Notification.Type.REPORT -> CHANNEL_REPORT + account.identifier
-        Notification.Type.SEVERED_RELATIONSHIPS -> CHANNEL_SEVERED_RELATIONSHIPS + account.identifier
-        Notification.Type.MODERATION_WARNING -> CHANNEL_MODERATION_WARNINGS + account.identifier
-        Notification.Type.QUOTE -> CHANNEL_QUOTE + account.identifier
-        Notification.Type.QUOTED_UPDATE -> CHANNEL_QUOTED_UPDATE + account.identifier
-        Notification.Type.UNKNOWN -> null
+private fun getChannelId(account: PachliAccount, notification: Notification): String? {
+    return when (notification) {
+        is Notification.Mention -> PachliNotificationChannels.MENTION.channelId(account.identifier)
+        is Notification.Status -> PachliNotificationChannels.SUBSCRIPTIONS.channelId(account.identifier)
+        is Notification.Follow -> PachliNotificationChannels.FOLLOW.channelId(account.identifier)
+        is Notification.FollowRequest -> PachliNotificationChannels.FOLLOW_REQUEST.channelId(account.identifier)
+        is Notification.Reblog -> PachliNotificationChannels.REBLOG.channelId(account.identifier)
+        is Notification.Favourite -> PachliNotificationChannels.FAVOURITE.channelId(account.identifier)
+        is Notification.Poll -> PachliNotificationChannels.POLL.channelId(account.identifier)
+        is Notification.SignUp -> PachliNotificationChannels.SIGN_UP.channelId(account.identifier)
+        is Notification.Update -> PachliNotificationChannels.UPDATES.channelId(account.identifier)
+        is Notification.Report -> PachliNotificationChannels.REPORT.channelId(account.identifier)
+        is Notification.SeveredRelationships -> PachliNotificationChannels.SEVERED_RELATIONSHIPS.channelId(account.identifier)
+        is Notification.ModerationWarning -> PachliNotificationChannels.MODERATION_WARNINGS.channelId(account.identifier)
+        is Notification.Quote -> PachliNotificationChannels.QUOTE.channelId(account.identifier)
+        is Notification.QuotedUpdate -> PachliNotificationChannels.QUOTED_UPDATE.channelId(account.identifier)
+        is Notification.Unknown -> null
     }
 }
 
 private fun setSoundVibrationLight(
-    account: AccountEntity,
+    account: PachliAccount,
     builder: NotificationCompat.Builder,
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -759,36 +727,36 @@ private fun joinNames(context: Context, notifications: List<StatusBarNotificatio
 private fun titleForType(
     context: Context,
     notification: Notification,
-    account: AccountEntity,
+    account: PachliAccount,
 ): Spanned {
     val accountName = notification.account.name.htmlEncode().unicodeWrap()
-    val htmlTitle = when (notification.type) {
-        Notification.Type.MENTION -> {
+    val htmlTitle = when (notification) {
+        is Notification.Mention -> {
             context.getString(R.string.notification_mention_format, accountName)
         }
 
-        Notification.Type.STATUS -> {
+        is Notification.Status -> {
             context.getString(R.string.notification_subscription_format, accountName)
         }
 
-        Notification.Type.FOLLOW -> {
+        is Notification.Follow -> {
             context.getString(R.string.notification_follow_format, accountName)
         }
 
-        Notification.Type.FOLLOW_REQUEST -> {
+        is Notification.FollowRequest -> {
             context.getString(R.string.notification_follow_request_format, accountName)
         }
 
-        Notification.Type.FAVOURITE -> {
+        is Notification.Favourite -> {
             context.getString(R.string.notification_favourite_format, accountName)
         }
 
-        Notification.Type.REBLOG -> {
+        is Notification.Reblog -> {
             context.getString(R.string.notification_reblog_format, accountName)
         }
 
-        Notification.Type.POLL -> {
-            val status = notification.status!!
+        is Notification.Poll -> {
+            val status = notification.status
             if (status.account.id == account.accountId) {
                 context.getString(R.string.poll_ended_created)
             } else {
@@ -796,38 +764,38 @@ private fun titleForType(
             }
         }
 
-        Notification.Type.SIGN_UP -> {
+        is Notification.SignUp -> {
             context.getString(R.string.notification_sign_up_format, accountName)
         }
 
-        Notification.Type.UPDATE -> {
+        is Notification.Update -> {
             context.getString(R.string.notification_update_format, accountName)
         }
 
-        Notification.Type.REPORT -> {
+        is Notification.Report -> {
             context.getString(R.string.notification_report_format, account.domain)
         }
 
-        Notification.Type.SEVERED_RELATIONSHIPS -> {
+        is Notification.SeveredRelationships -> {
             context.getString(
                 R.string.notification_severed_relationships_format,
                 notification.relationshipSeveranceEvent?.targetName,
             )
         }
 
-        Notification.Type.MODERATION_WARNING -> {
+        is Notification.ModerationWarning -> {
             context.getString(R.string.notification_moderation_warning_title)
         }
 
-        Notification.Type.QUOTE -> {
+        is Notification.Quote -> {
             context.getString(R.string.notification_quote_format, accountName)
         }
 
-        Notification.Type.QUOTED_UPDATE -> {
+        is Notification.QuotedUpdate -> {
             context.getString(R.string.notification_quoted_update_format)
         }
 
-        Notification.Type.UNKNOWN -> context.getString(R.string.notification_unknown)
+        is Notification.Unknown -> context.getString(R.string.notification_unknown)
     }
 
     return HtmlCompat.fromHtml(htmlTitle, HtmlCompat.FROM_HTML_MODE_LEGACY)
@@ -838,19 +806,21 @@ private fun bodyForType(
     context: Context,
     alwaysOpenSpoiler: Boolean,
 ): String? {
-    when (notification.type) {
-        Notification.Type.FOLLOW, Notification.Type.FOLLOW_REQUEST, Notification.Type.SIGN_UP -> {
+    when (notification) {
+        is Notification.Follow, is Notification.FollowRequest, is Notification.SignUp -> {
             return "@" + notification.account.username
         }
 
-        Notification.Type.MENTION,
-        Notification.Type.FAVOURITE,
-        Notification.Type.REBLOG,
-        Notification.Type.STATUS,
-        Notification.Type.QUOTE,
-        Notification.Type.QUOTED_UPDATE,
+        // Can this be "is Notification.WithStatus" instead?
+        // Maybe, if Poll is moved higher up.
+        is Notification.Mention,
+        is Notification.Favourite,
+        is Notification.Reblog,
+        is Notification.Status,
+        is Notification.Quote,
+        is Notification.QuotedUpdate,
         -> {
-            val status = notification.status!!
+            val status = notification.status
             return if (!TextUtils.isEmpty(status.spoilerText) && !alwaysOpenSpoiler) {
                 status.spoilerText
             } else {
@@ -858,8 +828,8 @@ private fun bodyForType(
             }
         }
 
-        Notification.Type.POLL -> {
-            val status = notification.status!!
+        is Notification.Poll -> {
+            val status = notification.status
             return if (!TextUtils.isEmpty(status.spoilerText) && !alwaysOpenSpoiler) {
                 status.spoilerText
             } else {
@@ -883,16 +853,17 @@ private fun bodyForType(
             }
         }
 
-        Notification.Type.REPORT -> {
-            val report = notification.report!!
+        is Notification.Report -> {
+            val report = notification.report
             return context.getString(
                 R.string.notification_header_report_format,
                 notification.account.name.unicodeWrap(),
                 report.targetAccount.name.unicodeWrap(),
             )
         }
-        Notification.Type.SEVERED_RELATIONSHIPS -> {
-            val resourceId = when (notification.relationshipSeveranceEvent!!.type) {
+
+        is Notification.SeveredRelationships -> {
+            val resourceId = when (notification.relationshipSeveranceEvent.type) {
                 RelationshipSeveranceEvent.Type.DOMAIN_BLOCK -> R.string.notification_severed_relationships_domain_block_body
                 RelationshipSeveranceEvent.Type.USER_DOMAIN_BLOCK -> R.string.notification_severed_relationships_user_domain_block_body
                 RelationshipSeveranceEvent.Type.ACCOUNT_SUSPENSION -> R.string.notification_severed_relationships_account_suspension_body
@@ -901,8 +872,8 @@ private fun bodyForType(
             return context.getString(resourceId)
         }
 
-        Notification.Type.MODERATION_WARNING -> {
-            val stringRes = when (notification.accountWarning!!.action) {
+        is Notification.ModerationWarning -> {
+            val stringRes = when (notification.accountWarning.action) {
                 AccountWarning.Action.NONE -> R.string.notification_moderation_warning_body_none_fmt
                 AccountWarning.Action.DISABLE -> R.string.notification_moderation_warning_body_disable_fmt
                 AccountWarning.Action.MARK_STATUSES_AS_SENSITIVE -> R.string.notification_moderation_warning_body_mark_statuses_as_sensitive_fmt
@@ -911,11 +882,11 @@ private fun bodyForType(
                 AccountWarning.Action.SUSPEND -> R.string.notification_moderation_warning_body_suspend_fmt
                 AccountWarning.Action.UNKNOWN -> R.string.notification_moderation_warning_body_unknown_fmt
             }
-            return context.getString(stringRes, notification.accountWarning!!.text)
+            return context.getString(stringRes, notification.accountWarning.text)
         }
 
-        Notification.Type.UNKNOWN -> return null
-        Notification.Type.UPDATE -> return null
+        is Notification.Unknown -> return null
+        is Notification.Update -> return null
     }
 }
 

@@ -50,7 +50,7 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -77,7 +77,9 @@ open class NetworkTimelineViewModel @AssistedInject constructor(
     statusDisplayOptionsRepository,
     sharedPreferencesRepository,
 ) {
-    override val statuses = pachliAccountFlow.distinctUntilChangedBy { it.id }.flatMapLatest { pachliAccount ->
+    override val statuses = pachliAccountFlow.distinctUntilChanged { old, new ->
+        old.id == new.id && old.followedHashtags == new.followedHashtags
+    }.flatMapLatest { pachliAccount ->
         repository.getStatusStream(pachliAccount.id, timeline = timeline).map { pagingData ->
             pagingData
                 .map { Pair(it, shouldFilterStatus(it.timelineStatus)) }
@@ -91,7 +93,7 @@ open class NetworkTimelineViewModel @AssistedInject constructor(
                         // Not using shouldFilterStatus here as that also checks to see if things like
                         // "Hide boosts" or "Hide replies" are enabled.
                         quoteContentFilterAction = timelineStatusWithQuote.quotedStatus?.let { contentFilterModel?.filterActionFor(it.status) },
-                        showSensitiveMedia = pachliAccount.entity.alwaysShowSensitiveMedia,
+                        showSensitiveMedia = pachliAccount.alwaysShowSensitiveMedia,
                         filterContext = filterContext,
                     )
                 }

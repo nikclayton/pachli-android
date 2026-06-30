@@ -18,6 +18,7 @@
 package app.pachli.core.data.model
 
 import app.pachli.core.model.NodeInfo
+import app.pachli.core.model.Server
 import app.pachli.core.model.ServerKind
 import app.pachli.core.model.ServerKind.AKKOMA
 import app.pachli.core.model.ServerKind.FIREFISH
@@ -26,6 +27,9 @@ import app.pachli.core.model.ServerKind.GOTOSOCIAL
 import app.pachli.core.model.ServerKind.MASTODON
 import app.pachli.core.model.ServerKind.PLEROMA
 import app.pachli.core.model.ServerKind.UNKNOWN
+import app.pachli.core.model.ServerLimits
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_ACCOUNT_QUOTE_POLICY
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_FILTERS_ACTION_BLUR
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_FILTERS_CLIENT
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_FILTERS_SERVER
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE
@@ -36,13 +40,18 @@ import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_I
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_LINK
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_MEDIA
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_POLL
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_QUOTE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_HAS_VIDEO
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IN_LIBRARY
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IN_PUBLIC
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_REPLY
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_IS_SENSITIVE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_SEARCH_QUERY_LANGUAGE
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_GET
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_QUOTE
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_SCHEDULED
 import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_STATUSES_TRANSLATE
+import app.pachli.core.model.ServerOperation.ORG_JOINMASTODON_TIMELINES_LINK
 import app.pachli.core.network.model.Account
 import app.pachli.core.network.model.Configuration
 import app.pachli.core.network.model.Contact
@@ -76,7 +85,7 @@ class ServerTest(
 ) {
     companion object {
         private val defaultInstance = InstanceV2(
-            domain = "",
+            domain = "example.com",
             title = "",
             version = "",
             sourceUrl = "",
@@ -94,17 +103,17 @@ class ServerTest(
                 ),
                 mediaAttachments = MediaAttachments(
                     supportedMimeTypes = emptyList(),
-                    imageSizeLimit = 1,
-                    imageMatrixLimit = 1,
-                    videoSizeLimit = 1,
+                    imageSizeLimit = 10485760,
+                    imageMatrixLimit = 16777216,
+                    videoSizeLimit = 41943040,
                     videoFrameRateLimit = 1,
                     videoMatrixLimit = 1,
                 ),
                 polls = InstanceV2Polls(
                     maxOptions = 4,
-                    maxCharactersPerOption = 200,
-                    minExpiration = 1,
-                    maxExpiration = 2,
+                    maxCharactersPerOption = 50,
+                    minExpiration = 300,
+                    maxExpiration = 604800,
                 ),
                 translation = InstanceV2Translation(enabled = false),
             ),
@@ -139,18 +148,21 @@ class ServerTest(
                     Triple(
                         "Mastodon 4.0.0 has expected capabilities",
                         NodeInfo.Software("mastodon", "4.0.0"),
-                        defaultInstance,
+                        defaultInstance.copy(version = "4.0.0"),
                     ),
                     Ok(
                         Server(
                             kind = MASTODON,
                             version = "4.0.0".toVersion(),
+                            rawVersion = "4.0.0",
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
                                 ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_SEARCH_QUERY_FROM to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                             ),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
                         ),
                     ),
                 ),
@@ -159,6 +171,7 @@ class ServerTest(
                         "Mastodon 4.0.0 has translate 1.0.0",
                         NodeInfo.Software("mastodon", "4.0.0"),
                         defaultInstance.copy(
+                            version = "4.0.0",
                             configuration = defaultInstance.configuration.copy(
                                 translation = InstanceV2Translation(enabled = true),
                             ),
@@ -168,6 +181,7 @@ class ServerTest(
                         Server(
                             kind = MASTODON,
                             version = "4.0.0".toVersion(),
+                            rawVersion = "4.0.0",
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
                                 ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
@@ -175,6 +189,8 @@ class ServerTest(
                                 ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_STATUSES_TRANSLATE to "1.0.0".toVersion(),
                             ),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
                         ),
                     ),
                 ),
@@ -183,6 +199,7 @@ class ServerTest(
                         "Mastodon 4.2.0 has translate 1.1.0",
                         NodeInfo.Software("mastodon", "4.2.0"),
                         defaultInstance.copy(
+                            version = "4.2.0",
                             configuration = defaultInstance.configuration.copy(
                                 translation = InstanceV2Translation(enabled = true),
                             ),
@@ -192,6 +209,7 @@ class ServerTest(
                         Server(
                             kind = MASTODON,
                             version = "4.2.0".toVersion(),
+                            rawVersion = "4.2.0",
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
                                 ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
@@ -211,6 +229,8 @@ class ServerTest(
                                 ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_STATUSES_TRANSLATE to "1.1.0".toVersion(),
                             ),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
                         ),
                     ),
                 ),
@@ -218,13 +238,16 @@ class ServerTest(
                     Triple(
                         "GoToSocial has no translation, filtering, or scheduling",
                         NodeInfo.Software("gotosocial", "0.13.1 git-ccecf5a"),
-                        defaultInstance,
+                        defaultInstance.copy(version = "0.13.1 git-ccecf5a"),
                     ),
                     Ok(
                         Server(
                             kind = GOTOSOCIAL,
                             version = "0.13.1".toVersion(),
+                            rawVersion = "0.13.1 git-ccecf5a",
                             capabilities = emptyMap(),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
                         ),
                     ),
                 ),
@@ -232,15 +255,18 @@ class ServerTest(
                     Triple(
                         "GoToSocial 0.15.0 has client filters",
                         NodeInfo.Software("gotosocial", "0.15.0 git-ccecf5a"),
-                        defaultInstance,
+                        defaultInstance.copy(version = "0.15.0 git-ccecf5a"),
                     ),
                     Ok(
                         Server(
                             kind = GOTOSOCIAL,
                             version = "0.15.0".toVersion(),
+                            rawVersion = "0.15.0 git-ccecf5a",
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
                             ),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
                         ),
                     ),
                 ),
@@ -248,17 +274,20 @@ class ServerTest(
                     Triple(
                         "GoToSocial 0.16.0 has server filters",
                         NodeInfo.Software("gotosocial", "0.16.0 git-ccecf5a"),
-                        defaultInstance,
+                        defaultInstance.copy(version = "0.16.0 git-ccecf5a"),
                     ),
                     Ok(
                         Server(
                             kind = GOTOSOCIAL,
                             version = "0.16.0".toVersion(),
+                            rawVersion = "0.16.0 git-ccecf5a",
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
                                 ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_SEARCH_QUERY_FROM to "1.0.0".toVersion(),
                             ),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
                         ),
                     ),
                 ),
@@ -266,16 +295,19 @@ class ServerTest(
                     Triple(
                         "Pleroma can't server filter, can schedule",
                         NodeInfo.Software("pleroma", "2.6.50-875-g2eb5c453.service-origin+soapbox"),
-                        defaultInstance,
+                        defaultInstance.copy(version = "2.6.50-875-g2eb5c453.service-origin+soapbox"),
                     ),
                     Ok(
                         Server(
                             kind = PLEROMA,
                             version = "2.6.50-875-g2eb5c453.service-origin+soapbox".toVersion(),
+                            rawVersion = "2.6.50-875-g2eb5c453.service-origin+soapbox",
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
                                 ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                             ),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
                         ),
                     ),
                 ),
@@ -283,16 +315,19 @@ class ServerTest(
                     Triple(
                         "Akkoma can filter, schedule",
                         NodeInfo.Software("akkoma", "3.9.3-0-gd83f5f66f-blob"),
-                        defaultInstance,
+                        defaultInstance.copy(version = "3.9.3-0-gd83f5f66f-blob"),
                     ),
                     Ok(
                         Server(
                             kind = AKKOMA,
                             version = "3.9.3-0-gd83f5f66f-blob".toVersion(),
+                            rawVersion = "3.9.3-0-gd83f5f66f-blob",
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
                                 ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                             ),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
                         ),
                     ),
                 ),
@@ -300,13 +335,16 @@ class ServerTest(
                     Triple(
                         "Firefish can't filter",
                         NodeInfo.Software("firefish", "1.1.0-dev29-hf1"),
-                        defaultInstance,
+                        defaultInstance.copy(version = "1.1.0-dev29-hf1"),
                     ),
                     Ok(
                         Server(
                             kind = FIREFISH,
                             version = "1.1.0-dev29-hf1".toVersion(),
+                            rawVersion = "1.1.0-dev29-hf1",
                             capabilities = emptyMap(),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
                         ),
                     ),
                 ),
@@ -314,16 +352,60 @@ class ServerTest(
                     Triple(
                         "Friendica can filter, schedule",
                         NodeInfo.Software("friendica", "2023.05-1542"),
-                        defaultInstance,
+                        defaultInstance.copy(version = "2023.05-1542"),
                     ),
                     Ok(
                         Server(
                             kind = FRIENDICA,
                             version = "2023.5.0".toVersion(),
+                            rawVersion = "2023.05-1542",
                             capabilities = mapOf(
                                 ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
                                 ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
                             ),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
+                        ),
+                    ),
+                ),
+                arrayOf(
+                    Triple(
+                        "Hometown >= 4.5.0 can quote",
+                        NodeInfo.Software("hometown", "4.5.10+hometown-1.2.1"),
+                        defaultInstance.copy(version = "4.5.10+hometown-1.2.1"),
+                    ),
+                    Ok(
+                        Server(
+                            kind = ServerKind.HOMETOWN,
+                            version = "4.5.10+hometown-1.2.1".toVersion(),
+                            rawVersion = "4.5.10+hometown-1.2.1",
+                            capabilities = mapOf(
+                                ORG_JOINMASTODON_STATUSES_SCHEDULED to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_FILTERS_CLIENT to "1.1.0".toVersion(),
+                                ORG_JOINMASTODON_FILTERS_SERVER to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_IN_PUBLIC to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_FROM to "1.1.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_LANGUAGE to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_HAS_MEDIA to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_HAS_IMAGE to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_HAS_VIDEO to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_HAS_AUDIO to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_HAS_POLL to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_HAS_QUOTE to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_HAS_LINK to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_HAS_EMBED to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_IS_REPLY to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_IS_SENSITIVE to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_IN_LIBRARY to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_SEARCH_QUERY_BY_DATE to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_TIMELINES_LINK to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_STATUSES_GET to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_FILTERS_ACTION_BLUR to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_ACCOUNT_QUOTE_POLICY to "1.0.0".toVersion(),
+                                ORG_JOINMASTODON_STATUSES_QUOTE to "1.0.0".toVersion(),
+                            ),
+                            limits = ServerLimits(),
+                            emojis = emptyList(),
                         ),
                     ),
                 ),
@@ -337,7 +419,13 @@ class ServerTest(
         val software = input.second
         val instanceV2 = input.third
         assertWithMessage(msg)
-            .that(Server.from(software, instanceV2))
+            .that(
+                Server.from(
+                    software = software,
+                    instanceInfo = instanceV2.asModel(),
+                    emojis = emptyList(),
+                ),
+            )
             .isEqualTo(want)
     }
 }

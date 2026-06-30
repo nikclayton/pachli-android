@@ -36,10 +36,6 @@
     <string name="report_comment_hint">Commentaires additionnels \?</string>
     <string name="action_quick_reply">Réponse rapide</string>
     <string name="action_compose">Écrire</string>
-    <string name="action_follow">Suivre</string>
-    <string name="action_unfollow">Ne plus suivre</string>
-    <string name="action_block">Bloquer</string>
-    <string name="action_unblock">Débloquer</string>
     <string name="action_hide_reblogs">Cacher les partages</string>
     <string name="action_show_reblogs">Afficher les partages</string>
     <string name="action_report">Signaler</string>
@@ -56,8 +52,6 @@
     <string name="action_add_media">Ajouter un média</string>
     <string name="action_photo_take">Prendre une photo</string>
     <string name="action_share">Partager</string>
-    <string name="action_mute">Masquer</string>
-    <string name="action_unmute">Ne plus masquer</string>
     <string name="action_mention">Mentionner</string>
     <string name="action_hide_media">Cacher les médias</string>
     <string name="action_open_drawer">Ouvrir le menu</string>
@@ -174,7 +168,6 @@
     -->
     <string name="post_share_content">Partager le contenu du message</string>
     <string name="post_share_link">Partager le lien du message</string>
-    <string name="state_follow_requested">Demande d’abonnement effectuée</string>
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="follows_you">Vous suit</string>
     <string name="pref_title_alway_show_sensitive_media">Toujours afficher les contenus sensibles</string>
@@ -238,17 +231,16 @@
     <string name="poll_ended_voted">Un sondage auquel vous avez participé vient de se terminer</string>
     <string name="title_domain_mutes">Domaines cachés</string>
     <string name="action_view_domain_mutes">Domaines cachés</string>
-    <string name="action_mute_domain">Masquer %1$s</string>
     <string name="confirmation_domain_unmuted">%1$s n’est plus masqué·e</string>
     <string name="mute_domain_warning_dialog_ok">Masquer le domaine entier</string>
     <string name="button_back">Retour</string>
-    <string name="report_sent_success">\@%1$s signalé avec succès</string>
+    <string name="report_sent_success">\@%1$s signalé·e avec succès</string>
     <string name="hint_additional_info">Commentaires additionnels</string>
     <string name="report_remote_instance">Transférer à %1$s</string>
     <string name="failed_report">Échec du signalement</string>
     <string name="failed_fetch_posts">Échec de récupération des messages</string>
     <string name="report_description_1">Le rapport sera envoyé aux modérateur·rice·s de votre instance. Vous pouvez expliquer pourquoi vous signalez le compte ci-dessous :</string>
-    <string name="mute_domain_warning">Êtes-vous sûr⋅e de vouloir bloquer %1$s en entier \? Vous ne verrez plus de contenu provenant de ce domaine, ni dans les fils publics, ni dans vos notifications. Vos abonné·e·s utilisant ce domaine seront retiré·e·s.</string>
+    <string name="mute_domain_warning">Êtes-vous sûr⋅e de vouloir bloquer %1$s en entier ? Vous ne verrez plus de contenu provenant de ce domaine, ni dans les fils publics, ni dans vos notifications. Vos abonné·e·s utilisant ce domaine seront retiré·e·s.</string>
     <string name="report_description_remote_instance">Le compte provient d’un autre serveur. Envoyez également une copie anonyme du rapport \?</string>
     <string name="filter_dialog_whole_word">Mot entier</string>
     <string name="filter_dialog_whole_word_description">Un mot-clé ou une phrase alphanumérique sera appliqué·e seulement s’il ou elle correspond au mot entier</string>
@@ -285,7 +277,6 @@
     <string name="add_hashtag_title">Ajouter un hashtag</string>
     <string name="pref_title_gradient_for_media">Afficher des dégradés en couleur pour les médias cachés</string>
     <string name="pref_main_nav_position">Position de navigation principale</string>
-    <string name="action_unmute_domain">Ne plus masquer %1$s</string>
     <string name="dialog_mute_hide_notifications">Cacher les notifications</string>
     <string name="action_unmute_desc">Ne plus masquer %1$s</string>
     <string name="pref_title_hide_top_toolbar">Cacher le titre de la barre d’outils supérieure</string>
@@ -346,8 +337,8 @@
     <string name="error_following_hashtags_unsupported">Cette instance ne prend pas en charge le suivi des hashtags.</string>
     <string name="error_muting_hashtag_format">Une erreur est survenue en masquant #%1$s</string>
     <string name="error_unmuting_hashtag_format">Une erreur est survenue en arrêtant de masquer #%1$s</string>
-    <string name="error_following_hashtag_format">Une erreur est survenue en suivant #%1$s</string>
-    <string name="error_unfollowing_hashtag_format">Une erreur est survenue en arrêtant de suivre #%1$s</string>
+    <string name="error_following_hashtag_format">Une erreur est survenue en suivant #%1$s : %2$s</string>
+    <string name="error_unfollowing_hashtag_format">Une erreur est survenue en arrêtant de suivre #%1$s : %2$s</string>
     <string name="dialog_follow_hashtag_hint">#hashtag</string>
     <string name="dialog_follow_hashtag_title">Suivre un hashtag</string>
     <string name="hint_media_description_missing">Le contenu média devrait être décrit.</string>
@@ -371,7 +362,7 @@
     <string name="account_username_copied">Nom de compte copié</string>
     <string name="action_discard">Abandonner les modifications</string>
     <string name="action_continue_edit">Continuer à modifier</string>
-    <string name="confirmation_hashtag_unfollowed">#%1$s n\'est plus suivi</string>
+    <string name="confirmation_hashtag_unfollowed">#%1$s n\'est plus suivi·e</string>
     <string name="notification_report_description">Notifications à propos des signalements</string>
     <string name="action_share_account_link">Partager le lien du compte</string>
     <string name="action_share_account_username">Partager le nom du compte</string>
@@ -513,7 +504,7 @@
     <string name="translator_error_unsupported_target_language_fmt">impossible de traduire en %1$s</string>
     <string name="translator_error_download_required_fmt">la traduction en %1$s demande de télécharger la langue, et le Wi-Fi n\'est pas connecté</string>
     <string name="action_refresh_account">Rafraîchir le compte</string>
-    <string name="confirmation_hashtag_unmuted">#%1$s démasqué</string>
+    <string name="confirmation_hashtag_unmuted">#%1$s démasqué·e</string>
     <string name="pref_title_notification_filter_quote">Mes messages sont cités</string>
     <string name="pref_title_notification_filter_quoted_update">Un message que j\'ai cité est édité</string>
     <string name="pref_title_notification_filter_severed_relationships">Un·e abonnement/abonné·e est endommagé·e</string>
@@ -730,4 +721,18 @@
     <string name="search_operator_quote_dialog_title">Montrer les messages qui en citent d\'autres ?</string>
     <string name="search_operator_quote_no_quotes">Pas de citations</string>
     <string name="search_operator_quote_only">Avec citations</string>
+    <string name="title_delete_scheduled_statuses">Effacer les messages programmés sélectionnés ?</string>
+    <string name="delete_scheduled_statuses_msg">Cela effacera définitivement les messages programmés sélectionnés.</string>
+    <string name="action_delete_scheduled_statuses">Effacer les messages sélectionnés</string>
+    <string name="action_mute_hashtag">Masquer #%1$s</string>
+    <string name="action_unmute_hashtag">Réafficher #%1$s</string>
+    <string name="err_draft_error_no_external_files_dir">le stockage partagé n\'est pas disponible</string>
+    <string name="err_draft_error_mkdir_drafts_fmt">impossible de créer le dossier de brouillons : %1$s</string>
+    <string name="err_draft_error_unknown_mime_type">la pièce-jointe a un type MIME inconnu : %1$s</string>
+    <string name="err_draft_error_content_provider_crash">le fournisseur de contenu a planté récemment</string>
+    <string name="err_draft_error_io_fmt">sauvegarde échouée : %1$s</string>
+    <string name="search_operator_quote_all">Citations ▾</string>
+    <string name="ui_error_delete_scheduled_status_fmt">impossible de supprimer le message programmé pour le remplacer : %1$s</string>
+    <string name="ui_error_sending_post_fmt">Impossible d\'envoyer le message : %1$s</string>
+    <string name="ui_error_saving_post_fmt">Impossible de sauvegarder le message : %1$s</string>
 </resources>

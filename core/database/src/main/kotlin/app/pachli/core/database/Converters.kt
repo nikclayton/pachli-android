@@ -29,15 +29,18 @@ import app.pachli.core.model.ConversationAccount
 import app.pachli.core.model.DraftAttachment
 import app.pachli.core.model.Emoji
 import app.pachli.core.model.FilterResult
-import app.pachli.core.model.HashTag
+import app.pachli.core.model.Hashtag
+import app.pachli.core.model.HashtagHistory
 import app.pachli.core.model.NewPoll
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Role
+import app.pachli.core.model.ServerLimits
 import app.pachli.core.model.ServerOperation
 import app.pachli.core.model.Status
 import app.pachli.core.model.Timeline
 import app.pachli.core.model.TranslatedAttachment
 import app.pachli.core.model.TranslatedPoll
+import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
@@ -58,10 +61,10 @@ import javax.inject.Singleton
  * @property type Name of the target type.
  * @property cause
  */
-data class BetterJsonEncodingException(
+data class BetterJsonException(
     val json: String?,
     val type: String,
-    override val cause: JsonEncodingException,
+    override val cause: Throwable,
 ) : Exception() {
     override fun getLocalizedMessage(): String {
         return "«${cause.localizedMessage}»: failed JSON: «$json», type: «$type»"
@@ -80,13 +83,15 @@ class Converters @Inject constructor(
     /**
      * Deserialises [json] to [T].
      *
-     * @throws BetterJsonEncodingException if deserialisation fails.
+     * @throws BetterJsonException if deserialisation fails.
      */
     private inline fun <reified T> fromJson(json: String?): T? {
         return try {
             json?.let { moshi.adapter<T>().fromJson(it) }
         } catch (e: JsonEncodingException) {
-            throw BetterJsonEncodingException(json, T::class.java.name, e)
+            throw BetterJsonException(json, T::class.java.name, e)
+        } catch (e: JsonDataException) {
+            throw BetterJsonException(json, T::class.java.name, e)
         }
     }
 
@@ -174,10 +179,10 @@ class Converters @Inject constructor(
     fun jsonToMentionArray(mentionListJson: String?) = fromJson<List<Status.Mention>>(mentionListJson)
 
     @TypeConverter
-    fun tagListToJson(tagArray: List<HashTag>?) = toJson(tagArray)
+    fun tagListToJson(tagArray: List<Hashtag>?) = toJson(tagArray)
 
     @TypeConverter
-    fun jsonToTagArray(tagListJson: String?) = fromJson<List<HashTag>>(tagListJson)
+    fun jsonToTagArray(tagListJson: String?) = fromJson<List<Hashtag>>(tagListJson)
 
     @TypeConverter
     fun dateToLong(date: Date?) = date?.time
@@ -310,4 +315,16 @@ class Converters @Inject constructor(
 
     @TypeConverter
     fun jsonToQuoteApproval(s: String?) = fromJson<Status.QuoteApproval>(s)
+
+    @TypeConverter
+    fun hashtagHistoryToJson(hashtagHistory: List<HashtagHistory>) = toJson(hashtagHistory)
+
+    @TypeConverter
+    fun jsonToHashtagHistory(s: String?) = fromJson<List<HashtagHistory>>(s)
+
+    @TypeConverter
+    fun serverLimitsToJson(serverLimits: ServerLimits) = toJson(serverLimits)
+
+    @TypeConverter
+    fun jsonToServerLimits(s: String?) = fromJson<ServerLimits>(s)
 }

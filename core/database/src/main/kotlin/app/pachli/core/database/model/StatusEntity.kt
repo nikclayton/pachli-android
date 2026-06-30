@@ -30,7 +30,7 @@ import app.pachli.core.model.Attachment
 import app.pachli.core.model.Card
 import app.pachli.core.model.Emoji
 import app.pachli.core.model.FilterResult
-import app.pachli.core.model.HashTag
+import app.pachli.core.model.Hashtag
 import app.pachli.core.model.Poll
 import app.pachli.core.model.Role
 import app.pachli.core.model.Status
@@ -65,7 +65,7 @@ import java.util.Date
     foreignKeys = (
         [
             ForeignKey(
-                entity = AccountEntity::class,
+                entity = PachliAccountEntity::class,
                 parentColumns = ["id"],
                 childColumns = ["timelineUserId"],
                 onDelete = ForeignKey.CASCADE,
@@ -112,7 +112,7 @@ data class StatusEntity(
     val visibility: Status.Visibility,
     val attachments: List<Attachment>?,
     val mentions: List<Status.Mention>?,
-    val tags: List<HashTag>?,
+    val tags: List<Hashtag>?,
     val application: Status.Application?,
     // if it has a reblogged status, it's id is stored here
     val reblogServerId: String?,
@@ -178,6 +178,9 @@ fun Status.asEntity(pachliAccountId: Long) = StatusEntity(
     filtered = actionableStatus.filtered,
 )
 
+@JvmName("IterableStatus")
+fun Iterable<Status>.asEntity(pachliAccountId: Long) = map { it.asEntity(pachliAccountId) }
+
 /**
  * An account associated with a status on a timeline or similar (e.g., an
  * account the user is following).
@@ -199,7 +202,7 @@ fun Status.asEntity(pachliAccountId: Long) = StatusEntity(
     primaryKeys = ["serverId", "timelineUserId"],
     foreignKeys = [
         ForeignKey(
-            entity = AccountEntity::class,
+            entity = PachliAccountEntity::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("timelineUserId"),
             onDelete = ForeignKey.CASCADE,
@@ -285,7 +288,7 @@ data class TimelineStatusWithQuote(
 
         val attachments: List<Attachment> = status.attachments.orEmpty()
         val mentions: List<Status.Mention> = status.mentions.orEmpty()
-        val tags: List<HashTag>? = status.tags
+        val tags: List<Hashtag>? = status.tags
         val application = status.application
         val emojis: List<Emoji> = status.emojis.orEmpty()
         val poll: Poll? = status.poll

@@ -66,6 +66,7 @@ import app.pachli.core.designsystem.R as DR
 import app.pachli.core.model.Account
 import app.pachli.core.model.Draft
 import app.pachli.core.model.Relationship
+import app.pachli.core.model.Relationship.FollowState
 import app.pachli.core.model.Timeline
 import app.pachli.core.navigation.AccountActivityIntent
 import app.pachli.core.navigation.AccountListActivityIntent
@@ -114,8 +115,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import java.text.NumberFormat
 import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlinx.coroutines.launch
@@ -153,7 +154,7 @@ class AccountActivity :
 
     private lateinit var accountFieldAdapter: AccountFieldAdapter
 
-    private var followState: FollowState = FollowState.NOT_FOLLOWING
+    private var followState = FollowState.NOT_FOLLOWING
     private var blocking: Boolean = false
     private var muting: Boolean = false
     private var blockingDomain: Boolean = false
@@ -182,12 +183,6 @@ class AccountActivity :
     @Px
     private var titleVisibleHeight: Int = 0
     private lateinit var domain: String
-
-    private enum class FollowState {
-        NOT_FOLLOWING,
-        FOLLOWING,
-        REQUESTED,
-    }
 
     private lateinit var adapter: AccountPagerAdapter
 
@@ -593,9 +588,12 @@ class AccountActivity :
     private fun updateAccountJoinedDate(account: Account) {
         try {
             account.createdAt?.let { createdAt ->
+                val formatter = DateTimeFormatter.ofPattern("LLLL yyyy")
+                    .withZone(ZoneId.systemDefault())
+
                 binding.accountDateJoined.text = resources.getString(
                     R.string.account_date_joined,
-                    SimpleDateFormat("LLLL yyyy", Locale.getDefault()).format(createdAt),
+                    formatter.format(createdAt),
                 )
                 binding.accountDateJoined.show()
             } ?: binding.accountDateJoined.hide()
@@ -724,11 +722,7 @@ class AccountActivity :
     }
 
     private fun onRelationshipChanged(relation: Relationship) {
-        followState = when {
-            relation.following -> FollowState.FOLLOWING
-            relation.requested -> FollowState.REQUESTED
-            else -> FollowState.NOT_FOLLOWING
-        }
+        followState = relation.followState
         blocking = relation.blocking
         muting = relation.muting
         blockingDomain = relation.blockingDomain
@@ -775,18 +769,18 @@ class AccountActivity :
             return
         }
         if (blocking) {
-            binding.accountFollowButton.setText(R.string.action_unblock)
+            binding.accountFollowButton.setText(app.pachli.core.ui.R.string.action_unblock)
             return
         }
         when (followState) {
             FollowState.NOT_FOLLOWING -> {
-                binding.accountFollowButton.setText(R.string.action_follow)
+                binding.accountFollowButton.setText(app.pachli.core.ui.R.string.action_follow_account)
             }
             FollowState.REQUESTED -> {
-                binding.accountFollowButton.setText(R.string.state_follow_requested)
+                binding.accountFollowButton.setText(app.pachli.core.ui.R.string.state_follow_requested)
             }
             FollowState.FOLLOWING -> {
-                binding.accountFollowButton.setText(R.string.action_unfollow)
+                binding.accountFollowButton.setText(app.pachli.core.ui.R.string.action_unfollow)
             }
         }
     }
@@ -876,16 +870,16 @@ class AccountActivity :
         if (!viewModel.isSelf.value) {
             val block = menu.findItem(R.id.action_block)
             block.title = if (blocking) {
-                getString(R.string.action_unblock)
+                getString(app.pachli.core.ui.R.string.action_unblock)
             } else {
-                getString(R.string.action_block)
+                getString(app.pachli.core.ui.R.string.action_block)
             }
 
             val mute = menu.findItem(R.id.action_mute)
             mute.title = if (muting) {
-                getString(R.string.action_unmute)
+                getString(app.pachli.core.ui.R.string.action_unmute)
             } else {
-                getString(R.string.action_mute)
+                getString(app.pachli.core.ui.R.string.action_mute)
             }
 
             viewModel.accountData.value.get()?.getOrNull()?.let { loadedAccount ->
@@ -898,10 +892,10 @@ class AccountActivity :
                         menu.removeItem(R.id.action_mute_domain)
                     }
                     blockingDomain -> {
-                        muteDomain.title = getString(R.string.action_unmute_domain, domain)
+                        muteDomain.title = getString(app.pachli.core.ui.R.string.action_unmute_domain, domain)
                     }
                     else -> {
-                        muteDomain.title = getString(R.string.action_mute_domain, domain)
+                        muteDomain.title = getString(app.pachli.core.ui.R.string.action_mute_domain, domain)
                     }
                 }
             }
@@ -991,13 +985,13 @@ class AccountActivity :
     }
 
     private fun mention(account: Account) {
-        val activeAccount = accountManager.activeAccount!!
+        val activePachliAccount = accountManager.activePachliAccount
         // Create a draft that mentions the user. Uses `Timeline.Home` to get
         // generic draft creation behaviour.
         val draft = if (viewModel.isSelf.value) {
-            Draft.createDraft(this@AccountActivity, activeAccount, Timeline.Home)
+            Draft.createDraft(this@AccountActivity, activePachliAccount, Timeline.Home)
         } else {
-            Draft.createDraftMention(this@AccountActivity, activeAccount, Timeline.Home, account.username)
+            Draft.createDraftMention(this@AccountActivity, activePachliAccount, Timeline.Home, account.username)
         }
         val intent = ComposeActivityIntent(
             this@AccountActivity,

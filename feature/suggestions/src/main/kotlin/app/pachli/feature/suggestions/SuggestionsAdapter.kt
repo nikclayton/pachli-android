@@ -27,6 +27,7 @@ import androidx.core.view.children
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import app.pachli.core.common.extensions.flatten
 import app.pachli.core.common.extensions.hide
 import app.pachli.core.common.extensions.show
 import app.pachli.core.common.extensions.visible
@@ -37,7 +38,7 @@ import app.pachli.core.preferences.LinksToUnderline
 import app.pachli.core.ui.LinkListener
 import app.pachli.core.ui.SetContent
 import app.pachli.core.ui.emojify
-import app.pachli.core.ui.extensions.nameContentDescription
+import app.pachli.core.ui.extensions.contentDescription
 import app.pachli.core.ui.loadAvatar
 import app.pachli.feature.suggestions.SuggestionViewHolder.ChangePayload
 import app.pachli.feature.suggestions.UiAction.NavigationAction
@@ -108,7 +109,7 @@ internal class SuggestionsAdapter(
         if (payloads.isEmpty()) {
             onBindViewHolder(holder, position)
         } else {
-            payloads.filterIsInstance<ChangePayload>().forEach { payload ->
+            payloads.flatten().filterIsInstance<ChangePayload>().forEach { payload ->
                 when (payload) {
                     is ChangePayload.IsEnabled -> holder.bindIsEnabled(payload.isEnabled)
                     is ChangePayload.AnimateAvatars -> holder.bindAvatar(viewData, payload.animateAvatars)
@@ -187,8 +188,8 @@ internal class SuggestionViewHolder(
 
     init {
         with(binding) {
-            followAccount.setOnClickListener { accept(SuggestionAction.AcceptSuggestion(suggestion)) }
-            deleteSuggestion.setOnClickListener { accept(SuggestionAction.DeleteSuggestion(suggestion)) }
+            followAccount.setOnClickListener { accept(SuggestionAction.AcceptSuggestion(viewData.pachliAccountId, viewData.suggestion)) }
+            deleteSuggestion.setOnClickListener { accept(SuggestionAction.DeleteSuggestion(viewData.pachliAccountId, viewData.suggestion)) }
             accountNote.setOnClickListener { accept(NavigationAction.ViewAccount(suggestion.account.id)) }
             root.setOnClickListener { accept(NavigationAction.ViewAccount(suggestion.account.id)) }
 
@@ -219,6 +220,7 @@ internal class SuggestionViewHolder(
             username.text = username.context.getString(app.pachli.core.designsystem.R.string.post_username_format, account.username)
 
             bindAvatar(viewData, animateAvatars)
+            bindRoles(viewData)
             bindDisplayName(viewData, animateEmojis)
             bindNote(viewData, animateEmojis, linksToUnderline)
             bindShowBotOverlay(viewData, showBotOverlay)
@@ -228,8 +230,8 @@ internal class SuggestionViewHolder(
 
             // Build an accessible content description.
             root.contentDescription = root.context.getString(
-                R.string.account_content_description_fmt,
-                account.nameContentDescription(root.context),
+                app.pachli.core.ui.R.string.account_content_description_fmt,
+                account.contentDescription(root.context),
                 followerCount.text,
                 followsCount.text,
                 statusesCount.text,
@@ -254,6 +256,11 @@ internal class SuggestionViewHolder(
     /** Binds the avatar image, respecting [animateAvatars]. */
     fun bindAvatar(viewData: SuggestionViewData, animateAvatars: Boolean) = with(binding) {
         loadAvatar(glide, viewData.suggestion.account.avatar, avatar, avatarRadius, animateAvatars)
+    }
+
+    /** Binds the account's [roles][app.pachli.core.model.Account.roles]. */
+    private fun bindRoles(viewData: SuggestionViewData) = with(binding) {
+        roleChipGroup.setRoles(viewData.suggestion.account.roles)
     }
 
     /**
@@ -320,7 +327,7 @@ internal class SuggestionViewHolder(
 
         followerCount.text = HtmlCompat.fromHtml(
             followerCount.context.getString(
-                R.string.follower_count_fmt,
+                app.pachli.core.ui.R.string.follower_count_fmt,
                 formatNumber(account.followersCount.toLong(), 1000),
             ),
             FROM_HTML_MODE_LEGACY,
@@ -328,7 +335,7 @@ internal class SuggestionViewHolder(
 
         followsCount.text = HtmlCompat.fromHtml(
             followsCount.context.getString(
-                R.string.follows_count_fmt,
+                app.pachli.core.ui.R.string.follows_count_fmt,
                 formatNumber(account.followingCount.toLong(), 1000),
             ),
             FROM_HTML_MODE_LEGACY,
@@ -343,20 +350,20 @@ internal class SuggestionViewHolder(
             if (account.createdAt == null) {
                 text = HtmlCompat.fromHtml(
                     context.getString(
-                        R.string.statuses_count_fmt,
+                        app.pachli.core.ui.R.string.statuses_count_fmt,
                         formatNumber(account.statusesCount.toLong(), 1000),
                     ),
                     FROM_HTML_MODE_LEGACY,
                 )
             } else {
-                val then = account.createdAt!!.toInstant()
+                val then = account.createdAt!!
                 val now = Instant.now()
                 val elapsed = Duration.between(then, now).toDays() / 7.0
 
                 if (account.lastStatusAt == null) {
                     text = HtmlCompat.fromHtml(
                         context.getString(
-                            R.string.statuses_count_per_week_fmt,
+                            app.pachli.core.ui.R.string.statuses_count_per_week_fmt,
                             formatNumber(account.statusesCount.toLong(), 1000),
                             (account.statusesCount / elapsed).roundToInt(),
                         ),
@@ -365,7 +372,7 @@ internal class SuggestionViewHolder(
                 } else {
                     text = HtmlCompat.fromHtml(
                         context.getString(
-                            R.string.statuses_count_per_week_last_fmt,
+                            app.pachli.core.ui.R.string.statuses_count_per_week_last_fmt,
                             formatNumber(account.statusesCount.toLong(), 1000),
                             (account.statusesCount / elapsed).roundToInt(),
                             DateUtils.getRelativeTimeSpanString(

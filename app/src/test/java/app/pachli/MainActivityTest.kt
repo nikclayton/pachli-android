@@ -30,22 +30,21 @@ import app.pachli.components.compose.HiltTestApplication_Application
 import app.pachli.components.notifications.createNotificationChannelsForAccount
 import app.pachli.components.notifications.makeNotification
 import app.pachli.core.data.repository.AccountManager
-import app.pachli.core.database.model.AccountEntity
+import app.pachli.core.database.model.PachliAccountEntity
 import app.pachli.core.database.model.defaultTabs
 import app.pachli.core.model.Notification
 import app.pachli.core.model.Timeline
-import app.pachli.core.model.TimelineAccount
 import app.pachli.core.navigation.AccountListActivityIntent
 import app.pachli.core.network.model.AccountSource
 import app.pachli.core.network.model.CredentialAccount
 import app.pachli.core.network.retrofit.MastodonApi
+import app.pachli.core.testing.fakes.fakeAccount
 import app.pachli.core.testing.rules.lazyActivityScenarioRule
 import app.pachli.core.testing.success
 import dagger.hilt.android.testing.CustomTestApplication
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.time.Instant
-import java.util.Date
 import javax.inject.Inject
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -79,7 +78,7 @@ class MainActivityTest {
         launchActivity = false,
     )
 
-    private val accountEntity = AccountEntity(
+    private val pachliAccountEntity = PachliAccountEntity(
         id = 1,
         domain = "test.domain",
         accessToken = "fakeToken",
@@ -144,7 +143,11 @@ class MainActivityTest {
     fun `clicking notification of type FOLLOW shows notification tab`() {
         val intent = showNotification(
             ApplicationProvider.getApplicationContext(),
-            Notification.Type.FOLLOW,
+            Notification.Follow(
+                id = "id",
+                createdAt = Instant.now(),
+                account = fakeAccount().asModel(),
+            ),
         )
         rule.launch(intent)
         rule.scenario.onActivity {
@@ -160,7 +163,11 @@ class MainActivityTest {
         val context: Context = ApplicationProvider.getApplicationContext()!!
         val intent = showNotification(
             ApplicationProvider.getApplicationContext(),
-            Notification.Type.FOLLOW_REQUEST,
+            Notification.FollowRequest(
+                id = "id",
+                createdAt = Instant.now(),
+                account = fakeAccount().asModel(),
+            ),
         )
 
         rule.launch(intent)
@@ -178,36 +185,18 @@ class MainActivityTest {
         }
     }
 
-    private fun showNotification(context: Context, type: Notification.Type): Intent {
+    private fun showNotification(context: Context, notification: Notification): Intent {
         val notificationManager = context.getSystemService(NotificationManager::class.java)
         val shadowNotificationManager = shadowOf(notificationManager)
 
-        createNotificationChannelsForAccount(accountEntity, context)
+        createNotificationChannelsForAccount(pachliAccountEntity, context)
 
         runInBackground {
             val notification = makeNotification(
                 context,
                 notificationManager,
-                Notification(
-                    type = type,
-                    id = "id",
-                    createdAt = Date(),
-                    account = TimelineAccount(
-                        id = "1",
-                        localUsername = "connyduck",
-                        username = "connyduck@mastodon.example",
-                        displayName = "Conny Duck",
-                        note = "This is their bio",
-                        url = "https://mastodon.example/@ConnyDuck",
-                        avatar = "https://mastodon.example/system/accounts/avatars/000/150/486/original/ab27d7ddd18a10ea.jpg",
-                        createdAt = Instant.now(),
-                        roles = emptyList(),
-                        pronouns = null,
-                    ),
-                    status = null,
-                    report = null,
-                ),
-                accountEntity,
+                notification,
+                pachliAccountEntity,
                 true,
             )
             notificationManager.notify("id", 1, notification)

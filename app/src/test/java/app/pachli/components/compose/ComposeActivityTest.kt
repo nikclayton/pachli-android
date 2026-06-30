@@ -23,11 +23,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.pachli.PachliApplication
 import app.pachli.R
 import app.pachli.core.data.repository.AccountManager
-import app.pachli.core.data.repository.InstanceInfoRepository
 import app.pachli.core.database.AppDatabase
 import app.pachli.core.model.Draft
-import app.pachli.core.model.InstanceInfo.Companion.DEFAULT_CHARACTERS_RESERVED_PER_URL
-import app.pachli.core.model.InstanceInfo.Companion.DEFAULT_CHARACTER_LIMIT
+import app.pachli.core.model.ServerLimits.Companion.DEFAULT_CHARACTERS_RESERVED_PER_URL
+import app.pachli.core.model.ServerLimits.Companion.DEFAULT_CHARACTER_LIMIT
 import app.pachli.core.model.Status
 import app.pachli.core.navigation.ComposeActivityIntent
 import app.pachli.core.navigation.ComposeActivityIntent.ComposeOptions
@@ -113,9 +112,6 @@ class ComposeActivityTest {
     lateinit var accountManager: AccountManager
 
     @Inject
-    lateinit var instanceInfoRepository: InstanceInfoRepository
-
-    @Inject
     lateinit var db: AppDatabase
 
     private var pachliAccountId by Delegates.notNull<Long>()
@@ -180,6 +176,7 @@ class ComposeActivityTest {
             on { listAnnouncements(any()) } doReturn success(emptyList())
             on { getContentFiltersV1() } doReturn success(emptyList())
             on { accountFollowing(any(), anyOrNull(), any()) } doReturn success(emptyList())
+            on { followedTags() } doReturn success(emptyList())
         }
 
         reset(nodeInfoApi)
@@ -319,7 +316,7 @@ class ComposeActivityTest {
     fun whenMaximumTootCharsIsPopulated_customLimitIsUsed() = runTest {
         val customMaximum = 1000
         getInstanceCallback = { getInstanceWithCustomConfiguration(customMaximum, getCustomInstanceConfiguration(maximumStatusCharacters = customMaximum)) }
-        instanceInfoRepository.reload(accountManager.activeAccount)
+        accountManager.refresh(pachliAccountId)
 
         rule.launch()
         dispatcher.scheduler.advanceUntilIdle()
@@ -334,7 +331,7 @@ class ComposeActivityTest {
     fun whenOnlyLegacyMaximumTootCharsIsPopulated_customLimitIsUsed() = runTest {
         val customMaximum = 1000
         getInstanceCallback = { getInstanceWithCustomConfiguration(customMaximum) }
-        instanceInfoRepository.reload(accountManager.activeAccount)
+        accountManager.refresh(pachliAccountId)
 
         rule.launch()
         dispatcher.scheduler.advanceUntilIdle()
@@ -349,7 +346,7 @@ class ComposeActivityTest {
     fun whenOnlyConfigurationMaximumTootCharsIsPopulated_customLimitIsUsed() = runTest {
         val customMaximum = 1000
         getInstanceCallback = { getInstanceWithCustomConfiguration(null, getCustomInstanceConfiguration(maximumStatusCharacters = customMaximum)) }
-        instanceInfoRepository.reload(accountManager.activeAccount)
+        accountManager.refresh(pachliAccountId)
 
         rule.launch()
         dispatcher.scheduler.advanceUntilIdle()
@@ -364,7 +361,7 @@ class ComposeActivityTest {
     fun whenDifferentCharLimitsArePopulated_statusConfigurationLimitIsUsed() = runTest {
         val customMaximum = 1000
         getInstanceCallback = { getInstanceWithCustomConfiguration(customMaximum, getCustomInstanceConfiguration(maximumStatusCharacters = customMaximum * 2)) }
-        instanceInfoRepository.reload(accountManager.activeAccount)
+        accountManager.refresh(pachliAccountId)
 
         rule.launch()
         dispatcher.scheduler.advanceUntilIdle()
@@ -498,7 +495,7 @@ class ComposeActivityTest {
         val additionalContent = "Check out this @image #search result: "
         val customUrlLength = 16
         getInstanceCallback = { getInstanceWithCustomConfiguration(configuration = getCustomInstanceConfiguration(charactersReservedPerUrl = customUrlLength)) }
-        instanceInfoRepository.reload(accountManager.activeAccount)
+        accountManager.refresh(pachliAccountId)
 
         rule.launch()
         dispatcher.scheduler.advanceUntilIdle()
@@ -520,7 +517,7 @@ class ComposeActivityTest {
         val additionalContent = " Check out this @image #search result: "
         val customUrlLength = 18 // The intention is that this is longer than shortUrl.length
         getInstanceCallback = { getInstanceWithCustomConfiguration(configuration = getCustomInstanceConfiguration(charactersReservedPerUrl = customUrlLength)) }
-        instanceInfoRepository.reload(accountManager.activeAccount)
+        accountManager.refresh(pachliAccountId)
 
         rule.launch()
         dispatcher.scheduler.advanceUntilIdle()
@@ -541,7 +538,7 @@ class ComposeActivityTest {
         val additionalContent = " Check out this @image #search result: "
         val customUrlLength = 16
         getInstanceCallback = { getInstanceWithCustomConfiguration(configuration = getCustomInstanceConfiguration(charactersReservedPerUrl = customUrlLength)) }
-        instanceInfoRepository.reload(accountManager.activeAccount)
+        accountManager.refresh(pachliAccountId)
 
         rule.launch()
         dispatcher.scheduler.advanceUntilIdle()

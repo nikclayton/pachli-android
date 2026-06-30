@@ -66,7 +66,7 @@ object FakeDatabaseModule {
     fun provideAccountDao(appDatabase: AppDatabase) = appDatabase.accountDao()
 
     @Provides
-    fun provideInstanceDao(appDatabase: AppDatabase) = appDatabase.instanceDao()
+    fun provideServerDao(appDatabase: AppDatabase) = appDatabase.serverDao()
 
     @Provides
     fun provideConversationsDao(appDatabase: AppDatabase) = appDatabase.conversationDao()
@@ -103,6 +103,9 @@ object FakeDatabaseModule {
 
     @Provides
     fun providesStatusDao(appDatabase: AppDatabase) = appDatabase.statusDao()
+
+    @Provides
+    fun providesHashtagsDao(appDatabase: AppDatabase) = appDatabase.hashtagsDao()
 
     @Provides
     fun providesDebugDao(appDatabase: AppDatabase) = appDatabase.debugDao()

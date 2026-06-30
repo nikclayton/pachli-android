@@ -198,4 +198,20 @@
     <string name="duration_365_days">365 dni</string>
     <string name="action_add_to_tab">Dodaj do kart</string>
     <string name="action_add_to_tab_success">Dodano \'%1$s\' do kart</string>
+    <string name="pref_summary_none">Brak</string>
+    <string name="follower_count_fmt">&lt;b>%1$s&lt;/b> obserwujących</string>
+    <string name="follows_count_fmt">&lt;b>%1$s&lt;/b> obserwowanych</string>
+    <string name="statuses_count_fmt">&lt;b>%1$s&lt;/b> wpisów</string>
+    <string name="statuses_count_per_week_fmt">&lt;b>%1$s&lt;/b> wpisów (&lt;b>%2$d&lt;/b> na tydzień)</string>
+    <string name="statuses_count_per_week_last_fmt">&lt;b>%1$s&lt;/b> wpisów (&lt;b>%2$d&lt;/b> na tydzień, ostatni &lt;b>%3$s&lt;/b>)</string>
+    <string name="action_follow_account">Obserwuj</string>
+    <string name="action_unfollow">Przestań obserwować</string>
+    <string name="action_unblock">Odblokuj</string>
+    <string name="state_follow_requested">Wysłano prośbę o obserwację</string>
+    <string name="action_block">Zablokuj</string>
+    <string name="action_mute_domain">Wycisz %1$s</string>
+    <string name="action_unmute_domain">Cofnij wyciszenie %1$s</string>
+    <string name="action_mute">Wycisz</string>
+    <string name="action_unmute">Cofnij wyciszenie</string>
+    <string name="action_follow">Obserwuj</string>
 </resources>

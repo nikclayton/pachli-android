@@ -25,8 +25,8 @@ import androidx.room.TypeConverters
 import androidx.room.Update
 import androidx.room.Upsert
 import app.pachli.core.database.Converters
-import app.pachli.core.database.model.AccountEntity
-import app.pachli.core.database.model.PachliAccount
+import app.pachli.core.database.model.PachliAccountEntity
+import app.pachli.core.database.model.PachliAccountWithRelations
 import app.pachli.core.model.AccountSource
 import app.pachli.core.model.FilterAction
 import app.pachli.core.model.Status
@@ -40,46 +40,56 @@ interface AccountDao {
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
 WHERE id = :accountId
 """,
     )
-    suspend fun getPachliAccount(accountId: Long): PachliAccount?
+    suspend fun getPachliAccount(accountId: Long): PachliAccountWithRelations?
 
     @Transaction
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
 WHERE id = :accountId
 """,
     )
-    fun getPachliAccountFlow(accountId: Long): Flow<PachliAccount?>
+    fun getPachliAccountFlow(accountId: Long): Flow<PachliAccountWithRelations?>
 
     @Transaction
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
 WHERE isActive = 1
 """,
     )
-    fun getActivePachliAccountFlow(): Flow<PachliAccount?>
+    fun getActivePachliAccountFlow(): Flow<PachliAccountWithRelations?>
 
     @Transaction
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
+WHERE isActive = 1
 """,
     )
-    fun loadAllPachliAccountFlow(): Flow<List<PachliAccount>>
+    fun getActivePachliAccount(): PachliAccountWithRelations?
+
+    @Transaction
+    @Query(
+        """
+SELECT *
+FROM PachliAccountEntity
+""",
+    )
+    fun loadAllPachliAccountFlow(): Flow<List<PachliAccountWithRelations>>
 
     @Update
-    suspend fun update(account: AccountEntity)
+    suspend fun update(account: PachliAccountEntity)
 
     @Upsert
-    suspend fun upsert(account: AccountEntity): Long
+    suspend fun upsert(account: PachliAccountEntity): Long
 
     /**
      * Deletes [account].
@@ -88,30 +98,39 @@ FROM AccountEntity
      * is also deleted.
      */
     @Delete
-    suspend fun delete(account: AccountEntity)
+    suspend fun delete(account: PachliAccountEntity)
+
+    @Query(
+        """
+DELETE
+FROM PachliAccountEntity
+WHERE id = :pachliAccountId
+""",
+    )
+    suspend fun deleteAccountById(pachliAccountId: Long)
 
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
 ORDER BY id ASC
 """,
     )
-    fun loadAllFlow(): Flow<List<AccountEntity>>
+    fun loadAllFlow(): Flow<List<PachliAccountEntity>>
 
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
 ORDER BY id ASC
 """,
     )
-    suspend fun loadAll(): List<AccountEntity>
+    suspend fun loadAll(): List<PachliAccountEntity>
 
     @Query(
         """
 SELECT id
-FROM AccountEntity
+FROM PachliAccountEntity
 WHERE isActive = 1
 """,
     )
@@ -120,33 +139,33 @@ WHERE isActive = 1
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
 ORDER BY isActive DESC, id ASC
 """,
     )
-    fun getAccountsOrderedByActive(): Flow<List<AccountEntity>>
+    fun getAccountsOrderedByActive(): Flow<List<PachliAccountEntity>>
 
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
 WHERE isActive = 1
 """,
     )
-    fun getActiveAccountFlow(): Flow<AccountEntity?>
+    fun getActiveAccountFlow(): Flow<PachliAccountEntity?>
 
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
 WHERE isActive = 1
 """,
     )
-    suspend fun getActiveAccount(): AccountEntity?
+    suspend fun getActivePachliAccountEntity(): PachliAccountEntity?
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     isActive = 0
 """,
@@ -156,25 +175,25 @@ SET
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
 WHERE id = :id
 """,
     )
-    suspend fun getAccountById(id: Long): AccountEntity?
+    suspend fun getPachliAccountEntityById(id: Long): PachliAccountEntity?
 
     @Query(
         """
 SELECT *
-FROM AccountEntity
+FROM PachliAccountEntity
 WHERE domain = :domain AND accountId = :accountId
 """,
     )
-    suspend fun getAccountByIdAndDomain(accountId: String, domain: String): AccountEntity?
+    suspend fun getAccountByIdAndDomain(accountId: String, domain: String): PachliAccountEntity?
 
     @Query(
         """
 SELECT COUNT(id)
-FROM AccountEntity
+FROM PachliAccountEntity
 WHERE notificationsEnabled = 1
 """,
     )
@@ -182,7 +201,7 @@ WHERE notificationsEnabled = 1
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     unifiedPushUrl = :unifiedPushUrl,
     pushServerKey = :pushServerKey,
@@ -203,7 +222,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     alwaysShowSensitiveMedia = :value
 WHERE id = :accountId
@@ -213,7 +232,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     alwaysOpenSpoiler = :value
 WHERE id = :accountId
@@ -223,7 +242,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     mediaPreviewEnabled = :value
 WHERE id = :accountId
@@ -233,7 +252,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     tabPreferences = :value
 WHERE id = :accountId
@@ -243,7 +262,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationMarkerId = :value
 WHERE id = :accountId
@@ -253,7 +272,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsFilter = :value
 WHERE id = :accountId
@@ -263,7 +282,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     defaultPostPrivacy = :value
 WHERE id = :accountId
@@ -273,7 +292,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     defaultMediaSensitivity = :value
 WHERE id = :accountId
@@ -283,7 +302,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     defaultPostLanguage = :value
 WHERE id = :accountId
@@ -293,7 +312,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     defaultQuotePolicy = :value
 WHERE id = :accountId
@@ -303,7 +322,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsEnabled = :value
 WHERE id = :accountId
@@ -313,7 +332,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsMentioned = :value
 WHERE id = :accountId
@@ -323,7 +342,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsFollowed = :value
 WHERE id = :accountId
@@ -333,7 +352,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsFollowRequested = :value
 WHERE id = :accountId
@@ -343,7 +362,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsReblogged = :value
 WHERE id = :accountId
@@ -353,7 +372,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsQuotes = :value
 WHERE id = :accountId
@@ -363,7 +382,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsQuotedUpdates = :value
 WHERE id = :accountId
@@ -373,7 +392,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsFavorited = :value
 WHERE id = :accountId
@@ -383,7 +402,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsPolls = :value
 WHERE id = :accountId
@@ -393,7 +412,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsSubscriptions = :value
 WHERE id = :accountId
@@ -403,7 +422,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsSignUps = :value
 WHERE id = :accountId
@@ -413,7 +432,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsUpdates = :value
 WHERE id = :accountId
@@ -423,7 +442,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsReports = :value
 WHERE id = :accountId
@@ -433,7 +452,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsSeveredRelationships = :value
 WHERE id = :accountId
@@ -443,7 +462,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationsModerationWarnings = :value
 WHERE id = :accountId
@@ -453,7 +472,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationSound = :value
 WHERE id = :accountId
@@ -463,7 +482,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationVibration = :value
 WHERE id = :accountId
@@ -473,7 +492,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationLight = :value
 WHERE id = :accountId
@@ -483,7 +502,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationAccountFilterNotFollowed = :value
 WHERE id = :accountId
@@ -493,7 +512,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationAccountFilterYounger30d = :value
 WHERE id = :accountId
@@ -503,7 +522,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     notificationAccountFilterLimitedByServer = :value
 WHERE id = :accountId
@@ -513,7 +532,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     conversationAccountFilterNotFollowed = :value
 WHERE id = :accountId
@@ -523,7 +542,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     conversationAccountFilterYounger30d = :value
 WHERE id = :accountId
@@ -533,7 +552,7 @@ WHERE id = :accountId
 
     @Query(
         """
-UPDATE AccountEntity
+UPDATE PachliAccountEntity
 SET
     conversationAccountFilterLimitedByServer = :value
 WHERE id = :accountId

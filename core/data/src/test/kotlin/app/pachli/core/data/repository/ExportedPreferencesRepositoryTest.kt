@@ -82,9 +82,6 @@ class ExportedPreferencesRepositoryTest {
     lateinit var nodeInfoApi: NodeInfoApi
 
     @Inject
-    lateinit var instanceInfoRepository: InstanceInfoRepository
-
-    @Inject
     lateinit var accountManager: AccountManager
 
     private lateinit var exportedPreferencesRepository: ExportedPreferencesRepository
@@ -133,6 +130,7 @@ class ExportedPreferencesRepositoryTest {
             on { getContentFilters() } doReturn success(emptyList())
             on { getContentFiltersV1() } doReturn success(emptyList())
             on { accountFollowing(any(), anyOrNull(), any()) } doReturn success(emptyList())
+            on { followedTags() } doReturn success(emptyList())
         }
 
         reset(nodeInfoApi)

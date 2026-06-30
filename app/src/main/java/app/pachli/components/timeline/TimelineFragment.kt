@@ -256,8 +256,9 @@ class TimelineFragment :
                             // Logging shows that some initial updated pages may be empty or may not
                             // contain the ID we expect (no idea how that can happen). Filter those
                             // out.
+                            .filter { (_, snapshot) -> snapshot.isNotEmpty() }
                             .onEach { (statusId, _) -> Timber.d("timeline: $timeline, Checking contains $statusId") }
-                            .map { (statusId, snapshot) -> Triple(statusId, snapshot, snapshot.indexOfFirst { it?.statusId == statusId }) }
+                            .map { (statusId, snapshot) -> Triple(statusId, snapshot, if (statusId == null) 0 else snapshot.indexOfFirst { it?.statusId == statusId }) }
                             .filter { (_, _, index) -> index != -1 }
                             // Only going to restore the position manually once over the lifetime of this
                             // fragment. Other position restoration is handled by the RecyclerView.
@@ -748,7 +749,7 @@ class TimelineFragment :
             is Timeline.Link,
             is Timeline.Quote,
             // No need to manually refresh if drafts are updated (e.g., deleted after
-            // a succesful send) as the flow from the database will update.
+            // a successful send) as the flow from the database will update.
             is Timeline.Drafts,
             is Timeline.Scheduled,
             -> return

@@ -129,4 +129,19 @@
     <string name="duration_365_days">365 dager</string>
     <string name="action_add_to_tab">Legg til til fane</string>
     <string name="action_add_to_tab_success">La til «%1$s» til fanene</string>
+    <string name="follower_count_fmt">&lt;b>%1$s&lt;/b> følgere</string>
+    <string name="follows_count_fmt">Følger &lt;b>%1$s&lt;/b></string>
+    <string name="statuses_count_fmt">&lt;b>%1$s&lt;/b> innlegg</string>
+    <string name="statuses_count_per_week_fmt">&lt;b>%1$s&lt;/b> innlegg (&lt;b>%2$d&lt;/b> om uken)</string>
+    <string name="statuses_count_per_week_last_fmt">&lt;b>%1$s&lt;/b> innlegg (&lt;b>%2$d&lt;/b> om uken, siste uke &lt;b>%3$s&lt;/b>)</string>
+    <string name="action_follow_account">Følg</string>
+    <string name="action_unfollow">Slutt å følge</string>
+    <string name="action_unblock">Fjern blokkering</string>
+    <string name="state_follow_requested">Forespørsel sendt</string>
+    <string name="action_block">Blokkér</string>
+    <string name="action_mute_domain">Demp %1$s</string>
+    <string name="action_unmute_domain">Fjern demping av %1$s</string>
+    <string name="action_mute">Demp</string>
+    <string name="action_unmute">Fjern demping</string>
+    <string name="action_follow">Følg</string>
 </resources>

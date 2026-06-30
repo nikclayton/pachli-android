@@ -34,8 +34,8 @@ import app.pachli.core.common.PachliThrowable
 import app.pachli.core.data.repository.AccountManager
 import app.pachli.core.data.repository.OfflineFirstStatusRepository
 import app.pachli.core.database.dao.RemoteKeyDao
-import app.pachli.core.database.model.AccountEntity
 import app.pachli.core.database.model.TimelineStatusWithQuote
+import app.pachli.core.model.PachliAccount
 import app.pachli.core.model.Timeline
 import app.pachli.core.network.di.test.DEFAULT_INSTANCE_V2
 import app.pachli.core.network.model.AccountSource
@@ -114,7 +114,7 @@ class NetworkTimelineRemoteMediatorTest {
         source = AccountSource(),
     )
 
-    private lateinit var activeAccount: AccountEntity
+    private lateinit var activeAccount: PachliAccount
 
     private lateinit var pagingSourceFactory: InvalidatingPagingSourceFactory<String, TimelineStatusWithQuote>
 
@@ -134,6 +134,7 @@ class NetworkTimelineRemoteMediatorTest {
             on { listAnnouncements(any()) } doReturn success(emptyList())
             on { getContentFiltersV1() } doReturn success(emptyList())
             on { accountFollowing(any(), anyOrNull(), any()) } doReturn success(emptyList())
+            on { followedTags() } doReturn success(emptyList())
         }
 
         reset(nodeInfoApi)

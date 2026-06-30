@@ -50,7 +50,7 @@ const val PACHLI_ACCOUNT_ID_ACTIVE = -1L
 
 /**
  * The Pachli Account ID passed to this intent. This is the
- * [id][app.pachli.core.database.model.AccountEntity.id] of the account that is
+ * [id][app.pachli.core.database.model.PachliAccountEntity.id] of the account that is
  * "active" for the purposes of this activity.
  *
  * [PACHLI_ACCOUNT_ID_ACTIVE] is a marker only used by [IntentRouterActivityIntent]
@@ -194,17 +194,17 @@ class IntentRouterActivityIntent(context: Context, pachliAccountId: Long) : Inte
                  * notification.
                  * @param notificationTag Notification's tag (Mastodon notification ID). May be null
                  * if this is from a summary notification.
-                 * @param type
+                 * @param notificationType Notification's type
                  */
                 fun fromNotification(
                     notificationId: Int,
                     notificationTag: String?,
-                    type: Notification.Type,
+                    notificationType: Notification.Type,
                 ) = MainActivity(
                     MainActivityIntent.Payload.Notification(
                         notificationId,
                         notificationTag,
-                        type,
+                        notificationType,
                     ),
                 )
             }
@@ -291,21 +291,21 @@ class IntentRouterActivityIntent(context: Context, pachliAccountId: Long) : Inte
          * notification.
          * @param notificationTag Notification's tag (Mastodon notification ID). May be null
          * if this is from a summary notification.
-         * @param type
+         * @param notificationType
          */
         fun fromNotification(
             context: Context,
             pachliAccountId: Long,
             notificationId: Int,
             notificationTag: String?,
-            type: Notification.Type,
+            notificationType: Notification.Type,
         ) = IntentRouterActivityIntent(context, pachliAccountId).apply {
             putExtra(
                 EXTRA_PAYLOAD,
                 Payload.MainActivity.fromNotification(
                     notificationId,
                     notificationTag,
-                    type,
+                    notificationType,
                 ),
             )
         }
@@ -638,7 +638,7 @@ class MainActivityIntent(
         data class Notification(
             val notificationId: Int,
             val notificationTag: String?,
-            val notificationType: app.pachli.core.model.Notification.Type,
+            val notificationType: Notification.Type,
         ) : Payload
 
         /** Start as normal, no special processing. */
@@ -965,9 +965,10 @@ class ViewThreadActivityIntent(context: Context, accountId: Long, statusId: Stri
     }
 }
 
-class AboutActivityIntent(context: Context) : Intent() {
+class AboutActivityIntent(context: Context, pachliAccountId: Long) : Intent() {
     init {
         setClassName(context, QuadrantConstants.ABOUT_ACTIVITY)
+        this.pachliAccountId = pachliAccountId
     }
 }
 
