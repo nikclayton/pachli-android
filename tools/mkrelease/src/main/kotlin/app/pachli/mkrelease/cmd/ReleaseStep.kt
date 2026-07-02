@@ -735,8 +735,8 @@ data object WaitForPullRequestMerged : ReleaseStep() {
                     lines++
                 }
             }
-            repeat(300) {
-                t.info("Waiting until next check in: $it / 300 seconds")
+            repeat(60) {
+                t.info("Waiting until next check in: $it / 60 seconds")
                 delay(1.seconds)
                 t.cursor.move {
                     up(1)

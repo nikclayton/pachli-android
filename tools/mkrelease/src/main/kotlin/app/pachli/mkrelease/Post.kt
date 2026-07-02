@@ -74,6 +74,7 @@ val translatorDisplay = mapOf(
     "coool@mail.lv" to "@Coool@toot.lv",
     "tamilneram247@gmail.com" to "", // ""
     "noreply-addon-languages@weblate.org" to "",
+    "noreply-addon-autotranslate@weblate.org" to "",
     "feixiang512@outlook.com" to "",
     "vv@muibox.de" to "",
     "arifpedia@gmail.com" to "",
