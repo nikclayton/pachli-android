@@ -35,8 +35,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
     // JGit with BouncyCastle (GPG) support
-    implementation("org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r")
-    implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:7.6.0.202603022253-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:7.7.1.202607240634-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:7.7.1.202607240634-r")
 
     // LocalDate
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")

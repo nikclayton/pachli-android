@@ -29,7 +29,6 @@ import app.pachli.mkrelease.Section
 import app.pachli.mkrelease.Section.Features
 import app.pachli.mkrelease.Section.Fixes
 import app.pachli.mkrelease.Section.Translations
-import app.pachli.mkrelease.addFilePatterns
 import app.pachli.mkrelease.confirm
 import app.pachli.mkrelease.createFastlanes
 import app.pachli.mkrelease.ensureClean
@@ -611,7 +610,7 @@ ${changelogEntries[Translations]?.joinToString("\n") { "- ${it.withLinks()}" }}
                 .setUpdate(false)
                 .addFilepattern("CHANGELOG.md")
                 .addFilepattern("app/build.gradle.kts")
-                .addFilePatterns(fastlanePaths)
+                .addFilepatterns(fastlanePaths)
                 .info(t)
                 .call()
             git.diff()

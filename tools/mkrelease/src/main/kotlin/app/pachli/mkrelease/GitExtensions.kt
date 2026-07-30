@@ -260,8 +260,3 @@ fun ListTagCommand.info(t: Terminal): ListTagCommand {
     t.info("- git tag")
     return this
 }
-
-fun AddCommand.addFilePatterns(patterns: Collection<String>): AddCommand {
-    patterns.forEach { addFilepattern(it) }
-    return this
-}
