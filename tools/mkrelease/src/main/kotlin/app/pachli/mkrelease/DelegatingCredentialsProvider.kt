@@ -65,10 +65,7 @@ class DelegatingCredentialsProvider(private val projectDir: Path) :
                 item.value = credentialsPair.username
             } else if (item is CredentialItem.Password) {
                 item.value = credentialsPair.password
-            } else if (item is CredentialItem.StringType &&
-                item.getPromptText()
-                    .equals("Password: ")
-            ) {
+            } else if (item is CredentialItem.StringType && item.promptText.equals("Password: ")) {
                 item.value = String(credentialsPair.password)
             } else {
                 throw UnsupportedCredentialItem(
