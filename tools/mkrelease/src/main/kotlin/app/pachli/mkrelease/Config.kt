@@ -19,21 +19,21 @@
 
 package app.pachli.mkrelease
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
-import org.kohsuke.github.GHRepository
 import java.io.File
 import java.net.URL
 import java.nio.file.Path
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import org.eclipse.jgit.transport.URIish
+import org.kohsuke.github.GHRepository
 
 /** Configuration information needed to start a release */
 @Serializable
@@ -93,13 +93,13 @@ object PathAsStringSerializer : KSerializer<Path> {
 @Serializable
 data class GitHubRepository(
     val owner: String,
-    val repo: String
+    val repo: String,
 ) {
     val githubUrl: URL
         get() = URL("https://www.github.com/$owner/$repo")
 
-    val gitUrl: URL
-        get() = URL("https://www.github.com/$owner/$repo.git")
+    val gitUrl: URIish
+        get() = URIish("https://www.github.com/$owner/$repo.git")
 
     companion object {
         fun from(url: URL): GitHubRepository {
@@ -111,7 +111,7 @@ data class GitHubRepository(
 
         fun from(apiRepo: GHRepository) = GitHubRepository(
             owner = apiRepo.ownerName,
-            repo = apiRepo.name
+            repo = apiRepo.name,
         )
     }
 }
@@ -131,12 +131,12 @@ data class GitHubPullRequest(val url: URL) {
 @Serializable
 data class GitlabRepository(
     val owner: String,
-    val repo: String
+    val repo: String,
 ) {
     val gitlabUrl = URL("https://www.gitlab.com/$owner/$repo")
 
-    val gitUrl: URL
-        get() = URL("https://gitlab.com/$owner/$repo.git")
+    val gitUrl: URIish
+        get() = URIish("https://gitlab.com/$owner/$repo.git")
 
     companion object {
         fun from(url: URL): GitlabRepository {

@@ -287,7 +287,7 @@ data object PreparePachliForkRepository : ReleaseStep() {
         // git remote add upstream https://...
         git.remoteAdd()
             .setName("upstream")
-            .setUri(URIish(config.repositoryMain.gitUrl))
+            .setUri(config.repositoryMain.gitUrl)
             .info(t)
             .call()
 

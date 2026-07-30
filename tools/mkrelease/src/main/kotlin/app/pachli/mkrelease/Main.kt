@@ -32,11 +32,11 @@ import com.github.ajalt.mordant.terminal.Terminal
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
-import java.net.URL
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ConfigConstants.CONFIG_REMOTE_SECTION
 import org.eclipse.jgit.lib.TextProgressMonitor
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import org.eclipse.jgit.transport.URIish
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
 
@@ -74,7 +74,7 @@ object MissingRefs : Exception()
 /**
  * Ensures that [root] contains a clone of [repoUrl]
  */
-fun ensureRepo(t: Terminal, repoUrl: URL, root: File): Git {
+fun ensureRepo(t: Terminal, repoUrl: URIish, root: File): Git {
     t.info("- Checking $root is a clone of $repoUrl")
 
     if (!root.exists()) {
