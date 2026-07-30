@@ -1,0 +1,13 @@
+{
+    "trackingIssue": {
+        "url": "https://x"
+    },
+    "releaseType": "MINOR",
+    "prevVersion": {
+        "type": "app.pachli.mkrelease.PachliVersion.Release",
+        "major": 3,
+        "minor": 8,
+        "patch": 0,
+        "versionCode": 53
+    }
+}
