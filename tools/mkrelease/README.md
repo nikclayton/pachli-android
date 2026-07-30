@@ -67,7 +67,9 @@ Normally you only need to run this once -- not once per release, but once in tot
 ./runtools mkrelease --verbose init \
   --work-root ~/projects/pachli-release-workroot \
   --app-repo-fork https://github.com/nikclayton/pachli-android \
-  --fdroid-repo-fork https://gitlab.com/nikclayton/fdroiddata
+  --fdroid-repo-fork https://gitlab.com/nikclayton/fdroiddata \
+  --website-root ~/projects/pachli-website/website \
+  --inkscape /usr/bin/inkscape
 ```
 
 `--work-root`: Directory where `mkrelease` will store all the files it needs to operate. This will include clones of the Pachli and Fedilab repositories.
@@ -75,6 +77,10 @@ Normally you only need to run this once -- not once per release, but once in tot
 `--app-repo-fork`: URL of the Pachli fork you have already created.
 
 `--fdroid-repo-fork`: URL of the F-Droid `fdroiddata` fork you have already created.
+
+`--website-root`: Path to the checked out copy of the website (for the `blog` step).
+
+`--inkscape`: Path to the Inkscape executable (for converting SVG to PNG)
 
 Key operations this performs include:
 
