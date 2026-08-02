@@ -78,6 +78,7 @@ val translatorDisplay = mapOf(
     "feixiang512@outlook.com" to "",
     "vv@muibox.de" to "",
     "arifpedia@gmail.com" to "",
+    "kraks@users.noreply.hosted.weblate.org" to "@kraks@oslo.town",
 )
 
 /**
